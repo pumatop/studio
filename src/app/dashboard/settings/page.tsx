@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { PlusCircle, Trash2 } from "lucide-react";
 import type { FeeTier } from "@/lib/types";
 import { AppSettingsCard } from "./app-settings-card";
+import { MainSettingsCard } from "./main-settings-card";
 
 // Initial Data
 const initialInternalFees: FeeTier[] = [
@@ -141,6 +142,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
+      <MainSettingsCard />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <Card>
           <CardHeader>
