@@ -59,7 +59,7 @@ const navItems = [
   {
     href: "/dashboard/supervisors",
     icon: UserCog,
-    label: "المشرفين",
+    label: "المشرفين والمندوبين",
     match: /^\/dashboard\/supervisors/,
   },
   {
@@ -82,7 +82,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/users": "المستخدمين",
   "/dashboard/libyan-transactions": "المعاملات الليبية",
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
-  "/dashboard/supervisors": "المشرفين",
+  "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/settings": "الإعدادات",
 };

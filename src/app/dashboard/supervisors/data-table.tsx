@@ -12,12 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -26,10 +20,24 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+
+const connectionStatusColors: Record<Supervisor["connectionStatus"], string> = {
+  "متصل": "bg-green-100 text-green-800",
+  "غير متصل": "bg-stone-100 text-stone-800",
+};
+
+const statusColors: Record<Supervisor["status"], string> = {
+  "نشط": "bg-green-100 text-green-800",
+  "غير نشط": "bg-red-100 text-red-800",
+};
+
 
 function SupervisorForm({
   supervisor,
@@ -40,9 +48,12 @@ function SupervisorForm({
 }) {
   const [formData, setFormData] = useState<Partial<Supervisor>>(
     supervisor || {
-      lastLogin: new Date().toISOString(),
-      role: 'مندوب',
+      name: "",
+      phone: "",
+      canEditExchangeRate: false,
+      specialization: 'الكل',
       status: 'نشط',
+      password: ""
     }
   );
 
@@ -53,46 +64,68 @@ function SupervisorForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleSwitchChange = (checked: boolean) => {
+    setFormData((prev) => ({ ...prev, canEditExchangeRate: checked }));
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData as Supervisor);
+    // In a real app, you wouldn't do this. Mocking derived data.
+    const mockExtraData = {
+        lastSeen: new Date().toISOString(),
+        connectionStatus: 'متصل',
+        dailyOperationCount: supervisor?.dailyOperationCount || 0,
+        monthlyOperationCount: supervisor?.monthlyOperationCount || 0,
+        dailyTransferValue: supervisor?.dailyTransferValue || 0,
+        monthlyTransferValue: supervisor?.monthlyTransferValue || 0,
+    }
+    onSave({...mockExtraData, ...formData} as Supervisor);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">الاسم</label>
-        <Input
-          name="name"
-          value={formData.name || ""}
-          onChange={handleChange}
-          required
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <Label htmlFor="name">الاسم</Label>
+            <Input id="name" name="name" value={formData.name || ""} onChange={handleChange} required />
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="phone">رقم الهاتف</Label>
+            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} required />
+        </div>
       </div>
-      <div>
-        <label className="text-sm font-medium">البريد الإلكتروني</label>
-        <Input
-          name="email"
-          type="email"
-          value={formData.email || ""}
-          onChange={handleChange}
-          required
-        />
+       <div className="space-y-2">
+            <Label htmlFor="password">كلمة المرور</Label>
+            <div className="relative">
+                <Input id="password" name="password" type="password" value={formData.password || ""} onChange={handleChange} required placeholder="••••••••" />
+                <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
       </div>
-       <div>
-        <label className="text-sm font-medium">الدور</label>
-        <select name="role" value={formData.role} onChange={handleChange} className="w-full p-2 border rounded-md">
-            <option>مشرف</option>
-            <option>مندوب</option>
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <Label htmlFor="specialization">التخصص</Label>
+            <select id="specialization" name="specialization" value={formData.specialization} onChange={handleChange} className="w-full p-2 border rounded-md bg-background h-10 text-sm">
+                <option value="الكل">الكل</option>
+                <option value="محفظة كاش">محفظة كاش</option>
+                <option value="انستاباي">انستاباي</option>
+                <option value="وصلني البيت">وصلني البيت</option>
+            </select>
+        </div>
+        <div className="space-y-2">
+            <Label htmlFor="status">حالة الحساب</Label>
+            <select id="status" name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border rounded-md bg-background h-10 text-sm">
+                <option value="نشط">نشط</option>
+                <option value="غير نشط">غير نشط</option>
+            </select>
+        </div>
       </div>
-      <div>
-        <label className="text-sm font-medium">الحالة</label>
-        <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border rounded-md">
-            <option>نشط</option>
-            <option>غير نشط</option>
-        </select>
+      <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="space-y-0.5">
+              <Label htmlFor="canEditExchangeRate">السماح بتعديل سعر الصرف</Label>
+          </div>
+          <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} />
       </div>
+
       <DialogFooter>
         <DialogClose asChild>
             <Button type="button" variant="secondary">إلغاء</Button>
@@ -114,36 +147,35 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
     return data.filter(
       (item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase())
+        item.phone.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [data, searchTerm]);
   
   const handleSave = (supervisor: Supervisor) => {
-    const finalSupervisor = { ...supervisor, lastLogin: new Date().toISOString() };
     if(editingSupervisor) {
         // Edit
-        setData(data.map(d => d.id === editingSupervisor.id ? {...d, ...finalSupervisor} : d));
-        toast({ title: "تم التحديث بنجاح" });
+        setData(data.map(d => d.id === editingSupervisor.id ? {...d, ...supervisor} : d));
+        toast({ title: "تم تحديث البيانات بنجاح" });
     } else {
         // Add
-        const newSupervisor = {...finalSupervisor, id: `sup_${Date.now()}`};
+        const newSupervisor = {...supervisor, id: `sup_${Date.now()}`};
         setData([newSupervisor, ...data]);
-        toast({ title: "تمت الإضافة بنجاح" });
+        toast({ title: "تمت إضافة مستخدم بنجاح" });
     }
     setDialogOpen(false);
     setEditingSupervisor(undefined);
   };
   
-  const handleDelete = (id: string) => {
-      setData(data.filter(d => d.id !== id));
-      toast({ title: "تم الحذف بنجاح", variant: 'destructive' });
+  const handleKick = (id: string) => {
+      setData(data.map(d => d.id === id ? {...d, status: 'غير نشط'} : d));
+      toast({ title: "تم طرد المستخدم", variant: 'destructive' });
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Input
-          placeholder="ابحث بالاسم أو البريد..."
+          placeholder="ابحث بالاسم أو رقم الهاتف..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
@@ -152,12 +184,12 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
             <DialogTrigger asChild>
                 <Button onClick={() => setEditingSupervisor(undefined)}>
                     <PlusCircle className="ml-2 h-4 w-4" />
-                    إضافة مشرف
+                    إضافة مستخدم
                 </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>{editingSupervisor ? 'تعديل مشرف' : 'إضافة مشرف جديد'}</DialogTitle>
+                    <DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
                 </DialogHeader>
                 <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} />
             </DialogContent>
@@ -168,40 +200,57 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
           <TableHeader>
             <TableRow>
               <TableHead>الاسم</TableHead>
-              <TableHead>البريد الإلكتروني</TableHead>
-              <TableHead>الدور</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>آخر تسجيل دخول</TableHead>
-              <TableHead>
-                <span className="sr-only">الإجراءات</span>
-              </TableHead>
+              <TableHead>التخصص</TableHead>
+              <TableHead>تعديل السعر</TableHead>
+              <TableHead>حالة الاتصال</TableHead>
+              <TableHead>آخر ظهور</TableHead>
+              <TableHead>العمليات (يوم/شهر)</TableHead>
+              <TableHead>قيمة التحويلات (يوم/شهر)</TableHead>
+              <TableHead>حالة الحساب</TableHead>
+              <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.map((supervisor) => (
-              <TableRow key={supervisor.id}>
-                <TableCell className="font-medium">{supervisor.name}</TableCell>
-                <TableCell>{supervisor.email}</TableCell>
-                <TableCell>{supervisor.role}</TableCell>
+              <TableRow key={supervisor.id} className={cn(supervisor.status === 'غير نشط' && 'bg-red-50/50 opacity-60')}>
                 <TableCell>
-                  <Badge variant={supervisor.status === 'نشط' ? 'default' : 'destructive'} className={`${supervisor.status === 'نشط' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} hover:${supervisor.status === 'نشط' ? 'bg-green-200' : 'bg-red-200'}`}>
+                    <div className="font-medium">{supervisor.name}</div>
+                    <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
+                </TableCell>
+                <TableCell>{supervisor.specialization}</TableCell>
+                 <TableCell className="text-center">
+                    {supervisor.canEditExchangeRate ? <CheckCircle className="text-green-500 mx-auto"/> : <XCircle className="text-red-500 mx-auto"/>}
+                 </TableCell>
+                <TableCell>
+                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[supervisor.connectionStatus], `hover:${connectionStatusColors[supervisor.connectionStatus]}`)}>
+                    <span className={cn('h-2 w-2 rounded-full', supervisor.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
+                    {supervisor.connectionStatus}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
+                <TableCell className="text-xs">
+                    <div>اليوم: {supervisor.dailyOperationCount}</div>
+                    <div>الشهر: {supervisor.monthlyOperationCount}</div>
+                </TableCell>
+                <TableCell className="text-xs">
+                    <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')}</div>
+                    <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')}</div>
+                </TableCell>
+                <TableCell>
+                  <Badge className={cn(statusColors[supervisor.status], `hover:${statusColors[supervisor.status]}`)}>
                       {supervisor.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(supervisor.lastLogin).toLocaleString('en-GB')}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">فتح القائمة</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(supervisor.id)}>حذف</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="space-x-1 text-left rtl:space-x-reverse">
+                    <Button variant="outline" size="sm" onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</Button>
+                    <Button variant="outline" size="sm" disabled>
+                        <FileClock className="ml-1 h-3 w-3"/>
+                        السجل
+                    </Button>
+                     <Button variant="destructive" size="sm" onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'}>
+                        <UserX className="ml-1 h-3 w-3"/>
+                        طرد
+                    </Button>
                 </TableCell>
               </TableRow>
             ))}

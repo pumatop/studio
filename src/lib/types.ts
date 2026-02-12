@@ -56,10 +56,17 @@ export type User = {
 export type Supervisor = {
   id: string;
   name: string;
-  email: string;
-  role: 'مشرف' | 'مندوب';
+  phone: string;
+  canEditExchangeRate: boolean;
+  connectionStatus: 'متصل' | 'غير متصل';
+  lastSeen: string;
+  password?: string;
+  specialization: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت' | 'الكل';
+  dailyTransferValue: number;
+  monthlyTransferValue: number;
+  dailyOperationCount: number;
+  monthlyOperationCount: number;
   status: 'نشط' | 'غير نشط';
-  lastLogin: string;
 };
 
 export type ExchangeRateLog = {
