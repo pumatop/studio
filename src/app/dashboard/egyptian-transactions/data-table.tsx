@@ -129,7 +129,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                     <div className="text-muted-foreground text-xs">{transfer.userPhone}</div>
                 </TableCell>
                 <TableCell>{transfer.transferType}</TableCell>
-                <TableCell>
+                <TableCell className="text-left">
                     <div className="font-semibold">{transfer.sentAmount.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الإجمالي: {transfer.totalDeducted.toLocaleString('en-US')} ج.م</div>

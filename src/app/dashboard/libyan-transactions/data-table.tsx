@@ -116,14 +116,14 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
                 </TableCell>
                 <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("en-GB")}</TableCell>
                 <TableCell className="font-medium">{transaction.senderPhone}</TableCell>
-                <TableCell>{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell>{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
+                <TableCell className="text-left">{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
+                <TableCell className="text-left">{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
                 <TableCell>{transaction.recipientPhone || "-"}</TableCell>
-                <TableCell>{transaction.receivedAmount.toLocaleString("en-US")} {transaction.operationType === 'تحويل للجنيه' ? 'ج.م' : 'د.ل'}</TableCell>
+                <TableCell className="text-left">{transaction.receivedAmount.toLocaleString("en-US")} {transaction.operationType === 'تحويل للجنيه' ? 'ج.م' : 'د.ل'}</TableCell>
                 <TableCell>{transaction.exchangeRate || "-"}</TableCell>
-                <TableCell>{transaction.convertedAmountEGP ? `${transaction.convertedAmountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
+                <TableCell className="text-left">{transaction.convertedAmountEGP ? `${transaction.convertedAmountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
                 <TableCell>{transaction.cardType || "-"}</TableCell>
-                <TableCell>{transaction.cardDenomination ? `${transaction.cardDenomination.toLocaleString("en-US")} د.ل` : "-"}</TableCell>
+                <TableCell className="text-left">{transaction.cardDenomination ? `${transaction.cardDenomination.toLocaleString("en-US")} د.ل` : "-"}</TableCell>
                 <TableCell>{transaction.cardSerial || "-"}</TableCell>
                 <TableCell>{transaction.cardPin || "-"}</TableCell>
               </TableRow>

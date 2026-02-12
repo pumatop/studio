@@ -311,7 +311,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <div>اليوم: {supervisor.dailyOperationCount}</div>
                     <div>الشهر: {supervisor.monthlyOperationCount}</div>
                 </TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs text-left">
                     <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')} ج.م</div>
                     <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')} ج.م</div>
                 </TableCell>

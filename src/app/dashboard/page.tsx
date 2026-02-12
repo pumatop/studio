@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -243,9 +244,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {`${totalLibyanBalance.toLocaleString("en-US", {
+              {totalLibyanBalance.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
-              })} د.ل`}
+              })} <span className="text-base font-medium">د.ل</span>
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالدينار الليبي
@@ -273,13 +274,13 @@ export default function DashboardPage() {
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground text-left w-28">
                     {dailyTradeStats.lydAmount.toLocaleString("en-US")} د.ل
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground text-left w-28">
                     {dailyTradeStats.egpAmount.toLocaleString("en-US")} ج.م
                   </span>
                 </p>
@@ -297,13 +298,13 @@ export default function DashboardPage() {
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground text-left w-28">
                     {monthlyTradeStats.lydAmount.toLocaleString("en-US")} د.ل
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground text-left w-28">
                     {monthlyTradeStats.egpAmount.toLocaleString("en-US")} ج.م
                   </span>
                 </p>
@@ -322,9 +323,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {`${totalEgyptianBalance.toLocaleString("en-US", {
+              {totalEgyptianBalance.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
-              })} ج.م`}
+              })} <span className="text-base font-medium">ج.م</span>
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالجنيه المصري
@@ -363,7 +364,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left w-28">{dailyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
                 <Separator />
@@ -371,7 +372,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left w-28">{monthlyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
             </CardContent>
@@ -388,7 +389,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left w-28">{dailyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
                 <Separator />
@@ -396,13 +397,13 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left w-28">{monthlyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
             </CardContent>
         </Card>
 
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-1">
             {/* New Card 4: Fakka Safe */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -411,10 +412,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {`${fakkaBalance.toLocaleString("en-US", {
+                  {fakkaBalance.toLocaleString("en-US", {
                     minimumFractionDigits: 4,
                     maximumFractionDigits: 4,
-                  })} ج.م`}
+                  })} <span className="text-base font-medium">ج.م</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   مجموع كسور التحويلات من الدينار للجنيه
@@ -431,40 +432,38 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4">
                     <div className="text-center">
                         <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
-                        <p className="text-2xl font-bold">{totalRevenueEGP.toLocaleString("en-US")} ج.م</p>
+                        <p className="text-2xl font-bold">{totalRevenueEGP.toLocaleString("en-US")} <span className="text-base font-medium">ج.م</span></p>
                     </div>
-                    <Tabs defaultValue="day">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="day">اليوم</TabsTrigger>
-                            <TabsTrigger value="month">الشهر</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="day" className="pt-2">
-                            <div className="space-y-2 text-xs">
-                                {Object.entries(dailyRevenueByType).map(([type, stats]) => (
-                                    <div key={type} className="flex justify-between items-center">
-                                        <span>{type}</span>
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                            <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
-                                        </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(dailyRevenueByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-24 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
                                     </div>
-                                ))}
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="month" className="pt-2">
-                            <div className="space-y-2 text-xs">
-                                {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
-                                    <div key={type} className="flex justify-between items-center">
-                                        <span>{type}</span>
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                            <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
-                                        </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-24 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
                                     </div>
-                                ))}
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -483,7 +482,7 @@ export default function DashboardPage() {
                     <div className="text-center">
                     <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
                     <p className="text-2xl font-bold">
-                        {dailyTotalActiveTransfersEGP.toLocaleString("en-US")} ج.م
+                        {dailyTotalActiveTransfersEGP.toLocaleString("en-US")} <span className="text-base font-medium">ج.م</span>
                     </p>
                     </div>
                     <Separator />
@@ -495,7 +494,7 @@ export default function DashboardPage() {
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                        <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
                                     </div>
                                 </div>
                             ))}
@@ -510,7 +509,7 @@ export default function DashboardPage() {
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                        <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
                                     </div>
                                 </div>
                             ))}
@@ -538,7 +537,7 @@ export default function DashboardPage() {
                     <div className="text-center">
                     <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
                     <p className="text-2xl font-bold">
-                        {monthlyTotalActiveTransfersEGP.toLocaleString("en-US")} ج.م
+                        {monthlyTotalActiveTransfersEGP.toLocaleString("en-US")} <span className="text-base font-medium">ج.م</span>
                     </p>
                     </div>
                     <Separator />
@@ -550,7 +549,7 @@ export default function DashboardPage() {
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                        <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
                                     </div>
                                 </div>
                             ))}
@@ -565,7 +564,7 @@ export default function DashboardPage() {
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                        <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
                                     </div>
                                 </div>
                             ))}
