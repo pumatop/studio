@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -31,26 +31,12 @@ export function ExchangeRateChartCard() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
-          <AreaChart
+          <BarChart
             data={mockDailyRates}
-            margin={{ top: 5, right: 10, left: -10, bottom: 0 }}
+            margin={{ top: 30, right: 10, left: -10, bottom: 0 }}
             accessibilityLayer
           >
             <CartesianGrid vertical={false} />
-            <defs>
-              <linearGradient id="fillRate" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-rate)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-rate)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-            </defs>
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -64,7 +50,7 @@ export function ExchangeRateChartCard() {
             <YAxis
               orientation="right"
               type="number"
-              domain={["dataMin - 0.05", "dataMax + 0.05"]}
+              domain={["dataMin - 0.1", "dataMax + 0.1"]}
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -73,17 +59,30 @@ export function ExchangeRateChartCard() {
             />
             <Tooltip
               cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
+              content={<ChartTooltipContent indicator="dot" formatter={(value, name, props) => {
+                const { payload } = props;
+                return (
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG", { year: 'numeric', month: 'long', day: 'numeric'})}</span>
+                    <span className="font-bold">{`${chartConfig.rate.label}: ${value}`}</span>
+                  </div>
+                )
+              }} />}
             />
-            <Area
+            <Bar
                 dataKey="rate"
-                type="natural"
-                fill="url(#fillRate)"
-                fillOpacity={0.4}
-                stroke="var(--color-rate)"
-                strokeWidth={2}
-            />
-          </AreaChart>
+                fill="var(--color-rate)"
+                radius={[4, 4, 0, 0]}
+            >
+                <LabelList 
+                    dataKey="rate" 
+                    position="top" 
+                    formatter={(value: number) => value.toFixed(2)} 
+                    className="fill-foreground"
+                    fontSize={12}
+                />
+            </Bar>
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>
