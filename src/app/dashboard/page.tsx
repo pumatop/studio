@@ -157,15 +157,21 @@ export default function DashboardPage() {
     .reduce((sum, t) => sum + t.sentAmount, 0);
   const dailyTotalActiveTransfersEGP = dailySuccessfulTransfersEGP + dailyPendingTransfersEGP;
 
-  const dailyTransferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+  const createStatsObject = () => EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
     acc[type] = { count: 0, amount: 0 };
     return acc;
   }, {} as Record<EgyptianTransfer['transferType'], {count: number, amount: number}>);
 
+  const dailySuccessfulStatsByType = createStatsObject();
+  const dailyPendingStatsByType = createStatsObject();
+
   dailyEgyptianTransfers.forEach(t => {
-      if (dailyTransferStatsByType[t.transferType]) {
-          dailyTransferStatsByType[t.transferType].count++;
-          dailyTransferStatsByType[t.transferType].amount += t.sentAmount;
+      if (t.status === 'ناجح' && dailySuccessfulStatsByType[t.transferType]) {
+          dailySuccessfulStatsByType[t.transferType].count++;
+          dailySuccessfulStatsByType[t.transferType].amount += t.sentAmount;
+      } else if (t.status === 'قيد التحويل' && dailyPendingStatsByType[t.transferType]) {
+          dailyPendingStatsByType[t.transferType].count++;
+          dailyPendingStatsByType[t.transferType].amount += t.sentAmount;
       }
   });
 
@@ -177,15 +183,16 @@ export default function DashboardPage() {
     .reduce((sum, t) => sum + t.sentAmount, 0);
   const monthlyTotalActiveTransfersEGP = monthlySuccessfulTransfersEGP + monthlyPendingTransfersEGP;
 
-  const monthlyTransferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
-    acc[type] = { count: 0, amount: 0 };
-    return acc;
-  }, {} as Record<EgyptianTransfer['transferType'], {count: number, amount: number}>);
-
+  const monthlySuccessfulStatsByType = createStatsObject();
+  const monthlyPendingStatsByType = createStatsObject();
+  
   monthlyEgyptianTransfers.forEach(t => {
-      if (monthlyTransferStatsByType[t.transferType]) {
-          monthlyTransferStatsByType[t.transferType].count++;
-          monthlyTransferStatsByType[t.transferType].amount += t.sentAmount;
+      if (t.status === 'ناجح' && monthlySuccessfulStatsByType[t.transferType]) {
+          monthlySuccessfulStatsByType[t.transferType].count++;
+          monthlySuccessfulStatsByType[t.transferType].amount += t.sentAmount;
+      } else if (t.status === 'قيد التحويل' && monthlyPendingStatsByType[t.transferType]) {
+          monthlyPendingStatsByType[t.transferType].count++;
+          monthlyPendingStatsByType[t.transferType].amount += t.sentAmount;
       }
   });
   
@@ -432,9 +439,24 @@ export default function DashboardPage() {
                     </div>
                     <Separator />
                     <div>
-                        <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
+                        <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
                         <div className="space-y-2 text-xs">
-                            {Object.entries(dailyTransferStatsByType).map(([type, stats]) => (
+                            {Object.entries(dailySuccessfulStatsByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <Separator />
+                     <div>
+                        <h4 className="text-sm font-semibold mb-2">الحوالات المعلقة</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(dailyPendingStatsByType).map(([type, stats]) => (
                                 <div key={type} className="flex justify-between items-center">
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
@@ -472,9 +494,24 @@ export default function DashboardPage() {
                     </div>
                     <Separator />
                     <div>
-                        <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
+                        <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
                         <div className="space-y-2 text-xs">
-                            {Object.entries(monthlyTransferStatsByType).map(([type, stats]) => (
+                            {Object.entries(monthlySuccessfulStatsByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                     <Separator />
+                     <div>
+                        <h4 className="text-sm font-semibold mb-2">الحوالات المعلقة</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(monthlyPendingStatsByType).map(([type, stats]) => (
                                 <div key={type} className="flex justify-between items-center">
                                     <span>{type}</span>
                                     <div className="flex items-center gap-4">
