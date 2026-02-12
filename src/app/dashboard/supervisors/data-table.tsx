@@ -20,13 +20,16 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound } from "lucide-react";
+import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const connectionStatusColors: Record<Supervisor["connectionStatus"], string> = {
   "متصل": "bg-green-100 text-green-800",
@@ -51,11 +54,13 @@ function SupervisorForm({
       name: "",
       phone: "",
       canEditExchangeRate: false,
-      specialization: 'الكل',
+      specialization: [],
       status: 'نشط',
       password: ""
     }
   );
+
+  const specializations: string[] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -66,6 +71,17 @@ function SupervisorForm({
 
   const handleSwitchChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, canEditExchangeRate: checked }));
+  }
+
+  const handleSpecializationChange = (spec: string, checked: boolean) => {
+    setFormData(prev => {
+        const prevSpecs = prev.specialization || [];
+        if (checked) {
+            return { ...prev, specialization: [...prevSpecs, spec] };
+        } else {
+            return { ...prev, specialization: prevSpecs.filter(s => s !== spec) };
+        }
+    });
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,19 +113,25 @@ function SupervisorForm({
        <div className="space-y-2">
             <Label htmlFor="password">كلمة المرور</Label>
             <div className="relative">
-                <Input id="password" name="password" type="password" value={formData.password || ""} onChange={handleChange} required placeholder="••••••••" />
+                <Input id="password" name="password" type="password" value={formData.password || ""} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : "••••••••"} />
                 <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-            <Label htmlFor="specialization">التخصص</Label>
-            <select id="specialization" name="specialization" value={formData.specialization} onChange={handleChange} className="w-full p-2 border rounded-md bg-background h-10 text-sm">
-                <option value="الكل">الكل</option>
-                <option value="محفظة كاش">محفظة كاش</option>
-                <option value="انستاباي">انستاباي</option>
-                <option value="وصلني البيت">وصلني البيت</option>
-            </select>
+            <Label>التخصص</Label>
+            <div className="space-y-2 rounded-lg border p-3">
+                {specializations.map(spec => (
+                    <div key={spec} className="flex items-center gap-2">
+                        <Checkbox
+                            id={`spec-${spec}`}
+                            checked={formData.specialization?.includes(spec)}
+                            onCheckedChange={(checked) => handleSpecializationChange(spec, !!checked)}
+                        />
+                        <Label htmlFor={`spec-${spec}`} className="font-normal">{spec}</Label>
+                    </div>
+                ))}
+            </div>
         </div>
         <div className="space-y-2">
             <Label htmlFor="status">حالة الحساب</Label>
@@ -143,13 +165,23 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const { toast } = useToast();
 
+  const [specializationFilter, setSpecializationFilter] = useState("all");
+  const [canEditRateFilter, setCanEditRateFilter] = useState("all");
+  const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.phone.toLowerCase().includes(searchTerm.toLowerCase())
+        (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.phone.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (specializationFilter === "all" || item.specialization.includes(specializationFilter)) &&
+        (canEditRateFilter === 'all' || (canEditRateFilter === 'مسموح' && item.canEditExchangeRate) || (canEditRateFilter === 'ممنوع' && !item.canEditExchangeRate)) &&
+        (connectionStatusFilter === "all" || item.connectionStatus === connectionStatusFilter) &&
+        (statusFilter === "all" || item.status === statusFilter)
     );
-  }, [data, searchTerm]);
+  }, [data, searchTerm, specializationFilter, canEditRateFilter, connectionStatusFilter, statusFilter]);
   
   const handleSave = (supervisor: Supervisor) => {
     if(editingSupervisor) {
@@ -171,15 +203,62 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
       toast({ title: "تم طرد المستخدم", variant: 'destructive' });
   }
 
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setSpecializationFilter("all");
+    setCanEditRateFilter("all");
+    setConnectionStatusFilter("all");
+    setStatusFilter("all");
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Input
-          placeholder="ابحث بالاسم أو رقم الهاتف..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+        <div className="flex flex-wrap items-center gap-2">
+            <Input
+              placeholder="ابحث بالاسم أو رقم الهاتف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm"
+            />
+            <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">كل التخصصات</SelectItem>
+                    <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
+                    <SelectItem value="انستاباي">انستاباي</SelectItem>
+                    <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={canEditRateFilter} onValueChange={setCanEditRateFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="تعديل السعر" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="مسموح">مسموح</SelectItem>
+                    <SelectItem value="ممنوع">ممنوع</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="متصل">متصل</SelectItem>
+                    <SelectItem value="غير متصل">غير متصل</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="نشط">نشط</SelectItem>
+                    <SelectItem value="غير نشط">غير نشط</SelectItem>
+                </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={handleClearFilters}>
+              <FilterX className="ml-2 h-4 w-4" />
+              مسح الفلاتر
+            </Button>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
                 <Button onClick={() => setEditingSupervisor(undefined)}>
@@ -217,7 +296,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <div className="font-medium">{supervisor.name}</div>
                     <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
                 </TableCell>
-                <TableCell>{supervisor.specialization}</TableCell>
+                <TableCell>{supervisor.specialization.length === 3 ? 'الكل' : supervisor.specialization.join(', ')}</TableCell>
                  <TableCell className="text-center">
                     {supervisor.canEditExchangeRate ? <CheckCircle className="text-green-500 mx-auto"/> : <XCircle className="text-red-500 mx-auto"/>}
                  </TableCell>

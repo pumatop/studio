@@ -61,7 +61,7 @@ export type Supervisor = {
   connectionStatus: 'متصل' | 'غير متصل';
   lastSeen: string;
   password?: string;
-  specialization: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت' | 'الكل';
+  specialization: string[];
   dailyTransferValue: number;
   monthlyTransferValue: number;
   dailyOperationCount: number;
