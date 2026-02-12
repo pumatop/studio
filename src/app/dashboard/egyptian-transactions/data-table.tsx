@@ -184,7 +184,7 @@ export function EgyptianTransactionsDataTable({ initialData }: { initialData: Tr
               <TableRow key={transaction.id}>
                 <TableCell className="font-medium">{transaction.product}</TableCell>
                 <TableCell><Badge className={`${categoryColors[transaction.category]} hover:${categoryColors[transaction.category]}`}>{transaction.category}</Badge></TableCell>
-                <TableCell>ج.م {transaction.amount.toLocaleString()}</TableCell>
+                <TableCell>ج.م {transaction.amount.toLocaleString("en-US")}</TableCell>
                 <TableCell>{transaction.date}</TableCell>
                 <TableCell>{transaction.paymentMethod}</TableCell>
                 <TableCell>

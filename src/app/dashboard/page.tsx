@@ -21,7 +21,7 @@ export default function DashboardPage() {
   const stats = [
     {
       title: "إجمالي المستخدمين",
-      value: totalUsers.toLocaleString(),
+      value: totalUsers.toLocaleString("en-US"),
       icon: Users,
       percentage: "+8.5% عن الأمس",
       iconBg: "bg-purple-100",
@@ -30,7 +30,7 @@ export default function DashboardPage() {
     },
     {
       title: "إجمالي الطلبات",
-      value: totalTransactions.toLocaleString(),
+      value: totalTransactions.toLocaleString("en-US"),
       icon: ShoppingCart,
       percentage: "+1.3% عن الأسبوع الماضي",
       iconBg: "bg-yellow-100",
@@ -39,7 +39,7 @@ export default function DashboardPage() {
     },
     {
       title: "إيرادات ليبيا",
-      value: `د.ل ${libyanRevenue.toLocaleString()}`,
+      value: `د.ل ${libyanRevenue.toLocaleString("en-US")}`,
       icon: DollarSign,
       percentage: "+5.2% عن الشهر الماضي",
       iconBg: "bg-green-100",
@@ -48,7 +48,7 @@ export default function DashboardPage() {
     },
     {
       title: "إيرادات مصر",
-      value: `ج.م ${egyptianRevenue.toLocaleString()}`,
+      value: `ج.م ${egyptianRevenue.toLocaleString("en-US")}`,
       icon: DollarSign,
       percentage: "-1.8% عن الأمس",
       iconBg: "bg-red-100",

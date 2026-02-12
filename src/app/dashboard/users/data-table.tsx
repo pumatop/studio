@@ -188,7 +188,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       {user.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString('ar-EG')}</TableCell>
+                <TableCell>{new Date(user.createdAt).toLocaleDateString('en-GB')}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

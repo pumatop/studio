@@ -217,7 +217,7 @@ export function ExchangeControlCard() {
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
             <span className="text-sm text-muted-foreground font-mono">
-                {serverTime.toLocaleTimeString('ar-EG')}
+                {serverTime.toLocaleTimeString('en-GB')}
             </span>
           </div>
           <div className="relative">
@@ -265,7 +265,7 @@ export function ExchangeControlCard() {
                             <div className="text-sm">
                                 <p>
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
-                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('ar-EG') : condition.value}</span>
+                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.value}</span>
                                     {condition.type === 'amount' && ` جنيه مصري،`}
                                     غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
                                 </p>

@@ -188,7 +188,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                       {supervisor.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(supervisor.lastLogin).toLocaleString('ar-EG')}</TableCell>
+                <TableCell>{new Date(supervisor.lastLogin).toLocaleString('en-GB')}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
