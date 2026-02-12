@@ -14,7 +14,7 @@ const GenerateDataInsightsInputSchema = z.object({
   data: z
     .string()
     .describe(
-      "The 'cashaat databese' data provided as a structured string (e.g., JSON, CSV, or a detailed natural language summary) for analysis."
+      "بيانات 'cashaat databese' المقدمة كسلسلة نصية مهيكلة (مثل JSON، CSV، أو ملخص مفصل باللغة الطبيعية) للتحليل."
     ),
 });
 export type GenerateDataInsightsInput = z.infer<
@@ -24,18 +24,18 @@ export type GenerateDataInsightsInput = z.infer<
 const GenerateDataInsightsOutputSchema = z.object({
   summary: z
     .string()
-    .describe('A concise summary of the key findings from the data.'),
+    .describe('ملخص موجز للنتائج الرئيسية من البيانات.'),
   trends: z
     .array(z.string())
-    .describe('Identified key trends and patterns in the data.'),
+    .describe('الاتجاهات والأنماط الرئيسية المحددة في البيانات.'),
   performanceMetrics: z
     .record(z.any())
     .describe(
-      'Key performance indicators (KPIs) extracted from the data, represented as a JSON object.'
+      'مؤشرات الأداء الرئيسية (KPIs) المستخرجة من البيانات، ممثلة ككائن JSON.'
     ),
   recommendations: z
     .array(z.string())
-    .describe('Actionable recommendations based on the data insights.'),
+    .describe('توصيات قابلة للتنفيذ بناءً على رؤى البيانات.'),
 });
 export type GenerateDataInsightsOutput = z.infer<
   typeof GenerateDataInsightsOutputSchema
@@ -51,17 +51,17 @@ const prompt = ai.definePrompt({
   name: 'generateDataInsightsPrompt',
   input: {schema: GenerateDataInsightsInputSchema},
   output: {schema: GenerateDataInsightsOutputSchema},
-  prompt: `You are an expert data analyst specializing in 'cashaat databese' data.
-Your task is to analyze the provided data and extract key insights, identify trends, quantify performance metrics, and provide actionable recommendations.
+  prompt: `أنت محلل بيانات خبير متخصص في بيانات 'cashaat databese'.
+مهمتك هي تحليل البيانات المقدمة واستخلاص الرؤى الرئيسية وتحديد الاتجاهات وقياس مقاييس الأداء وتقديم توصيات قابلة للتنفيذ.
 
-Data for analysis:
+بيانات للتحليل:
 {{{data}}}
 
-Based on the data provided, generate a comprehensive analysis including:
-1. A concise summary of the most important findings.
-2. Identified key trends and patterns.
-3. Important performance metrics (Key Performance Indicators) in a JSON object format.
-4. Actionable recommendations to improve performance or address identified issues.`,
+بناءً على البيانات المقدمة، قم بإنشاء تحليل شامل يتضمن:
+1. ملخص موجز لأهم النتائج.
+2. الاتجاهات والأنماط الرئيسية المحددة.
+3. مقاييس الأداء الهامة (مؤشرات الأداء الرئيسية) بتنسيق كائن JSON.
+4. توصيات قابلة للتنفيذ لتحسين الأداء أو معالجة المشكلات المحددة.`,
 });
 
 const generateDataInsightsFlow = ai.defineFlow(

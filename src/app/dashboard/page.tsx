@@ -29,12 +29,12 @@ export default function DashboardPage() {
   const stats = [
     {
       title: "إيرادات ليبيا",
-      value: `LYD ${libyanRevenue.toLocaleString()}`,
+      value: `د.ل ${libyanRevenue.toLocaleString()}`,
       icon: DollarSign,
     },
     {
       title: "إيرادات مصر",
-      value: `EGP ${egyptianRevenue.toLocaleString()}`,
+      value: `ج.م ${egyptianRevenue.toLocaleString()}`,
       icon: DollarSign,
     },
     {
@@ -66,8 +66,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <SalesChart data={mockLibyanTransactions} title="إيرادات ليبيا على مدار الوقت" currency="LYD" />
-        <SalesChart data={mockEgyptianTransactions} title="إيرادات مصر على مدار الوقت" currency="EGP" />
+        <SalesChart data={mockLibyanTransactions} title="إيرادات ليبيا على مدار الوقت" currency="د.ل" />
+        <SalesChart data={mockEgyptianTransactions} title="إيرادات مصر على مدار الوقت" currency="ج.م" />
       </div>
        <div className="grid gap-4 md:grid-cols-1">
         <CategoryChart data={allTransactions} title="المعاملات حسب الفئة (الكل)" />

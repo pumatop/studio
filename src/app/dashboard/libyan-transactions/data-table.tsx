@@ -32,7 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
-const categoryColors: Record<Transaction["category"], string> = {
+const categoryColors: Record<string, string> = {
   "إلكترونيات": "bg-blue-100 text-blue-800",
   "ملابس": "bg-purple-100 text-purple-800",
   "طعام": "bg-green-100 text-green-800",
@@ -185,7 +185,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
             <TableRow key={transaction.id}>
               <TableCell className="font-medium">{transaction.product}</TableCell>
               <TableCell><Badge className={`${categoryColors[transaction.category]} hover:${categoryColors[transaction.category]}`}>{transaction.category}</Badge></TableCell>
-              <TableCell>LYD {transaction.amount.toLocaleString()}</TableCell>
+              <TableCell>د.ل {transaction.amount.toLocaleString()}</TableCell>
               <TableCell>{transaction.date}</TableCell>
               <TableCell>{transaction.paymentMethod}</TableCell>
               <TableCell>

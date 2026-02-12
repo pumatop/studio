@@ -45,16 +45,16 @@ export function PageHeader({ title }: { title: string }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>حسابي</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
-            <UserIcon className="w-4 h-4 mr-2" />
-            Profile
+            <UserIcon className="w-4 h-4 ml-2" />
+            الملف الشخصي
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push("/")}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Log out
+            <LogOut className="w-4 h-4 ml-2" />
+            تسجيل الخروج
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

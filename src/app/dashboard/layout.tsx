@@ -40,62 +40,62 @@ const navItems = [
   {
     href: "/dashboard",
     icon: LayoutDashboard,
-    label: "Dashboard",
+    label: "لوحة التحكم",
     match: /^\/dashboard\/?$/,
   },
   {
     href: "/dashboard/exchange-rate",
     icon: ArrowRightLeft,
-    label: "Exchange Rate",
+    label: "سعر الصرف",
     match: /^\/dashboard\/exchange-rate/,
   },
   {
     href: "/dashboard/users",
     icon: Users,
-    label: "Users",
+    label: "المستخدمين",
     match: /^\/dashboard\/users/,
   },
   {
     href: "/dashboard/libyan-transactions",
     icon: ReceiptText,
-    label: "Libyan Transactions",
+    label: "المعاملات الليبية",
     match: /^\/dashboard\/libyan-transactions/,
   },
   {
     href: "/dashboard/egyptian-transactions",
     icon: ReceiptText,
-    label: "Egyptian Transactions",
+    label: "المعاملات المصرية",
     match: /^\/dashboard\/egyptian-transactions/,
   },
   {
     href: "/dashboard/supervisors",
     icon: UserCog,
-    label: "Supervisors",
+    label: "المشرفين",
     match: /^\/dashboard\/supervisors/,
   },
   {
     href: "/dashboard/reports",
     icon: BrainCircuit,
-    label: "AI Reports",
+    label: "تقارير الذكاء الاصطناعي",
     match: /^\/dashboard\/reports/,
   },
   {
     href: "/dashboard/settings",
     icon: Settings,
-    label: "Settings",
+    label: "الإعدادات",
     match: /^\/dashboard\/settings/,
   },
 ];
 
 const pageTitles: { [key: string]: string } = {
-  "/dashboard": "Dashboard",
-  "/dashboard/exchange-rate": "Exchange Rate",
-  "/dashboard/users": "Users",
-  "/dashboard/libyan-transactions": "Libyan Transactions",
-  "/dashboard/egyptian-transactions": "Egyptian Transactions",
-  "/dashboard/supervisors": "Supervisors",
-  "/dashboard/reports": "AI Reports & Analytics",
-  "/dashboard/settings": "Settings",
+  "/dashboard": "لوحة التحكم",
+  "/dashboard/exchange-rate": "سعر الصرف",
+  "/dashboard/users": "المستخدمين",
+  "/dashboard/libyan-transactions": "المعاملات الليبية",
+  "/dashboard/egyptian-transactions": "المعاملات المصرية",
+  "/dashboard/supervisors": "المشرفين",
+  "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
+  "/dashboard/settings": "الإعدادات",
 };
 
 export default function DashboardLayout({
@@ -107,20 +107,37 @@ export default function DashboardLayout({
   const router = useRouter();
 
   const getPageTitle = () => {
-    const matchedItem = navItems.find(item => pathname.match(item.match));
-    if (matchedItem) {
-      return pageTitles[matchedItem.href];
+    // Find the best match for the current path
+    let bestMatch = null;
+    for (const item of navItems) {
+        if (pathname.match(item.match)) {
+            if (!bestMatch || item.href.length > bestMatch.href.length) {
+                bestMatch = item;
+            }
+        }
     }
-    return "Dashboard";
+
+    if (bestMatch) {
+      return pageTitles[bestMatch.href];
+    }
+    
+    // Fallback for sub-pages not explicitly in navItems
+    if (pathname.startsWith('/dashboard/')) {
+        const pathSegments = pathname.split('/');
+        const lastSegment = pathSegments[pathSegments.length - 1];
+        return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
+    }
+
+    return "لوحة التحكم";
   };
 
   return (
     <SidebarProvider>
-      <Sidebar side="left">
+      <Sidebar side="right">
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <CircleDollarSign className="w-8 h-8" />
-            <h2 className="text-xl font-semibold">Cashaat</h2>
+            <h2 className="text-xl font-semibold">كاشيات</h2>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -149,7 +166,7 @@ export default function DashboardLayout({
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
                 <div className="text-left">
-                  <p className="text-sm font-medium">Admin</p>
+                  <p className="text-sm font-medium">مسؤول</p>
                   <p className="text-xs text-sidebar-foreground/70">
                     admin@example.com
                   </p>
@@ -157,11 +174,11 @@ export default function DashboardLayout({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/")}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <LogOut className="ml-2 h-4 w-4" />
+                <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
