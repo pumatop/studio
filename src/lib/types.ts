@@ -31,3 +31,16 @@ export type Supervisor = {
   status: 'نشط' | 'غير نشط';
   lastLogin: string;
 };
+
+export type ExchangeRateLog = {
+  id: string;
+  date: string;
+  modifiedBy: string;
+  oldRate: number;
+  newRate: number;
+};
+
+export type DailyRate = {
+  date: string;
+  rate: number;
+};
