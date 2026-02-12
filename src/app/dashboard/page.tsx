@@ -4,18 +4,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign, ShoppingCart, Users, Activity } from "lucide-react";
+import { DollarSign, ShoppingCart, Users } from "lucide-react";
 import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
 import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
 import { mockUsers } from "@/lib/mock-users";
-import { SalesChart, CategoryChart } from "@/components/charts";
 
 export default function DashboardPage() {
-  const allTransactions = [...mockLibyanTransactions, ...mockEgyptianTransactions];
-  
-  const libyanRevenue = mockLibyanTransactions.reduce((sum, item) => sum + item.amount, 0);
-  const egyptianRevenue = mockEgyptianTransactions.reduce((sum, item) => sum + item.amount, 0);
-  const totalTransactions = allTransactions.length;
+  const libyanRevenue = mockLibyanTransactions.reduce(
+    (sum, item) => sum + item.sentAmount,
+    0
+  );
+  const egyptianRevenue = mockEgyptianTransactions.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+  const totalTransactions =
+    mockLibyanTransactions.length + mockEgyptianTransactions.length;
   const totalUsers = mockUsers.length;
 
   const stats = [
@@ -26,7 +30,7 @@ export default function DashboardPage() {
       percentage: "+8.5% عن الأمس",
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      trend: "up"
+      trend: "up",
     },
     {
       title: "إجمالي الطلبات",
@@ -35,7 +39,7 @@ export default function DashboardPage() {
       percentage: "+1.3% عن الأسبوع الماضي",
       iconBg: "bg-yellow-100",
       iconColor: "text-yellow-600",
-      trend: "up"
+      trend: "up",
     },
     {
       title: "إيرادات ليبيا",
@@ -44,7 +48,7 @@ export default function DashboardPage() {
       percentage: "+5.2% عن الشهر الماضي",
       iconBg: "bg-green-100",
       iconColor: "text-green-600",
-      trend: "up"
+      trend: "up",
     },
     {
       title: "إيرادات مصر",
@@ -53,7 +57,7 @@ export default function DashboardPage() {
       percentage: "-1.8% عن الأمس",
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
-      trend: "down"
+      trend: "down",
     },
   ];
 
@@ -70,24 +74,16 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{stat.value}</div>
-              <p className={`text-xs ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+              <p
+                className={`text-xs ${
+                  stat.trend === "up" ? "text-green-500" : "text-red-500"
+                }`}
+              >
                 {stat.percentage}
               </p>
             </CardContent>
           </Card>
         ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3">
-          <SalesChart data={mockLibyanTransactions} title="تفاصيل المبيعات (ليبيا)" currency="د.ل" />
-        </div>
-        <div className="lg:col-span-2">
-           <CategoryChart data={allTransactions} title="المعاملات حسب الفئة" />
-        </div>
-      </div>
-       <div className="grid gap-4 md:grid-cols-1">
-        <SalesChart data={mockEgyptianTransactions} title="تفاصيل المبيعات (مصر)" currency="ج.م" />
       </div>
     </div>
   );
