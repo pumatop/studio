@@ -205,6 +205,7 @@ export function ExchangeControlCard() {
                         checked={isExchangeOpen}
                         onCheckedChange={setExchangeOpen}
                         aria-label="Toggle exchange status"
+                        className="data-[state=checked]:bg-green-600"
                     />
                 </div>
             )}
@@ -277,6 +278,7 @@ export function ExchangeControlCard() {
                     id="auto-conditions-switch"
                     checked={autoConditionsActive}
                     onCheckedChange={setAutoConditionsActive}
+                    className="data-[state=checked]:bg-green-600"
                 />
             </div>
 
