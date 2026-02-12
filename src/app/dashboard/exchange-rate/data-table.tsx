@@ -29,7 +29,6 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import type { ExchangeRate } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { Card } from "@/components/ui/card";
 
 function ExchangeRateForm({
   rate,
@@ -148,43 +147,43 @@ export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRa
             </DialogContent>
         </Dialog>
       </div>
-      <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>زوج العملات</TableHead>
-            <TableHead>السعر</TableHead>
-            <TableHead>آخر تحديث</TableHead>
-            <TableHead>
-              <span className="sr-only">الإجراءات</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.map((rate) => (
-            <TableRow key={rate.id}>
-              <TableCell className="font-medium">{rate.currencyPair}</TableCell>
-              <TableCell>{rate.rate}</TableCell>
-              <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG')}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">فتح القائمة</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => { setEditingRate(rate); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(rate.id)}>حذف</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>زوج العملات</TableHead>
+              <TableHead>السعر</TableHead>
+              <TableHead>آخر تحديث</TableHead>
+              <TableHead>
+                <span className="sr-only">الإجراءات</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      </Card>
+          </TableHeader>
+          <TableBody>
+            {filteredData.map((rate) => (
+              <TableRow key={rate.id}>
+                <TableCell className="font-medium">{rate.currencyPair}</TableCell>
+                <TableCell>{rate.rate}</TableCell>
+                <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG')}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditingRate(rate); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(rate.id)}>حذف</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

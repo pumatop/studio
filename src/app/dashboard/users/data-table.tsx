@@ -30,7 +30,6 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 function UserForm({
   user,
@@ -164,51 +163,51 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             </DialogContent>
         </Dialog>
       </div>
-      <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>الاسم</TableHead>
-            <TableHead>البريد الإلكتروني</TableHead>
-            <TableHead>الهاتف</TableHead>
-            <TableHead>الحالة</TableHead>
-            <TableHead>تاريخ الإنشاء</TableHead>
-            <TableHead>
-              <span className="sr-only">الإجراءات</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.map((user) => (
-            <TableRow key={user.id}>
-              <TableCell className="font-medium">{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>{user.phone}</TableCell>
-              <TableCell>
-                <Badge variant={user.status === 'نشط' ? 'default' : 'destructive'} className={user.status === 'نشط' ? 'bg-green-500' : ''}>
-                    {user.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{new Date(user.createdAt).toLocaleDateString('ar-EG')}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">فتح القائمة</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => { setEditingUser(user); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>حذف</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>الاسم</TableHead>
+              <TableHead>البريد الإلكتروني</TableHead>
+              <TableHead>الهاتف</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead>تاريخ الإنشاء</TableHead>
+              <TableHead>
+                <span className="sr-only">الإجراءات</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      </Card>
+          </TableHeader>
+          <TableBody>
+            {filteredData.map((user) => (
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.phone}</TableCell>
+                <TableCell>
+                  <Badge variant={user.status === 'نشط' ? 'default' : 'destructive'} className={user.status === 'نشط' ? 'bg-green-500' : ''}>
+                      {user.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>{new Date(user.createdAt).toLocaleDateString('ar-EG')}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditingUser(user); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>حذف</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

@@ -30,7 +30,6 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 function SupervisorForm({
   supervisor,
@@ -164,51 +163,51 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
             </DialogContent>
         </Dialog>
       </div>
-      <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>الاسم</TableHead>
-            <TableHead>البريد الإلكتروني</TableHead>
-            <TableHead>الدور</TableHead>
-            <TableHead>الحالة</TableHead>
-            <TableHead>آخر تسجيل دخول</TableHead>
-            <TableHead>
-              <span className="sr-only">الإجراءات</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.map((supervisor) => (
-            <TableRow key={supervisor.id}>
-              <TableCell className="font-medium">{supervisor.name}</TableCell>
-              <TableCell>{supervisor.email}</TableCell>
-              <TableCell>{supervisor.role}</TableCell>
-              <TableCell>
-                <Badge variant={supervisor.status === 'نشط' ? 'default' : 'destructive'} className={supervisor.status === 'نشط' ? 'bg-green-500' : ''}>
-                    {supervisor.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{new Date(supervisor.lastLogin).toLocaleString('ar-EG')}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">فتح القائمة</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(supervisor.id)}>حذف</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>الاسم</TableHead>
+              <TableHead>البريد الإلكتروني</TableHead>
+              <TableHead>الدور</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead>آخر تسجيل دخول</TableHead>
+              <TableHead>
+                <span className="sr-only">الإجراءات</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      </Card>
+          </TableHeader>
+          <TableBody>
+            {filteredData.map((supervisor) => (
+              <TableRow key={supervisor.id}>
+                <TableCell className="font-medium">{supervisor.name}</TableCell>
+                <TableCell>{supervisor.email}</TableCell>
+                <TableCell>{supervisor.role}</TableCell>
+                <TableCell>
+                  <Badge variant={supervisor.status === 'نشط' ? 'default' : 'destructive'} className={supervisor.status === 'نشط' ? 'bg-green-500' : ''}>
+                      {supervisor.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>{new Date(supervisor.lastLogin).toLocaleString('ar-EG')}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(supervisor.id)}>حذف</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

@@ -30,7 +30,6 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import type { Transaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 const categoryColors: Record<string, string> = {
   "إلكترونيات": "bg-blue-100 text-blue-800",
@@ -166,47 +165,47 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
             </DialogContent>
         </Dialog>
       </div>
-      <Card>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>المنتج</TableHead>
-            <TableHead>الفئة</TableHead>
-            <TableHead>المبلغ</TableHead>
-            <TableHead>التاريخ</TableHead>
-            <TableHead>طريقة الدفع</TableHead>
-            <TableHead>
-              <span className="sr-only">الإجراءات</span>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell className="font-medium">{transaction.product}</TableCell>
-              <TableCell><Badge className={`${categoryColors[transaction.category]} hover:${categoryColors[transaction.category]}`}>{transaction.category}</Badge></TableCell>
-              <TableCell>د.ل {transaction.amount.toLocaleString()}</TableCell>
-              <TableCell>{transaction.date}</TableCell>
-              <TableCell>{transaction.paymentMethod}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">فتح القائمة</span>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => { setEditingTransaction(transaction); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(transaction.id)}>حذف</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>المنتج</TableHead>
+              <TableHead>الفئة</TableHead>
+              <TableHead>المبلغ</TableHead>
+              <TableHead>التاريخ</TableHead>
+              <TableHead>طريقة الدفع</TableHead>
+              <TableHead>
+                <span className="sr-only">الإجراءات</span>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      </Card>
+          </TableHeader>
+          <TableBody>
+            {filteredData.map((transaction) => (
+              <TableRow key={transaction.id}>
+                <TableCell className="font-medium">{transaction.product}</TableCell>
+                <TableCell><Badge className={`${categoryColors[transaction.category]} hover:${categoryColors[transaction.category]}`}>{transaction.category}</Badge></TableCell>
+                <TableCell>د.ل {transaction.amount.toLocaleString()}</TableCell>
+                <TableCell>{transaction.date}</TableCell>
+                <TableCell>{transaction.paymentMethod}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditingTransaction(transaction); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(transaction.id)}>حذف</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
