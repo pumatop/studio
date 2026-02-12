@@ -402,24 +402,73 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
 
-        {/* New Card 4: Fakka Safe */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">حصالة الفكة</CardTitle>
-            <PiggyBank className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {`ج.م ${fakkaBalance.toLocaleString("en-US", {
-                minimumFractionDigits: 4,
-                maximumFractionDigits: 4,
-              })}`}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              مجموع كسور التحويلات من الدينار للجنيه
-            </p>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+            {/* New Card 4: Fakka Safe */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">حصالة الفكة</CardTitle>
+                <PiggyBank className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {`ج.م ${fakkaBalance.toLocaleString("en-US", {
+                    minimumFractionDigits: 4,
+                    maximumFractionDigits: 4,
+                  })}`}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  مجموع كسور التحويلات من الدينار للجنيه
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* New Card 6: Egyptian Transfers Revenue */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>إيرادات التحويلات المصرية</CardTitle>
+                    <CardDescription>إجمالي رسوم التحويلات الناجحة</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="text-center">
+                        <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
+                        <p className="text-2xl font-bold">{totalRevenueEGP.toLocaleString("en-US")} ج.م</p>
+                    </div>
+                    <Tabs defaultValue="day">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="day">اليوم</TabsTrigger>
+                            <TabsTrigger value="month">الشهر</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="day" className="pt-2">
+                            <div className="space-y-2 text-xs">
+                                {Object.entries(dailyRevenueByType).map(([type, stats]) => (
+                                    <div key={type} className="flex justify-between items-center">
+                                        <span>{type}</span>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                            <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="month" className="pt-2">
+                            <div className="space-y-2 text-xs">
+                                {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
+                                    <div key={type} className="flex justify-between items-center">
+                                        <span>{type}</span>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                            <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </CardContent>
+            </Card>
+        </div>
+
 
         {/* New Card 5: Egyptian Transfers Summary */}
         <div className="lg:col-span-2 grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -534,54 +583,6 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
         </div>
-
-
-        {/* New Card 6: Egyptian Transfers Revenue */}
-        <Card>
-            <CardHeader>
-                <CardTitle>إيرادات التحويلات المصرية</CardTitle>
-                <CardDescription>إجمالي رسوم التحويلات الناجحة</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="text-center">
-                    <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
-                    <p className="text-2xl font-bold">{totalRevenueEGP.toLocaleString("en-US")} ج.م</p>
-                </div>
-                <Tabs defaultValue="day">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="day">اليوم</TabsTrigger>
-                        <TabsTrigger value="month">الشهر</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="day" className="pt-2">
-                        <div className="space-y-2 text-xs">
-                             {Object.entries(dailyRevenueByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
-                                    <span>{type}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="month" className="pt-2">
-                        <div className="space-y-2 text-xs">
-                             {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
-                                    <span>{type}</span>
-                                    <div className="flex items-center gap-2">
-                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </CardContent>
-        </Card>
-
       </div>
     </div>
   );
