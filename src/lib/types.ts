@@ -44,11 +44,3 @@ export type DailyRate = {
   date: string;
   rate: number;
 };
-
-export type PointOfSale = {
-  id: string;
-  name: string;
-  balance: number;
-  status: 'نشط' | 'غير نشط';
-  createdAt: string;
-};

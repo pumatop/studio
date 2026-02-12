@@ -39,12 +39,6 @@ const navItems = [
     match: /^\/dashboard\/exchange-rate/,
   },
   {
-    href: "/dashboard/pos",
-    icon: Store,
-    label: "نقاط البيع",
-    match: /^\/dashboard\/pos/,
-  },
-  {
     href: "/dashboard/users",
     icon: Users,
     label: "المستخدمين",
@@ -85,7 +79,6 @@ const navItems = [
 const pageTitles: { [key: string]: string } = {
   "/dashboard": "لوحة التحكم",
   "/dashboard/exchange-rate": "سعر الصرف",
-  "/dashboard/pos": "نقاط البيع",
   "/dashboard/users": "المستخدمين",
   "/dashboard/libyan-transactions": "المعاملات الليبية",
   "/dashboard/egyptian-transactions": "المعاملات المصرية",
