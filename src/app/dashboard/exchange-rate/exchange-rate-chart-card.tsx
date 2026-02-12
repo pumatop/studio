@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -30,13 +30,27 @@ export function ExchangeRateChartCard() {
         <CardDescription>زوج العملات: LYD/EGP</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <BarChart
+        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <AreaChart
             data={mockDailyRates}
-            margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+            margin={{ top: 5, right: 10, left: -10, bottom: 0 }}
             accessibilityLayer
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <CartesianGrid vertical={false} />
+            <defs>
+              <linearGradient id="fillRate" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-rate)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-rate)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -48,6 +62,7 @@ export function ExchangeRateChartCard() {
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
             <YAxis
+              orientation="right"
               type="number"
               domain={["dataMin - 0.05", "dataMax + 0.05"]}
               tickLine={false}
@@ -60,8 +75,15 @@ export function ExchangeRateChartCard() {
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
             />
-            <Bar dataKey="rate" fill="var(--color-rate)" radius={8} />
-          </BarChart>
+            <Area
+                dataKey="rate"
+                type="natural"
+                fill="url(#fillRate)"
+                fillOpacity={0.4}
+                stroke="var(--color-rate)"
+                strokeWidth={2}
+            />
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>

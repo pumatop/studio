@@ -35,20 +35,19 @@ export function ExchangeControlCard() {
   };
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
-        <CardTitle>التحكم في الصرف والسعر</CardTitle>
+        <CardTitle>التحكم في الصرف</CardTitle>
         <CardDescription>
-          إدارة حالة الصرف وتحديث الأسعار بشكل يدوي أو تلقائي.
+          إدارة حالة الصرف وتحديث الأسعار.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex-1 space-y-6">
         {/* Exchange Status */}
         <div className="space-y-4">
-          <h3 className="font-medium text-base">حالة الصرف</h3>
-          <div className="flex items-center justify-between rounded-lg border p-4">
+           <div className="flex items-center justify-between rounded-lg border p-4">
             <div>
-              <Label htmlFor="exchange-status">الصرف مفتوح</Label>
+              <Label htmlFor="exchange-status" className="font-semibold">الصرف مفتوح</Label>
               <p className="text-xs text-muted-foreground">
                 فتح أو إغلاق الصرف بشكل نهائي.
               </p>
@@ -60,11 +59,11 @@ export function ExchangeControlCard() {
               aria-label="Toggle exchange status"
             />
           </div>
-          <div className="flex items-center justify-between rounded-lg border p-4">
+           <div className="flex items-center justify-between rounded-lg border p-4">
             <div>
-              <Label htmlFor="auto-mode">التحكم التلقائي</Label>
+              <Label htmlFor="auto-mode" className="font-semibold">التحكم التلقائي</Label>
               <p className="text-xs text-muted-foreground">
-                تفعيل التحكم التلقائي حسب مبلغ التحويل (LYD/EGP).
+                تفعيل التغيير التلقائي للسعر.
               </p>
             </div>
             <Switch
@@ -79,79 +78,83 @@ export function ExchangeControlCard() {
         <Separator />
 
         {/* Exchange Rate */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-base">سعر الصرف الحالي (LYD/EGP)</h3>
+        <div className="space-y-2">
+          <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
           <div className="relative">
             <Input
               id="current-rate"
               type="number"
               value={currentRate}
               onChange={(e) => setCurrentRate(parseFloat(e.target.value))}
-              className="text-lg pr-12"
-              step="0.001"
+              className="text-lg font-bold pr-16"
+              step="0.01"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
               ج.م
             </span>
           </div>
         </div>
 
-        <Separator />
-
         {/* Automatic Rate Change */}
-        <div className="space-y-4">
-          <h3 className="font-medium text-base">التغيير التلقائي للسعر</h3>
-          <p className="text-sm text-muted-foreground">
-            قم بتحديد شرط لتغيير سعر الصرف تلقائيًا إلى سعر جديد.
-          </p>
-          <RadioGroup
-            value={autoCondition}
-            onValueChange={setAutoCondition}
-            className="flex gap-4"
-          >
-            <div className="flex items-center space-x-2 space-x-reverse">
-              <RadioGroupItem value="amount" id="r-amount" />
-              <Label htmlFor="r-amount">عند الوصول لمبلغ معين</Label>
-            </div>
-            <div className="flex items-center space-x-2 space-x-reverse">
-              <RadioGroupItem value="time" id="r-time" />
-              <Label htmlFor="r-time">عند الوصول لوقت معين</Label>
-            </div>
-          </RadioGroup>
+        {isAutoMode && (
+            <>
+            <Separator />
+            <div className="space-y-4 animate-in fade-in-0 duration-500">
+                <h3 className="font-semibold text-base">شروط التغيير التلقائي</h3>
+                <RadioGroup
+                    value={autoCondition}
+                    onValueChange={setAutoCondition}
+                    className="grid grid-cols-2 gap-4"
+                >
+                    <div>
+                    <RadioGroupItem value="amount" id="r-amount" className="peer sr-only" />
+                    <Label htmlFor="r-amount" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                        عند الوصول لمبلغ
+                    </Label>
+                    </div>
+                    <div>
+                    <RadioGroupItem value="time" id="r-time" className="peer sr-only" />
+                    <Label htmlFor="r-time" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                        عند الوصول لوقت
+                    </Label>
+                    </div>
+                </RadioGroup>
 
-          {autoCondition === "amount" && (
-            <div className="space-y-2">
-              <Label htmlFor="auto-amount">مبلغ التحويل (د.ل)</Label>
-              <Input
-                id="auto-amount"
-                type="number"
-                value={autoAmount}
-                onChange={(e) => setAutoAmount(parseInt(e.target.value, 10))}
-              />
+                {autoCondition === "amount" && (
+                    <div className="space-y-2 animate-in fade-in-0 duration-300">
+                    <Label htmlFor="auto-amount">مبلغ التحويل المستهدف (د.ل)</Label>
+                    <Input
+                        id="auto-amount"
+                        type="number"
+                        value={autoAmount}
+                        onChange={(e) => setAutoAmount(parseInt(e.target.value, 10))}
+                    />
+                    </div>
+                )}
+                {autoCondition === "time" && (
+                    <div className="space-y-2 animate-in fade-in-0 duration-300">
+                    <Label htmlFor="auto-time">الوقت المحدد للتغيير</Label>
+                    <Input
+                        id="auto-time"
+                        type="time"
+                        value={autoTime}
+                        onChange={(e) => setAutoTime(e.target.value)}
+                    />
+                    </div>
+                )}
+                <div className="space-y-2">
+                    <Label htmlFor="auto-next-rate">السعر الجديد المستهدف</Label>
+                    <Input
+                    id="auto-next-rate"
+                    type="number"
+                    value={autoNextRate}
+                    onChange={(e) => setAutoNextRate(parseFloat(e.target.value))}
+                    step="0.01"
+                    />
+                </div>
             </div>
-          )}
-          {autoCondition === "time" && (
-            <div className="space-y-2">
-              <Label htmlFor="auto-time">الوقت المحدد</Label>
-              <Input
-                id="auto-time"
-                type="time"
-                value={autoTime}
-                onChange={(e) => setAutoTime(e.target.value)}
-              />
-            </div>
-          )}
-          <div className="space-y-2">
-            <Label htmlFor="auto-next-rate">السعر الجديد المستهدف</Label>
-            <Input
-              id="auto-next-rate"
-              type="number"
-              value={autoNextRate}
-              onChange={(e) => setAutoNextRate(parseFloat(e.target.value))}
-              step="0.001"
-            />
-          </div>
-        </div>
+            </>
+        )}
       </CardContent>
       <CardFooter>
         <Button onClick={handleSave} className="w-full">

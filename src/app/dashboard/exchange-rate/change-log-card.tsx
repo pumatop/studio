@@ -5,6 +5,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import {
   Table,
@@ -17,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
 import { mockExchangeRateLogs } from "@/lib/mock-exchange-rate-log";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, History } from "lucide-react";
 
 export function ChangeLogCard() {
   const logs = mockExchangeRateLogs;
@@ -29,17 +30,22 @@ export function ChangeLogCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>سجل التغيرات</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+            <History className="h-5 w-5" />
+            <span>سجل التغيرات</span>
+        </CardTitle>
+        <CardDescription>آخر 5 تغييرات تمت على سعر الصرف.</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>التاريخ</TableHead>
+              <TableHead className="w-[200px]">التاريخ</TableHead>
               <TableHead>المُعدِّل</TableHead>
-              <TableHead>السعر القديم</TableHead>
-              <TableHead>السعر الجديد</TableHead>
-              <TableHead>الفارق</TableHead>
+              <TableHead className="text-center">السعر القديم</TableHead>
+              <TableHead className="text-center">السعر الجديد</TableHead>
+              <TableHead className="text-right">الفارق</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -50,19 +56,20 @@ export function ChangeLogCard() {
                 <TableRow key={log.id}>
                   <TableCell>
                     {new Date(log.date).toLocaleString("ar-EG", {
-                      day: "numeric",
-                      month: "short",
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
                       hour: "numeric",
                       minute: "numeric",
                     })}
                   </TableCell>
-                  <TableCell>{log.modifiedBy}</TableCell>
-                  <TableCell>{log.oldRate.toFixed(4)}</TableCell>
-                  <TableCell className="font-medium">{log.newRate.toFixed(4)}</TableCell>
-                  <TableCell>
+                  <TableCell className="font-medium">{log.modifiedBy}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(4)}</TableCell>
+                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(4)}</TableCell>
+                  <TableCell className="text-right">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
-                      className={`flex items-center gap-1 w-fit ${
+                      className={`flex items-center gap-1 w-fit ml-auto ${
                         isIncrease
                           ? "bg-green-100 text-green-800 hover:bg-green-200"
                           : "bg-red-100 text-red-800 hover:bg-red-200"
@@ -81,6 +88,7 @@ export function ChangeLogCard() {
             })}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );
