@@ -142,7 +142,6 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <MainSettingsCard />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <Card>
           <CardHeader>
@@ -411,6 +410,7 @@ export default function SettingsPage() {
         </Card>
       </div>
       <AppSettingsCard />
+      <MainSettingsCard />
     </div>
   );
 }
