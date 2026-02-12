@@ -2,7 +2,7 @@ import type { DetailedLibyanTransaction } from "@/lib/types";
 
 export const mockLibyanTransactions: DetailedLibyanTransaction[] = [
   {
-    id: "txn_ly_detailed_001",
+    id: "DD_001",
     operationType: "تحويل داخلي",
     senderPhone: "091-1234567",
     sentAmount: 500,
@@ -13,7 +13,7 @@ export const mockLibyanTransactions: DetailedLibyanTransaction[] = [
     status: "ناجحة",
   },
   {
-    id: "txn_ly_detailed_002",
+    id: "DG_001",
     operationType: "تحويل للجنيه",
     senderPhone: "091-1234567",
     sentAmount: 1000,
@@ -26,7 +26,7 @@ export const mockLibyanTransactions: DetailedLibyanTransaction[] = [
     status: "ناجحة",
   },
   {
-    id: "txn_ly_detailed_003",
+    id: "DC_001",
     operationType: "كرت شحن",
     senderPhone: "092-9876543",
     sentAmount: 50,
@@ -40,7 +40,7 @@ export const mockLibyanTransactions: DetailedLibyanTransaction[] = [
     status: "ناجحة",
   },
     {
-    id: "txn_ly_detailed_004",
+    id: "DD_002",
     operationType: "تحويل داخلي",
     senderPhone: "094-1122334",
     sentAmount: 200,
@@ -51,7 +51,7 @@ export const mockLibyanTransactions: DetailedLibyanTransaction[] = [
     status: "مرفوضة",
   },
   {
-    id: "txn_ly_detailed_005",
+    id: "DC_002",
     operationType: "كرت شحن",
     senderPhone: "091-5555555",
     sentAmount: 10,
