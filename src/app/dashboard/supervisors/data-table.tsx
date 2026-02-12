@@ -312,8 +312,8 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <div>الشهر: {supervisor.monthlyOperationCount}</div>
                 </TableCell>
                 <TableCell className="text-xs">
-                    <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')}</div>
-                    <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')}</div>
+                    <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')} ج.م</div>
+                    <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')} ج.م</div>
                 </TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[supervisor.status], `hover:${statusColors[supervisor.status]}`)}>

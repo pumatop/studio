@@ -243,9 +243,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {`د.ل ${totalLibyanBalance.toLocaleString("en-US", {
+              {`${totalLibyanBalance.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
-              })}`}
+              })} د.ل`}
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالدينار الليبي
@@ -274,13 +274,13 @@ export default function DashboardPage() {
                 <p className="flex justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
                   <span className="font-semibold text-foreground">
-                    د.ل {dailyTradeStats.lydAmount.toLocaleString("en-US")}
+                    {dailyTradeStats.lydAmount.toLocaleString("en-US")} د.ل
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
                   <span className="font-semibold text-foreground">
-                    ج.م {dailyTradeStats.egpAmount.toLocaleString("en-US")}
+                    {dailyTradeStats.egpAmount.toLocaleString("en-US")} ج.م
                   </span>
                 </p>
               </div>
@@ -298,13 +298,13 @@ export default function DashboardPage() {
                 <p className="flex justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
                   <span className="font-semibold text-foreground">
-                    د.ل {monthlyTradeStats.lydAmount.toLocaleString("en-US")}
+                    {monthlyTradeStats.lydAmount.toLocaleString("en-US")} د.ل
                   </span>
                 </p>
                 <p className="flex justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
                   <span className="font-semibold text-foreground">
-                    ج.م {monthlyTradeStats.egpAmount.toLocaleString("en-US")}
+                    {monthlyTradeStats.egpAmount.toLocaleString("en-US")} ج.م
                   </span>
                 </p>
               </div>
@@ -322,9 +322,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {`ج.م ${totalEgyptianBalance.toLocaleString("en-US", {
+              {`${totalEgyptianBalance.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
-              })}`}
+              })} ج.م`}
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالجنيه المصري
@@ -363,7 +363,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyCardStats.revenue.toLocaleString("en-US")}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
                 <Separator />
@@ -371,7 +371,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyCardStats.revenue.toLocaleString("en-US")}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyCardStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
             </CardContent>
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyInternalStats.revenue.toLocaleString("en-US")}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
                 <Separator />
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
                         <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.revenue.toLocaleString("en-US")}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.revenue.toLocaleString("en-US")} د.ل</span></p>
                     </div>
                 </div>
             </CardContent>
@@ -411,10 +411,10 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {`ج.م ${fakkaBalance.toLocaleString("en-US", {
+                  {`${fakkaBalance.toLocaleString("en-US", {
                     minimumFractionDigits: 4,
                     maximumFractionDigits: 4,
-                  })}`}
+                  })} ج.م`}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   مجموع كسور التحويلات من الدينار للجنيه

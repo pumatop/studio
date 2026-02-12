@@ -238,10 +238,10 @@ export function ExchangeControlCard() {
               type="number"
               value={currentRate}
               onChange={(e) => setCurrentRate(parseFloat(e.target.value))}
-              className="text-lg font-bold pr-16"
+              className="text-lg font-bold pl-16 text-left"
               step="0.01"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
               ج.م
             </span>
           </div>
