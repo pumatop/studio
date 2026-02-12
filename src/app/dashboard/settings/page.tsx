@@ -134,7 +134,7 @@ export default function SettingsPage() {
   const [deliveryFees, setDeliveryFees] = useState(initialDeliveryFees);
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
       <Card>
         <CardHeader>
           <CardTitle>حدود المعاملات والتحويلات</CardTitle>
