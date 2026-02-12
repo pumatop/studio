@@ -23,6 +23,16 @@ export type User = {
   lastSeen: string;
   verificationStatus: 'موثق' | 'غير موثق' | 'قيد المراجعة';
   status: 'نشط' | 'محظور';
+  balanceLibyan: number;
+  balanceEgyptian: number;
+  balanceEgyptianPending: number;
+  accountOpenDate: string;
+  idImageUrl: string;
+  lastPasswordChange: string;
+  lastPinChange: string;
+  activeDevice: string;
+  ipAddress: string;
+  phoneOS: 'iOS' | 'Android';
 };
 
 export type Supervisor = {
