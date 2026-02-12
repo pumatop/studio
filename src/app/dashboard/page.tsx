@@ -152,6 +152,7 @@ export default function DashboardPage() {
   const pendingTransfersEGP = mockEgyptianTransfers
     .filter((t) => t.status === "قيد التحويل")
     .reduce((sum, t) => sum + t.sentAmount, 0);
+  const totalActiveTransfersEGP = successfulTransfersEGP + pendingTransfersEGP;
   
   const transferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
     acc[type] = { count: 0, amount: 0 };
@@ -398,10 +399,17 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Activity /> ملخص التحويلات المصرية</CardTitle>
             <CardDescription>
-                إجمالي التحويلات الناجحة والمعلقة بالجنيه المصري.
+              نظرة عامة على حجم التحويلات بالجنيه المصري.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+             <div className="text-center">
+              <p className="text-sm text-muted-foreground">إجمالي التحويلات (الناجحة + المعلقة)</p>
+              <p className="text-3xl font-bold">
+                {totalActiveTransfersEGP.toLocaleString("en-US")} ج.م
+              </p>
+            </div>
+            <Separator />
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
                 <p className="text-sm text-muted-foreground">التحويلات الناجحة</p>
