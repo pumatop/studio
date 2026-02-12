@@ -33,12 +33,32 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Eye, UserCheck, UserX, Wallet, FileText, CheckCircle, XCircle, UserCog, ShieldCheck, Smartphone, LogOut } from "lucide-react";
+import {
+  Eye,
+  UserCheck,
+  UserX,
+  Wallet,
+  FileText,
+  CheckCircle,
+  XCircle,
+  UserCog,
+  ShieldCheck,
+  Smartphone,
+  LogOut,
+  FilterX,
+} from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const verificationStatusColors: Record<User["verificationStatus"], string> = {
   "موثق": "bg-green-100 text-green-800",
@@ -157,14 +177,23 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
+  
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
+  const [verificationStatusFilter, setVerificationStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredData = useMemo(() => {
     return data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.phone.includes(searchTerm)
+      (user) =>
+        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.phone.includes(searchTerm)) &&
+        (typeFilter === 'all' || user.type === typeFilter) &&
+        (connectionStatusFilter === 'all' || user.connectionStatus === connectionStatusFilter) &&
+        (verificationStatusFilter === 'all' || user.verificationStatus === verificationStatusFilter) &&
+        (statusFilter === 'all' || user.status === statusFilter)
     );
-  }, [data, searchTerm]);
+  }, [data, searchTerm, typeFilter, connectionStatusFilter, verificationStatusFilter, statusFilter]);
   
   const handleToggleBan = (userId: string) => {
       setData(data.map(user => {
@@ -193,15 +222,73 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
       setDetailsOpen(true);
   }
 
+  const handleClearFilters = () => {
+    setTypeFilter("all");
+    setConnectionStatusFilter("all");
+    setVerificationStatusFilter("all");
+    setStatusFilter("all");
+    setSearchTerm("");
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="ابحث بالاسم أو رقم الهاتف..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-grow max-w-sm">
+            <Input
+              placeholder="ابحث بالاسم أو رقم الهاتف..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full"
+            />
+        </div>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                <SelectValue placeholder="النوع" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">كل الأنواع</SelectItem>
+                <SelectItem value="مستخدم">مستخدم</SelectItem>
+                <SelectItem value="تاجر">تاجر</SelectItem>
+            </SelectContent>
+        </Select>
+
+        <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                <SelectValue placeholder="حالة الاتصال" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">كل حالات الاتصال</SelectItem>
+                <SelectItem value="متصل">متصل</SelectItem>
+                <SelectItem value="غير متصل">غير متصل</SelectItem>
+            </SelectContent>
+        </Select>
+
+        <Select value={verificationStatusFilter} onValueChange={setVerificationStatusFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                <SelectValue placeholder="التوثيق" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">كل حالات التوثيق</SelectItem>
+                <SelectItem value="موثق">موثق</SelectItem>
+                <SelectItem value="غير موثق">غير موثق</SelectItem>
+                <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+            </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                <SelectValue placeholder="حالة الحظر" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="نشط">غير محظور</SelectItem>
+                <SelectItem value="محظور">محظور</SelectItem>
+            </SelectContent>
+        </Select>
+        <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+            <FilterX className="ml-2 h-4 w-4" />
+            مسح الفلاتر
+        </Button>
       </div>
       <div className="rounded-lg border">
         <Table>
