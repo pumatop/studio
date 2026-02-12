@@ -12,17 +12,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, User as UserIcon, Search } from "lucide-react";
+import { LogOut, User as UserIcon, Search, Clock } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import type { ImagePlaceholder } from "@/lib/placeholder-images";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "./theme-toggle";
+import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
   const avatar = PlaceHolderImages.find(
     (img) => img.id === "user-avatar"
   ) as ImagePlaceholder;
+
+  // Mock state for exchange info. In a real app, this would come from a global state or context.
+  const [isExchangeOpen, setExchangeOpen] = useState(true);
+  const [currentRate, setCurrentRate] = useState(9.65);
+  const [serverTime, setServerTime] = useState(new Date());
+
+  useEffect(() => {
+    const timerId = setInterval(() => setServerTime(new Date()), 1000);
+    return () => clearInterval(timerId);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -35,6 +48,33 @@ export function PageHeader({ title }: { title: string }) {
           className="w-full rounded-lg bg-card pr-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
+
+      <div className="hidden md:flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-muted-foreground">حالة الصرف:</span>
+          <Badge
+            className={cn(isExchangeOpen 
+              ? "bg-green-100 text-green-800 hover:bg-green-200" 
+              : "bg-red-100 text-red-800 hover:bg-red-200",
+              'font-semibold'
+              )}
+          >
+            {isExchangeOpen ? "مفتوح" : "مغلق"}
+          </Badge>
+        </div>
+        {isExchangeOpen && (
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-muted-foreground">السعر:</span>
+            <span className="text-primary font-bold">{currentRate.toFixed(2)}</span>
+          </div>
+        )}
+         <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <span className="font-semibold text-muted-foreground">وقت السيرفر:</span>
+            <span className="text-primary font-bold font-mono">{serverTime.toLocaleTimeString('en-US')}</span>
+        </div>
+      </div>
+
       <div className="flex-1" />
       <ThemeToggle />
       <DropdownMenu>
