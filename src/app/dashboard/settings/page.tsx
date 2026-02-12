@@ -36,11 +36,13 @@ const initialDeliveryFees: FeeTier[] = [
 
 function FeeTierManager({
   title,
+  description,
   currency,
   tiers,
   setTiers,
 }: {
   title: string;
+  description?: string;
   currency: string;
   tiers: FeeTier[];
   setTiers: React.Dispatch<React.SetStateAction<FeeTier[]>>;
@@ -67,7 +69,10 @@ function FeeTierManager({
 
   return (
     <div className="space-y-4 rounded-lg border p-4">
-      <h3 className="font-semibold text-lg">{title}</h3>
+      <div className="flex items-center gap-2">
+        <h3 className="font-semibold text-lg">{title}</h3>
+        {description && <span className="text-xs text-muted-foreground">{description}</span>}
+      </div>
       <div className="space-y-3">
         {tiers.length > 0 && (
           <div className="grid grid-cols-[1fr,1fr,1fr,auto] gap-2 items-center">
@@ -308,6 +313,7 @@ export default function SettingsPage() {
         <CardContent className="space-y-6">
           <FeeTierManager
             title="التحويل الداخلي"
+            description="(الرسوم لا تطبق على حسابات التجار)"
             currency="د.ل"
             tiers={internalFees}
             setTiers={setInternalFees}
