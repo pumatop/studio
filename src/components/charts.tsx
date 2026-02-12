@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, Line, LineChart, XAxis, YAxis, Tooltip } from "recharts";
+import { Area, AreaChart, Bar, BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   ChartContainer,
   ChartTooltipContent,
@@ -33,31 +33,43 @@ export function SalesChart({ data, title, currency }: { data: Transaction[], tit
      <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>
-          عرض إجمالي الإيرادات اليومية.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <LineChart
+          <AreaChart
             data={chartData}
             margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
             accessibilityLayer
           >
-            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} angle={-45} textAnchor="end" height={60} />
-            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currency} ${value}`} />
+             <defs>
+              <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-sales)"
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-sales)"
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} angle={-45} textAnchor="end" height={60} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currency} ${Math.floor(value / 1000)}k`} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }} />
             <Tooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
-            <Line
+            <Area
               dataKey="sales"
-              type="monotone"
+              type="natural"
+              fill="url(#fillSales)"
               stroke="var(--color-sales)"
               strokeWidth={2}
               dot={false}
             />
-          </LineChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
     </Card>
@@ -80,7 +92,7 @@ export function CategoryChart({ data, title }: { data: Transaction[], title: str
   const chartConfig = {
     count: {
       label: "المعاملات",
-      color: "hsl(var(--accent))",
+      color: "hsl(var(--primary))",
     },
   } satisfies ChartConfig;
 
@@ -88,20 +100,19 @@ export function CategoryChart({ data, title }: { data: Transaction[], title: str
     <Card>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
-        <CardDescription>
-          توزيع المعاملات عبر فئات المنتجات المختلفة.
-        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <BarChart data={chartData} accessibilityLayer>
-            <XAxis
+          <BarChart data={chartData} accessibilityLayer layout="vertical" margin={{left: 10}}>
+            <YAxis
               dataKey="category"
+              type="category"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
             />
-             <YAxis />
+             <XAxis type="number" hide />
             <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Bar dataKey="count" fill="var(--color-count)" radius={4} />
           </BarChart>

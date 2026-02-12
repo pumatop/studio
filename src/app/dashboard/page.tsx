@@ -4,9 +4,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign, ShoppingCart, Activity, Star } from "lucide-react";
+import { DollarSign, ShoppingCart, Users, Activity } from "lucide-react";
 import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
 import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
+import { mockUsers } from "@/lib/mock-users";
 import { SalesChart, CategoryChart } from "@/components/charts";
 
 export default function DashboardPage() {
@@ -15,37 +16,44 @@ export default function DashboardPage() {
   const libyanRevenue = mockLibyanTransactions.reduce((sum, item) => sum + item.amount, 0);
   const egyptianRevenue = mockEgyptianTransactions.reduce((sum, item) => sum + item.amount, 0);
   const totalTransactions = allTransactions.length;
-
-  const getTopProduct = () => {
-    if (allTransactions.length === 0) return 'N/A';
-    const productCounts: { [key: string]: number } = {};
-    allTransactions.forEach((item) => {
-      productCounts[item.product] = (productCounts[item.product] || 0) + 1;
-    });
-    return Object.entries(productCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
-  }
-  const topProduct = getTopProduct();
+  const totalUsers = mockUsers.length;
 
   const stats = [
+    {
+      title: "إجمالي المستخدمين",
+      value: totalUsers.toLocaleString(),
+      icon: Users,
+      percentage: "+8.5% عن الأمس",
+      iconBg: "bg-purple-100",
+      iconColor: "text-purple-600",
+      trend: "up"
+    },
+    {
+      title: "إجمالي الطلبات",
+      value: totalTransactions.toLocaleString(),
+      icon: ShoppingCart,
+      percentage: "+1.3% عن الأسبوع الماضي",
+      iconBg: "bg-yellow-100",
+      iconColor: "text-yellow-600",
+      trend: "up"
+    },
     {
       title: "إيرادات ليبيا",
       value: `د.ل ${libyanRevenue.toLocaleString()}`,
       icon: DollarSign,
+      percentage: "+5.2% عن الشهر الماضي",
+      iconBg: "bg-green-100",
+      iconColor: "text-green-600",
+      trend: "up"
     },
     {
       title: "إيرادات مصر",
       value: `ج.م ${egyptianRevenue.toLocaleString()}`,
       icon: DollarSign,
-    },
-    {
-      title: "إجمالي المعاملات",
-      value: totalTransactions.toString(),
-      icon: ShoppingCart,
-    },
-    {
-      title: "أفضل منتج مبيعاً",
-      value: topProduct,
-      icon: Star,
+      percentage: "-1.8% عن الأمس",
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600",
+      trend: "down"
     },
   ];
 
@@ -55,22 +63,31 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
+              <CardTitle>{stat.title}</CardTitle>
+              <div className={`p-2 rounded-full ${stat.iconBg}`}>
+                <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="text-3xl font-bold">{stat.value}</div>
+              <p className={`text-xs ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+                {stat.percentage}
+              </p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <SalesChart data={mockLibyanTransactions} title="إيرادات ليبيا على مدار الوقت" currency="د.ل" />
-        <SalesChart data={mockEgyptianTransactions} title="إيرادات مصر على مدار الوقت" currency="ج.م" />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3">
+          <SalesChart data={mockLibyanTransactions} title="تفاصيل المبيعات (ليبيا)" currency="د.ل" />
+        </div>
+        <div className="lg:col-span-2">
+           <CategoryChart data={allTransactions} title="المعاملات حسب الفئة" />
+        </div>
       </div>
        <div className="grid gap-4 md:grid-cols-1">
-        <CategoryChart data={allTransactions} title="المعاملات حسب الفئة (الكل)" />
+        <SalesChart data={mockEgyptianTransactions} title="تفاصيل المبيعات (مصر)" currency="ج.م" />
       </div>
     </div>
   );
