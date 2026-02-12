@@ -16,162 +16,111 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
+import { MoreHorizontal, Eye, UserCheck, UserX } from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-function UserForm({
-  user,
-  onSave,
-}: {
-  user?: User;
-  onSave: (u: User) => void;
-}) {
-  const [formData, setFormData] = useState<Partial<User>>(
-    user || {
-      createdAt: new Date().toISOString(),
-      status: 'نشط',
-    }
-  );
+const verificationStatusColors: Record<User["verificationStatus"], string> = {
+  "موثق": "bg-green-100 text-green-800",
+  "غير موثق": "bg-red-100 text-red-800",
+  "قيد المراجعة": "bg-yellow-100 text-yellow-800",
+};
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+const connectionStatusColors: Record<User["connectionStatus"], string> = {
+  "متصل": "bg-green-100 text-green-800",
+  "غير متصل": "bg-stone-100 text-stone-800",
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData as User);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">الاسم</label>
-        <Input
-          name="name"
-          value={formData.name || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">البريد الإلكتروني</label>
-        <Input
-          name="email"
-          type="email"
-          value={formData.email || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-       <div>
-        <label className="text-sm font-medium">الهاتف</label>
-        <Input
-          name="phone"
-          value={formData.phone || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">الحالة</label>
-        <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border rounded-md">
-            <option>نشط</option>
-            <option>محظور</option>
-        </select>
-      </div>
-      <DialogFooter>
-        <DialogClose asChild>
-            <Button type="button" variant="secondary">إلغاء</Button>
-        </DialogClose>
-        <Button type="submit">حفظ</Button>
-      </DialogFooter>
-    </form>
-  );
+function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void }) {
+    if (!user) return null;
+    
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{user.name}</DialogTitle>
+                    <DialogDescription>تفاصيل المستخدم الكاملة</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 py-4 text-sm">
+                    <p><strong>رقم الهاتف:</strong> {user.phone}</p>
+                    <p><strong>النوع:</strong> {user.type}</p>
+                    <p><strong>حالة الاتصال:</strong> {user.connectionStatus}</p>
+                    <p><strong>آخر ظهور:</strong> {new Date(user.lastSeen).toLocaleString('ar-EG-u-nu-latn')}</p>
+                    <p><strong>حالة التوثيق:</strong> {user.verificationStatus}</p>
+                    <p><strong>حالة الحساب:</strong> <span className={cn('font-bold', user.status === 'محظور' ? 'text-destructive' : 'text-green-600')}>{user.status}</span></p>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
 }
+
 
 export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [data, setData] = useState<User[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | undefined>(undefined);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase())
+        item.phone.includes(searchTerm)
     );
   }, [data, searchTerm]);
   
-  const handleSave = (user: User) => {
-    if(editingUser) {
-        // Edit
-        setData(data.map(d => d.id === editingUser.id ? {...d, ...user} : d));
-        toast({ title: "تم التحديث بنجاح" });
-    } else {
-        // Add
-        const newUser = {...user, id: `usr_${Date.now()}`, createdAt: new Date().toISOString()};
-        setData([newUser, ...data]);
-        toast({ title: "تمت الإضافة بنجاح" });
-    }
-    setDialogOpen(false);
-    setEditingUser(undefined);
-  };
-  
-  const handleDelete = (id: string) => {
-      setData(data.filter(d => d.id !== id));
-      toast({ title: "تم الحذف بنجاح", variant: 'destructive' });
+  const handleToggleBan = (userId: string) => {
+      setData(data.map(user => {
+          if (user.id === userId) {
+              const newStatus = user.status === 'نشط' ? 'محظور' : 'نشط';
+              toast({ 
+                  title: newStatus === 'محظور' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
+                  description: `حالة ${user.name} الآن: ${newStatus}`,
+                  variant: newStatus === 'محظور' ? 'destructive' : 'default',
+              });
+              return { ...user, status: newStatus };
+          }
+          return user;
+      }));
+  }
+
+  const handleShowDetails = (user: User) => {
+      setSelectedUser(user);
+      setDetailsOpen(true);
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Input
-          placeholder="ابحث بالاسم أو البريد..."
+          placeholder="ابحث بالاسم أو رقم الهاتف..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-                <Button onClick={() => setEditingUser(undefined)}>
-                    <PlusCircle className="ml-2 h-4 w-4" />
-                    إضافة مستخدم
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{editingUser ? 'تعديل مستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
-                </DialogHeader>
-                <UserForm onSave={handleSave} user={editingUser} />
-            </DialogContent>
-        </Dialog>
       </div>
       <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>الاسم</TableHead>
-              <TableHead>البريد الإلكتروني</TableHead>
-              <TableHead>الهاتف</TableHead>
+              <TableHead>رقم الهاتف</TableHead>
+              <TableHead>النوع</TableHead>
               <TableHead>الحالة</TableHead>
-              <TableHead>تاريخ الإنشاء</TableHead>
+              <TableHead>اخر ظهور</TableHead>
+              <TableHead>التوثيق</TableHead>
               <TableHead>
                 <span className="sr-only">الإجراءات</span>
               </TableHead>
@@ -179,16 +128,22 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableHeader>
           <TableBody>
             {filteredData.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user.id} className={cn(user.status === 'محظور' && 'bg-red-50/50 opacity-60')}>
                 <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
                 <TableCell>{user.phone}</TableCell>
+                <TableCell>{user.type}</TableCell>
                 <TableCell>
-                  <Badge variant={user.status === 'نشط' ? 'default' : 'destructive'} className={`${user.status === 'نشط' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} hover:${user.status === 'نشط' ? 'bg-green-200' : 'bg-red-200'}`}>
-                      {user.status}
+                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
+                    <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
+                    {user.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString('en-GB')}</TableCell>
+                <TableCell>{new Date(user.lastSeen).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</TableCell>
+                <TableCell>
+                  <Badge className={`${verificationStatusColors[user.verificationStatus]} hover:${verificationStatusColors[user.verificationStatus]}`}>
+                      {user.verificationStatus}
+                  </Badge>
+                </TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -198,8 +153,17 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setEditingUser(user); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>حذف</DropdownMenuItem>
+                       <DropdownMenuItem onClick={() => handleShowDetails(user)}>
+                            <Eye className="ml-2 h-4 w-4" />
+                            تفاصيل اضافية
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                            onClick={() => handleToggleBan(user.id)} 
+                            className={cn(user.status === 'محظور' ? 'text-green-600 focus:text-green-700' : 'text-destructive focus:text-destructive')}>
+                           {user.status === 'محظور' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
+                           {user.status === 'محظور' ? 'رفع الحظر' : 'حظر المستخدم'}
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -208,6 +172,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} />
     </div>
   );
 }

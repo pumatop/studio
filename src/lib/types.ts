@@ -17,10 +17,12 @@ export type ExchangeRate = {
 export type User = {
   id: string;
   name: string;
-  email: string;
   phone: string;
+  type: 'مستخدم' | 'تاجر';
+  connectionStatus: 'متصل' | 'غير متصل';
+  lastSeen: string;
+  verificationStatus: 'موثق' | 'غير موثق' | 'قيد المراجعة';
   status: 'نشط' | 'محظور';
-  createdAt: string;
 };
 
 export type Supervisor = {
