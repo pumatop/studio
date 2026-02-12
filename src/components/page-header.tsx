@@ -16,6 +16,7 @@ import { LogOut, User as UserIcon, Search } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import type { ImagePlaceholder } from "@/lib/placeholder-images";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "./theme-toggle";
 
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
@@ -24,7 +25,7 @@ export function PageHeader({ title }: { title: string }) {
   ) as ImagePlaceholder;
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 bg-transparent px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <SidebarTrigger className="sm:hidden" />
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -35,6 +36,7 @@ export function PageHeader({ title }: { title: string }) {
         />
       </div>
       <div className="flex-1" />
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
