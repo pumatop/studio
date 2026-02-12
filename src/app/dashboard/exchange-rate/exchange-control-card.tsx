@@ -28,6 +28,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // Mock Data for initial conditions
 const initialConditions: RateCondition[] = [
@@ -127,6 +128,7 @@ export function ExchangeControlCard() {
   const [conditions, setConditions] = useState<RateCondition[]>(initialConditions);
   const [isFormOpen, setFormOpen] = useState(false);
   const [serverTime, setServerTime] = useState(new Date());
+  const [autoConditionsActive, setAutoConditionsActive] = useState(true);
 
   useEffect(() => {
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
@@ -252,7 +254,7 @@ export function ExchangeControlCard() {
                  <h3 className="font-semibold text-base">شروط التغيير التلقائي للسعر</h3>
                  <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" disabled={!autoConditionsActive}>
                             <PlusCircle className="ml-2 h-4 w-4" />
                             إضافة شرط
                         </Button>
@@ -265,7 +267,20 @@ export function ExchangeControlCard() {
                     </DialogContent>
                  </Dialog>
             </div>
-            <div className="space-y-2">
+            
+            <div className="flex items-center justify-between rounded-lg border p-3">
+                <div className="space-y-0.5">
+                    <Label htmlFor="auto-conditions-switch">تفعيل الشروط التلقائية</Label>
+                    <p className="text-xs text-muted-foreground">في حال الإيقاف، لن يتم تطبيق أي شرط من الشروط أدناه.</p>
+                </div>
+                <Switch
+                    id="auto-conditions-switch"
+                    checked={autoConditionsActive}
+                    onCheckedChange={setAutoConditionsActive}
+                />
+            </div>
+
+            <div className={cn("space-y-2 transition-opacity", !autoConditionsActive && "opacity-50 pointer-events-none")}>
                 {conditions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">لا توجد شروط حالياً.</p>}
                 {conditions.map(condition => (
                     <div key={condition.id} className="flex items-center justify-between rounded-lg border p-3">
