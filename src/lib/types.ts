@@ -106,3 +106,10 @@ export type EgyptianTransfer = {
   executionDuration: string;
   receiptImageUrl?: string;
 };
+
+export type FeeTier = {
+  id: string;
+  from: number;
+  to: number;
+  fee: number;
+};
