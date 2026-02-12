@@ -1,15 +1,66 @@
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DollarSign, ArrowRightLeft } from "lucide-react";
+import {
+  DollarSign,
+  ArrowRightLeft,
+  Users,
+  UserCog,
+  CreditCard,
+  Landmark,
+  PiggyBank,
+  Activity,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { mockUsers } from "@/lib/mock-users";
 import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
+import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
+import type { EgyptianTransfer } from "@/lib/types";
+
+const EGYPTIAN_TRANSFER_TYPES: EgyptianTransfer['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
 export default function DashboardPage() {
+  // --- DATE SETUP ---
+  const mostRecentLibyanTimestamp =
+    mockLibyanTransactions.length > 0
+      ? Math.max(
+          ...mockLibyanTransactions.map((t) => new Date(t.timestamp).getTime())
+        )
+      : 0;
+
+  const mostRecentEgyptianTimestamp =
+    mockEgyptianTransfers.length > 0
+      ? Math.max(
+          ...mockEgyptianTransfers.map((t) =>
+            new Date(t.requestTimestamp).getTime()
+          )
+        )
+      : 0;
+
+  const mostRecentTimestamp =
+    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) ||
+    new Date().getTime();
+
+  const todayDate = new Date(mostRecentTimestamp);
+  const startOfToday = new Date(
+    todayDate.getFullYear(),
+    todayDate.getMonth(),
+    todayDate.getDate()
+  );
+  const startOfMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
+
+  // --- ORIGINAL CARDS' CALCULATIONS ---
   const totalLibyanBalance = mockUsers.reduce(
     (sum, user) => sum + user.balanceLibyan,
     0
@@ -19,40 +70,136 @@ export default function DashboardPage() {
     (sum, user) => sum + user.balanceEgyptian,
     0
   );
-  
-  const mostRecentTimestamp = mockLibyanTransactions.length > 0 
-    ? Math.max(...mockLibyanTransactions.map(t => new Date(t.timestamp).getTime()))
-    : new Date().getTime();
-  
-  const todayDate = new Date(mostRecentTimestamp);
-  const startOfToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
-  const startOfMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
 
   const lydToEgpTransactions = mockLibyanTransactions.filter(
-    (t) => t.operationType === "تحويل للجنيه" && t.status === 'ناجحة'
+    (t) => t.operationType === "تحويل للجنيه" && t.status === "ناجحة"
   );
 
-  const dailyTrades = lydToEgpTransactions.filter(t => {
-      const transactionDate = new Date(t.timestamp);
-      return transactionDate >= startOfToday;
+  const dailyTrades = lydToEgpTransactions.filter((t) => {
+    const transactionDate = new Date(t.timestamp);
+    return transactionDate >= startOfToday;
   });
 
-  const monthlyTrades = lydToEgpTransactions.filter(t => {
-      const transactionDate = new Date(t.timestamp);
-      return transactionDate >= startOfMonth;
+  const monthlyTrades = lydToEgpTransactions.filter((t) => {
+    const transactionDate = new Date(t.timestamp);
+    return transactionDate >= startOfMonth;
   });
 
   const dailyTradeStats = {
-      count: dailyTrades.length,
-      lydAmount: dailyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
-      egpAmount: dailyTrades.reduce((sum, t) => sum + (t.convertedAmountEGP || 0), 0)
+    count: dailyTrades.length,
+    lydAmount: dailyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
+    egpAmount: dailyTrades.reduce((sum, t) => sum + (t.convertedAmountEGP || 0), 0),
   };
 
   const monthlyTradeStats = {
-      count: monthlyTrades.length,
-      lydAmount: monthlyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
-      egpAmount: monthlyTrades.reduce((sum, t) => sum + (t.convertedAmountEGP || 0), 0)
+    count: monthlyTrades.length,
+    lydAmount: monthlyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
+    egpAmount: monthlyTrades.reduce(
+      (sum, t) => sum + (t.convertedAmountEGP || 0),
+      0
+    ),
   };
+  
+  // --- NEW CARDS' CALCULATIONS ---
+
+  // 1. User Stats
+  const totalUsers = mockUsers.length;
+  const pendingVerificationUsers = mockUsers.filter(
+    (u) => u.verificationStatus === "قيد المراجعة"
+  ).length;
+
+  // 2. Card Revenue
+  const cardTransactions = mockLibyanTransactions.filter(
+    (t) => t.operationType === "كرت شحن" && t.status === "ناجحة"
+  );
+  const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
+  const monthlyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfMonth);
+  const dailyCardStats = {
+      count: dailyCards.length,
+      revenue: dailyCards.reduce((sum, t) => sum + t.serviceFee, 0)
+  };
+  const monthlyCardStats = {
+      count: monthlyCards.length,
+      revenue: monthlyCards.reduce((sum, t) => sum + t.serviceFee, 0)
+  };
+
+  // 3. Internal Transfer Revenue
+  const internalTransactions = mockLibyanTransactions.filter(
+      (t) => t.operationType === "تحويل داخلي" && t.status === "ناجحة"
+  );
+  const dailyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
+  const monthlyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfMonth);
+  const dailyInternalStats = {
+      count: dailyInternal.length,
+      revenue: dailyInternal.reduce((sum, t) => sum + t.serviceFee, 0)
+  };
+  const monthlyInternalStats = {
+      count: monthlyInternal.length,
+      revenue: monthlyInternal.reduce((sum, t) => sum + t.serviceFee, 0)
+  };
+
+  // 4. Fakka Safe
+  const fakkaBalance = lydToEgpTransactions.reduce((sum, t) => {
+    const preciseAmount = t.sentAmount * (t.exchangeRate || 0);
+    const fraction = preciseAmount - (t.convertedAmountEGP || 0);
+    return sum + fraction;
+  }, 0);
+
+  // 5. Egyptian Transfers Summary
+  const successfulTransfersEGP = mockEgyptianTransfers
+    .filter((t) => t.status === "ناجح")
+    .reduce((sum, t) => sum + t.sentAmount, 0);
+  const pendingTransfersEGP = mockEgyptianTransfers
+    .filter((t) => t.status === "قيد التحويل")
+    .reduce((sum, t) => sum + t.sentAmount, 0);
+  
+  const transferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+    acc[type] = { count: 0, amount: 0 };
+    return acc;
+  }, {} as Record<EgyptianTransfer['transferType'], {count: number, amount: number}>);
+
+  mockEgyptianTransfers.forEach(t => {
+      if (transferStatsByType[t.transferType]) {
+          transferStatsByType[t.transferType].count++;
+          transferStatsByType[t.transferType].amount += t.sentAmount;
+      }
+  });
+
+  const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfToday);
+  const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfMonth);
+  
+  const calculateStatusCounts = (transfers: EgyptianTransfer[]) => {
+    return transfers.reduce((acc, t) => {
+        if(t.status === 'ناجح') acc.successful++;
+        if(t.status === 'قيد التحويل') acc.pending++;
+        if(t.status === 'مرفوض') acc.failed++;
+        return acc;
+    }, { successful: 0, pending: 0, failed: 0 });
+  }
+  const dailyEgyptianTransferStatus = calculateStatusCounts(dailyEgyptianTransfers);
+  const monthlyEgyptianTransferStatus = calculateStatusCounts(monthlyEgyptianTransfers);
+
+
+  // 6. Egyptian Transfers Revenue
+  const successfulEgyptianTransfers = mockEgyptianTransfers.filter(t => t.status === 'ناجح');
+  const totalRevenueEGP = successfulEgyptianTransfers.reduce((sum, t) => sum + t.serviceFee, 0);
+
+  const calculateRevenueByType = (transfers: EgyptianTransfer[]) => {
+    const initial = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+        acc[type] = { count: 0, revenue: 0 };
+        return acc;
+    }, {} as Record<EgyptianTransfer['transferType'], {count: number, revenue: number}>);
+
+    return transfers.reduce((acc, t) => {
+        if (t.status === 'ناجح' && acc[t.transferType]) {
+            acc[t.transferType].count++;
+            acc[t.transferType].revenue += t.serviceFee;
+        }
+        return acc;
+    }, initial);
+  };
+  const dailyRevenueByType = calculateRevenueByType(dailyEgyptianTransfers);
+  const monthlyRevenueByType = calculateRevenueByType(monthlyEgyptianTransfers);
 
 
   return (
@@ -68,7 +215,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {`د.ل ${totalLibyanBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              {`د.ل ${totalLibyanBalance.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+              })}`}
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالدينار الليبي
@@ -81,47 +230,274 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>تداول الدينار مقابل الجنيه</CardTitle>
             <div className="p-2 rounded-full bg-blue-100">
-                <ArrowRightLeft className="h-5 w-5 text-blue-600" />
+              <ArrowRightLeft className="h-5 w-5 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent className="pt-4 space-y-3">
-              <div>
-                  <h4 className="text-sm font-semibold mb-1">اليوم</h4>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                      <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailyTradeStats.count}</span></p>
-                      <p className="flex justify-between"><span>المبلغ بالدينار:</span> <span className="font-semibold text-foreground">د.ل {dailyTradeStats.lydAmount.toLocaleString("en-US")}</span></p>
-                      <p className="flex justify-between"><span>المبلغ بالجنيه:</span> <span className="font-semibold text-foreground">ج.م {dailyTradeStats.egpAmount.toLocaleString("en-US")}</span></p>
-                  </div>
+            <div>
+              <h4 className="text-sm font-semibold mb-1">اليوم</h4>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <p className="flex justify-between">
+                  <span>العمليات:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {dailyTradeStats.count}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>المبلغ بالدينار:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    د.ل {dailyTradeStats.lydAmount.toLocaleString("en-US")}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>المبلغ بالجنيه:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    ج.م {dailyTradeStats.egpAmount.toLocaleString("en-US")}
+                  </span>
+                </p>
               </div>
-              <Separator />
-              <div>
-                  <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                      <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlyTradeStats.count}</span></p>
-                      <p className="flex justify-between"><span>المبلغ بالدينار:</span> <span className="font-semibold text-foreground">د.ل {monthlyTradeStats.lydAmount.toLocaleString("en-US")}</span></p>
-                      <p className="flex justify-between"><span>المبلغ بالجنيه:</span> <span className="font-semibold text-foreground">ج.م {monthlyTradeStats.egpAmount.toLocaleString("en-US")}</span></p>
-                  </div>
+            </div>
+            <Separator />
+            <div>
+              <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <p className="flex justify-between">
+                  <span>العمليات:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {monthlyTradeStats.count}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>المبلغ بالدينار:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    د.ل {monthlyTradeStats.lydAmount.toLocaleString("en-US")}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>المبلغ بالجنيه:</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    ج.م {monthlyTradeStats.egpAmount.toLocaleString("en-US")}
+                  </span>
+                </p>
               </div>
+            </div>
           </CardContent>
         </Card>
-        
+
         {/* Card 3: Total EGP Balance */}
-          <Card>
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>إجمالي رصيد المستخدمين (ج.م)</CardTitle>
-              <div className="p-2 rounded-full bg-purple-100">
+            <div className="p-2 rounded-full bg-purple-100">
               <DollarSign className="h-5 w-5 text-purple-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-                {`ج.م ${totalEgyptianBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
+              {`ج.م ${totalEgyptianBalance.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+              })}`}
             </div>
             <p className="text-xs text-muted-foreground">
               إجمالي الأرصدة المتاحة بالجنيه المصري
             </p>
           </CardContent>
         </Card>
+
+        {/* New Card 1: User Stats */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">إحصائيات المستخدمين</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+                <div>
+                    <p className="text-xs text-muted-foreground">إجمالي المستخدمين</p>
+                    <p className="text-2xl font-bold">{totalUsers}</p>
+                </div>
+                <div>
+                    <p className="text-xs text-muted-foreground">قيد المراجعة</p>
+                    <p className="text-2xl font-bold text-yellow-600">{pendingVerificationUsers}</p>
+                </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* New Card 2: Card Revenue */}
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">إيرادات الكروت (د.ل)</CardTitle>
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="pt-4 space-y-3">
+                <div>
+                    <h4 className="text-sm font-semibold mb-1">اليوم</h4>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                        <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyCardStats.revenue.toLocaleString("en-US")}</span></p>
+                    </div>
+                </div>
+                <Separator />
+                <div>
+                    <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                        <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyCardStats.revenue.toLocaleString("en-US")}</span></p>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+
+        {/* New Card 3: Internal Transfer Revenue */}
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">إيرادات التحويل الداخلي (د.ل)</CardTitle>
+                <Landmark className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+             <CardContent className="pt-4 space-y-3">
+                <div>
+                    <h4 className="text-sm font-semibold mb-1">اليوم</h4>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                        <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{dailyInternalStats.revenue.toLocaleString("en-US")}</span></p>
+                    </div>
+                </div>
+                <Separator />
+                <div>
+                    <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                        <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
+                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.revenue.toLocaleString("en-US")}</span></p>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+
+        {/* New Card 4: Fakka Safe */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">حصالة الفكة</CardTitle>
+            <PiggyBank className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {`ج.م ${fakkaBalance.toLocaleString("en-US", {
+                minimumFractionDigits: 4,
+                maximumFractionDigits: 4,
+              })}`}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              مجموع كسور التحويلات من الدينار للجنيه
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* New Card 5: Egyptian Transfers Summary */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Activity /> ملخص التحويلات المصرية</CardTitle>
+            <CardDescription>
+                إجمالي التحويلات الناجحة والمعلقة بالجنيه المصري.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-center">
+              <div>
+                <p className="text-sm text-muted-foreground">التحويلات الناجحة</p>
+                <p className="text-2xl font-bold text-green-600">{successfulTransfersEGP.toLocaleString("en-US")} ج.م</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">التحويلات المعلقة</p>
+                <p className="text-2xl font-bold text-yellow-600">{pendingTransfersEGP.toLocaleString("en-US")} ج.م</p>
+              </div>
+            </div>
+            <Separator />
+            <div>
+                <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
+                <div className="space-y-2 text-xs">
+                    {Object.entries(transferStatsByType).map(([type, stats]) => (
+                        <div key={type} className="flex justify-between items-center">
+                            <span>{type}</span>
+                            <div className="flex items-center gap-4">
+                                <Badge variant="outline" className="w-20 justify-center">{stats.count} حوالة</Badge>
+                                <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <Separator />
+            <div>
+                <h4 className="text-sm font-semibold mb-2">حالة الحوالات</h4>
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <h5 className="font-medium mb-1">اليوم</h5>
+                        <div className="space-y-1 text-muted-foreground">
+                            <p className="flex justify-between"><span>ناجحة:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.successful}</span></p>
+                            <p className="flex justify-between"><span>قيد التحويل:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.pending}</span></p>
+                            <p className="flex justify-between"><span>مرفوضة:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.failed}</span></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 className="font-medium mb-1">الشهر</h5>
+                        <div className="space-y-1 text-muted-foreground">
+                            <p className="flex justify-between"><span>ناجحة:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.successful}</span></p>
+                            <p className="flex justify-between"><span>قيد التحويل:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.pending}</span></p>
+                            <p className="flex justify-between"><span>مرفوضة:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.failed}</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* New Card 6: Egyptian Transfers Revenue */}
+        <Card>
+            <CardHeader>
+                <CardTitle>إيرادات التحويلات المصرية</CardTitle>
+                <CardDescription>إجمالي رسوم التحويلات الناجحة</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="text-center">
+                    <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
+                    <p className="text-2xl font-bold">{totalRevenueEGP.toLocaleString("en-US")} ج.م</p>
+                </div>
+                <Tabs defaultValue="day">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="day">اليوم</TabsTrigger>
+                        <TabsTrigger value="month">الشهر</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="day" className="pt-2">
+                        <div className="space-y-2 text-xs">
+                             {Object.entries(dailyRevenueByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="month" className="pt-2">
+                        <div className="space-y-2 text-xs">
+                             {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-2">
+                                         <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.revenue.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </TabsContent>
+                </Tabs>
+            </CardContent>
+        </Card>
+
       </div>
     </div>
   );
