@@ -148,14 +148,48 @@ export default function SettingsPage() {
             <h3 className="font-semibold text-lg">
               التحويل الداخلي (بالدينار الليبي)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="internal-min">الحد الأدنى (د.ل)</Label>
-                <Input id="internal-min" type="number" defaultValue="10" />
+            <div className="space-y-4">
+              {/* Unverified User */}
+              <div className="rounded-lg border p-3 space-y-3">
+                  <Label className="font-medium">المستخدم غير الموثق</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-unverified-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
+                          <Input id="internal-unverified-min" type="number" defaultValue="10" />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-unverified-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
+                          <Input id="internal-unverified-max" type="number" defaultValue="1000" />
+                      </div>
+                  </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="internal-max">الحد الأقصى (د.ل)</Label>
-                <Input id="internal-max" type="number" defaultValue="5000" />
+              {/* Verified User */}
+              <div className="rounded-lg border p-3 space-y-3">
+                  <Label className="font-medium">المستخدم الموثق</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-verified-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
+                          <Input id="internal-verified-min" type="number" defaultValue="10" />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-verified-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
+                          <Input id="internal-verified-max" type="number" defaultValue="5000" />
+                      </div>
+                  </div>
+              </div>
+              {/* Merchant */}
+              <div className="rounded-lg border p-3 space-y-3">
+                  <Label className="font-medium">التاجر</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-merchant-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
+                          <Input id="internal-merchant-min" type="number" defaultValue="10" />
+                      </div>
+                      <div className="space-y-2">
+                          <Label htmlFor="internal-merchant-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
+                          <Input id="internal-merchant-max" type="number" defaultValue="20000" />
+                      </div>
+                  </div>
               </div>
             </div>
           </div>
