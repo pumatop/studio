@@ -12,20 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { MoreHorizontal, Eye, UserCheck, UserX } from "lucide-react";
+import { Eye, UserCheck, UserX } from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -121,9 +114,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
               <TableHead>الحالة</TableHead>
               <TableHead>اخر ظهور</TableHead>
               <TableHead>التوثيق</TableHead>
-              <TableHead>
-                <span className="sr-only">الإجراءات</span>
-              </TableHead>
+              <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -144,28 +135,19 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       {user.verificationStatus}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">فتح القائمة</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                       <DropdownMenuItem onClick={() => handleShowDetails(user)}>
-                            <Eye className="ml-2 h-4 w-4" />
-                            تفاصيل اضافية
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                            onClick={() => handleToggleBan(user.id)} 
-                            className={cn(user.status === 'محظور' ? 'text-green-600 focus:text-green-700' : 'text-destructive focus:text-destructive')}>
-                           {user.status === 'محظور' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
-                           {user.status === 'محظور' ? 'رفع الحظر' : 'حظر المستخدم'}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="space-x-1 text-left rtl:space-x-reverse">
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleShowDetails(user)}>
+                    <Eye className="h-4 w-4" />
+                    <span className="sr-only">تفاصيل اضافية</span>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => handleToggleBan(user.id)} 
+                    className={cn('h-8 w-8', user.status === 'محظور' ? 'text-green-600 hover:text-green-700 hover:bg-green-50/50' : 'text-destructive hover:text-destructive hover:bg-red-50/50')}>
+                   {user.status === 'محظور' ? <UserCheck className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
+                   <span className="sr-only">{user.status === 'محظور' ? 'رفع الحظر' : 'حظر المستخدم'}</span>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
