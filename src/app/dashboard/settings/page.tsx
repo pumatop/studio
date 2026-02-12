@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PlusCircle, Trash2 } from "lucide-react";
 import type { FeeTier } from "@/lib/types";
+import { AppSettingsCard } from "./app-settings-card";
 
 // Initial Data
 const initialInternalFees: FeeTier[] = [
@@ -139,188 +140,250 @@ export default function SettingsPage() {
   const [deliveryFees, setDeliveryFees] = useState(initialDeliveryFees);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-      <Card>
-        <CardHeader>
-          <CardTitle>حدود المعاملات والتحويلات</CardTitle>
-          <CardDescription>
-            إدارة الحدود الدنيا والقصوى للمعاملات المختلفة للعملية الواحدة.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Internal Transfer LYD */}
-          <div className="space-y-4 rounded-lg border p-4">
-            <h3 className="font-semibold text-lg">
-              التحويل الداخلي (بالدينار الليبي)
-            </h3>
-            <div className="space-y-4">
-              {/* Unverified User */}
-              <div className="rounded-lg border p-3 space-y-3">
+    <div className="space-y-6">
+      <AppSettingsCard />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>حدود المعاملات والتحويلات</CardTitle>
+            <CardDescription>
+              إدارة الحدود الدنيا والقصوى للمعاملات المختلفة للعملية الواحدة.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Internal Transfer LYD */}
+            <div className="space-y-4 rounded-lg border p-4">
+              <h3 className="font-semibold text-lg">
+                التحويل الداخلي (بالدينار الليبي)
+              </h3>
+              <div className="space-y-4">
+                {/* Unverified User */}
+                <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">المستخدم غير الموثق</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-unverified-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
-                          <Input id="internal-unverified-min" type="number" defaultValue="10" />
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-unverified-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
-                          <Input id="internal-unverified-max" type="number" defaultValue="1000" />
-                      </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-unverified-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-unverified-min"
+                        type="number"
+                        defaultValue="10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-unverified-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-unverified-max"
+                        type="number"
+                        defaultValue="1000"
+                      />
+                    </div>
                   </div>
-              </div>
-              {/* Verified User */}
-              <div className="rounded-lg border p-3 space-y-3">
+                </div>
+                {/* Verified User */}
+                <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">المستخدم الموثق</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-verified-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
-                          <Input id="internal-verified-min" type="number" defaultValue="10" />
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-verified-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
-                          <Input id="internal-verified-max" type="number" defaultValue="5000" />
-                      </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-verified-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-verified-min"
+                        type="number"
+                        defaultValue="10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-verified-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-verified-max"
+                        type="number"
+                        defaultValue="5000"
+                      />
+                    </div>
                   </div>
-              </div>
-              {/* Merchant */}
-              <div className="rounded-lg border p-3 space-y-3">
+                </div>
+                {/* Merchant */}
+                <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">التاجر</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-merchant-min" className="text-sm text-muted-foreground">الحد الأدنى (د.ل)</Label>
-                          <Input id="internal-merchant-min" type="number" defaultValue="10" />
-                      </div>
-                      <div className="space-y-2">
-                          <Label htmlFor="internal-merchant-max" className="text-sm text-muted-foreground">الحد الأقصى (د.ل)</Label>
-                          <Input id="internal-merchant-max" type="number" defaultValue="20000" />
-                      </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-merchant-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-merchant-min"
+                        type="number"
+                        defaultValue="10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="internal-merchant-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (د.ل)
+                      </Label>
+                      <Input
+                        id="internal-merchant-max"
+                        type="number"
+                        defaultValue="20000"
+                      />
+                    </div>
                   </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">
-              التحويلات إلى مصر (بالجنيه المصري)
-            </h3>
             <div className="space-y-4">
-              <div className="rounded-lg border p-4 space-y-3">
-                <Label className="font-medium">حدود التحويل عبر انستاباي</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="instapay-min"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأدنى (ج.م)
-                    </Label>
-                    <Input
-                      id="instapay-min"
-                      type="number"
-                      defaultValue="100"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="instapay-max"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأقصى (ج.م)
-                    </Label>
-                    <Input
-                      id="instapay-max"
-                      type="number"
-                      defaultValue="50000"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-lg border p-4 space-y-3">
-                <Label className="font-medium">حدود التحويل عبر محفظة كاش</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="wallet-min"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأدنى (ج.م)
-                    </Label>
-                    <Input id="wallet-min" type="number" defaultValue="100" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="wallet-max"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأقصى (ج.م)
-                    </Label>
-                    <Input id="wallet-max" type="number" defaultValue="30000" />
+              <h3 className="font-semibold text-lg">
+                التحويلات إلى مصر (بالجنيه المصري)
+              </h3>
+              <div className="space-y-4">
+                <div className="rounded-lg border p-4 space-y-3">
+                  <Label className="font-medium">
+                    حدود التحويل عبر انستاباي
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="instapay-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (ج.م)
+                      </Label>
+                      <Input
+                        id="instapay-min"
+                        type="number"
+                        defaultValue="100"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="instapay-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (ج.م)
+                      </Label>
+                      <Input
+                        id="instapay-max"
+                        type="number"
+                        defaultValue="50000"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="rounded-lg border p-4 space-y-3">
-                <Label className="font-medium">
-                  حدود التحويل عبر وصلني البيت
-                </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="delivery-min"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأدنى (ج.م)
-                    </Label>
-                    <Input
-                      id="delivery-min"
-                      type="number"
-                      defaultValue="1000"
-                    />
+                <div className="rounded-lg border p-4 space-y-3">
+                  <Label className="font-medium">
+                    حدود التحويل عبر محفظة كاش
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="wallet-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (ج.م)
+                      </Label>
+                      <Input id="wallet-min" type="number" defaultValue="100" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="wallet-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (ج.م)
+                      </Label>
+                      <Input id="wallet-max" type="number" defaultValue="30000" />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="delivery-max"
-                      className="text-sm text-muted-foreground"
-                    >
-                      الحد الأقصى (ج.م)
-                    </Label>
-                    <Input
-                      id="delivery-max"
-                      type="number"
-                      defaultValue="100000"
-                    />
+                </div>
+
+                <div className="rounded-lg border p-4 space-y-3">
+                  <Label className="font-medium">
+                    حدود التحويل عبر وصلني البيت
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="delivery-min"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأدنى (ج.م)
+                      </Label>
+                      <Input
+                        id="delivery-min"
+                        type="number"
+                        defaultValue="1000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="delivery-max"
+                        className="text-sm text-muted-foreground"
+                      >
+                        الحد الأقصى (ج.م)
+                      </Label>
+                      <Input
+                        id="delivery-max"
+                        type="number"
+                        defaultValue="100000"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button>حفظ التغييرات</Button>
-        </CardFooter>
-      </Card>
+          </CardContent>
+          <CardFooter>
+            <Button>حفظ التغييرات</Button>
+          </CardFooter>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>رسوم الخدمة</CardTitle>
-          <CardDescription>
-            إدارة شرائح رسوم الخدمة للتحويلات المختلفة.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <FeeTierManager
-            title="التحويل الداخلي"
-            description="(الرسوم لا تطبق على حسابات التجار)"
-            currency="د.ل"
-            tiers={internalFees}
-            setTiers={setInternalFees}
-          />
-          <Separator />
-          <div className="space-y-4">
-             <h3 className="font-semibold text-lg">رسوم الخدمات (بالجنيه المصري)</h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>رسوم الخدمة</CardTitle>
+            <CardDescription>
+              إدارة شرائح رسوم الخدمة للتحويلات المختلفة.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FeeTierManager
+              title="التحويل الداخلي"
+              description="(الرسوم لا تطبق على حسابات التجار)"
+              currency="د.ل"
+              tiers={internalFees}
+              setTiers={setInternalFees}
+            />
+            <Separator />
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">
+                رسوم الخدمات (بالجنيه المصري)
+              </h3>
               <FeeTierManager
                 title="محفظة كاش"
                 currency="ج.م"
@@ -339,12 +402,13 @@ export default function SettingsPage() {
                 tiers={deliveryFees}
                 setTiers={setDeliveryFees}
               />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button>حفظ رسوم الخدمة</Button>
-        </CardFooter>
-      </Card>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button>حفظ رسوم الخدمة</Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -113,3 +113,10 @@ export type FeeTier = {
   to: number;
   fee: number;
 };
+
+export type Agent = {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+};
