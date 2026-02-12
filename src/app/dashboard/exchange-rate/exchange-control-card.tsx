@@ -90,7 +90,7 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 
             {type === 'amount' && (
                  <div className="space-y-2">
-                    <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (د.ل)</Label>
+                    <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (جنيه مصري)</Label>
                     <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required />
                  </div>
             )}
@@ -193,7 +193,7 @@ export function ExchangeControlCard() {
             )}
              {exchangeStatusMode === 'auto' && (
                 <div className="space-y-2 animate-in fade-in-0 duration-300">
-                    <Label htmlFor="auto-close-threshold">إغلاق الصرف عند وصول التداول إلى (د.ل)</Label>
+                    <Label htmlFor="auto-close-threshold">إغلاق الصرف عند وصول التداول إلى جنيه مصري</Label>
                     <Input
                         id="auto-close-threshold"
                         type="number"
@@ -255,7 +255,7 @@ export function ExchangeControlCard() {
                                 <p>
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
                                     <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('ar-EG') : condition.value}</span>
-                                    {condition.type === 'amount' && `د.ل،`}
+                                    {condition.type === 'amount' && ` جنيه مصري،`}
                                     غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
                                 </p>
                                 <p className="text-xs text-muted-foreground">أضافها: {condition.createdBy}</p>
