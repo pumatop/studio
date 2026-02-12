@@ -36,4 +36,18 @@ export const mockExchangeRateLogs: ExchangeRateLog[] = [
     oldRate: 9.51,
     newRate: 9.5,
   },
+  {
+    id: "log_006",
+    date: "2024-05-12T12:00:00Z",
+    modifiedBy: "أحمد خالد",
+    oldRate: 9.45,
+    newRate: 9.51,
+  },
+  {
+    id: "log_007",
+    date: "2024-05-01T10:00:00Z",
+    modifiedBy: "النظام (تلقائي)",
+    oldRate: 9.40,
+    newRate: 9.45,
+  },
 ];

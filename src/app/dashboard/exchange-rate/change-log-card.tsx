@@ -21,7 +21,18 @@ import { mockExchangeRateLogs } from "@/lib/mock-exchange-rate-log";
 import { ArrowDown, ArrowUp, History } from "lucide-react";
 
 export function ChangeLogCard() {
-  const logs = mockExchangeRateLogs;
+  const logs = (() => {
+    if (!mockExchangeRateLogs || mockExchangeRateLogs.length === 0) {
+      return [];
+    }
+    // Use the most recent log entry as the reference for "today"
+    const mostRecentDate = new Date(
+      Math.max(...mockExchangeRateLogs.map(log => new Date(log.date).getTime()))
+    );
+    const oneWeekAgo = new Date(mostRecentDate);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    return mockExchangeRateLogs.filter(log => new Date(log.date) >= oneWeekAgo).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  })();
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
@@ -34,7 +45,7 @@ export function ChangeLogCard() {
             <History className="h-5 w-5" />
             <span>سجل التغيرات</span>
         </CardTitle>
-        <CardDescription>آخر 5 تغييرات تمت على سعر الصرف.</CardDescription>
+        <CardDescription>التغييرات التي تمت على سعر الصرف في آخر أسبوع.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="border rounded-lg">
