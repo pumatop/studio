@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import type { DetailedLibyanTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { FilterX } from "lucide-react";
 
 const statusColors: Record<DetailedLibyanTransaction['status'], string> = {
   "ناجحة": "bg-green-100 text-green-800",
@@ -23,26 +26,64 @@ const statusColors: Record<DetailedLibyanTransaction['status'], string> = {
 export function LibyanTransactionsDataTable({ initialData }: { initialData: DetailedLibyanTransaction[] }) {
   const [data, setData] = useState<DetailedLibyanTransaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
+  const [operationTypeFilter, setOperationTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredData = useMemo(() => {
-     if (!searchTerm) return data;
     return data.filter(
       (item) =>
-        item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.senderPhone.includes(searchTerm) ||
-        item.recipientPhone?.includes(searchTerm)
+        (searchTerm === "" ||
+          item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.senderPhone.includes(searchTerm) ||
+          item.recipientPhone?.includes(searchTerm)) &&
+        (operationTypeFilter === "all" || item.operationType === operationTypeFilter) &&
+        (statusFilter === "all" || item.status === statusFilter)
     );
-  }, [data, searchTerm]);
+  }, [data, searchTerm, operationTypeFilter, statusFilter]);
   
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setOperationTypeFilter("all");
+    setStatusFilter("all");
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="ابحث برقم المعاملة أو رقم الهاتف..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-grow max-w-sm">
+          <Input
+            placeholder="ابحث برقم المعاملة أو رقم الهاتف..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full"
+          />
+        </div>
+        <Select value={operationTypeFilter} onValueChange={setOperationTypeFilter}>
+          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+            <SelectValue placeholder="نوع العملية" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل العمليات</SelectItem>
+            <SelectItem value="تحويل داخلي">تحويل داخلي</SelectItem>
+            <SelectItem value="تحويل للجنيه">تحويل للجنيه</SelectItem>
+            <SelectItem value="كرت شحن">كرت شحن</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+            <SelectValue placeholder="الحالة" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الحالات</SelectItem>
+            <SelectItem value="ناجحة">ناجحة</SelectItem>
+            <SelectItem value="مرفوضة">مرفوضة</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+          <FilterX className="ml-2 h-4 w-4" />
+          مسح الفلاتر
+        </Button>
       </div>
       <div className="rounded-lg border">
         <Table>
