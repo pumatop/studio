@@ -21,13 +21,28 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const colors = [
-    "hsl(var(--chart-2))", // green
-    "hsl(var(--destructive))", // red
-    "hsl(var(--primary))", // blue
-];
+const colors = {
+    increase: "hsl(138, 71%, 91%)", // light green
+    decrease: "hsl(0, 100%, 95%)",  // light red
+    equal: "hsl(219, 91%, 92%)",   // light blue
+};
 
 export function ExchangeRateChartCard() {
+  const getColorForRate = (index: number) => {
+    if (index === 0) {
+      return colors.equal; // Default color for the first bar
+    }
+    const currentRate = mockDailyRates[index].rate;
+    const previousRate = mockDailyRates[index - 1].rate;
+    if (currentRate > previousRate) {
+      return colors.increase;
+    }
+    if (currentRate < previousRate) {
+      return colors.decrease;
+    }
+    return colors.equal;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -79,7 +94,7 @@ export function ExchangeRateChartCard() {
                 radius={[4, 4, 0, 0]}
             >
                 {mockDailyRates.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                    <Cell key={`cell-${index}`} fill={getColorForRate(index)} />
                 ))}
                 <LabelList 
                     dataKey="rate" 
