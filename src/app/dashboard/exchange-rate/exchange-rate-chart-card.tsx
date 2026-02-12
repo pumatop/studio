@@ -13,7 +13,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { mockDailyRates } from "@/lib/mock-daily-rates";
+import type { DailyRate } from "@/lib/types";
 
 const chartConfig = {
   rate: {
@@ -27,13 +27,13 @@ const colors = {
     equal: "hsl(219, 91%, 92%)",   // light blue
 };
 
-export function ExchangeRateChartCard() {
+export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
   const getColorForRate = (index: number) => {
     if (index === 0) {
       return colors.equal; // Default color for the first bar
     }
-    const currentRate = mockDailyRates[index].rate;
-    const previousRate = mockDailyRates[index - 1].rate;
+    const currentRate = data[index].rate;
+    const previousRate = data[index - 1].rate;
     if (currentRate > previousRate) {
       return colors.increase;
     }
@@ -52,7 +52,7 @@ export function ExchangeRateChartCard() {
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart
-            data={mockDailyRates}
+            data={data}
             margin={{ top: 30, right: 10, left: -10, bottom: 0 }}
             accessibilityLayer
           >
@@ -93,7 +93,7 @@ export function ExchangeRateChartCard() {
                 dataKey="rate"
                 radius={[4, 4, 0, 0]}
             >
-                {mockDailyRates.map((_entry, index) => (
+                {data.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={getColorForRate(index)} />
                 ))}
                 <LabelList 

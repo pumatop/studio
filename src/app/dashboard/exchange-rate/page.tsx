@@ -1,6 +1,7 @@
 import { ExchangeControlCard } from "./exchange-control-card";
 import { ExchangeRateChartCard } from "./exchange-rate-chart-card";
 import { ChangeLogCard } from "./change-log-card";
+import { mockDailyRates } from "@/lib/mock-daily-rates";
 
 export default function ExchangeRatePage() {
   return (
@@ -9,7 +10,7 @@ export default function ExchangeRatePage() {
         <ExchangeControlCard />
       </div>
       <div className="lg:col-span-1 space-y-6">
-        <ExchangeRateChartCard />
+        <ExchangeRateChartCard data={mockDailyRates} />
         <ChangeLogCard />
       </div>
     </div>
