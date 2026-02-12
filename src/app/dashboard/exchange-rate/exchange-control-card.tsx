@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -125,6 +125,12 @@ export function ExchangeControlCard() {
   const [currentRate, setCurrentRate] = useState(9.65);
   const [conditions, setConditions] = useState<RateCondition[]>(initialConditions);
   const [isFormOpen, setFormOpen] = useState(false);
+  const [serverTime, setServerTime] = useState(new Date());
+
+  useEffect(() => {
+    const timerId = setInterval(() => setServerTime(new Date()), 1000);
+    return () => clearInterval(timerId);
+  }, []);
 
 
   const handleAddCondition = (condition: Omit<RateCondition, 'id' | 'createdBy'>) => {
@@ -208,7 +214,12 @@ export function ExchangeControlCard() {
 
         {/* Current Exchange Rate */}
         <div className="space-y-2">
-          <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
+            <span className="text-sm text-muted-foreground font-mono">
+                {serverTime.toLocaleTimeString('ar-EG')}
+            </span>
+          </div>
           <div className="relative">
             <Input
               id="current-rate"
