@@ -40,62 +40,62 @@ const navItems = [
   {
     href: "/dashboard",
     icon: LayoutDashboard,
-    label: "لوحة القيادة",
+    label: "Dashboard",
     match: /^\/dashboard\/?$/,
   },
   {
     href: "/dashboard/exchange-rate",
     icon: ArrowRightLeft,
-    label: "سعر الصرف",
+    label: "Exchange Rate",
     match: /^\/dashboard\/exchange-rate/,
   },
   {
     href: "/dashboard/users",
     icon: Users,
-    label: "المستخدمين",
+    label: "Users",
     match: /^\/dashboard\/users/,
   },
   {
     href: "/dashboard/libyan-transactions",
     icon: ReceiptText,
-    label: "المعاملات الليبية",
+    label: "Libyan Transactions",
     match: /^\/dashboard\/libyan-transactions/,
   },
   {
     href: "/dashboard/egyptian-transactions",
     icon: ReceiptText,
-    label: "المعاملات المصرية",
+    label: "Egyptian Transactions",
     match: /^\/dashboard\/egyptian-transactions/,
   },
   {
     href: "/dashboard/supervisors",
     icon: UserCog,
-    label: "المشرفين",
+    label: "Supervisors",
     match: /^\/dashboard\/supervisors/,
   },
   {
     href: "/dashboard/reports",
     icon: BrainCircuit,
-    label: "تقارير AI",
+    label: "AI Reports",
     match: /^\/dashboard\/reports/,
   },
   {
     href: "/dashboard/settings",
     icon: Settings,
-    label: "الاعدادات",
+    label: "Settings",
     match: /^\/dashboard\/settings/,
   },
 ];
 
 const pageTitles: { [key: string]: string } = {
-  "/dashboard": "لوحة القيادة",
-  "/dashboard/exchange-rate": "سعر الصرف",
-  "/dashboard/users": "المستخدمين",
-  "/dashboard/libyan-transactions": "المعاملات الليبية",
-  "/dashboard/egyptian-transactions": "المعاملات المصرية",
-  "/dashboard/supervisors": "المشرفين",
-  "/dashboard/reports": "تقارير وتحليلات AI",
-  "/dashboard/settings": "الاعدادات",
+  "/dashboard": "Dashboard",
+  "/dashboard/exchange-rate": "Exchange Rate",
+  "/dashboard/users": "Users",
+  "/dashboard/libyan-transactions": "Libyan Transactions",
+  "/dashboard/egyptian-transactions": "Egyptian Transactions",
+  "/dashboard/supervisors": "Supervisors",
+  "/dashboard/reports": "AI Reports & Analytics",
+  "/dashboard/settings": "Settings",
 };
 
 export default function DashboardLayout({
@@ -107,25 +107,20 @@ export default function DashboardLayout({
   const router = useRouter();
 
   const getPageTitle = () => {
-    for (const key in pageTitles) {
-      if (pathname.startsWith(key) && key.length > pathname.length - (pathname.endsWith('/') ? 1 : 0)) {
-        return pageTitles[key];
-      }
-    }
-     const matchedItem = navItems.find(item => pathname.match(item.match));
+    const matchedItem = navItems.find(item => pathname.match(item.match));
     if (matchedItem) {
       return pageTitles[matchedItem.href];
     }
-    return "لوحة القيادة";
+    return "Dashboard";
   };
 
   return (
     <SidebarProvider>
-      <Sidebar side="right">
+      <Sidebar side="left">
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <CircleDollarSign className="w-8 h-8" />
-            <h2 className="text-xl font-semibold">كاشيات</h2>
+            <h2 className="text-xl font-semibold">Cashaat</h2>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -153,8 +148,8 @@ export default function DashboardLayout({
                   <AvatarImage src="https://picsum.photos/seed/100/40/40" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
-                <div className="text-right">
-                  <p className="text-sm font-medium">المسؤول</p>
+                <div className="text-left">
+                  <p className="text-sm font-medium">Admin</p>
                   <p className="text-xs text-sidebar-foreground/70">
                     admin@example.com
                   </p>
@@ -162,11 +157,11 @@ export default function DashboardLayout({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/")}>
-                <LogOut className="ml-2 h-4 w-4" />
-                <span>تسجيل الخروج</span>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
