@@ -68,10 +68,10 @@ export function ChangeLogCard() {
                   <TableCell>
                     {new Date(log.date).toLocaleString("en-GB", {
                       year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: "numeric",
-                      minute: "numeric",
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </TableCell>
                   <TableCell className="font-medium">{log.modifiedBy}</TableCell>
