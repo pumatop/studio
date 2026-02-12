@@ -17,10 +17,14 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LayoutDashboard,
-  Table,
   BrainCircuit,
   LogOut,
   CircleDollarSign,
+  ArrowRightLeft,
+  Users,
+  ReceiptText,
+  UserCog,
+  Settings,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -40,10 +44,34 @@ const navItems = [
     match: /^\/dashboard\/?$/,
   },
   {
-    href: "/dashboard/data",
-    icon: Table,
-    label: "إدارة البيانات",
-    match: /^\/dashboard\/data/,
+    href: "/dashboard/exchange-rate",
+    icon: ArrowRightLeft,
+    label: "سعر الصرف",
+    match: /^\/dashboard\/exchange-rate/,
+  },
+  {
+    href: "/dashboard/users",
+    icon: Users,
+    label: "المستخدمين",
+    match: /^\/dashboard\/users/,
+  },
+  {
+    href: "/dashboard/libyan-transactions",
+    icon: ReceiptText,
+    label: "المعاملات الليبية",
+    match: /^\/dashboard\/libyan-transactions/,
+  },
+  {
+    href: "/dashboard/egyptian-transactions",
+    icon: ReceiptText,
+    label: "المعاملات المصرية",
+    match: /^\/dashboard\/egyptian-transactions/,
+  },
+  {
+    href: "/dashboard/supervisors",
+    icon: UserCog,
+    label: "المشرفين",
+    match: /^\/dashboard\/supervisors/,
   },
   {
     href: "/dashboard/reports",
@@ -51,12 +79,23 @@ const navItems = [
     label: "تقارير AI",
     match: /^\/dashboard\/reports/,
   },
+  {
+    href: "/dashboard/settings",
+    icon: Settings,
+    label: "الاعدادات",
+    match: /^\/dashboard\/settings/,
+  },
 ];
 
 const pageTitles: { [key: string]: string } = {
   "/dashboard": "لوحة القيادة",
-  "/dashboard/data": "إدارة البيانات",
+  "/dashboard/exchange-rate": "سعر الصرف",
+  "/dashboard/users": "المستخدمين",
+  "/dashboard/libyan-transactions": "المعاملات الليبية",
+  "/dashboard/egyptian-transactions": "المعاملات المصرية",
+  "/dashboard/supervisors": "المشرفين",
   "/dashboard/reports": "تقارير وتحليلات AI",
+  "/dashboard/settings": "الاعدادات",
 };
 
 export default function DashboardLayout({
@@ -69,9 +108,13 @@ export default function DashboardLayout({
 
   const getPageTitle = () => {
     for (const key in pageTitles) {
-      if (pathname === key) {
+      if (pathname.startsWith(key) && key.length > pathname.length - (pathname.endsWith('/') ? 1 : 0)) {
         return pageTitles[key];
       }
+    }
+     const matchedItem = navItems.find(item => pathname.match(item.match));
+    if (matchedItem) {
+      return pageTitles[matchedItem.href];
     }
     return "لوحة القيادة";
   };
@@ -89,7 +132,7 @@ export default function DashboardLayout({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     isActive={!!pathname.match(item.match)}
                     tooltip={{ children: item.label }}

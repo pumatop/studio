@@ -5,17 +5,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DollarSign, ShoppingCart, Activity, Star } from "lucide-react";
-import { mockData } from "@/lib/mock-data";
+import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
+import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
 import { SalesChart, CategoryChart } from "@/components/charts";
 
 export default function DashboardPage() {
-  const totalRevenue = mockData.reduce((sum, item) => sum + item.amount, 0);
-  const totalTransactions = mockData.length;
-  const averageSale = totalRevenue / totalTransactions;
+  const allTransactions = [...mockLibyanTransactions, ...mockEgyptianTransactions];
+  
+  const libyanRevenue = mockLibyanTransactions.reduce((sum, item) => sum + item.amount, 0);
+  const egyptianRevenue = mockEgyptianTransactions.reduce((sum, item) => sum + item.amount, 0);
+  const totalTransactions = allTransactions.length;
 
   const getTopProduct = () => {
+    if (allTransactions.length === 0) return 'N/A';
     const productCounts: { [key: string]: number } = {};
-    mockData.forEach((item) => {
+    allTransactions.forEach((item) => {
       productCounts[item.product] = (productCounts[item.product] || 0) + 1;
     });
     return Object.entries(productCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
@@ -24,19 +28,19 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: "إجمالي الإيرادات",
-      value: `د.إ ${totalRevenue.toLocaleString()}`,
+      title: "إيرادات ليبيا",
+      value: `LYD ${libyanRevenue.toLocaleString()}`,
+      icon: DollarSign,
+    },
+    {
+      title: "إيرادات مصر",
+      value: `EGP ${egyptianRevenue.toLocaleString()}`,
       icon: DollarSign,
     },
     {
       title: "إجمالي المعاملات",
       value: totalTransactions.toString(),
       icon: ShoppingCart,
-    },
-    {
-      title: "متوسط قيمة البيع",
-      value: `د.إ ${averageSale.toFixed(2)}`,
-      icon: Activity,
     },
     {
       title: "أفضل منتج مبيعاً",
@@ -62,8 +66,11 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <SalesChart data={mockData} />
-        <CategoryChart data={mockData} />
+        <SalesChart data={mockLibyanTransactions} title="إيرادات ليبيا على مدار الوقت" currency="LYD" />
+        <SalesChart data={mockEgyptianTransactions} title="إيرادات مصر على مدار الوقت" currency="EGP" />
+      </div>
+       <div className="grid gap-4 md:grid-cols-1">
+        <CategoryChart data={allTransactions} title="المعاملات حسب الفئة (الكل)" />
       </div>
     </div>
   );

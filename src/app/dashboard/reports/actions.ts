@@ -1,14 +1,19 @@
 "use server";
 
 import { generateDataInsights, type GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
-import { mockData } from "@/lib/mock-data";
+import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
+import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
 
 export async function generateInsightsAction(): Promise<{
   data: GenerateDataInsightsOutput | null;
   error: string | null;
 }> {
   try {
-    const dataString = JSON.stringify(mockData, null, 2);
+    const allTransactions = {
+      libyanTransactions: mockLibyanTransactions,
+      egyptianTransactions: mockEgyptianTransactions
+    };
+    const dataString = JSON.stringify(allTransactions, null, 2);
     const result = await generateDataInsights({ data: dataString });
     return { data: result, error: null };
   } catch (e) {

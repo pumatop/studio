@@ -11,7 +11,7 @@ import type { Transaction } from "@/lib/types";
 import { useMemo } from "react";
 
 // Sales Over Time Chart
-export function SalesChart({ data }: { data: Transaction[] }) {
+export function SalesChart({ data, title, currency }: { data: Transaction[], title: string, currency: string }) {
   const chartData = useMemo(() => {
     const dailySales: { [key: string]: number } = {};
     data.forEach((t) => {
@@ -32,9 +32,9 @@ export function SalesChart({ data }: { data: Transaction[] }) {
   return (
      <Card>
       <CardHeader>
-        <CardTitle>الإيرادات على مدار الوقت</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
-          عرض إجمالي الإيرادات اليومية للشهر الحالي.
+          عرض إجمالي الإيرادات اليومية.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -45,7 +45,7 @@ export function SalesChart({ data }: { data: Transaction[] }) {
             accessibilityLayer
           >
             <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} angle={-45} textAnchor="end" height={60} />
-            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `$${value}`} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value) => `${currency} ${value}`} />
             <Tooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
@@ -65,7 +65,7 @@ export function SalesChart({ data }: { data: Transaction[] }) {
 }
 
 // Transactions by Category Chart
-export function CategoryChart({ data }: { data: Transaction[] }) {
+export function CategoryChart({ data, title }: { data: Transaction[], title: string }) {
    const chartData = useMemo(() => {
     const categoryCounts: { [key: string]: number } = {};
     data.forEach((t) => {
@@ -87,7 +87,7 @@ export function CategoryChart({ data }: { data: Transaction[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>المعاملات حسب الفئة</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
           توزيع المعاملات عبر فئات المنتجات المختلفة.
         </CardDescription>
