@@ -145,29 +145,49 @@ export default function DashboardPage() {
     return sum + fraction;
   }, 0);
 
+  const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfToday);
+  const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfMonth);
+  
   // 5. Egyptian Transfers Summary
-  const successfulTransfersEGP = mockEgyptianTransfers
+  const dailySuccessfulTransfersEGP = dailyEgyptianTransfers
     .filter((t) => t.status === "ناجح")
     .reduce((sum, t) => sum + t.sentAmount, 0);
-  const pendingTransfersEGP = mockEgyptianTransfers
+  const dailyPendingTransfersEGP = dailyEgyptianTransfers
     .filter((t) => t.status === "قيد التحويل")
     .reduce((sum, t) => sum + t.sentAmount, 0);
-  const totalActiveTransfersEGP = successfulTransfersEGP + pendingTransfersEGP;
-  
-  const transferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+  const dailyTotalActiveTransfersEGP = dailySuccessfulTransfersEGP + dailyPendingTransfersEGP;
+
+  const dailyTransferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
     acc[type] = { count: 0, amount: 0 };
     return acc;
   }, {} as Record<EgyptianTransfer['transferType'], {count: number, amount: number}>);
 
-  mockEgyptianTransfers.forEach(t => {
-      if (transferStatsByType[t.transferType]) {
-          transferStatsByType[t.transferType].count++;
-          transferStatsByType[t.transferType].amount += t.sentAmount;
+  dailyEgyptianTransfers.forEach(t => {
+      if (dailyTransferStatsByType[t.transferType]) {
+          dailyTransferStatsByType[t.transferType].count++;
+          dailyTransferStatsByType[t.transferType].amount += t.sentAmount;
       }
   });
 
-  const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfToday);
-  const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfMonth);
+  const monthlySuccessfulTransfersEGP = monthlyEgyptianTransfers
+    .filter((t) => t.status === "ناجح")
+    .reduce((sum, t) => sum + t.sentAmount, 0);
+  const monthlyPendingTransfersEGP = monthlyEgyptianTransfers
+    .filter((t) => t.status === "قيد التحويل")
+    .reduce((sum, t) => sum + t.sentAmount, 0);
+  const monthlyTotalActiveTransfersEGP = monthlySuccessfulTransfersEGP + monthlyPendingTransfersEGP;
+
+  const monthlyTransferStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+    acc[type] = { count: 0, amount: 0 };
+    return acc;
+  }, {} as Record<EgyptianTransfer['transferType'], {count: number, amount: number}>);
+
+  monthlyEgyptianTransfers.forEach(t => {
+      if (monthlyTransferStatsByType[t.transferType]) {
+          monthlyTransferStatsByType[t.transferType].count++;
+          monthlyTransferStatsByType[t.transferType].amount += t.sentAmount;
+      }
+  });
   
   const calculateStatusCounts = (transfers: EgyptianTransfer[]) => {
     return transfers.reduce((acc, t) => {
@@ -395,70 +415,89 @@ export default function DashboardPage() {
         </Card>
 
         {/* New Card 5: Egyptian Transfers Summary */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Activity /> ملخص التحويلات المصرية</CardTitle>
-            <CardDescription>
-              نظرة عامة على حجم التحويلات بالجنيه المصري.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="text-center">
-              <p className="text-sm text-muted-foreground">إجمالي التحويلات (الناجحة + المعلقة)</p>
-              <p className="text-3xl font-bold">
-                {totalActiveTransfersEGP.toLocaleString("en-US")} ج.م
-              </p>
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <p className="text-sm text-muted-foreground">التحويلات الناجحة</p>
-                <p className="text-2xl font-bold text-green-600">{successfulTransfersEGP.toLocaleString("en-US")} ج.م</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">التحويلات المعلقة</p>
-                <p className="text-2xl font-bold text-yellow-600">{pendingTransfersEGP.toLocaleString("en-US")} ج.م</p>
-              </div>
-            </div>
-            <Separator />
-            <div>
-                <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
-                <div className="space-y-2 text-xs">
-                    {Object.entries(transferStatsByType).map(([type, stats]) => (
-                        <div key={type} className="flex justify-between items-center">
-                            <span>{type}</span>
-                            <div className="flex items-center gap-4">
-                                <Badge variant="outline" className="w-20 justify-center">{stats.count} حوالة</Badge>
-                                <span className="font-semibold w-24 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-            <Separator />
-            <div>
-                <h4 className="text-sm font-semibold mb-2">حالة الحوالات</h4>
-                <div className="grid grid-cols-2 gap-4 text-xs">
+        <div className="lg:col-span-2 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص اليوم</CardTitle>
+                    <CardDescription>
+                    حوالات الجنيه المصري اليوم.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="text-center">
+                    <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
+                    <p className="text-2xl font-bold">
+                        {dailyTotalActiveTransfersEGP.toLocaleString("en-US")} ج.م
+                    </p>
+                    </div>
+                    <Separator />
                     <div>
-                        <h5 className="font-medium mb-1">اليوم</h5>
-                        <div className="space-y-1 text-muted-foreground">
+                        <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(dailyTransferStatsByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">حالة الحوالات</h4>
+                        <div className="space-y-1 text-xs text-muted-foreground">
                             <p className="flex justify-between"><span>ناجحة:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.successful}</span></p>
                             <p className="flex justify-between"><span>قيد التحويل:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.pending}</span></p>
                             <p className="flex justify-between"><span>مرفوضة:</span> <span className="font-semibold text-foreground">{dailyEgyptianTransferStatus.failed}</span></p>
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص الشهر</CardTitle>
+                    <CardDescription>
+                    حوالات الجنيه المصري هذا الشهر.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="text-center">
+                    <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
+                    <p className="text-2xl font-bold">
+                        {monthlyTotalActiveTransfersEGP.toLocaleString("en-US")} ج.م
+                    </p>
+                    </div>
+                    <Separator />
                     <div>
-                        <h5 className="font-medium mb-1">الشهر</h5>
-                        <div className="space-y-1 text-muted-foreground">
+                        <h4 className="text-sm font-semibold mb-2">تفاصيل حسب النوع</h4>
+                        <div className="space-y-2 text-xs">
+                            {Object.entries(monthlyTransferStatsByType).map(([type, stats]) => (
+                                <div key={type} className="flex justify-between items-center">
+                                    <span>{type}</span>
+                                    <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="w-16 justify-center">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold w-20 text-left">{stats.amount.toLocaleString("en-US")} ج.م</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">حالة الحوالات</h4>
+                        <div className="space-y-1 text-xs text-muted-foreground">
                             <p className="flex justify-between"><span>ناجحة:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.successful}</span></p>
                             <p className="flex justify-between"><span>قيد التحويل:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.pending}</span></p>
                             <p className="flex justify-between"><span>مرفوضة:</span> <span className="font-semibold text-foreground">{monthlyEgyptianTransferStatus.failed}</span></p>
                         </div>
                     </div>
-                </div>
-            </div>
-          </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+        </div>
+
 
         {/* New Card 6: Egyptian Transfers Revenue */}
         <Card>
