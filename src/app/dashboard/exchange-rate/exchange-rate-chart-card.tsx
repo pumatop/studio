@@ -43,7 +43,7 @@ export function ExchangeRateChartCard() {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) =>
-                new Date(value).toLocaleDateString("en-US", { weekday: "short" })
+                new Date(value).toLocaleDateString("ar-EG", { weekday: "short" })
               }
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
@@ -63,7 +63,7 @@ export function ExchangeRateChartCard() {
                 const { payload } = props;
                 return (
                   <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric'})}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: 'long', day: 'numeric'})}</span>
                     <span className="font-bold">{`${chartConfig.rate.label}: ${value}`}</span>
                   </div>
                 )
