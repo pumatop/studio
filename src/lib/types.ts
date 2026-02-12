@@ -44,3 +44,11 @@ export type DailyRate = {
   date: string;
   rate: number;
 };
+
+export type RateCondition = {
+  id: string;
+  type: "amount" | "time";
+  value: number | string;
+  targetRate: number;
+  createdBy: string;
+};

@@ -16,16 +16,132 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import type { RateCondition } from "@/lib/types";
+import { Clock, DollarSign, PlusCircle, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+
+// Mock Data for initial conditions
+const initialConditions: RateCondition[] = [
+  {
+    id: "cond_1",
+    type: "amount",
+    value: 500000,
+    targetRate: 9.7,
+    createdBy: "أحمد خالد",
+  },
+  {
+    id: "cond_2",
+    type: "time",
+    value: "22:00",
+    targetRate: 9.75,
+    createdBy: "النظام (تلقائي)",
+  },
+];
+
+function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
+    const [type, setType] = useState<'amount' | 'time'>('amount');
+    const [value, setValue] = useState<string>('');
+    const [targetRate, setTargetRate] = useState<string>('');
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!value || !targetRate) {
+          // Basic validation
+          return;
+        }
+        onSave({
+            type,
+            value: type === 'amount' ? parseFloat(value) : value,
+            targetRate: parseFloat(targetRate),
+        });
+    }
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+             <div>
+                <Label>نوع الشرط</Label>
+                 <RadioGroup
+                    value={type}
+                    onValueChange={(v: 'amount' | 'time') => setType(v)}
+                    className="grid grid-cols-2 gap-4 mt-2"
+                >
+                    <div>
+                        <RadioGroupItem value="amount" id="r-amount" className="peer sr-only" />
+                        <Label htmlFor="r-amount" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            عند الوصول لمبلغ
+                        </Label>
+                    </div>
+                    <div>
+                        <RadioGroupItem value="time" id="r-time" className="peer sr-only" />
+                        <Label htmlFor="r-time" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                            عند الوصول لوقت
+                        </Label>
+                    </div>
+                </RadioGroup>
+            </div>
+
+            {type === 'amount' && (
+                 <div className="space-y-2">
+                    <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (د.ل)</Label>
+                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required />
+                 </div>
+            )}
+            {type === 'time' && (
+                 <div className="space-y-2">
+                    <Label htmlFor="cond-value-time">الوقت المحدد للتغيير</Label>
+                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required />
+                 </div>
+            )}
+
+            <div className="space-y-2">
+                <Label htmlFor="cond-target-rate">السعر الجديد المستهدف</Label>
+                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required />
+            </div>
+
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="secondary">إلغاء</Button>
+                </DialogClose>
+                <Button type="submit">إضافة الشرط</Button>
+            </DialogFooter>
+        </form>
+    );
+}
+
 
 export function ExchangeControlCard() {
   const { toast } = useToast();
+  const [exchangeStatusMode, setExchangeStatusMode] = useState<"manual" | "auto">("manual");
   const [isExchangeOpen, setExchangeOpen] = useState(true);
-  const [isAutoMode, setAutoMode] = useState(false);
+  const [autoCloseThreshold, setAutoCloseThreshold] = useState(1000000);
   const [currentRate, setCurrentRate] = useState(9.65);
-  const [autoCondition, setAutoCondition] = useState("amount");
-  const [autoAmount, setAutoAmount] = useState(500000);
-  const [autoTime, setAutoTime] = useState("22:00");
-  const [autoNextRate, setAutoNextRate] = useState(9.7);
+  const [conditions, setConditions] = useState<RateCondition[]>(initialConditions);
+  const [isFormOpen, setFormOpen] = useState(false);
+
+
+  const handleAddCondition = (condition: Omit<RateCondition, 'id' | 'createdBy'>) => {
+    const newCondition: RateCondition = {
+        ...condition,
+        id: `cond_${Date.now()}`,
+        createdBy: 'أنت' // Mocked user
+    };
+    setConditions(prev => [...prev, newCondition]);
+    toast({ title: "تم إضافة الشرط بنجاح" });
+    setFormOpen(false);
+  };
+
+  const handleDeleteCondition = (id: string) => {
+    setConditions(prev => prev.filter(c => c.id !== id));
+    toast({ title: "تم حذف الشرط", variant: 'destructive' });
+  }
 
   const handleSave = () => {
     toast({
@@ -39,45 +155,58 @@ export function ExchangeControlCard() {
       <CardHeader>
         <CardTitle>التحكم في الصرف</CardTitle>
         <CardDescription>
-          إدارة حالة الصرف وتحديث الأسعار.
+          إدارة حالة الصرف وتحديث الأسعار بشكل يدوي وتلقائي.
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
+        
         {/* Exchange Status */}
         <div className="space-y-4">
-           <div className="flex items-center justify-between rounded-lg border p-4">
-            <div>
-              <Label htmlFor="exchange-status" className="font-semibold">الصرف مفتوح</Label>
-              <p className="text-xs text-muted-foreground">
-                فتح أو إغلاق الصرف بشكل نهائي.
-              </p>
-            </div>
-            <Switch
-              id="exchange-status"
-              checked={isExchangeOpen}
-              onCheckedChange={setExchangeOpen}
-              aria-label="Toggle exchange status"
-            />
-          </div>
-           <div className="flex items-center justify-between rounded-lg border p-4">
-            <div>
-              <Label htmlFor="auto-mode" className="font-semibold">التحكم التلقائي</Label>
-              <p className="text-xs text-muted-foreground">
-                تفعيل التغيير التلقائي للسعر.
-              </p>
-            </div>
-            <Switch
-              id="auto-mode"
-              checked={isAutoMode}
-              onCheckedChange={setAutoMode}
-              aria-label="Toggle automatic control"
-            />
-          </div>
-        </div>
+            <h3 className="font-semibold text-base">حالة الصرف</h3>
+             <RadioGroup
+                value={exchangeStatusMode}
+                onValueChange={(v: "manual" | "auto") => setExchangeStatusMode(v)}
+                className="flex gap-4"
+            >
+                <div className="flex items-center space-x-2 space-x-reverse">
+                    <RadioGroupItem value="manual" id="r-manual" />
+                    <Label htmlFor="r-manual">يدوي</Label>
+                </div>
+                <div className="flex items-center space-x-2 space-x-reverse">
+                    <RadioGroupItem value="auto" id="r-auto" />
+                    <Label htmlFor="r-auto">تلقائي</Label>
+                </div>
+            </RadioGroup>
 
+            {exchangeStatusMode === 'manual' && (
+                 <div className="flex items-center justify-between rounded-lg border p-4 animate-in fade-in-0 duration-300">
+                    <div>
+                        <Label htmlFor="exchange-status" className="font-semibold">الصرف مفتوح</Label>
+                    </div>
+                    <Switch
+                        id="exchange-status"
+                        checked={isExchangeOpen}
+                        onCheckedChange={setExchangeOpen}
+                        aria-label="Toggle exchange status"
+                    />
+                </div>
+            )}
+             {exchangeStatusMode === 'auto' && (
+                <div className="space-y-2 animate-in fade-in-0 duration-300">
+                    <Label htmlFor="auto-close-threshold">إغلاق الصرف عند وصول التداول إلى (د.ل)</Label>
+                    <Input
+                        id="auto-close-threshold"
+                        type="number"
+                        value={autoCloseThreshold}
+                        onChange={(e) => setAutoCloseThreshold(parseInt(e.target.value, 10))}
+                    />
+                </div>
+            )}
+        </div>
+        
         <Separator />
 
-        {/* Exchange Rate */}
+        {/* Current Exchange Rate */}
         <div className="space-y-2">
           <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
           <div className="relative">
@@ -95,66 +224,52 @@ export function ExchangeControlCard() {
           </div>
         </div>
 
-        {/* Automatic Rate Change */}
-        {isAutoMode && (
-            <>
-            <Separator />
-            <div className="space-y-4 animate-in fade-in-0 duration-500">
-                <h3 className="font-semibold text-base">شروط التغيير التلقائي</h3>
-                <RadioGroup
-                    value={autoCondition}
-                    onValueChange={setAutoCondition}
-                    className="grid grid-cols-2 gap-4"
-                >
-                    <div>
-                    <RadioGroupItem value="amount" id="r-amount" className="peer sr-only" />
-                    <Label htmlFor="r-amount" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                        عند الوصول لمبلغ
-                    </Label>
-                    </div>
-                    <div>
-                    <RadioGroupItem value="time" id="r-time" className="peer sr-only" />
-                    <Label htmlFor="r-time" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                        عند الوصول لوقت
-                    </Label>
-                    </div>
-                </RadioGroup>
-
-                {autoCondition === "amount" && (
-                    <div className="space-y-2 animate-in fade-in-0 duration-300">
-                    <Label htmlFor="auto-amount">مبلغ التحويل المستهدف (د.ل)</Label>
-                    <Input
-                        id="auto-amount"
-                        type="number"
-                        value={autoAmount}
-                        onChange={(e) => setAutoAmount(parseInt(e.target.value, 10))}
-                    />
-                    </div>
-                )}
-                {autoCondition === "time" && (
-                    <div className="space-y-2 animate-in fade-in-0 duration-300">
-                    <Label htmlFor="auto-time">الوقت المحدد للتغيير</Label>
-                    <Input
-                        id="auto-time"
-                        type="time"
-                        value={autoTime}
-                        onChange={(e) => setAutoTime(e.target.value)}
-                    />
-                    </div>
-                )}
-                <div className="space-y-2">
-                    <Label htmlFor="auto-next-rate">السعر الجديد المستهدف</Label>
-                    <Input
-                    id="auto-next-rate"
-                    type="number"
-                    value={autoNextRate}
-                    onChange={(e) => setAutoNextRate(parseFloat(e.target.value))}
-                    step="0.01"
-                    />
-                </div>
+        <Separator />
+        
+        {/* Automatic Rate Change Conditions */}
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                 <h3 className="font-semibold text-base">شروط التغيير التلقائي للسعر</h3>
+                 <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <PlusCircle className="ml-2 h-4 w-4" />
+                            إضافة شرط
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>إضافة شرط جديد</DialogTitle>
+                        </DialogHeader>
+                        <NewConditionForm onSave={handleAddCondition} />
+                    </DialogContent>
+                 </Dialog>
             </div>
-            </>
-        )}
+            <div className="space-y-2">
+                {conditions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">لا توجد شروط حالياً.</p>}
+                {conditions.map(condition => (
+                    <div key={condition.id} className="flex items-center justify-between rounded-lg border p-3">
+                       <div className="flex items-center gap-3">
+                            {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-muted-foreground" /> : <Clock className="h-5 w-5 text-muted-foreground" />}
+                            <div className="text-sm">
+                                <p>
+                                    {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
+                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('ar-EG') : condition.value}</span>
+                                    {condition.type === 'amount' && `د.ل،`}
+                                    غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
+                                </p>
+                                <p className="text-xs text-muted-foreground">أضافها: {condition.createdBy}</p>
+                            </div>
+                       </div>
+                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCondition(condition.id)}>
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">حذف الشرط</span>
+                       </Button>
+                    </div>
+                ))}
+            </div>
+        </div>
+
       </CardContent>
       <CardFooter>
         <Button onClick={handleSave} className="w-full">
