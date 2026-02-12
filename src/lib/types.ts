@@ -7,6 +7,24 @@ export type Transaction = {
   paymentMethod: 'بطاقة ائتمان' | 'نقد' | 'تحويل بنكي';
 };
 
+export type DetailedLibyanTransaction = {
+  id: string;
+  operationType: 'تحويل داخلي' | 'تحويل للجنيه' | 'كرت شحن';
+  senderPhone: string;
+  sentAmount: number;
+  serviceFee: number;
+  exchangeRate?: number;
+  receivedAmount: number;
+  recipientPhone?: string;
+  convertedAmountEGP?: number;
+  cardType?: 'ليبيانا' | 'المدار';
+  cardDenomination?: number;
+  cardSerial?: string;
+  cardPin?: string;
+  timestamp: string;
+  status: 'ناجحة' | 'مرفوضة';
+};
+
 export type ExchangeRate = {
   id: string;
   currencyPair: string;
