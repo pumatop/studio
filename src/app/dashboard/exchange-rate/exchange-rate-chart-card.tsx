@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, LabelList, Tooltip, XAxis, YAxis, Cell } from "recharts";
 import {
   Card,
   CardContent,
@@ -18,9 +18,14 @@ import { mockDailyRates } from "@/lib/mock-daily-rates";
 const chartConfig = {
   rate: {
     label: "السعر",
-    color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig;
+
+const colors = [
+    "hsl(var(--chart-2))", // green
+    "hsl(var(--destructive))", // red
+    "hsl(var(--primary))", // blue
+];
 
 export function ExchangeRateChartCard() {
   return (
@@ -71,9 +76,11 @@ export function ExchangeRateChartCard() {
             />
             <Bar
                 dataKey="rate"
-                fill="var(--color-rate)"
                 radius={[4, 4, 0, 0]}
             >
+                {mockDailyRates.map((_entry, index) => (
+                    <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                ))}
                 <LabelList 
                     dataKey="rate" 
                     position="top" 
