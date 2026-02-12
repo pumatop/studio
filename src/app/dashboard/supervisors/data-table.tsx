@@ -184,7 +184,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 <TableCell>{supervisor.email}</TableCell>
                 <TableCell>{supervisor.role}</TableCell>
                 <TableCell>
-                  <Badge variant={supervisor.status === 'نشط' ? 'default' : 'destructive'} className={supervisor.status === 'نشط' ? 'bg-green-500' : ''}>
+                  <Badge variant={supervisor.status === 'نشط' ? 'default' : 'destructive'} className={`${supervisor.status === 'نشط' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} hover:${supervisor.status === 'نشط' ? 'bg-green-200' : 'bg-red-200'}`}>
                       {supervisor.status}
                   </Badge>
                 </TableCell>

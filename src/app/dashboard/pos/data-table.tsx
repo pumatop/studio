@@ -27,21 +27,22 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
-import type { User } from "@/lib/types";
+import type { PointOfSale } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
-function UserForm({
-  user,
+function PosForm({
+  pos,
   onSave,
 }: {
-  user?: User;
-  onSave: (u: User) => void;
+  pos?: PointOfSale;
+  onSave: (p: PointOfSale) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<User>>(
-    user || {
+  const [formData, setFormData] = useState<Partial<PointOfSale>>(
+    pos || {
       createdAt: new Date().toISOString(),
       status: 'نشط',
+      balance: 0,
     }
   );
 
@@ -54,13 +55,13 @@ function UserForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData as User);
+    onSave(formData as PointOfSale);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="text-sm font-medium">الاسم</label>
+        <label className="text-sm font-medium">اسم النقطة</label>
         <Input
           name="name"
           value={formData.name || ""}
@@ -69,20 +70,12 @@ function UserForm({
         />
       </div>
       <div>
-        <label className="text-sm font-medium">البريد الإلكتروني</label>
+        <label className="text-sm font-medium">الرصيد</label>
         <Input
-          name="email"
-          type="email"
-          value={formData.email || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-       <div>
-        <label className="text-sm font-medium">الهاتف</label>
-        <Input
-          name="phone"
-          value={formData.phone || ""}
+          name="balance"
+          type="number"
+          step="0.01"
+          value={formData.balance || ""}
           onChange={handleChange}
           required
         />
@@ -91,7 +84,7 @@ function UserForm({
         <label className="text-sm font-medium">الحالة</label>
         <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border rounded-md">
             <option>نشط</option>
-            <option>محظور</option>
+            <option>غير نشط</option>
         </select>
       </div>
       <DialogFooter>
@@ -104,34 +97,33 @@ function UserForm({
   );
 }
 
-export function UsersDataTable({ initialData }: { initialData: User[] }) {
-  const [data, setData] = useState<User[]>(initialData);
+export function PosDataTable({ initialData }: { initialData: PointOfSale[] }) {
+  const [data, setData] = useState<PointOfSale[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | undefined>(undefined);
+  const [editingPos, setEditingPos] = useState<PointOfSale | undefined>(undefined);
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase())
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [data, searchTerm]);
   
-  const handleSave = (user: User) => {
-    if(editingUser) {
+  const handleSave = (pos: PointOfSale) => {
+    if(editingPos) {
         // Edit
-        setData(data.map(d => d.id === editingUser.id ? {...d, ...user} : d));
+        setData(data.map(d => d.id === editingPos.id ? {...d, ...pos} : d));
         toast({ title: "تم التحديث بنجاح" });
     } else {
         // Add
-        const newUser = {...user, id: `usr_${Date.now()}`, createdAt: new Date().toISOString()};
-        setData([newUser, ...data]);
+        const newPos = {...pos, id: `pos_${Date.now()}`, createdAt: new Date().toISOString()};
+        setData([newPos, ...data]);
         toast({ title: "تمت الإضافة بنجاح" });
     }
     setDialogOpen(false);
-    setEditingUser(undefined);
+    setEditingPos(undefined);
   };
   
   const handleDelete = (id: string) => {
@@ -143,23 +135,23 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Input
-          placeholder="ابحث بالاسم أو البريد..."
+          placeholder="ابحث باسم النقطة..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-                <Button onClick={() => setEditingUser(undefined)}>
+                <Button onClick={() => setEditingPos(undefined)}>
                     <PlusCircle className="ml-2 h-4 w-4" />
-                    إضافة مستخدم
+                    إضافة نقطة بيع
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{editingUser ? 'تعديل مستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
+                    <DialogTitle>{editingPos ? 'تعديل نقطة البيع' : 'إضافة نقطة بيع جديدة'}</DialogTitle>
                 </DialogHeader>
-                <UserForm onSave={handleSave} user={editingUser} />
+                <PosForm onSave={handleSave} pos={editingPos} />
             </DialogContent>
         </Dialog>
       </div>
@@ -167,9 +159,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>الاسم</TableHead>
-              <TableHead>البريد الإلكتروني</TableHead>
-              <TableHead>الهاتف</TableHead>
+              <TableHead>اسم النقطة</TableHead>
+              <TableHead>الرصيد</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>تاريخ الإنشاء</TableHead>
               <TableHead>
@@ -178,17 +169,16 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.phone}</TableCell>
+            {filteredData.map((pos) => (
+              <TableRow key={pos.id}>
+                <TableCell className="font-medium">{pos.name}</TableCell>
+                <TableCell>د.ل {Number(pos.balance).toLocaleString('ar-LY', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                 <TableCell>
-                  <Badge variant={user.status === 'نشط' ? 'default' : 'destructive'} className={`${user.status === 'نشط' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} hover:${user.status === 'نشط' ? 'bg-green-200' : 'bg-red-200'}`}>
-                      {user.status}
+                  <Badge variant={pos.status === 'نشط' ? 'default' : 'destructive'} className={`${pos.status === 'نشط' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} hover:${pos.status === 'نشط' ? 'bg-green-200' : 'bg-red-200'}`}>
+                      {pos.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString('ar-EG')}</TableCell>
+                <TableCell>{new Date(pos.createdAt).toLocaleDateString('ar-EG')}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -198,8 +188,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setEditingUser(user); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>حذف</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => { setEditingPos(pos); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(pos.id)}>حذف</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
