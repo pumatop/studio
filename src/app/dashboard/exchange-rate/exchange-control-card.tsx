@@ -27,6 +27,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 
 // Mock Data for initial conditions
 const initialConditions: RateCondition[] = [
@@ -168,7 +169,15 @@ export function ExchangeControlCard() {
         
         {/* Exchange Status */}
         <div className="space-y-4">
-            <h3 className="font-semibold text-base">حالة الصرف</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-base">حالة الصرف</h3>
+              <Badge
+                  variant={isExchangeOpen ? "default" : "destructive"}
+                  className={isExchangeOpen ? "bg-green-100 text-green-800 hover:bg-green-200" : "bg-red-100 text-red-800 hover:bg-red-200"}
+              >
+                  {isExchangeOpen ? "مفتوح" : "مغلق"}
+              </Badge>
+            </div>
              <RadioGroup
                 value={exchangeStatusMode}
                 onValueChange={(v: "manual" | "auto") => setExchangeStatusMode(v)}
@@ -187,7 +196,7 @@ export function ExchangeControlCard() {
             {exchangeStatusMode === 'manual' && (
                  <div className="flex items-center justify-between rounded-lg border p-4 animate-in fade-in-0 duration-300">
                     <div>
-                        <Label htmlFor="exchange-status" className="font-semibold">الصرف مفتوح</Label>
+                        <Label htmlFor="exchange-status" className="font-semibold">تفعيل الصرف اليدوي</Label>
                     </div>
                     <Switch
                         id="exchange-status"
@@ -217,7 +226,7 @@ export function ExchangeControlCard() {
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
             <span className="text-sm text-muted-foreground font-mono">
-                {serverTime.toLocaleTimeString('en-GB')}
+                {serverTime.toLocaleTimeString("en-US")}
             </span>
           </div>
           <div className="relative">
