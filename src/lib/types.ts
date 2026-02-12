@@ -82,3 +82,20 @@ export type RateCondition = {
   targetRate: number;
   createdBy: string;
 };
+
+export type EgyptianTransfer = {
+  id: string;
+  userName: string;
+  userPhone: string;
+  transferType: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت';
+  sentAmount: number;
+  recipientNumber: string;
+  serviceFee: number;
+  totalDeducted: number;
+  recipientName: string;
+  delegate: string;
+  requestTimestamp: string;
+  status: 'ناجح' | 'مرفوض' | 'قيد التحويل';
+  executionDuration: string;
+  receiptImageUrl?: string;
+};

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Image from "next/image";
 import {
   Table,
   TableHeader,
@@ -12,194 +13,162 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
-import type { Transaction } from "@/lib/types";
+import { Eye, FilterX } from "lucide-react";
+import type { EgyptianTransfer } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-const categoryColors: Record<string, string> = {
-  "إلكترونيات": "bg-blue-100 text-blue-800",
-  "ملابس": "bg-purple-100 text-purple-800",
-  "طعام": "bg-green-100 text-green-800",
-  "أثاث": "bg-yellow-100 text-yellow-800",
-  "كتب": "bg-indigo-100 text-indigo-800",
-  "خدمات": "bg-pink-100 text-pink-800",
-  "صحة": "bg-red-100 text-red-800",
+const statusColors: Record<EgyptianTransfer["status"], string> = {
+  "ناجح": "bg-green-100 text-green-800",
+  "مرفوض": "bg-red-100 text-red-800",
+  "قيد التحويل": "bg-yellow-100 text-yellow-800",
 };
 
-function TransactionForm({
-  transaction,
-  onSave,
-}: {
-  transaction?: Transaction;
-  onSave: (t: Transaction) => void;
-}) {
-  const [formData, setFormData] = useState<Partial<Transaction>>(
-    transaction || {
-      date: new Date().toISOString().split("T")[0],
-      paymentMethod: "بطاقة ائتمان",
-      category: "طعام",
-    }
-  );
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData as Transaction);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">المنتج</label>
-        <Input
-          name="product"
-          value={formData.product || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">المبلغ</label>
-        <Input
-          name="amount"
-          type="number"
-          value={formData.amount || ""}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">الفئة</label>
-        <select name="category" value={formData.category} onChange={handleChange} className="w-full p-2 border rounded-md">
-            {Object.keys(categoryColors).map(cat => <option key={cat}>{cat}</option>)}
-        </select>
-      </div>
-      <DialogFooter>
-        <DialogClose asChild>
-            <Button type="button" variant="secondary">إلغاء</Button>
-        </DialogClose>
-        <Button type="submit">حفظ</Button>
-      </DialogFooter>
-    </form>
-  );
-}
-
-export function EgyptianTransactionsDataTable({ initialData }: { initialData: Transaction[] }) {
-  const [data, setData] = useState<Transaction[]>(initialData);
+export function EgyptianTransfersDataTable({ initialData }: { initialData: EgyptianTransfer[] }) {
+  const [data, setData] = useState<EgyptianTransfer[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>(undefined);
+  const [transferTypeFilter, setTransferTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
   const { toast } = useToast();
+  
+  const receiptPlaceholder = PlaceHolderImages.find(p => p.id === 'receipt-placeholder');
 
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
-        item.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.amount.toString().includes(searchTerm)
+        (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.userPhone.includes(searchTerm) ||
+          item.recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.recipientNumber.includes(searchTerm)) &&
+        (transferTypeFilter === "all" || item.transferType === transferTypeFilter) &&
+        (statusFilter === "all" || item.status === statusFilter)
     );
-  }, [data, searchTerm]);
-  
-  const handleSave = (transaction: Transaction) => {
-    if(editingTransaction) {
-        // Edit
-        setData(data.map(d => d.id === editingTransaction.id ? {...d, ...transaction} : d));
-        toast({ title: "تم التحديث بنجاح", description: `تم تحديث المعاملة ${transaction.product}.` });
-    } else {
-        // Add
-        const newTransaction = {...transaction, id: `txn_eg_${Date.now()}`};
-        setData([newTransaction, ...data]);
-        toast({ title: "تمت الإضافة بنجاح", description: `تمت إضافة المعاملة ${transaction.product}.` });
-    }
-    setDialogOpen(false);
-    setEditingTransaction(undefined);
+  }, [data, searchTerm, transferTypeFilter, statusFilter]);
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setTransferTypeFilter("all");
+    setStatusFilter("all");
   };
-  
-  const handleDelete = (id: string) => {
-      setData(data.filter(d => d.id !== id));
-      toast({ title: "تم الحذف بنجاح", variant: 'destructive' });
-  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center gap-2">
         <Input
-          placeholder="ابحث في المعاملات..."
+          placeholder="ابحث بالاسم أو الرقم..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
+          className="max-w-sm flex-grow"
         />
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-                <Button onClick={() => setEditingTransaction(undefined)}>
-                    <PlusCircle className="ml-2 h-4 w-4" />
-                    إضافة سجل
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{editingTransaction ? 'تعديل السجل' : 'إضافة سجل جديد'}</DialogTitle>
-                </DialogHeader>
-                <TransactionForm onSave={handleSave} transaction={editingTransaction} />
-            </DialogContent>
-        </Dialog>
+        <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
+          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+            <SelectValue placeholder="نوع التحويل" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الأنواع</SelectItem>
+            <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
+            <SelectItem value="انستاباي">انستاباي</SelectItem>
+            <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+            <SelectValue placeholder="حالة الطلب" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الحالات</SelectItem>
+            <SelectItem value="ناجح">ناجح</SelectItem>
+            <SelectItem value="مرفوض">مرفوض</SelectItem>
+            <SelectItem value="قيد التحويل">قيد التحويل</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button variant="ghost" onClick={handleClearFilters}>
+          <FilterX className="ml-2 h-4 w-4" />
+          مسح الفلاتر
+        </Button>
       </div>
       <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>المنتج</TableHead>
-              <TableHead>الفئة</TableHead>
+              <TableHead>رقم العملية</TableHead>
+              <TableHead>اسم المستخدم</TableHead>
+              <TableHead>نوع التحويل</TableHead>
               <TableHead>المبلغ</TableHead>
-              <TableHead>التاريخ</TableHead>
-              <TableHead>طريقة الدفع</TableHead>
-              <TableHead>
-                <span className="sr-only">الإجراءات</span>
-              </TableHead>
+              <TableHead>اسم المستلم</TableHead>
+              <TableHead>رقم المستلم</TableHead>
+              <TableHead>المندوب</TableHead>
+              <TableHead>حالة الطلب</TableHead>
+              <TableHead>توقيت الطلب</TableHead>
+              <TableHead>مدة التنفيذ</TableHead>
+              <TableHead>الإيصال</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell className="font-medium">{transaction.product}</TableCell>
-                <TableCell><Badge className={`${categoryColors[transaction.category]} hover:${categoryColors[transaction.category]}`}>{transaction.category}</Badge></TableCell>
-                <TableCell>ج.م {transaction.amount.toLocaleString("en-US")}</TableCell>
-                <TableCell>{transaction.date}</TableCell>
-                <TableCell>{transaction.paymentMethod}</TableCell>
+            {filteredData.map((transfer) => (
+              <TableRow key={transfer.id}>
+                <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">فتح القائمة</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setEditingTransaction(transaction); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(transaction.id)}>حذف</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <div className="font-medium">{transfer.userName}</div>
+                    <div className="text-muted-foreground text-xs">{transfer.userPhone}</div>
+                </TableCell>
+                <TableCell>{transfer.transferType}</TableCell>
+                <TableCell>
+                    <div className="font-semibold">{transfer.sentAmount.toLocaleString('en-US')} ج.م</div>
+                    <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
+                    <div className="text-xs text-muted-foreground">الإجمالي: {transfer.totalDeducted.toLocaleString('en-US')} ج.م</div>
+                </TableCell>
+                <TableCell className="font-medium">{transfer.recipientName}</TableCell>
+                <TableCell>{transfer.recipientNumber}</TableCell>
+                <TableCell>{transfer.delegate}</TableCell>
+                <TableCell>
+                  <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>
+                    {transfer.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-xs">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
+                <TableCell>{transfer.executionDuration}</TableCell>
+                <TableCell>
+                  {transfer.receiptImageUrl && transfer.status === 'ناجح' && receiptPlaceholder ? (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="h-8 w-8">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>إيصال العملية {transfer.id}</DialogTitle>
+                        </DialogHeader>
+                        <Image
+                          src={receiptPlaceholder.imageUrl}
+                          alt={`إيصال ${transfer.id}`}
+                          width={600}
+                          height={800}
+                          className="rounded-md"
+                           data-ai-hint={receiptPlaceholder.imageHint}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  ) : (
+                    "-"
+                  )}
                 </TableCell>
               </TableRow>
             ))}

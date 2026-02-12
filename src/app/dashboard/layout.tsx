@@ -53,7 +53,7 @@ const navItems = [
   {
     href: "/dashboard/egyptian-transactions",
     icon: ReceiptText,
-    label: "المعاملات المصرية",
+    label: "التحويلات المصرية",
     match: /^\/dashboard\/egyptian-transactions/,
   },
   {
@@ -81,7 +81,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/exchange-rate": "سعر الصرف",
   "/dashboard/users": "المستخدمين",
   "/dashboard/libyan-transactions": "المعاملات الليبية",
-  "/dashboard/egyptian-transactions": "المعاملات المصرية",
+  "/dashboard/egyptian-transactions": "التحويلات المصرية",
   "/dashboard/supervisors": "المشرفين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/settings": "الإعدادات",

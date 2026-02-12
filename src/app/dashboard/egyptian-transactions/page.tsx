@@ -1,10 +1,10 @@
-import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
-import { EgyptianTransactionsDataTable } from "./data-table";
+import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
+import { EgyptianTransfersDataTable } from "./data-table";
 
-export default function EgyptianTransactionsPage() {
+export default function EgyptianTransfersPage() {
   return (
     <div>
-      <EgyptianTransactionsDataTable initialData={mockEgyptianTransactions} />
+      <EgyptianTransfersDataTable initialData={mockEgyptianTransfers} />
     </div>
   );
 }
