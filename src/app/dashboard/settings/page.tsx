@@ -81,7 +81,7 @@ function FeeTierManager({
         </div>
         {showFreeTransactionsInput && (
             <div className="flex items-center gap-2">
-                <Label htmlFor="free-transactions" className="text-sm shrink-0">عدد المعاملات المجانية الشهرية</Label>
+                <Label htmlFor="free-transactions" className="text-sm shrink-0">المعاملات الشهرية المجانية</Label>
                 <Input
                     id="free-transactions"
                     type="number"
