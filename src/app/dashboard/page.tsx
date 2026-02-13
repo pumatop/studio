@@ -63,7 +63,7 @@ export default function DashboardPage() {
     todayDate.getDate()
   );
   const startOfMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
-  const monthName = todayDate.toLocaleString("ar-EG-u-nu-latn", { month: 'long' });
+  const monthName = todayDate.toLocaleString("ar-EG-u-nu-latn", { month: 'numeric' });
 
   // --- ORIGINAL CARDS' CALCULATIONS ---
   const totalLibyanBalance = mockUsers.reduce(

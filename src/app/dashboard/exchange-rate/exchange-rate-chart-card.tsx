@@ -22,9 +22,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const colors = {
-    increase: "hsl(168, 60%, 50%)", // sea green
-    decrease: "hsl(0, 84.2%, 60.2%)",  // red
-    equal: "hsl(203, 60%, 48%)",   // blue
+    increase: "hsl(142.1 76.2% 36.3%)", // green-600
+    decrease: "hsl(0 72.2% 50.6%)",  // red-600
+    equal: "hsl(215.4 9.3% 62.2%)",   // stone-500
 };
 
 export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
@@ -83,7 +83,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
                 const { payload } = props;
                 return (
                   <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: 'long', day: 'numeric'})}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: 'numeric', day: 'numeric'})}</span>
                     <span className="font-bold">{`${chartConfig.rate.label}: ${value}`}</span>
                   </div>
                 )
