@@ -15,7 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { FilterX } from "lucide-react";
+import { FilterX, Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 const statusColors: Record<DetailedLibyanTransaction['status'], string> = {
   "ناجحة": "bg-green-100 text-green-800",
@@ -28,23 +32,37 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
   const [searchTerm, setSearchTerm] = useState("");
   const [operationTypeFilter, setOperationTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [date, setDate] = useState<DateRange | undefined>();
 
   const filteredData = useMemo(() => {
     return data.filter(
-      (item) =>
-        (searchTerm === "" ||
+      (item) => {
+        const itemDate = new Date(item.timestamp);
+        if (date?.from && itemDate < date.from) {
+            return false;
+        }
+        if (date?.to) {
+            const toDate = new Date(date.to);
+            toDate.setHours(23, 59, 59, 999);
+            if (itemDate > toDate) {
+                return false;
+            }
+        }
+        return (searchTerm === "" ||
           item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.senderPhone.includes(searchTerm) ||
           item.recipientPhone?.includes(searchTerm)) &&
         (operationTypeFilter === "all" || item.operationType === operationTypeFilter) &&
-        (statusFilter === "all" || item.status === statusFilter)
+        (statusFilter === "all" || item.status === statusFilter);
+      }
     );
-  }, [data, searchTerm, operationTypeFilter, statusFilter]);
+  }, [data, searchTerm, operationTypeFilter, statusFilter, date]);
   
   const handleClearFilters = () => {
     setSearchTerm("");
     setOperationTypeFilter("all");
     setStatusFilter("all");
+    setDate(undefined);
   };
 
   return (
@@ -58,6 +76,41 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
             className="w-full"
           />
         </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              id="date"
+              variant={"outline"}
+              className={cn(
+                "w-[260px] justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="ml-2 h-4 w-4" />
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "dd/MM/y")} - {format(date.to, "dd/MM/y")}
+                  </>
+                ) : (
+                  format(date.from, "dd/MM/y")
+                )
+              ) : (
+                <span>اختر نطاق زمني</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={setDate}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        </Popover>
         <Select value={operationTypeFilter} onValueChange={setOperationTypeFilter}>
           <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
             <SelectValue placeholder="نوع العملية" />

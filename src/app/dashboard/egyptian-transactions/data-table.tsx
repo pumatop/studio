@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Eye, FilterX } from "lucide-react";
+import { Eye, FilterX, Calendar as CalendarIcon } from "lucide-react";
 import type { EgyptianTransfer } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,10 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { DateRange } from "react-day-picker";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 const statusColors: Record<EgyptianTransfer["status"], string> = {
   "ناجح": "bg-green-100 text-green-800",
@@ -44,6 +48,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   const [searchTerm, setSearchTerm] = useState("");
   const [transferTypeFilter, setTransferTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [date, setDate] = useState<DateRange | undefined>();
 
   const { toast } = useToast();
   
@@ -51,20 +56,34 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
 
   const filteredData = useMemo(() => {
     return data.filter(
-      (item) =>
-        (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item) => {
+        const itemDate = new Date(item.requestTimestamp);
+        if (date?.from && itemDate < date.from) {
+            return false;
+        }
+        if (date?.to) {
+            const toDate = new Date(date.to);
+            toDate.setHours(23, 59, 59, 999);
+            if (itemDate > toDate) {
+                return false;
+            }
+        }
+
+        return (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.userPhone.includes(searchTerm) ||
           item.recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.recipientNumber.includes(searchTerm)) &&
         (transferTypeFilter === "all" || item.transferType === transferTypeFilter) &&
         (statusFilter === "all" || item.status === statusFilter)
+      }
     );
-  }, [data, searchTerm, transferTypeFilter, statusFilter]);
+  }, [data, searchTerm, transferTypeFilter, statusFilter, date]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
     setTransferTypeFilter("all");
     setStatusFilter("all");
+    setDate(undefined);
   };
 
   return (
@@ -76,6 +95,41 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm flex-grow"
         />
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              id="date"
+              variant={"outline"}
+              className={cn(
+                "w-[260px] justify-start text-left font-normal",
+                !date && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="ml-2 h-4 w-4" />
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "dd/MM/y")} - {format(date.to, "dd/MM/y")}
+                  </>
+                ) : (
+                  format(date.from, "dd/MM/y")
+                )
+              ) : (
+                <span>اختر نطاق زمني</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={setDate}
+              numberOfMonths={2}
+            />
+          </PopoverContent>
+        </Popover>
         <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
           <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
             <SelectValue placeholder="نوع التحويل" />
