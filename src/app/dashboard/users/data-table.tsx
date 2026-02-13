@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Table,
@@ -46,6 +46,7 @@ import {
   Smartphone,
   LogOut,
   FilterX,
+  Pencil,
 } from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -75,6 +76,15 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
     if (!user) return null;
     const { toast } = useToast();
     const idImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
+    
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [name, setName] = useState(user.name);
+
+    useEffect(() => {
+        if (user) {
+            setName(user.name);
+        }
+    }, [user]);
 
     const handleVerification = (newStatus: User['verificationStatus']) => {
         onUserUpdate(user.id, { verificationStatus: newStatus });
@@ -86,11 +96,49 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         toast({ title: "نوع المستخدم تم تحديثه" });
     }
 
+    const handleNameSave = () => {
+        if (name.trim() === '') {
+            toast({
+                title: "خطأ",
+                description: "اسم المستخدم لا يمكن أن يكون فارغاً.",
+                variant: "destructive"
+            });
+            return;
+        }
+        onUserUpdate(user.id, { name });
+        toast({ title: "تم تحديث اسم المستخدم بنجاح" });
+        setIsEditingName(false);
+    }
+
+    const handleCancelEdit = () => {
+        setIsEditingName(false);
+        setName(user.name);
+    }
+
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={(o) => {
+            if (!o) {
+                setIsEditingName(false);
+            }
+            onOpenChange(o);
+        }}>
             <DialogContent className="max-w-3xl">
                 <DialogHeader>
-                    <DialogTitle>{user.name}</DialogTitle>
+                    {isEditingName ? (
+                        <div className="flex items-center gap-2">
+                           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="تعديل اسم المستخدم" className="h-9"/>
+                           <Button size="sm" onClick={handleNameSave}>حفظ</Button>
+                           <Button size="sm" variant="ghost" onClick={handleCancelEdit}>إلغاء</Button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <DialogTitle>{user.name}</DialogTitle>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditingName(true)}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">تعديل الاسم</span>
+                            </Button>
+                        </div>
+                    )}
                     <DialogDescription>تفاصيل المستخدم الكاملة</DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
@@ -211,10 +259,13 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   }
   
   const handleUserUpdate = (userId: string, updates: Partial<User>) => {
-    setData(data.map(user => 
-        user.id === userId ? { ...user, ...updates } : user
-    ));
-  }
+    setData(prevData =>
+      prevData.map(user => (user.id === userId ? { ...user, ...updates } : user))
+    );
+    setSelectedUser(prevUser =>
+      prevUser && prevUser.id === userId ? { ...prevUser, ...updates } : prevUser
+    );
+  };
 
 
   const handleShowDetails = (user: User) => {
