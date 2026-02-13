@@ -21,7 +21,7 @@ import {
   ReceiptText,
   UserCog,
   Settings,
-  Store,
+  History,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 
@@ -69,6 +69,12 @@ const navItems = [
     match: /^\/dashboard\/reports/,
   },
   {
+    href: "/dashboard/audit-log",
+    icon: History,
+    label: "سجل التدقيق",
+    match: /^\/dashboard\/audit-log/,
+  },
+  {
     href: "/dashboard/settings",
     icon: Settings,
     label: "الإعدادات",
@@ -84,6 +90,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
   "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
+  "/dashboard/audit-log": "سجل التدقيق",
   "/dashboard/settings": "الإعدادات",
 };
 
