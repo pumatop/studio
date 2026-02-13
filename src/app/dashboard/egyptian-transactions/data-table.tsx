@@ -35,6 +35,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { arEG } from "date-fns/locale";
 
 const statusColors: Record<EgyptianTransfer["status"], string> = {
   "ناجح": "bg-green-100 text-green-800",
@@ -113,6 +114,8 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               mode="single"
               selected={date}
               onSelect={setDate}
+              locale={arEG}
+              formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
             />
           </PopoverContent>
         </Popover>

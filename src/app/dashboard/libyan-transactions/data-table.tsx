@@ -19,6 +19,7 @@ import { FilterX, Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { arEG } from "date-fns/locale";
 
 const statusColors: Record<DetailedLibyanTransaction['status'], string> = {
   "ناجحة": "bg-green-100 text-green-800",
@@ -94,6 +95,8 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
               mode="single"
               selected={date}
               onSelect={setDate}
+              locale={arEG}
+              formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
             />
           </PopoverContent>
         </Popover>
