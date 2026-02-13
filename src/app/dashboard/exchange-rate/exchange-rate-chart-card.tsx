@@ -22,9 +22,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const colors = {
-    increase: "hsl(138, 71%, 91%)", // light green
-    decrease: "hsl(0, 100%, 95%)",  // light red
-    equal: "hsl(219, 91%, 92%)",   // light blue
+    increase: "hsl(168, 60%, 50%)", // sea green
+    decrease: "hsl(0, 84.2%, 60.2%)",  // red
+    equal: "hsl(203, 60%, 48%)",   // blue
 };
 
 export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
