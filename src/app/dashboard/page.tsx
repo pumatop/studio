@@ -642,8 +642,8 @@ export default function DashboardPage() {
                 return (
                   <TableRow key={supervisor.id}>
                     <TableCell className="font-medium">{supervisor.name}</TableCell>
-                    <TableCell className="text-left font-mono">{supervisor.dailyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
-                    <TableCell className="text-left font-mono">{supervisor.monthlyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
+                    <TableCell className="text-left font-mono text-lg font-bold">{supervisor.dailyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
+                    <TableCell className="text-left font-mono text-lg font-bold">{supervisor.monthlyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
                     <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
                     {EGYPTIAN_TRANSFER_TYPES.map(type => (
                        <TableCell key={type} className="text-center">{supervisor.monthlyStatsByType[type] || 0}</TableCell>
