@@ -31,54 +31,63 @@ const navItems = [
     icon: LayoutDashboard,
     label: "لوحة التحكم",
     match: /^\/dashboard\/?$/,
+    color: "text-sky-500",
   },
   {
     href: "/dashboard/exchange-rate",
     icon: ArrowRightLeft,
     label: "سعر الصرف",
     match: /^\/dashboard\/exchange-rate/,
+    color: "text-lime-500",
   },
   {
     href: "/dashboard/users",
     icon: Users,
     label: "المستخدمين",
     match: /^\/dashboard\/users/,
+    color: "text-violet-500",
   },
   {
     href: "/dashboard/libyan-transactions",
     icon: ReceiptText,
     label: "المعاملات الليبية",
     match: /^\/dashboard\/libyan-transactions/,
+    color: "text-orange-500",
   },
   {
     href: "/dashboard/egyptian-transactions",
     icon: ReceiptText,
     label: "التحويلات المصرية",
     match: /^\/dashboard\/egyptian-transactions/,
+    color: "text-amber-500",
   },
   {
     href: "/dashboard/supervisors",
     icon: UserCog,
     label: "المشرفين والمندوبين",
     match: /^\/dashboard\/supervisors/,
+    color: "text-rose-500",
   },
   {
     href: "/dashboard/reports",
     icon: BrainCircuit,
     label: "تقارير الذكاء الاصطناعي",
     match: /^\/dashboard\/reports/,
+    color: "text-teal-500",
   },
   {
     href: "/dashboard/audit-log",
     icon: History,
     label: "سجل التدقيق",
     match: /^\/dashboard\/audit-log/,
+    color: "text-blue-500",
   },
   {
     href: "/dashboard/settings",
     icon: Settings,
     label: "الإعدادات",
     match: /^\/dashboard\/settings/,
+    color: "text-slate-500",
   },
 ];
 
@@ -147,19 +156,21 @@ export default function DashboardLayout({
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {navItems.map((item) => {
+              const isActive = !!pathname.match(item.match);
+              return (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href}>
                   <SidebarMenuButton
-                    isActive={!!pathname.match(item.match)}
+                    isActive={isActive}
                     tooltip={{ children: item.label, side: "left" }}
                   >
-                    <item.icon />
+                    <item.icon className={isActive ? "" : item.color} />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
-            ))}
+            )})}
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
