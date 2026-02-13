@@ -42,13 +42,16 @@ function FeeTierManager({
   currency,
   tiers,
   setTiers,
+  showFreeTransactionsInput = false,
 }: {
   title: string;
   description?: string;
   currency: string;
   tiers: FeeTier[];
   setTiers: React.Dispatch<React.SetStateAction<FeeTier[]>>;
+  showFreeTransactionsInput?: boolean;
 }) {
+  const [freeTransactions, setFreeTransactions] = useState(0);
   const handleAddTier = () => {
     setTiers([...tiers, { id: `tier_${Date.now()}`, from: 0, to: 0, fee: 0 }]);
   };
@@ -71,9 +74,23 @@ function FeeTierManager({
 
   return (
     <div className="space-y-4 rounded-lg border p-4">
-      <div className="flex items-center gap-2">
-        <h3 className="font-semibold text-lg">{title}</h3>
-        {description && <span className="text-xs text-muted-foreground">{description}</span>}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg">{title}</h3>
+            {description && <span className="text-xs text-muted-foreground">{description}</span>}
+        </div>
+        {showFreeTransactionsInput && (
+            <div className="flex items-center gap-2">
+                <Label htmlFor="free-transactions" className="text-sm shrink-0">عدد المعاملات المجانية الشهرية</Label>
+                <Input
+                    id="free-transactions"
+                    type="number"
+                    value={freeTransactions}
+                    onChange={(e) => setFreeTransactions(Number(e.target.value))}
+                    className="w-24"
+                />
+            </div>
+        )}
       </div>
       <div className="space-y-3">
         {tiers.length > 0 && (
@@ -378,6 +395,7 @@ export default function SettingsPage() {
               currency="د.ل"
               tiers={internalFees}
               setTiers={setInternalFees}
+              showFreeTransactionsInput={true}
             />
             <Separator />
             <div className="space-y-4">
