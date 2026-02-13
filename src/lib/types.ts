@@ -120,3 +120,9 @@ export type Agent = {
   phone: string;
   address: string;
 };
+
+export type Region = {
+  id: string;
+  name: string;
+  agents: Agent[];
+};

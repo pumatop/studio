@@ -16,19 +16,32 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PlusCircle, Trash2, Upload, Phone, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { Agent } from "@/lib/types";
+import type { Agent, Region } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const initialAgents: Agent[] = [
-    { id: "agent_1", name: "وكيل 1", phone: "091-1111111", address: "طرابلس، حي الأندلس" },
-    { id: "agent_2", name: "وكيل 2", phone: "092-2222222", address: "بنغازي، شارع جمال عبد الناصر" },
+const initialRegions: Region[] = [
+    {
+        id: "region_1",
+        name: "طرابلس",
+        agents: [
+            { id: "agent_1", name: "وكيل 1", phone: "091-1111111", address: "حي الأندلس" },
+        ]
+    },
+    {
+        id: "region_2",
+        name: "بنغازي",
+        agents: [
+            { id: "agent_2", name: "وكيل 2", phone: "092-2222222", address: "شارع جمال عبد الناصر" },
+        ]
+    },
 ];
 
 const initialBanners = Array(5).fill("promo-banner-placeholder");
 
 export function AppSettingsCard() {
     const { toast } = useToast();
-    const [agents, setAgents] = useState<Agent[]>(initialAgents);
+    const [regions, setRegions] = useState<Region[]>(initialRegions);
     const [banners, setBanners] = useState<(string | null)[]>(initialBanners);
     const [supportNumbers, setSupportNumbers] = useState({
         libyan: "091-0000000",
@@ -37,19 +50,51 @@ export function AppSettingsCard() {
     
     const bannerPlaceholder = PlaceHolderImages.find(p => p.id === 'promo-banner-placeholder');
 
-    const handleAddAgent = () => {
-        setAgents(prev => [...prev, { id: `agent_${Date.now()}`, name: "", phone: "", address: "" }]);
+    const handleAddRegion = () => {
+        setRegions(prev => [...prev, { id: `region_${Date.now()}`, name: "منطقة جديدة", agents: [] }]);
+    };
+    
+    const handleDeleteRegion = (regionId: string) => {
+        setRegions(prev => prev.filter(region => region.id !== regionId));
+        toast({ title: "تم حذف المنطقة", variant: "destructive" });
     };
 
-    const handleDeleteAgent = (id: string) => {
-        setAgents(prev => prev.filter(agent => agent.id !== id));
+    const handleRegionNameChange = (regionId: string, newName: string) => {
+        setRegions(prev => prev.map(region => region.id === regionId ? { ...region, name: newName } : region));
+    };
+
+    const handleAddAgent = (regionId: string) => {
+        setRegions(prev => prev.map(region => {
+            if (region.id === regionId) {
+                const newAgent: Agent = { id: `agent_${Date.now()}`, name: "", phone: "", address: "" };
+                return { ...region, agents: [...region.agents, newAgent] };
+            }
+            return region;
+        }));
+    };
+
+    const handleDeleteAgent = (regionId: string, agentId: string) => {
+        setRegions(prev => prev.map(region => {
+            if (region.id === regionId) {
+                return { ...region, agents: region.agents.filter(agent => agent.id !== agentId) };
+            }
+            return region;
+        }));
         toast({ title: "تم حذف الوكيل", variant: "destructive" });
     };
     
-    const handleAgentChange = (id: string, field: keyof Omit<Agent, "id">, value: string) => {
-        setAgents(prev => prev.map(agent => agent.id === id ? { ...agent, [field]: value } : agent));
+    const handleAgentChange = (regionId: string, agentId: string, field: keyof Omit<Agent, "id">, value: string) => {
+        setRegions(prev => prev.map(region => {
+            if (region.id === regionId) {
+                const updatedAgents = region.agents.map(agent => 
+                    agent.id === agentId ? { ...agent, [field]: value } : agent
+                );
+                return { ...region, agents: updatedAgents };
+            }
+            return region;
+        }));
     };
-    
+
     const handleSupportNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSupportNumbers(prev => ({...prev, [name]: value}));
@@ -100,38 +145,67 @@ export function AppSettingsCard() {
                     <div className="space-y-4 rounded-lg border p-4">
                         <div className="flex items-center justify-between">
                             <h3 className="font-semibold text-lg">صفحة شحن المحفظة (الوكلاء)</h3>
-                             <Button variant="outline" size="sm" onClick={handleAddAgent}>
+                             <Button variant="outline" size="sm" onClick={handleAddRegion}>
                                 <PlusCircle className="ml-2 h-4 w-4" />
-                                إضافة وكيل
+                                إضافة منطقة
                             </Button>
                         </div>
-                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                             {agents.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">لا يوجد وكلاء حالياً.</p>}
-                             {agents.map(agent => (
-                                 <div key={agent.id} className="flex flex-col gap-2 rounded-md border p-3">
-                                     <div className="flex items-center justify-between">
-                                        <Input
-                                            value={agent.name}
-                                            onChange={e => handleAgentChange(agent.id, 'name', e.target.value)}
-                                            placeholder="اسم الوكيل"
-                                            className="font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
-                                        />
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => handleDeleteAgent(agent.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                     </div>
-                                      <div className="space-y-2">
-                                        <div className="relative">
-                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                             <Input value={agent.phone} onChange={e => handleAgentChange(agent.id, 'phone', e.target.value)} placeholder="رقم الهاتف" className="pl-10" />
+                        <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                             {regions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">لا توجد مناطق حالياً.</p>}
+                             <Accordion type="multiple" className="w-full">
+                                {regions.map((region) => (
+                                    <AccordionItem value={region.id} key={region.id} className="border-b-0 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <AccordionTrigger className="border rounded-md px-3 hover:no-underline flex-1">
+                                                <Input
+                                                    value={region.name}
+                                                    onChange={e => handleRegionNameChange(region.id, e.target.value)}
+                                                    placeholder="اسم المنطقة"
+                                                    className="font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent"
+                                                    onClick={e => e.stopPropagation()}
+                                                />
+                                            </AccordionTrigger>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" onClick={() => handleDeleteRegion(region.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                         <div className="relative">
-                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                            <Input value={agent.address} onChange={e => handleAgentChange(agent.id, 'address', e.target.value)} placeholder="العنوان" className="pl-10" />
-                                        </div>
-                                      </div>
-                                 </div>
-                             ))}
+                                        <AccordionContent className="pt-2">
+                                          <div className="space-y-3 border-r pr-4 mr-4">
+                                            {region.agents.length === 0 && <p className="text-sm text-muted-foreground text-center py-2">لا يوجد وكلاء في هذه المنطقة.</p>}
+                                            {region.agents.map(agent => (
+                                                 <div key={agent.id} className="flex flex-col gap-2 rounded-md border p-3">
+                                                     <div className="flex items-center justify-between">
+                                                        <Input
+                                                            value={agent.name}
+                                                            onChange={e => handleAgentChange(region.id, agent.id, 'name', e.target.value)}
+                                                            placeholder="اسم الوكيل"
+                                                            className="font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto"
+                                                        />
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => handleDeleteAgent(region.id, agent.id)}>
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                     </div>
+                                                      <div className="space-y-2">
+                                                        <div className="relative">
+                                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                             <Input value={agent.phone} onChange={e => handleAgentChange(region.id, agent.id, 'phone', e.target.value)} placeholder="رقم الهاتف" className="pl-10" />
+                                                        </div>
+                                                         <div className="relative">
+                                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                            <Input value={agent.address} onChange={e => handleAgentChange(region.id, agent.id, 'address', e.target.value)} placeholder="العنوان" className="pl-10" />
+                                                        </div>
+                                                      </div>
+                                                 </div>
+                                            ))}
+                                            <Button variant="outline" size="sm" onClick={() => handleAddAgent(region.id)} className="mt-2">
+                                                <PlusCircle className="ml-2 h-4 w-4" />
+                                                إضافة وكيل
+                                            </Button>
+                                          </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                             </Accordion>
                         </div>
                     </div>
 
