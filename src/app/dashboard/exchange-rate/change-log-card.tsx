@@ -66,10 +66,10 @@ export function ChangeLogCard() {
               return (
                 <TableRow key={log.id}>
                   <TableCell>
-                    {new Date(log.date).toLocaleString("en-GB", {
+                    {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
                       year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
+                      month: 'long',
+                      day: 'numeric',
                       hour: "2-digit",
                       minute: "2-digit",
                     })}

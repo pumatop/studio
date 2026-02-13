@@ -164,7 +164,7 @@ export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRa
               <TableRow key={rate.id}>
                 <TableCell className="font-medium">{rate.currencyPair}</TableCell>
                 <TableCell>{rate.rate}</TableCell>
-                <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG')}</TableCell>
+                <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

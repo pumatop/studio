@@ -63,7 +63,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) =>
-                new Date(value).toLocaleDateString("ar-EG", { weekday: "short" })
+                new Date(value).toLocaleDateString("ar-EG-u-nu-latn", { weekday: "short" })
               }
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />

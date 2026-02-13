@@ -153,7 +153,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
                 <TableCell>
                   <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>{transaction.status}</Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("en-GB")}</TableCell>
+                <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
                 <TableCell className="font-medium">{transaction.senderPhone}</TableCell>
                 <TableCell className="text-left">{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
                 <TableCell className="text-left">{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
