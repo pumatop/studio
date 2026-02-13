@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { DateRange } from "react-day-picker";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -48,7 +47,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   const [searchTerm, setSearchTerm] = useState("");
   const [transferTypeFilter, setTransferTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [date, setDate] = useState<DateRange | undefined>();
+  const [date, setDate] = useState<Date | undefined>();
 
   const { toast } = useToast();
   
@@ -58,13 +57,12 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
     return data.filter(
       (item) => {
         const itemDate = new Date(item.requestTimestamp);
-        if (date?.from && itemDate < date.from) {
-            return false;
-        }
-        if (date?.to) {
-            const toDate = new Date(date.to);
-            toDate.setHours(23, 59, 59, 999);
-            if (itemDate > toDate) {
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+            if (itemDate < startOfDay || itemDate > endOfDay) {
                 return false;
             }
         }
@@ -106,27 +104,15 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4" />
-              {date?.from ? (
-                date.to ? (
-                  <>
-                    {format(date.from, "dd/MM/y")} - {format(date.to, "dd/MM/y")}
-                  </>
-                ) : (
-                  format(date.from, "dd/MM/y")
-                )
-              ) : (
-                <span>اختر نطاق زمني</span>
-              )}
+              {date ? format(date, "dd/MM/y") : <span>اختر يوماً</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               initialFocus
-              mode="range"
-              defaultMonth={date?.from}
+              mode="single"
               selected={date}
               onSelect={setDate}
-              numberOfMonths={2}
             />
           </PopoverContent>
         </Popover>

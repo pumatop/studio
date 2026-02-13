@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FilterX, Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -32,19 +31,18 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
   const [searchTerm, setSearchTerm] = useState("");
   const [operationTypeFilter, setOperationTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [date, setDate] = useState<DateRange | undefined>();
+  const [date, setDate] = useState<Date | undefined>();
 
   const filteredData = useMemo(() => {
     return data.filter(
       (item) => {
         const itemDate = new Date(item.timestamp);
-        if (date?.from && itemDate < date.from) {
-            return false;
-        }
-        if (date?.to) {
-            const toDate = new Date(date.to);
-            toDate.setHours(23, 59, 59, 999);
-            if (itemDate > toDate) {
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+            if (itemDate < startOfDay || itemDate > endOfDay) {
                 return false;
             }
         }
@@ -87,27 +85,15 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4" />
-              {date?.from ? (
-                date.to ? (
-                  <>
-                    {format(date.from, "dd/MM/y")} - {format(date.to, "dd/MM/y")}
-                  </>
-                ) : (
-                  format(date.from, "dd/MM/y")
-                )
-              ) : (
-                <span>اختر نطاق زمني</span>
-              )}
+              {date ? format(date, "dd/MM/y") : <span>اختر يوماً</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               initialFocus
-              mode="range"
-              defaultMonth={date?.from}
+              mode="single"
               selected={date}
               onSelect={setDate}
-              numberOfMonths={2}
             />
           </PopoverContent>
         </Popover>
