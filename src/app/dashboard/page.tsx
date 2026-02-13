@@ -536,7 +536,7 @@ export default function DashboardPage() {
                     </div>
                     <Separator />
                      <div>
-                        <h4 className="text-sm font-semibold mb-2">الحوالات المعلقة</h4>
+                        <h4 className="text-sm font-semibold mb-2 text-yellow-600 dark:text-yellow-400">الحوالات المعلقة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(dailyPendingStatsByType).map(([type, stats]) => (
                                 <div key={type} className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
@@ -591,7 +591,7 @@ export default function DashboardPage() {
                     </div>
                      <Separator />
                      <div>
-                        <h4 className="text-sm font-semibold mb-2">الحوالات المعلقة</h4>
+                        <h4 className="text-sm font-semibold mb-2 text-yellow-600 dark:text-yellow-400">الحوالات المعلقة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(monthlyPendingStatsByType).map(([type, stats]) => (
                                 <div key={type} className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">

@@ -122,7 +122,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           </TableHeader>
           <TableBody>
             {filteredData.map((transfer) => (
-              <TableRow key={transfer.id}>
+              <TableRow key={transfer.id} className={cn(transfer.status === 'قيد التحويل' && 'bg-yellow-50 dark:bg-yellow-500/10')}>
                 <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
