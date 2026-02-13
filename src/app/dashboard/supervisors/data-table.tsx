@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Table,
   TableHeader,
@@ -322,10 +323,12 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 </TableCell>
                 <TableCell className="space-x-1 text-left rtl:space-x-reverse">
                     <Button variant="outline" size="sm" onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</Button>
-                    <Button variant="outline" size="sm" disabled>
-                        <FileClock className="ml-1 h-3 w-3"/>
-                        السجل
-                    </Button>
+                    <Link href={`/dashboard/supervisors/${supervisor.id}/log`}>
+                        <Button variant="outline" size="sm">
+                            <FileClock className="ml-1 h-3 w-3"/>
+                            السجل
+                        </Button>
+                    </Link>
                      <Button variant="destructive" size="sm" onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'}>
                         <UserX className="ml-1 h-3 w-3"/>
                         طرد
