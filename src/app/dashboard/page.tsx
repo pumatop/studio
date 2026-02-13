@@ -235,19 +235,30 @@ export default function DashboardPage() {
   const monthlyRevenueByType = calculateRevenueByType(monthlyEgyptianTransfers);
   
   // Supervisor Performance Stats
-  const supervisorMonthlyStats = mockSupervisors.map(supervisor => {
-    const supervisorTransfers = monthlyEgyptianTransfers.filter(
-      transfer => transfer.delegate === supervisor.name
+  const supervisorStats = mockSupervisors.map(supervisor => {
+    const supervisorDailyTransfers = dailyEgyptianTransfers.filter(
+      transfer => transfer.delegate === supervisor.name && transfer.status === 'ناجح'
+    );
+    const supervisorMonthlyTransfers = monthlyEgyptianTransfers.filter(
+      transfer => transfer.delegate === supervisor.name && transfer.status === 'ناجح'
     );
 
-    const statsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
-      acc[type] = supervisorTransfers.filter(t => t.transferType === type).length;
+    const dailyTotalAmount = supervisorDailyTransfers.reduce((sum, t) => sum + t.sentAmount, 0);
+
+    const monthlyTotalAmount = supervisorMonthlyTransfers.reduce((sum, t) => sum + t.sentAmount, 0);
+    const monthlyTotalCount = supervisorMonthlyTransfers.length;
+    
+    const monthlyStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+      acc[type] = supervisorMonthlyTransfers.filter(t => t.transferType === type).length;
       return acc;
     }, {} as Record<EgyptianTransfer['transferType'], number>);
 
     return {
       ...supervisor,
-      statsByType
+      dailyTotalAmount,
+      monthlyTotalAmount,
+      monthlyTotalCount,
+      monthlyStatsByType,
     };
   });
 
@@ -610,7 +621,7 @@ export default function DashboardPage() {
         <CardHeader>
           <CardTitle>ملخص أداء المندوبين لشهر {monthName}</CardTitle>
           <CardDescription>
-            إجمالي عدد التحويلات لكل مندوب حسب النوع خلال الشهر.
+            ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -618,22 +629,25 @@ export default function DashboardPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>اسم المندوب</TableHead>
+                <TableHead className="text-left">إجمالي اليومي (ج.م)</TableHead>
+                <TableHead className="text-left">إجمالي الشهري (ج.م)</TableHead>
+                <TableHead className="text-center">عدد حوالات الشهر</TableHead>
                 {EGYPTIAN_TRANSFER_TYPES.map(type => (
-                  <TableHead key={type} className="text-center">{type}</TableHead>
+                    <TableHead key={type} className="text-center">{type} (عدد)</TableHead>
                 ))}
-                <TableHead className="text-center font-semibold">الإجمالي</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {supervisorMonthlyStats.map((supervisor) => {
-                const total = Object.values(supervisor.statsByType).reduce((sum, count) => sum + count, 0);
+              {supervisorStats.map((supervisor) => {
                 return (
                   <TableRow key={supervisor.id}>
                     <TableCell className="font-medium">{supervisor.name}</TableCell>
+                    <TableCell className="text-left font-mono">{supervisor.dailyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
+                    <TableCell className="text-left font-mono">{supervisor.monthlyTotalAmount.toLocaleString("en-US")} ج.م</TableCell>
+                    <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
                     {EGYPTIAN_TRANSFER_TYPES.map(type => (
-                       <TableCell key={type} className="text-center">{supervisor.statsByType[type] || 0}</TableCell>
+                       <TableCell key={type} className="text-center">{supervisor.monthlyStatsByType[type] || 0}</TableCell>
                     ))}
-                    <TableCell className="text-center font-semibold">{total}</TableCell>
                   </TableRow>
                 );
               })}
