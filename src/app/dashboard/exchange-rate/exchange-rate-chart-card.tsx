@@ -65,7 +65,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               tickFormatter={(value) =>
                 new Date(value).toLocaleDateString("ar-EG-u-nu-latn", { weekday: "short" })
               }
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontFamily: "var(--font-body)" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
             <YAxis
               orientation="right"
@@ -73,9 +73,9 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               domain={["dataMin - 0.1", "dataMax + 0.1"]}
               tickLine={false}
               axisLine={false}
-              tickMargin={12}
+              tickMargin={20}
               tickFormatter={(value) => value.toFixed(2)}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontFamily: "var(--font-body)" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
             <Tooltip
               cursor={false}
