@@ -1,4 +1,6 @@
+"use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,7 +12,6 @@ import {
   DollarSign,
   ArrowRightLeft,
   Users,
-  UserCog,
   CreditCard,
   Landmark,
   PiggyBank,
@@ -26,6 +27,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { mockUsers } from "@/lib/mock-users";
 import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
 import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
@@ -79,17 +87,20 @@ export default function DashboardPage() {
       : 0;
 
   const mostRecentTimestamp =
-    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) ||
-    new Date().getTime();
+    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) || 0;
 
   const todayDate = new Date(mostRecentTimestamp);
+
+  const [selectedMonth, setSelectedMonth] = useState(() => todayDate.getMonth() + 1);
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+
   const startOfToday = new Date(
     todayDate.getFullYear(),
     todayDate.getMonth(),
     todayDate.getDate()
   );
-  const startOfMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
-  const monthName = todayDate.toLocaleString("ar-EG-u-nu-latn", { month: '2-digit' });
+  const startOfMonth = new Date(todayDate.getFullYear(), selectedMonth - 1, 1);
+  const endOfMonth = new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
 
   // --- ORIGINAL CARDS' CALCULATIONS ---
   const totalLibyanBalance = mockUsers.reduce(
@@ -113,7 +124,7 @@ export default function DashboardPage() {
 
   const monthlyTrades = lydToEgpTransactions.filter((t) => {
     const transactionDate = new Date(t.timestamp);
-    return transactionDate >= startOfMonth;
+    return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
   });
 
   const dailyTradeStats = {
@@ -144,7 +155,10 @@ export default function DashboardPage() {
     (t) => t.operationType === "كرت شحن" && t.status === "ناجحة"
   );
   const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-  const monthlyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfMonth);
+  const monthlyCards = cardTransactions.filter(t => {
+      const transactionDate = new Date(t.timestamp);
+      return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+  });
   const dailyCardStats = {
       count: dailyCards.length,
       revenue: dailyCards.reduce((sum, t) => sum + t.serviceFee, 0)
@@ -159,7 +173,10 @@ export default function DashboardPage() {
       (t) => t.operationType === "تحويل داخلي" && t.status === "ناجحة"
   );
   const dailyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-  const monthlyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfMonth);
+  const monthlyInternal = internalTransactions.filter(t => {
+      const transactionDate = new Date(t.timestamp);
+      return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+  });
   const dailyInternalStats = {
       count: dailyInternal.length,
       revenue: dailyInternal.reduce((sum, t) => sum + t.serviceFee, 0)
@@ -177,7 +194,10 @@ export default function DashboardPage() {
   }, 0);
 
   const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfToday);
-  const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfMonth);
+  const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => {
+    const transactionDate = new Date(t.requestTimestamp);
+    return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+  });
   
   // 5. Egyptian Transfers Summary
   const dailySuccessfulTransfersEGP = dailyEgyptianTransfers
@@ -652,7 +672,21 @@ export default function DashboardPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>ملخص أداء المندوبين لشهر {monthName}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <span>ملخص أداء المندوبين لشهر</span>
+            <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {months.map((m) => (
+                  <SelectItem key={m} value={String(m)}>
+                    {String(m).padStart(2, "0")}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
           <CardDescription>
             ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
           </CardDescription>
