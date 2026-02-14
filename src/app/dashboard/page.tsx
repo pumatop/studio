@@ -48,12 +48,13 @@ const FormattedAmount = ({
     fractionClass?: string;
     currencyClass?: string;
 }) => {
+    const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = amount.toFixed(2).split('.');
     return (
         <span className="inline-flex items-baseline" dir="ltr">
             <span className={cn('mr-1', currencyClass)}>{currency}</span>
             <span className={integerClass}>{Number(integer).toLocaleString('en-US')}</span>
-            {fraction && <span className={cn('text-muted-foreground', fractionClass)}>.{fraction}</span>}
+            {hasFraction && <span className={cn('text-muted-foreground', fractionClass)}>.{fraction}</span>}
         </span>
     );
 };
@@ -675,10 +676,10 @@ export default function DashboardPage() {
                   <TableRow key={supervisor.id}>
                     <TableCell className="font-medium">{supervisor.name}</TableCell>
                     <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.dailyTotalAmount} currency="ج.م" integerClass="text-lg font-bold" fractionClass="text-base" currencyClass="text-base" />
+                        <FormattedAmount amount={supervisor.dailyTotalAmount} currency="ج.م" integerClass="text-base font-bold" fractionClass="text-sm" currencyClass="text-sm" />
                     </TableCell>
                     <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="text-lg font-bold" fractionClass="text-base" currencyClass="text-base" />
+                        <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="text-base font-bold" fractionClass="text-sm" currencyClass="text-sm" />
                     </TableCell>
                     <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
                     {EGYPTIAN_TRANSFER_TYPES.map(type => (
