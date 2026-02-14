@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
@@ -21,7 +22,6 @@ import {
   UserCog,
   Settings,
   History,
-  CircleDollarSign,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 
@@ -140,7 +140,7 @@ export default function DashboardLayout({
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader>
           <div className="flex items-center gap-2 justify-center">
-            <CircleDollarSign className="h-8 w-8 text-primary" />
+            <Image src="https://i.ibb.co/Y02vLp3/logo.png" alt="شعار حولّي كاش" width={32} height={32} />
             <h2 className="text-xl font-semibold text-primary group-data-[collapsible=icon]:hidden">
               حولّي كاش
             </h2>
