@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CircleDollarSign } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,9 +29,16 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
-              <CircleDollarSign className="h-12 w-12 text-primary" />
+            <Image
+              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
+              alt="شعار حولّي كاش"
+              width={150}
+              height={30}
+            />
           </div>
-          <CardTitle className="text-2xl">لوحة تحكم حولّي كاش</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary">
+            لوحة تحكم حولّي كاش
+          </CardTitle>
           <CardDescription>
             الرجاء تسجيل الدخول للمتابعة إلى لوحة التحكم
           </CardDescription>
@@ -50,11 +57,16 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">كلمة المرور</Label>
-              <Input id="password" type="password" required defaultValue="password" />
+              <Input
+                id="password"
+                type="password"
+                required
+                defaultValue="password"
+              />
             </div>
-             <Button type="submit" className="w-full">
-                تسجيل الدخول
-              </Button>
+            <Button type="submit" className="w-full">
+              تسجيل الدخول
+            </Button>
           </form>
         </CardContent>
         <CardFooter>
