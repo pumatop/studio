@@ -139,11 +139,21 @@ export default function DashboardLayout({
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2 justify-center">
-            <Image src="https://i.ibb.co/Y02vLp3/logo.png" alt="شعار حولّي كاش" width={32} height={32} />
-            <h2 className="text-xl font-semibold text-primary group-data-[collapsible=icon]:hidden">
-              حولّي كاش
-            </h2>
+          <div className="flex items-center justify-center h-10">
+            <Image
+              src="https://i.ibb.co/GQFnQ0D/Rectangle-3311-1.png"
+              alt="شعار حولّي كاش"
+              width={120}
+              height={24}
+              className="group-data-[collapsible=icon]:hidden"
+            />
+             <Image
+              src="https://i.ibb.co/Y02vLp3/logo.png"
+              alt="شعار حولّي كاش"
+              width={32}
+              height={32}
+              className="hidden group-data-[collapsible=icon]:block"
+            />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -168,8 +178,8 @@ export default function DashboardLayout({
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <PageHeader title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-4 sm:px-6">
-            <h1 className="text-2xl font-bold mb-4">{getPageTitle()}</h1>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
             {children}
         </main>
       </SidebarInset>
