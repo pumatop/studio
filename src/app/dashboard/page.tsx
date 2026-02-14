@@ -321,7 +321,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-left">
+            <div className="text-center">
               <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base font-medium" />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -398,7 +398,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-left">
+            <div className="text-center">
                 <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base font-medium" />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -487,7 +487,7 @@ export default function DashboardPage() {
                 <PiggyBank className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-left">
+                <div className="text-center">
                   <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -505,7 +505,7 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4">
                     <div className="text-center">
                         <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
-                        <p className="text-left">
+                        <p>
                             <FormattedAmount amount={totalRevenueEGP} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
                         </p>
                     </div>
@@ -560,7 +560,7 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4">
                     <div className="text-center">
                     <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
-                    <p className="text-left">
+                    <p>
                         <FormattedAmount amount={dailyTotalActiveTransfersEGP} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
                     </p>
                     </div>
@@ -619,7 +619,7 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4">
                     <div className="text-center">
                     <p className="text-xs text-muted-foreground">الإجمالي (ناجح + معلق)</p>
-                    <p className="text-left">
+                    <p>
                         <FormattedAmount amount={monthlyTotalActiveTransfersEGP} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
                     </p>
                     </div>
