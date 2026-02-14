@@ -107,6 +107,27 @@ export function AppSettingsCard() {
         });
     };
 
+    const handleUploadBanner = (index: number) => {
+        // In a real app, this would open a file dialog.
+        // Here, we just show a toast.
+        toast({
+            title: `جاري رفع بانر جديد...`,
+            description: `هذه مجرد محاكاة لعملية الرفع للصورة رقم ${index + 1}.`,
+        });
+    };
+
+    const handleDeleteBanner = (index: number) => {
+        setBanners(prev => {
+            const newBanners = [...prev];
+            newBanners[index] = null;
+            return newBanners;
+        });
+        toast({
+            title: `تم حذف البانر رقم ${index + 1}`,
+            variant: "destructive"
+        });
+    };
+
     return (
         <Card className="w-full">
             <CardHeader>
@@ -123,15 +144,19 @@ export function AppSettingsCard() {
                                 {banner && bannerPlaceholder ? (
                                      <Image src={bannerPlaceholder.imageUrl} alt={`Banner ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint={bannerPlaceholder.imageHint} />
                                 ) : (
-                                    <span className="text-xs text-muted-foreground">صورة {index + 1}</span>
+                                    <div className="text-center">
+                                        <span className="text-xs text-muted-foreground">صورة {index + 1}</span>
+                                    </div>
                                 )}
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
-                                    <Button size="icon" variant="outline" className="h-8 w-8">
+                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUploadBanner(index)}>
                                         <Upload className="h-4 w-4" />
                                     </Button>
-                                    <Button size="icon" variant="destructive" className="h-8 w-8">
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    {banner && (
+                                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         ))}
