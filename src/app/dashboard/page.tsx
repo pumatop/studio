@@ -87,7 +87,7 @@ export default function DashboardPage() {
       : 0;
 
   const mostRecentTimestamp =
-    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) || 0;
+    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) || Date.now();
 
   const todayDate = new Date(mostRecentTimestamp);
 
@@ -324,7 +324,7 @@ export default function DashboardPage() {
             <div className="text-center">
               <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base font-medium" />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground text-center">
               إجمالي الأرصدة المتاحة بالدينار الليبي
             </p>
           </CardContent>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
             <div className="text-center">
                 <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base font-medium" />
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground text-center">
               إجمالي الأرصدة المتاحة بالجنيه المصري
             </p>
           </CardContent>
@@ -490,7 +490,7 @@ export default function DashboardPage() {
                 <div className="text-center">
                   <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground text-center">
                   مجموع كسور التحويلات من الدينار للجنيه
                 </p>
               </CardContent>
@@ -691,7 +691,7 @@ export default function DashboardPage() {
             ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -710,10 +710,10 @@ export default function DashboardPage() {
                   <TableRow key={supervisor.id}>
                     <TableCell className="font-medium">{supervisor.name}</TableCell>
                     <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.dailyTotalAmount} currency="ج.م" integerClass="text-base font-bold" fractionClass="text-sm" currencyClass="text-sm" />
+                        <FormattedAmount amount={supervisor.dailyTotalAmount} currency="ج.م" integerClass="font-bold" fractionClass="text-sm" currencyClass="text-sm" />
                     </TableCell>
                     <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="text-base font-bold" fractionClass="text-sm" currencyClass="text-sm" />
+                        <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="font-bold" fractionClass="text-sm" currencyClass="text-sm" />
                     </TableCell>
                     <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
                     {EGYPTIAN_TRANSFER_TYPES.map(type => (

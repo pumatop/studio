@@ -101,7 +101,7 @@ function SupervisorForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
             <Label htmlFor="name">الاسم</Label>
             <Input id="name" name="name" value={formData.name || ""} onChange={handleChange} required />
@@ -118,7 +118,7 @@ function SupervisorForm({
                 <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
             <Label>التخصص</Label>
             <div className="space-y-2 rounded-lg border p-3">

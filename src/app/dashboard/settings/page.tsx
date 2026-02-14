@@ -80,7 +80,7 @@ function FeeTierManager({
             {description && <span className="text-xs text-muted-foreground">{description}</span>}
         </div>
         {showFreeTransactionsInput && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
                 <Label htmlFor="free-transactions" className="text-sm shrink-0">المعاملات الشهرية المجانية</Label>
                 <Input
                     id="free-transactions"
@@ -93,45 +93,43 @@ function FeeTierManager({
         )}
       </div>
       <div className="space-y-3">
-        {tiers.length > 0 && (
-          <div className="grid grid-cols-[1fr,1fr,1fr,auto] gap-2 items-center">
-            <Label className="text-xs text-muted-foreground">
-              من مبلغ ({currency})
-            </Label>
-            <Label className="text-xs text-muted-foreground">
-              إلى مبلغ ({currency})
-            </Label>
-            <Label className="text-xs text-muted-foreground">
-              قيمة الرسوم ({currency})
-            </Label>
-            <span className="w-8"></span>
-          </div>
-        )}
         {tiers.map((tier) => (
           <div
             key={tier.id}
-            className="grid grid-cols-[1fr,1fr,1fr,auto] gap-2 items-center"
+            className="flex flex-wrap items-end gap-2"
           >
-            <Input
-              type="number"
-              value={tier.from}
-              onChange={(e) =>
-                handleTierChange(tier.id, "from", e.target.value)
-              }
-              placeholder="من"
-            />
-            <Input
-              type="number"
-              value={tier.to}
-              onChange={(e) => handleTierChange(tier.id, "to", e.target.value)}
-              placeholder="إلى"
-            />
-            <Input
-              type="number"
-              value={tier.fee}
-              onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)}
-              placeholder="الرسوم"
-            />
+            <div className="flex-1 space-y-1 min-w-[120px]">
+                <Label htmlFor={`from-${tier.id}`} className="text-xs text-muted-foreground">من ({currency})</Label>
+                <Input
+                  id={`from-${tier.id}`}
+                  type="number"
+                  value={tier.from}
+                  onChange={(e) =>
+                    handleTierChange(tier.id, "from", e.target.value)
+                  }
+                  placeholder="من"
+                />
+            </div>
+            <div className="flex-1 space-y-1 min-w-[120px]">
+                <Label htmlFor={`to-${tier.id}`} className="text-xs text-muted-foreground">إلى ({currency})</Label>
+                <Input
+                  id={`to-${tier.id}`}
+                  type="number"
+                  value={tier.to}
+                  onChange={(e) => handleTierChange(tier.id, "to", e.target.value)}
+                  placeholder="إلى"
+                />
+            </div>
+            <div className="flex-1 space-y-1 min-w-[120px]">
+                <Label htmlFor={`fee-${tier.id}`} className="text-xs text-muted-foreground">قيمة الرسوم ({currency})</Label>
+                <Input
+                  id={`fee-${tier.id}`}
+                  type="number"
+                  value={tier.fee}
+                  onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)}
+                  placeholder="الرسوم"
+                />
+            </div>
             <Button
               variant="ghost"
               size="icon"
