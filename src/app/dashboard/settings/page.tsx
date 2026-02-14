@@ -74,7 +74,7 @@ function FeeTierManager({
 
   return (
     <div className="space-y-4 rounded-lg border p-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
             <h3 className="font-semibold text-lg">{title}</h3>
             {description && <span className="text-xs text-muted-foreground">{description}</span>}
