@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -38,18 +38,20 @@ const initialRegions: Region[] = [
     },
 ];
 
-const initialBanners: string[] = ["banner1.jpg", "banner2.jpg", "banner3.jpg", "banner4.jpg", "banner5.jpg"];
-
 export function AppSettingsCard() {
     const { toast } = useToast();
     const [regions, setRegions] = useState<Region[]>(initialRegions);
-    const [banners, setBanners] = useState<(string | null)[]>(initialBanners);
+    const bannerPlaceholder = PlaceHolderImages.find(p => p.id === 'promo-banner-placeholder');
+    const [banners, setBanners] = useState<(string | null)[]>(
+        Array(5).fill(bannerPlaceholder?.imageUrl || null)
+    );
     const [supportNumbers, setSupportNumbers] = useState({
         libyan: "091-0000000",
         egyptian: "010-00000000"
     });
     
-    const bannerPlaceholder = PlaceHolderImages.find(p => p.id === 'promo-banner-placeholder');
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [editingBannerIndex, setEditingBannerIndex] = useState<number | null>(null);
 
     const handleAddRegion = () => {
         setRegions(prev => [...prev, { id: `region_${Date.now()}`, name: "منطقة جديدة", agents: [] }]);
@@ -108,12 +110,32 @@ export function AppSettingsCard() {
     };
 
     const handleUploadBanner = (index: number) => {
-        // In a real app, this would open a file dialog.
-        // Here, we just show a toast.
-        toast({
-            title: `جاري رفع بانر جديد...`,
-            description: `هذه مجرد محاكاة لعملية الرفع للصورة رقم ${index + 1}.`,
-        });
+        setEditingBannerIndex(index);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && editingBannerIndex !== null) {
+            const reader = new FileReader();
+            reader.onload = (loadEvent) => {
+                const dataUrl = loadEvent.target?.result as string;
+                setBanners(prev => {
+                    const newBanners = [...prev];
+                    newBanners[editingBannerIndex] = dataUrl;
+                    return newBanners;
+                });
+                toast({
+                    title: `تم رفع البانر رقم ${editingBannerIndex + 1} بنجاح.`,
+                });
+                setEditingBannerIndex(null);
+            };
+            reader.readAsDataURL(file);
+        }
+        // Reset file input value to allow re-uploading the same file
+        if (e.target) {
+            e.target.value = '';
+        }
     };
 
     const handleDeleteBanner = (index: number) => {
@@ -135,14 +157,21 @@ export function AppSettingsCard() {
                 <CardDescription>إدارة الإعدادات العامة واللوحة الدعائية وبيانات الدعم.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*"
+                />
                 {/* Promotional Banners */}
                 <div className="space-y-4 rounded-lg border p-4">
                     <h3 className="font-semibold text-lg">اللوحة الدعائية للتطبيق</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         {banners.map((banner, index) => (
                             <div key={index} className="relative aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden">
-                                {banner && bannerPlaceholder ? (
-                                     <Image src={bannerPlaceholder.imageUrl} alt={`Banner ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint={bannerPlaceholder.imageHint} />
+                                {banner ? (
+                                     <Image src={banner} alt={`Banner ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint={bannerPlaceholder?.imageHint} />
                                 ) : (
                                     <div className="text-center">
                                         <span className="text-xs text-muted-foreground">صورة {index + 1}</span>
