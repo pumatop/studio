@@ -150,7 +150,7 @@ export default function DashboardLayout({
               <path d="M4.5 21.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75zM8.25 19.5a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75z"></path>
             </svg>
             <h2 className="text-xl font-semibold text-primary group-data-[collapsible=icon]:hidden">
-              كاشيات
+              حولّي كاش
             </h2>
           </div>
         </SidebarHeader>
