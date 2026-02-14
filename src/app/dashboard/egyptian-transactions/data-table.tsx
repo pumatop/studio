@@ -105,7 +105,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               )}
             >
               <CalendarIcon className="ml-2 h-4 w-4" />
-              {date ? format(date, "dd/MM/y") : <span>اختر يوماً</span>}
+              {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -169,24 +169,24 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                 <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
-                    <div className="text-muted-foreground text-xs">{transfer.userPhone}</div>
+                    <div className="text-muted-foreground text-xs font-mono">{transfer.userPhone}</div>
                 </TableCell>
                 <TableCell>{transfer.transferType}</TableCell>
-                <TableCell className="text-left">
+                <TableCell className="text-left font-mono">
                     <div className="font-semibold">{transfer.sentAmount.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الإجمالي: {transfer.totalDeducted.toLocaleString('en-US')} ج.م</div>
                 </TableCell>
                 <TableCell className="font-medium">{transfer.recipientName}</TableCell>
-                <TableCell>{transfer.recipientNumber}</TableCell>
+                <TableCell className="font-mono">{transfer.recipientNumber}</TableCell>
                 <TableCell>{transfer.delegate}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>
                     {transfer.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
-                <TableCell>{transfer.executionDuration}</TableCell>
+                <TableCell className="text-xs font-mono">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
+                <TableCell className="font-mono">{transfer.executionDuration}</TableCell>
                 <TableCell>
                   {transfer.receiptImageUrl && transfer.status === 'ناجح' && receiptPlaceholder ? (
                     <Dialog>

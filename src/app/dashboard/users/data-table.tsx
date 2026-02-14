@@ -178,9 +178,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                                 <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الأمان</CardTitle>
                             </CardHeader>
                              <CardContent className="text-sm space-y-2 pt-4">
-                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.accountOpenDate).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{new Date(user.lastPasswordChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{new Date(user.lastPinChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
+                                <div className="flex justify-between font-mono"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.accountOpenDate).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
+                                <div className="flex justify-between font-mono"><span>آخر تغيير لكلمة المرور:</span> <span>{new Date(user.lastPasswordChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
+                                <div className="flex justify-between font-mono"><span>آخر تغيير للرقم السري:</span> <span>{new Date(user.lastPinChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' })}</span></div>
                                 <Separator className="my-2" />
                                 <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{user.activeDevice}</span></div>
                                 <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{user.phoneOS}</span></div>
@@ -358,7 +358,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             {filteredData.map((user) => (
               <TableRow key={user.id} className={cn(user.status === 'محظور' && 'bg-red-50/50 opacity-60')}>
                 <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.phone}</TableCell>
+                <TableCell className="font-mono">{user.phone}</TableCell>
                 <TableCell>{user.type}</TableCell>
                 <TableCell>
                   <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
@@ -366,7 +366,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                     {user.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.lastSeen).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</TableCell>
+                <TableCell className="font-mono">{new Date(user.lastSeen).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</TableCell>
                 <TableCell>
                   <Badge className={`${verificationStatusColors[user.verificationStatus]} hover:${verificationStatusColors[user.verificationStatus]}`}>
                       {user.verificationStatus}

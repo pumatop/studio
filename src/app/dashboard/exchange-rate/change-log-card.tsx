@@ -65,7 +65,7 @@ export function ChangeLogCard() {
               const isIncrease = difference > 0;
               return (
                 <TableRow key={log.id}>
-                  <TableCell>
+                  <TableCell className="font-mono">
                     {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
                       year: 'numeric',
                       month: 'numeric',
@@ -75,12 +75,12 @@ export function ChangeLogCard() {
                     })}
                   </TableCell>
                   <TableCell className="font-medium">{log.modifiedBy}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(4)}</TableCell>
-                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(4)}</TableCell>
+                  <TableCell className="text-center text-muted-foreground font-mono">{log.oldRate.toFixed(4)}</TableCell>
+                  <TableCell className="text-center font-semibold font-mono">{log.newRate.toFixed(4)}</TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
-                      className={`flex items-center gap-1 w-fit ml-auto ${
+                      className={`flex items-center gap-1 w-fit ml-auto font-mono ${
                         isIncrease
                           ? "bg-green-100 text-green-800 hover:bg-green-200"
                           : "bg-red-100 text-red-800 hover:bg-red-200"

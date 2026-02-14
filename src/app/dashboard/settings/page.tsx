@@ -87,7 +87,7 @@ function FeeTierManager({
                     type="number"
                     value={freeTransactions}
                     onChange={(e) => setFreeTransactions(Number(e.target.value))}
-                    className="w-24"
+                    className="w-24 font-mono"
                 />
             </div>
         )}
@@ -119,18 +119,21 @@ function FeeTierManager({
                 handleTierChange(tier.id, "from", e.target.value)
               }
               placeholder="من"
+              className="font-mono"
             />
             <Input
               type="number"
               value={tier.to}
               onChange={(e) => handleTierChange(tier.id, "to", e.target.value)}
               placeholder="إلى"
+              className="font-mono"
             />
             <Input
               type="number"
               value={tier.fee}
               onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)}
               placeholder="الرسوم"
+              className="font-mono"
             />
             <Button
               variant="ghost"
@@ -189,6 +192,7 @@ export default function SettingsPage() {
                         id="internal-unverified-min"
                         type="number"
                         defaultValue="10"
+                        className="font-mono"
                       />
                     </div>
                     <div className="space-y-2">
@@ -202,6 +206,7 @@ export default function SettingsPage() {
                         id="internal-unverified-max"
                         type="number"
                         defaultValue="1000"
+                        className="font-mono"
                       />
                     </div>
                   </div>
@@ -221,6 +226,7 @@ export default function SettingsPage() {
                         id="internal-verified-min"
                         type="number"
                         defaultValue="10"
+                        className="font-mono"
                       />
                     </div>
                     <div className="space-y-2">
@@ -234,6 +240,7 @@ export default function SettingsPage() {
                         id="internal-verified-max"
                         type="number"
                         defaultValue="5000"
+                        className="font-mono"
                       />
                     </div>
                   </div>
@@ -253,6 +260,7 @@ export default function SettingsPage() {
                         id="internal-merchant-min"
                         type="number"
                         defaultValue="10"
+                        className="font-mono"
                       />
                     </div>
                     <div className="space-y-2">
@@ -266,6 +274,7 @@ export default function SettingsPage() {
                         id="internal-merchant-max"
                         type="number"
                         defaultValue="20000"
+                        className="font-mono"
                       />
                     </div>
                   </div>
@@ -296,6 +305,7 @@ export default function SettingsPage() {
                         id="instapay-min"
                         type="number"
                         defaultValue="100"
+                        className="font-mono"
                       />
                     </div>
                     <div className="space-y-2">
@@ -309,6 +319,7 @@ export default function SettingsPage() {
                         id="instapay-max"
                         type="number"
                         defaultValue="50000"
+                        className="font-mono"
                       />
                     </div>
                   </div>
@@ -326,7 +337,7 @@ export default function SettingsPage() {
                       >
                         الحد الأدنى (ج.م)
                       </Label>
-                      <Input id="wallet-min" type="number" defaultValue="100" />
+                      <Input id="wallet-min" type="number" defaultValue="100" className="font-mono" />
                     </div>
                     <div className="space-y-2">
                       <Label
@@ -335,7 +346,7 @@ export default function SettingsPage() {
                       >
                         الحد الأقصى (ج.م)
                       </Label>
-                      <Input id="wallet-max" type="number" defaultValue="30000" />
+                      <Input id="wallet-max" type="number" defaultValue="30000" className="font-mono" />
                     </div>
                   </div>
                 </div>
@@ -356,6 +367,7 @@ export default function SettingsPage() {
                         id="delivery-min"
                         type="number"
                         defaultValue="1000"
+                        className="font-mono"
                       />
                     </div>
                     <div className="space-y-2">
@@ -369,6 +381,7 @@ export default function SettingsPage() {
                         id="delivery-max"
                         type="number"
                         defaultValue="100000"
+                        className="font-mono"
                       />
                     </div>
                   </div>

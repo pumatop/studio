@@ -108,7 +108,7 @@ function SupervisorForm({
         </div>
         <div className="space-y-2">
             <Label htmlFor="phone">رقم الهاتف</Label>
-            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} required />
+            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} required className="font-mono" />
         </div>
       </div>
        <div className="space-y-2">
@@ -295,7 +295,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
               <TableRow key={supervisor.id} className={cn(supervisor.status === 'غير نشط' && 'bg-red-50/50 opacity-60')}>
                 <TableCell>
                     <div className="font-medium">{supervisor.name}</div>
-                    <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
+                    <div className="text-muted-foreground text-xs font-mono">{supervisor.phone}</div>
                 </TableCell>
                 <TableCell>{supervisor.specialization.length === 3 ? 'الكل' : supervisor.specialization.join(', ')}</TableCell>
                  <TableCell className="text-center">
@@ -307,12 +307,12 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     {supervisor.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
-                <TableCell className="text-xs">
+                <TableCell className="text-xs font-mono">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
+                <TableCell className="text-xs font-mono">
                     <div>اليوم: {supervisor.dailyOperationCount}</div>
                     <div>الشهر: {supervisor.monthlyOperationCount}</div>
                 </TableCell>
-                <TableCell className="text-xs text-left">
+                <TableCell className="text-xs text-left font-mono">
                     <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')} ج.م</div>
                     <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')} ج.م</div>
                 </TableCell>

@@ -93,19 +93,19 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
             {type === 'amount' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (جنيه مصري)</Label>
-                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required className="font-mono" />
                  </div>
             )}
             {type === 'time' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-time">الوقت المحدد للتغيير</Label>
-                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required className="font-mono" />
                  </div>
             )}
 
             <div className="space-y-2">
                 <Label htmlFor="cond-target-rate">السعر الجديد المستهدف</Label>
-                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required />
+                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required className="font-mono" />
             </div>
 
             <DialogFooter>
@@ -217,6 +217,7 @@ export function ExchangeControlCard() {
                         type="number"
                         value={autoCloseThreshold}
                         onChange={(e) => setAutoCloseThreshold(parseInt(e.target.value, 10))}
+                        className="font-mono"
                     />
                 </div>
             )}
@@ -238,7 +239,7 @@ export function ExchangeControlCard() {
               type="number"
               value={currentRate}
               onChange={(e) => setCurrentRate(parseFloat(e.target.value))}
-              className="text-lg font-bold pl-16 text-left"
+              className="text-lg font-bold pl-16 text-left font-mono"
               step="0.01"
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
@@ -291,9 +292,9 @@ export function ExchangeControlCard() {
                             <div className="text-sm">
                                 <p>
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
-                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.value}</span>
+                                    <span className="font-bold mx-1 font-mono">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.value}</span>
                                     {condition.type === 'amount' && ` جنيه مصري،`}
-                                    غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
+                                    غيّر السعر إلى <span className="font-bold mx-1 font-mono">{condition.targetRate}</span>
                                 </p>
                                 <p className="text-xs text-muted-foreground">أضافها: {condition.createdBy}</p>
                             </div>
