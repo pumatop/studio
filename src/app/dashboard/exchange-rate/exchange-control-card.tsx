@@ -198,7 +198,7 @@ export function ExchangeControlCard() {
             {exchangeStatusMode === 'manual' && (
                  <div className="flex items-center justify-between rounded-lg border p-4 animate-in fade-in-0 duration-300">
                     <div>
-                        <Label htmlFor="exchange-status" className="font-semibold">تفعيل الصرف اليدوي</Label>
+                        <Label htmlFor="exchange-status" className="font-semibold">فتح/غلق الصرف يدوي</Label>
                     </div>
                     <Switch
                         id="exchange-status"
