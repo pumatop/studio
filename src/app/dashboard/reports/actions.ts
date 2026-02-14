@@ -2,20 +2,20 @@
 
 import { generateDataInsights, type GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
 import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
-import { mockEgyptianTransactions } from "@/lib/mock-egyptian-transactions";
+import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
 
 export async function generateInsightsAction(): Promise<{
   data: GenerateDataInsightsOutput | null;
   error: string | null;
 }> {
   try {
-    if (mockLibyanTransactions.length === 0 && mockEgyptianTransactions.length === 0) {
+    if (mockLibyanTransactions.length === 0 && mockEgyptianTransfers.length === 0) {
       return { data: null, error: "لا توجد بيانات كافية لإنشاء تقرير. يرجى إضافة بعض المعاملات أولاً." };
     }
     
     const allTransactions = {
       libyanTransactions: mockLibyanTransactions,
-      egyptianTransactions: mockEgyptianTransactions
+      egyptianTransfers: mockEgyptianTransfers
     };
     const dataString = JSON.stringify(allTransactions, null, 2);
     const result = await generateDataInsights({ data: dataString });

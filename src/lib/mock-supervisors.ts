@@ -1,3 +1,62 @@
 import type { Supervisor } from "@/lib/types";
 
-export const mockSupervisors: Supervisor[] = [];
+const now = new Date();
+
+export const mockSupervisors: Supervisor[] = [
+  {
+    id: "sup_1",
+    name: "مندوب 1",
+    phone: "+201000000001",
+    canEditExchangeRate: true,
+    connectionStatus: "متصل",
+    lastSeen: new Date(now.getTime() - 5 * 60 * 1000).toISOString(),
+    specialization: ["محفظة كاش", "انستاباي"],
+    dailyTransferValue: 15000,
+    monthlyTransferValue: 250000,
+    dailyOperationCount: 5,
+    monthlyOperationCount: 120,
+    status: "نشط",
+  },
+  {
+    id: "sup_2",
+    name: "مندوب 2",
+    phone: "+201000000002",
+    canEditExchangeRate: false,
+    connectionStatus: "غير متصل",
+    lastSeen: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString(),
+    specialization: ["انستاباي"],
+    dailyTransferValue: 30000,
+    monthlyTransferValue: 800000,
+    dailyOperationCount: 8,
+    monthlyOperationCount: 200,
+    status: "نشط",
+  },
+  {
+    id: "sup_3",
+    name: "مندوب 3",
+    phone: "+201000000003",
+    canEditExchangeRate: false,
+    connectionStatus: "متصل",
+    lastSeen: new Date(now.getTime() - 10 * 60 * 1000).toISOString(),
+    specialization: ["وصلني البيت"],
+    dailyTransferValue: 50000,
+    monthlyTransferValue: 1200000,
+    dailyOperationCount: 3,
+    monthlyOperationCount: 80,
+    status: "نشط",
+  },
+  {
+    id: "sup_4",
+    name: "مشرف عام",
+    phone: "+201000000004",
+    canEditExchangeRate: true,
+    connectionStatus: "غير متصل",
+    lastSeen: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    specialization: ["محفظة كاش", "انستاباي", "وصلني البيت"],
+    dailyTransferValue: 0,
+    monthlyTransferValue: 0,
+    dailyOperationCount: 0,
+    monthlyOperationCount: 0,
+    status: "غير نشط",
+  },
+];

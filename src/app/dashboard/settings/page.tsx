@@ -19,10 +19,22 @@ import { AppSettingsCard } from "./app-settings-card";
 import { MainSettingsCard } from "./main-settings-card";
 
 // Initial Data
-const initialInternalFees: FeeTier[] = [];
-const initialWalletFees: FeeTier[] = [];
-const initialInstapayFees: FeeTier[] = [];
-const initialDeliveryFees: FeeTier[] = [];
+const initialInternalFees: FeeTier[] = [
+    { id: "internal_1", from: 1, to: 1000, fee: 1 },
+    { id: "internal_2", from: 1001, to: 5000, fee: 3 },
+    { id: "internal_3", from: 5001, to: 20000, fee: 5 },
+];
+const initialWalletFees: FeeTier[] = [
+    { id: "wallet_1", from: 100, to: 10000, fee: 20 },
+    { id: "wallet_2", from: 10001, to: 30000, fee: 50 },
+];
+const initialInstapayFees: FeeTier[] = [
+    { id: "instapay_1", from: 100, to: 50000, fee: 100 },
+];
+const initialDeliveryFees: FeeTier[] = [
+    { id: "delivery_1", from: 1000, to: 20000, fee: 150 },
+    { id: "delivery_2", from: 20001, to: 100000, fee: 250 },
+];
 
 function FeeTierManager({
   title,
@@ -39,7 +51,7 @@ function FeeTierManager({
   setTiers: React.Dispatch<React.SetStateAction<FeeTier[]>>;
   showFreeTransactionsInput?: boolean;
 }) {
-  const [freeTransactions, setFreeTransactions] = useState(0);
+  const [freeTransactions, setFreeTransactions] = useState(3);
   const handleAddTier = () => {
     setTiers([...tiers, { id: `tier_${Date.now()}`, from: 0, to: 0, fee: 0 }]);
   };

@@ -1,3 +1,132 @@
 import type { EgyptianTransfer } from "@/lib/types";
 
-export const mockEgyptianTransfers: EgyptianTransfer[] = [];
+// Get a reference date from the most recent user's lastSeen
+const now = new Date();
+
+export const mockEgyptianTransfers: EgyptianTransfer[] = [
+  {
+    id: "txn_eg_1",
+    userName: "محمد علي",
+    userPhone: "+218912345678",
+    transferType: "محفظة كاش",
+    sentAmount: 5000,
+    recipientNumber: "01098765432",
+    serviceFee: 50,
+    totalDeducted: 5050,
+    recipientName: "علي أحمد",
+    delegate: "مندوب 1",
+    requestTimestamp: new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+    status: "ناجح",
+    executionDuration: "5 دقائق",
+    receiptImageUrl: "receipt.jpg",
+  },
+  {
+    id: "txn_eg_2",
+    userName: "فاطمة حسين",
+    userPhone: "+218923456789",
+    transferType: "انستاباي",
+    sentAmount: 20000,
+    recipientNumber: "account@instapay",
+    serviceFee: 100,
+    totalDeducted: 20100,
+    recipientName: "شركة التجارة الحديثة",
+    delegate: "مندوب 2",
+    requestTimestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+    status: "قيد التحويل",
+    executionDuration: "-",
+  },
+  {
+    id: "txn_eg_3",
+    userName: "محمد علي",
+    userPhone: "+218912345678",
+    transferType: "وصلني البيت",
+    sentAmount: 15000,
+    recipientNumber: "01234567890",
+    serviceFee: 200,
+    totalDeducted: 15200,
+    recipientName: "سيد مصطفى",
+    delegate: "مندوب 3",
+    requestTimestamp: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    status: "ناجح",
+    executionDuration: "ساعة و 25 دقيقة",
+    receiptImageUrl: "receipt.jpg",
+  },
+  {
+    id: "txn_eg_4",
+    userName: "أحمد محمود",
+    userPhone: "+201012345678",
+    transferType: "محفظة كاش",
+    sentAmount: 750,
+    recipientNumber: "01122334455",
+    serviceFee: 10,
+    totalDeducted: 760,
+    recipientName: "هبة خالد",
+    delegate: "مندوب 1",
+    requestTimestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+    status: "مرفوض",
+    executionDuration: "10 دقائق",
+  },
+  {
+    id: "txn_eg_5",
+    userName: "سارة إبراهيم",
+    userPhone: "+218911122334",
+    transferType: "انستاباي",
+    sentAmount: 50000,
+    recipientNumber: "sarah.ib@instapay",
+    serviceFee: 250,
+    totalDeducted: 50250,
+    recipientName: "سارة إبراهيم",
+    delegate: "مندوب 2",
+    requestTimestamp: new Date(now.getTime() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
+    status: "ناجح",
+    executionDuration: "دقيقتان",
+    receiptImageUrl: "receipt.jpg",
+  },
+  {
+    id: "txn_eg_6",
+    userName: "خالد عبد الله",
+    userPhone: "+201123456789",
+    transferType: 'وصلني البيت',
+    sentAmount: 25000,
+    recipientNumber: '01556677889',
+    serviceFee: 300,
+    totalDeducted: 25300,
+    recipientName: 'عمر الشريف',
+    delegate: 'مندوب 3',
+    requestTimestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+    status: 'ناجح',
+    executionDuration: '3 ساعات',
+    receiptImageUrl: 'receipt.jpg',
+  },
+   {
+    id: "txn_eg_7",
+    userName: "سارة إبراهيم",
+    userPhone: "+218911122334",
+    transferType: "محفظة كاش",
+    sentAmount: 10000,
+    recipientNumber: "01011112222",
+    serviceFee: 100,
+    totalDeducted: 10100,
+    recipientName: "متجر الهدايا",
+    delegate: "مندوب 1",
+    requestTimestamp: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
+    status: "قيد التحويل",
+    executionDuration: "-",
+  },
+   {
+    id: "txn_eg_8",
+    userName: "فاطمة حسين",
+    userPhone: "+218923456789",
+    transferType: "انستاباي",
+    sentAmount: 100000,
+    recipientNumber: "supplier.egy@instapay",
+    serviceFee: 500,
+    totalDeducted: 100500,
+    recipientName: "موردين مصر",
+    delegate: "مندوب 2",
+    requestTimestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    status: "ناجح",
+    executionDuration: "15 دقيقة",
+    receiptImageUrl: "receipt.jpg",
+  }
+];
