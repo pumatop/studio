@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CircleDollarSign } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -29,12 +29,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center mb-4">
-            <Image
-              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
-              alt="شعار حولّي كاش"
-              width={150}
-              height={30}
-            />
+            <CircleDollarSign className="h-16 w-16 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold text-primary">
             لوحة تحكم حولّي كاش
