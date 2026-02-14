@@ -9,6 +9,10 @@ export async function generateInsightsAction(): Promise<{
   error: string | null;
 }> {
   try {
+    if (mockLibyanTransactions.length === 0 && mockEgyptianTransactions.length === 0) {
+      return { data: null, error: "لا توجد بيانات كافية لإنشاء تقرير. يرجى إضافة بعض المعاملات أولاً." };
+    }
+    
     const allTransactions = {
       libyanTransactions: mockLibyanTransactions,
       egyptianTransactions: mockEgyptianTransactions

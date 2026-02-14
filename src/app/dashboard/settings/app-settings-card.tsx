@@ -20,24 +20,9 @@ import type { Agent, Region } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
-const initialRegions: Region[] = [
-    {
-        id: "region_1",
-        name: "طرابلس",
-        agents: [
-            { id: "agent_1", name: "وكيل 1", phone: "091-1111111", address: "حي الأندلس" },
-        ]
-    },
-    {
-        id: "region_2",
-        name: "بنغازي",
-        agents: [
-            { id: "agent_2", name: "وكيل 2", phone: "092-2222222", address: "شارع جمال عبد الناصر" },
-        ]
-    },
-];
+const initialRegions: Region[] = [];
 
-const initialBanners = Array(5).fill("promo-banner-placeholder");
+const initialBanners: string[] = [];
 
 export function AppSettingsCard() {
     const { toast } = useToast();

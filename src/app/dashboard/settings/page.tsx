@@ -19,22 +19,10 @@ import { AppSettingsCard } from "./app-settings-card";
 import { MainSettingsCard } from "./main-settings-card";
 
 // Initial Data
-const initialInternalFees: FeeTier[] = [
-  { id: "int_1", from: 1, to: 1000, fee: 1 },
-  { id: "int_2", from: 1001, to: 5000, fee: 2 },
-];
-const initialWalletFees: FeeTier[] = [
-  { id: "wal_1", from: 1, to: 5000, fee: 10 },
-  { id: "wal_2", from: 5001, to: 30000, fee: 20 },
-];
-const initialInstapayFees: FeeTier[] = [
-  { id: "ins_1", from: 1, to: 10000, fee: 15 },
-  { id: "ins_2", from: 10001, to: 50000, fee: 25 },
-];
-const initialDeliveryFees: FeeTier[] = [
-  { id: "del_1", from: 1, to: 10000, fee: 100 },
-  { id: "del_2", from: 10001, to: 100000, fee: 150 },
-];
+const initialInternalFees: FeeTier[] = [];
+const initialWalletFees: FeeTier[] = [];
+const initialInstapayFees: FeeTier[] = [];
+const initialDeliveryFees: FeeTier[] = [];
 
 function FeeTierManager({
   title,

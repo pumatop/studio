@@ -31,22 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 // Mock Data for initial conditions
-const initialConditions: RateCondition[] = [
-  {
-    id: "cond_1",
-    type: "amount",
-    value: 500000,
-    targetRate: 9.7,
-    createdBy: "أحمد خالد",
-  },
-  {
-    id: "cond_2",
-    type: "time",
-    value: "22:00",
-    targetRate: 9.75,
-    createdBy: "النظام (تلقائي)",
-  },
-];
+const initialConditions: RateCondition[] = [];
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
     const [type, setType] = useState<'amount' | 'time'>('amount');
