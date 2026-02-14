@@ -31,7 +31,7 @@ export default function LoginPage() {
           <div className="flex justify-center items-center mb-4">
               <CircleDollarSign className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl">لوحة تحكم كاشيات</CardTitle>
+          <CardTitle className="text-2xl">لوحة تحكم حولّي كاش</CardTitle>
           <CardDescription>
             الرجاء تسجيل الدخول للمتابعة إلى لوحة التحكم
           </CardDescription>
@@ -59,7 +59,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter>
           <p className="text-xs text-center text-muted-foreground w-full">
-            © {new Date().getFullYear()} لوحة تحكم كاشيات.
+            © {new Date().getFullYear()} لوحة تحكم حولّي كاش.
           </p>
         </CardFooter>
       </Card>

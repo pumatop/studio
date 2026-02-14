@@ -14,7 +14,7 @@ const GenerateDataInsightsInputSchema = z.object({
   data: z
     .string()
     .describe(
-      "بيانات 'cashaat databese' المقدمة كسلسلة نصية مهيكلة (مثل JSON، CSV، أو ملخص مفصل باللغة الطبيعية) للتحليل."
+      "بيانات 'حولّي كاش' المقدمة كسلسلة نصية مهيكلة (مثل JSON، CSV، أو ملخص مفصل باللغة الطبيعية) للتحليل."
     ),
 });
 export type GenerateDataInsightsInput = z.infer<
@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   name: 'generateDataInsightsPrompt',
   input: {schema: GenerateDataInsightsInputSchema},
   output: {schema: GenerateDataInsightsOutputSchema},
-  prompt: `أنت محلل بيانات خبير متخصص في بيانات 'cashaat databese'.
+  prompt: `أنت محلل بيانات خبير متخصص في بيانات 'حولّي كاش'.
 مهمتك هي تحليل البيانات المقدمة واستخلاص الرؤى الرئيسية وتحديد الاتجاهات وقياس مقاييس الأداء وتقديم توصيات قابلة للتنفيذ.
 
 بيانات للتحليل:

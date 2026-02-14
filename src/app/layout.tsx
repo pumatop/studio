@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'لوحة تحكم كاشيات',
-  description: 'لوحة تحكم لإدارة وتحليل بيانات كاشيات.',
+  title: 'لوحة تحكم حولّي كاش',
+  description: 'لوحة تحكم لإدارة وتحليل بيانات حولّي كاش.',
 };
 
 export default function RootLayout({
