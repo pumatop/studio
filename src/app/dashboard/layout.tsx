@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
@@ -22,6 +21,7 @@ import {
   UserCog,
   Settings,
   History,
+  CircleDollarSign,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 
@@ -139,21 +139,11 @@ export default function DashboardLayout({
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center justify-center h-10">
-            <Image
-              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
-              alt="شعار حولّي كاش"
-              width={120}
-              height={24}
-              className="group-data-[collapsible=icon]:hidden"
-            />
-             <Image
-              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
-              alt="شعار حولّي كاش"
-              width={32}
-              height={32}
-              className="hidden group-data-[collapsible=icon]:block"
-            />
+          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
+            <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
+            <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
+                لوحة تحكم<br/>حولّي كاش
+            </div>
           </div>
         </SidebarHeader>
         <SidebarContent>
