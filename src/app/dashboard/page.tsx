@@ -51,9 +51,9 @@ const FormattedAmount = ({
     const [integer, fraction] = amount.toFixed(2).split('.');
     return (
         <span className="inline-flex items-baseline" dir="ltr">
+            <span className={cn('mr-1', currencyClass)}>{currency}</span>
             <span className={integerClass}>{Number(integer).toLocaleString('en-US')}</span>
             {fraction && <span className={cn('text-muted-foreground', fractionClass)}>.{fraction}</span>}
-            <span className={cn('ml-1', currencyClass)}> {currency}</span>
         </span>
     );
 };
