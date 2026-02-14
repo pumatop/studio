@@ -38,7 +38,7 @@ const initialRegions: Region[] = [
     },
 ];
 
-const initialBanners: string[] = ["banner1.jpg", "banner2.jpg", "banner3.jpg"];
+const initialBanners: string[] = ["banner1.jpg", "banner2.jpg", "banner3.jpg", "banner4.jpg", "banner5.jpg"];
 
 export function AppSettingsCard() {
     const { toast } = useToast();
