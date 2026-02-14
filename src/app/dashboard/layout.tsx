@@ -141,14 +141,14 @@ export default function DashboardLayout({
         <SidebarHeader>
           <div className="flex items-center justify-center h-10">
             <Image
-              src="https://i.ibb.co/GQFnQ0D/Rectangle-3311-1.png"
+              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
               alt="شعار حولّي كاش"
               width={120}
               height={24}
               className="group-data-[collapsible=icon]:hidden"
             />
              <Image
-              src="https://i.ibb.co/Y02vLp3/logo.png"
+              src="https://image2url.com/r2/default/images/1771072791372-2959ab79-8217-435a-bd3e-fa8d27d307de.svg"
               alt="شعار حولّي كاش"
               width={32}
               height={32}
