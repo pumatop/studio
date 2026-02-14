@@ -142,7 +142,7 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
             <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
             <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
-                لوحة تحكم<br/>حولّي كاش
+                حولّي كاش
             </div>
           </div>
         </SidebarHeader>
