@@ -53,7 +53,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart
             data={data}
-            margin={{ top: 30, right: 10, left: -10, bottom: 0 }}
+            margin={{ top: 30, right: 20, left: -10, bottom: 0 }}
             accessibilityLayer
           >
             <CartesianGrid vertical={false} />
@@ -73,7 +73,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               domain={["dataMin - 0.1", "dataMax + 0.1"]}
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
+              tickMargin={12}
               tickFormatter={(value) => value.toFixed(2)}
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontFamily: "var(--font-body)" }}
             />
