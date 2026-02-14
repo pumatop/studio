@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
@@ -140,15 +141,13 @@ export default function DashboardLayout({
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader>
           <div className="flex items-center gap-2 justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className="w-8 h-8 text-primary"
-              fill="currentColor"
-            >
-              <path d="M12.544 2.408a.75.75 0 0 0-1.088 0l-9 7.5A.75.75 0 0 0 2.25 11h3.328V12A3.75 3.75 0 0 0 9.328 15.75h5.344A3.75 3.75 0 0 0 18.422 12V11h3.328a.75.75 0 0 0 .544-1.28L12.544 2.408zM15.422 12a.75.75 0 0 1-.75.75H9.328a.75.75 0 0 1-.75-.75V11h6.844v1z"></path>
-              <path d="M4.5 21.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75zM8.25 19.5a.75.75 0 0 1 .75-.75h6a.75.75 0 0 1 0 1.5H9a.75.75 0 0 1-.75-.75z"></path>
-            </svg>
+            <Image
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABWElEQVR42mP4//8/AyUYyADCgAyqApQ4Mfr/b2D+B8x/A/lP0B/G+J8h/k/A/E+w/w/l/8H+P5L/l93/t/w/1//3/L8Z////y/5/hf8f8v9f4v+f4v5f8v8f6f8/of//hP4/M/+fGf9/ov+f0v8/0f9/ov+fkv//Qv6/M/+fGf/fkv9/k//+Iv5/Qv6/M/+/If/fkv+/kf9/I/+/Jf9/k/9/k///hf9/y//f+P//+P//+P//GP9/Yf5/wf//wf//wP//of9fuv+fWf/f+v9/4/9/4/+///8D/f+D9f9F+v+y/f+v7f+v7f9/y/5/Zf//4P//wP//wP//gP//gP//Af0/QP8/oP8/oP8/oP9/Qf8/IP8/IP8/If8/oP9/Qf8/If8/If8/IP8/IP//gP5/QP//kP8/AP//gP5/QP//kP//AP//AP9/AP9/If9/gP4f8v8H/P8A/P8D8P8P8P8X8P8n4P8v4P8/wP9fwP9vwP9/wP///P/38P/fxf9/F/3/V/T/p/T/d/X/f9X/v9X/P9n/L9v/D9//D/D/P8D//wD//wEA//8BABhYB/QLbllDAAAAAElFTkSuQmCC"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
             <h2 className="text-xl font-semibold text-primary group-data-[collapsible=icon]:hidden">
               حولّي كاش
             </h2>
