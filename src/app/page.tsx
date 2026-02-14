@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +11,38 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CircleDollarSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CircleDollarSign, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    router.push("/dashboard");
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    // Simple mock authentication
+    if (username === "admin" && password === "password") {
+      toast({
+        title: "تم تسجيل الدخول بنجاح",
+        description: "جاري تحويلك إلى لوحة التحكم...",
+      });
+      router.push("/dashboard");
+    } else {
+      const errorMessage = "اسم المستخدم أو كلمة المرور غير صحيحة.";
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "خطأ في تسجيل الدخول",
+        description: errorMessage,
+      });
+    }
   };
 
   return (
@@ -30,13 +56,43 @@ export default function LoginPage() {
             لوحة تحكم حولّي كاش
           </CardTitle>
           <CardDescription>
-            اضغط على الزر للمتابعة إلى لوحة التحكم
+            أدخل اسم المستخدم وكلمة المرور للمتابعة
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <Button onClick={handleLogin} className="w-full">
-              الدخول إلى لوحة التحكم
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">اسم المستخدم</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="admin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">كلمة المرور</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4" />
+                <span>{error}</span>
+              </div>
+            )}
+            <Button type="submit" className="w-full">
+              تسجيل الدخول
             </Button>
+          </form>
         </CardContent>
         <CardFooter>
           <p className="text-xs text-center text-muted-foreground w-full">
