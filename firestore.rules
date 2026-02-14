@@ -1,0 +1,223 @@
+/**
+ * Core Philosophy:
+ * This ruleset implements a hybrid security model combining strict user ownership
+ * with role-based access control (RBAC). The primary goals are security, performance,
+ * and debuggability, achieved by making authorization decisions independent of
+ * cross-document reads wherever possible.
+ *
+ * Data Structure:
+ * - User-specific data (profiles, settings, reports) is nested under /users/{userId},
+ *   enabling simple, path-based ownership rules.
+ * - Global data (transactions, roles) is stored in top-level collections.
+ * - Role assignments are managed in dedicated collections (/adminRoles, /cashierRoles)
+ *   for fast, efficient `exists()` checks in security rules.
+ *
+ * Key Security Decisions:
+ * - User Isolation: Users can only access data within their own /users/{userId} tree.
+ *   Listing all users is explicitly forbidden to protect user privacy.
+ * - Role-Based Access (RBAC): Administrative and Cashier roles grant specific
+ *   privileges over shared collections like /transactions. Role membership is
+ *   determined by the existence of a document in /adminRoles/{userId} or
+ *   /cashierRoles/{userId}, which is a highly performant pattern.
+ * - Admin Supremacy: Users with the 'Admin' role have broad read/write access to
+ *   shared collections (/transactions, /roles) and are the only ones who can manage
+ *   role assignments.
+ * - Default Secure: Access is denied by default. Permissions must be explicitly
+ *   granted. Write operations are never left open.
+ *
+ * Denormalization for Authorization:
+ * This ruleset relies heavily on denormalization to create simple and performant rules.
+ * - Role assignments are denormalized into `/adminRoles` and `/cashierRoles`
+ *   collections to avoid slow `get()` calls to a user's profile during rule evaluation.
+ * - The `transactions` collection requires a `cashierId` field directly on each
+ *   document, allowing a simple rule to check if a cashier owns that specific record
+ *   without needing to consult other documents.
+ * - User subcollections use the `{userId}` from the path to authorize requests,
+ *   making ownership checks instant.
+ *
+ * Structural Segregation:
+ * The data model separates user-private data into user-specific subcollections
+ * (e.g., `/users/{userId}/dashboardSettings`) and shared data into top-level
+ * collections (e.g., `/transactions`). This clear separation ensures that security
+ * rules for one collection do not inadvertently affect another and makes list
+ * operations much safer to implement.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user is the owner of a resource.
+     * @param userId The UID of the user to check against.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the authenticated user has an Admin role.
+     * This is determined by the existence of their UID in the /adminRoles collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/adminRoles/$(request.auth.uid));
+    }
+
+    /**
+     * Checks if the authenticated user has a Cashier role.
+     * This is determined by the existence of their UID in the /cashierRoles collection.
+     */
+    function isCashier() {
+      return isSignedIn() && exists(/databases/$(database)/documents/cashierRoles/$(request.auth.uid));
+    }
+
+    /**
+     * Validates that the incoming document's ownership field matches the user's auth UID.
+     * Used on create operations.
+     */
+    function isCreatingOwn(fieldName) {
+      return request.resource.data[fieldName] == request.auth.uid;
+    }
+
+    /**
+     * Validates that an existing document's ownership field matches the user's auth UID.
+     * Used on update/delete operations.
+     */
+    function isExistingDocOwner(fieldName) {
+      return resource != null && resource.data[fieldName] == request.auth.uid;
+    }
+    
+    /**
+     * Validates that an ownership field is not being changed during an update.
+     */
+    function isOwnershipImmutable(fieldName) {
+        return request.resource.data[fieldName] == resource.data[fieldName];
+    }
+
+    // ------------------------------------------------------------------------
+    // Collection Rules
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Manages user profiles. Users can create and manage their own
+     *              profile. Listing all users is disallowed for privacy.
+     * @path        /users/{userId}
+     * @allow       (create) A new user signs up and creates their own profile. auth.uid == userId.
+     * @deny        (get) A user tries to read another user's profile. auth.uid != userId.
+     * @principle   Restricts access to a user's own data tree and allows self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isOwner(userId) && resource != null && request.resource.data.id == resource.data.id;
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Manages personalized dashboard settings for a user. Only the
+     *              owning user can read or write their settings.
+     * @path        /users/{userId}/dashboardSettings/{settingId}
+     * @allow       (create) A user creates a new theme setting for their dashboard. auth.uid == userId.
+     * @deny        (list) An attacker tries to list settings for another user. auth.uid != userId.
+     * @principle   Enforces strict ownership on a user's private subcollection.
+     */
+    match /users/{userId}/dashboardSettings/{settingId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isOwner(userId) && resource != null && request.resource.data.userId == resource.data.userId;
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Stores AI-generated reports. Only the user who generated a
+     *              report can access or manage it.
+     * @path        /users/{userId}/aiReports/{reportId}
+     * @allow       (get) A user reads a report they previously generated. auth.uid == userId.
+     * @deny        (delete) A user tries to delete a report belonging to someone else. auth.uid != userId.
+     * @principle   Enforces strict ownership on a user's private subcollection.
+     */
+    match /users/{userId}/aiReports/{reportId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.generatedByUserId == userId;
+      allow update: if isOwner(userId) && resource != null && request.resource.data.generatedByUserId == resource.data.generatedByUserId;
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Manages financial transactions. Admins have full access.
+     *              Cashiers can read, create, and manage transactions assigned to them.
+     * @path        /transactions/{transactionId}
+     * @allow       (get) A Cashier reads a transaction where `resource.data.cashierId` matches their UID.
+     * @deny        (update) A Cashier tries to update a transaction assigned to another cashier.
+     * @principle   Implements role-based access control (RBAC) using denormalized ownership data.
+     */
+    match /transactions/{transactionId} {
+      allow get: if isAdmin() || (isCashier() && isExistingDocOwner('cashierId'));
+      allow list: if isAdmin() || isCashier();
+      allow create: if isAdmin() || (isCashier() && isCreatingOwn('cashierId'));
+      allow update: if (resource != null) && (isAdmin() || (isCashier() && isExistingDocOwner('cashierId') && isOwnershipImmutable('cashierId')));
+      allow delete: if (resource != null) && (isAdmin() || (isCashier() && isExistingDocOwner('cashierId')));
+    }
+
+    /**
+     * @description Defines system roles. This data is readable by any authenticated
+     *              user but can only be modified by an Admin.
+     * @path        /roles/{roleId}
+     * @allow       (list) Any authenticated user lists the available roles in the app.
+     * @deny        (create) A non-admin user tries to create a new role.
+     * @principle   Public read access for application metadata with admin-only writes.
+     */
+    match /roles/{roleId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages Admin role assignments. Only other Admins can grant or
+     *              revoke administrative privileges. Client-side reads are blocked.
+     * @path        /adminRoles/{userId}
+     * @allow       (create) An existing Admin assigns a new user the Admin role.
+     * @deny        (get) A client application tries to read the list of admins.
+     * @principle   Secures role-assignment data, making it admin-writable and inaccessible to clients.
+     */
+    match /adminRoles/{userId} {
+      allow get: if false;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages Cashier role assignments. Only Admins can grant or
+     *              revoke cashier privileges. Client-side reads are blocked.
+     * @path        /cashierRoles/{userId}
+     * @allow       (create) An Admin assigns a new user the Cashier role.
+     * @deny        (list) A client application tries to enumerate all cashiers.
+     * @principle   Secures role-assignment data, making it admin-writable and inaccessible to clients.
+     */
+    match /cashierRoles/{userId} {
+      allow get: if false;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+  }
+}

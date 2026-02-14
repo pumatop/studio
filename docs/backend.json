@@ -1,0 +1,353 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user account within the Cashaat Dashboard, holding non-sensitive profile information and links to roles for access control.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "A unique identifier for the user, often used for login or display."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "lastLogin": {
+          "type": "string",
+          "description": "Timestamp of the user's last successful login.",
+          "format": "date-time"
+        },
+        "roleIds": {
+          "type": "array",
+          "description": "References to Roles assigned to this user. (Relationship: UserProfile N:N Role)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    },
+    "Role": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Role",
+      "type": "object",
+      "description": "Defines a specific access level or set of permissions within the Cashaat Dashboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Role entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the role (e.g., 'Admin', 'Editor', 'Viewer')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the permissions and responsibilities associated with this role."
+        },
+        "userIds": {
+          "type": "array",
+          "description": "References to UserProfiles assigned to this role. (Relationship: Role N:N UserProfile)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "DashboardSetting": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DashboardSetting",
+      "type": "object",
+      "description": "Stores personalized settings and layout configurations for a user's dashboard view.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DashboardSetting entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile this setting belongs to. (Relationship: UserProfile 1:N DashboardSetting)"
+        },
+        "settingKey": {
+          "type": "string",
+          "description": "A key identifying the specific setting (e.g., 'theme', 'widgetLayout', 'defaultFilters')."
+        },
+        "settingValue": {
+          "type": "string",
+          "description": "The value of the setting, stored as a string. Can be a JSON string for complex objects."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "Timestamp when the setting was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "settingKey",
+        "settingValue"
+      ]
+    },
+    "AIReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AIReport",
+      "type": "object",
+      "description": "Stores metadata and content for AI-generated reports and insights derived from dashboard data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AIReport entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the generated AI report."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or summary of the report's content."
+        },
+        "generatedAt": {
+          "type": "string",
+          "description": "Timestamp when the report was generated.",
+          "format": "date-time"
+        },
+        "generatedByUserId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who initiated the report generation. (Relationship: UserProfile 1:N AIReport)"
+        },
+        "reportContent": {
+          "type": "string",
+          "description": "The actual content of the report, which could be a formatted string, JSON, or a link to a stored file."
+        },
+        "reportType": {
+          "type": "string",
+          "description": "The type of analysis or report (e.g., 'Summary', 'AnomalyDetection', 'TrendAnalysis')."
+        },
+        "parametersUsed": {
+          "type": "string",
+          "description": "A JSON string storing the parameters or filters used to generate the report."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "generatedAt",
+        "generatedByUserId",
+        "reportContent",
+        "reportType"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "A conceptual entity representing a financial transaction record managed through the Cashaat Dashboard, originating from the external 'cashaat databese'. This entity defines the structure of data managed by the dashboard.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction. Assumed to be consistent with the 'cashaat databese'."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "The date and time when the transaction occurred.",
+          "format": "date-time"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary amount of the transaction."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The currency code of the transaction amount (e.g., 'SAR', 'USD')."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of transaction (e.g., 'Sale', 'Refund', 'Payment', 'Expense')."
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional description or note about the transaction."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the transaction (e.g., 'Completed', 'Pending', 'Failed', 'Cancelled')."
+        },
+        "customerId": {
+          "type": "string",
+          "description": "Reference to an external customer entity, if applicable and available from 'cashaat databese'. (Relationship: Customer 1:N Transaction)"
+        },
+        "cashierId": {
+          "type": "string",
+          "description": "Reference to an external cashier or sales associate entity, if applicable from 'cashaat databese'. (Relationship: Cashier 1:N Transaction)"
+        },
+        "metadata": {
+          "type": "string",
+          "description": "A flexible field to store additional transaction-specific metadata as a JSON string."
+        }
+      },
+      "required": [
+        "id",
+        "transactionDate",
+        "amount",
+        "currency",
+        "type",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profile data. Access is restricted to the user themselves for read/write, and to administrators for management. The 'userId' in the path must match 'request.auth.uid' for self-access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, corresponding to Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/dashboardSettings/{settingId}",
+        "definition": {
+          "entityName": "DashboardSetting",
+          "schema": {
+            "$ref": "#/backend/entities/DashboardSetting"
+          },
+          "description": "Stores personalized dashboard settings for each user. Access is restricted to the owning user. Includes denormalized 'userId' in the path for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who owns these settings."
+            },
+            {
+              "name": "settingId",
+              "description": "The unique ID for a specific dashboard setting."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/aiReports/{reportId}",
+        "definition": {
+          "entityName": "AIReport",
+          "schema": {
+            "$ref": "#/backend/entities/AIReport"
+          },
+          "description": "Stores AI-generated reports specific to a user. Access is restricted to the generating user. Includes denormalized 'generatedByUserId' in the path for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user who generated this report."
+            },
+            {
+              "name": "reportId",
+              "description": "The unique ID for a specific AI report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores financial transaction records, primarily for display and management within the dashboard. Access control is based on user roles (admin/cashier) and the 'cashierId' field within the document for cashiers to manage their own transactions.",
+          "params": [
+            {
+              "name": "transactionId",
+              "description": "The unique ID of the transaction record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles/{roleId}",
+        "definition": {
+          "entityName": "Role",
+          "schema": {
+            "$ref": "#/backend/entities/Role"
+          },
+          "description": "Defines the names and descriptions of system roles (e.g., 'Admin', 'Cashier'). This collection is primarily for application-level display and management of role metadata. Write access is restricted to administrators.",
+          "params": [
+            {
+              "name": "roleId",
+              "description": "The unique ID of the role."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/adminRoles/{userId}",
+        "definition": {
+          "entityName": "adminRole",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "A dedicated collection for 'Admin' role assignments. The *existence* of a document at this path for a given 'userId' signifies that the user has administrative privileges. Used for fast and atomic security rule checks (DBAC 'Existence over Content' pattern).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user assigned as an administrator."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/cashierRoles/{userId}",
+        "definition": {
+          "entityName": "cashierRole",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "A dedicated collection for 'Cashier' role assignments. The *existence* of a document at this path for a given 'userId' signifies that the user has cashier privileges. Used for fast and atomic security rule checks (DBAC 'Existence over Content' pattern).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user assigned as a cashier."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for the Cashaat Dashboard prioritizes security, scalability, and debuggability by adhering to the core design principles. The primary strategy employed is **Authorization Independence via Denormalization** and **Structural Segregation**, ensuring security rules are simple, robust, and don't rely on expensive or complex `get()` operations.\n\n**Authorization Independence:**\n1.  **Path-Based Ownership:** For user-specific data like `DashboardSetting` and `AIReport`, the `userId` is embedded directly into the collection path (`/users/{userId}/dashboardSettings/{settingId}`). This makes the owner's ID immediately available to Firestore Security Rules (`request.auth.uid == userId`) without any additional database lookups, simplifying authorization and enabling atomic writes.\n2.  **Explicit Role Assignments (Existence over Content):** Instead of checking a user's role from their `UserProfile` document (e.g., `get(/users/{uid}).data.roleIds`), which would break authorization independence and QAPs, we introduce dedicated top-level collections for role assignments: `/adminRoles/{userId}` and `/cashierRoles/{userId}`. The *existence* of a document at these paths for a given `userId` grants the respective role. This allows security rules to perform fast and atomic `exists()` checks, making role-based access highly efficient and debuggable.\n3.  **Intrinsic Document Fields:** For the `Transaction` entity, granular access for non-admin users (e.g., cashiers) is based on a field *within the document itself*. A cashier can only manage transactions where `transaction.cashierId == request.auth.uid`. This self-contained authorization data within each document eliminates dependencies on parent or external documents for that specific document's access.\n\n**Structural Segregation & QAPs (Queryable Access Patterns):**\n1.  **Homogeneous Security Posture:** Each collection maintains a uniform security requirement. For instance, all documents in `/users/{userId}/dashboardSettings` are owned by the `userId` in the path. Similarly, all documents in `/transactions` are subject to the same set of role-based rules (admin can view all, cashier can view their own). This prevents mixing data with different access needs in the same collection, making rules clearer.\n2.  **Secure List Operations:** The structure inherently supports Queryable Access Patterns (QAPs):\n    *   `users/{userId}/dashboardSettings` and `users/{userId}/aiReports`: Users can `list` their own settings/reports securely because the `userId` in the path (`/users/{request.auth.uid}/...`) enforces ownership directly.\n    *   `transactions`: Administrators can `list` all transactions. Cashiers can `list` their own transactions by querying with a filter like `db.collection('transactions').where('cashierId', '==', request.auth.uid)`. The security rules will allow this specific query pattern because `cashierId` is an indexed field within the document and matches the authenticated user's ID. This prevents cashiers from arbitrarily listing all transactions while still enabling legitimate query patterns.\n\nThis design ensures that authorization logic is explicit, efficient, and decoupled from complex data hierarchies, leading to a secure, scalable, and easily auditable Firestore implementation."
+  }
+}
