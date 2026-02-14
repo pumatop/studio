@@ -110,26 +110,26 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptianT
                 </TableRow>
             ) : filteredData.map((transfer) => (
               <TableRow key={transfer.id}>
-                <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
+                <TableCell className="text-xs">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
-                    <div className="text-muted-foreground text-xs font-mono">{transfer.userPhone}</div>
+                    <div className="text-muted-foreground text-xs">{transfer.userPhone}</div>
                 </TableCell>
                 <TableCell>{transfer.transferType}</TableCell>
-                <TableCell className="text-left font-mono">
+                <TableCell className="text-left">
                     <div className="font-semibold">{transfer.sentAmount.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الإجمالي: {transfer.totalDeducted.toLocaleString('en-US')} ج.م</div>
                 </TableCell>
                 <TableCell className="font-medium">{transfer.recipientName}</TableCell>
-                <TableCell className="font-mono">{transfer.recipientNumber}</TableCell>
+                <TableCell>{transfer.recipientNumber}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>
                     {transfer.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs font-mono">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
-                <TableCell className="font-mono">{transfer.executionDuration}</TableCell>
+                <TableCell className="text-xs">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell>{transfer.executionDuration}</TableCell>
                 <TableCell>
                   {transfer.receiptImageUrl && transfer.status === 'ناجح' && receiptPlaceholder ? (
                     <Dialog>

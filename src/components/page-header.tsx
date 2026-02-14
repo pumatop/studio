@@ -71,7 +71,7 @@ export function PageHeader({ title }: { title: string }) {
          <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="font-semibold text-muted-foreground">وقت السيرفر:</span>
-            <span className="text-primary font-bold font-mono">{serverTime.toLocaleTimeString('en-US').replace('AM', 'ص').replace('PM', 'م')}</span>
+            <span className="text-primary font-bold">{serverTime.toLocaleTimeString('en-US').replace('AM', 'ص').replace('PM', 'م')}</span>
         </div>
       </div>
 

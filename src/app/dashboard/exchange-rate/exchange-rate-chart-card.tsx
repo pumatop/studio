@@ -75,7 +75,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value.toFixed(2)}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontFamily: "monospace" }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontFamily: "var(--font-body)" }}
             />
             <Tooltip
               cursor={false}
@@ -83,8 +83,8 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
                 const { payload } = props;
                 return (
                   <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground font-mono">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: 'numeric', day: 'numeric'})}</span>
-                    <span className="font-bold font-mono">{`${chartConfig.rate.label}: ${value}`}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit'})}</span>
+                    <span className="font-bold">{`${chartConfig.rate.label}: ${value}`}</span>
                   </div>
                 )
               }} />}
@@ -100,7 +100,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
                     dataKey="rate" 
                     position="top" 
                     formatter={(value: number) => value.toFixed(2)} 
-                    className="fill-foreground font-mono"
+                    className="fill-foreground"
                     fontSize={12}
                 />
             </Bar>

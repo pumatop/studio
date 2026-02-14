@@ -188,7 +188,7 @@ export function AppSettingsCard() {
                                                       <div className="space-y-2">
                                                         <div className="relative">
                                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                             <Input value={agent.phone} onChange={e => handleAgentChange(region.id, agent.id, 'phone', e.target.value)} placeholder="رقم الهاتف" className="pl-10 font-mono" />
+                                                             <Input value={agent.phone} onChange={e => handleAgentChange(region.id, agent.id, 'phone', e.target.value)} placeholder="رقم الهاتف" className="pl-10" />
                                                         </div>
                                                          <div className="relative">
                                                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -215,11 +215,11 @@ export function AppSettingsCard() {
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="support-ly">رقم الهاتف الليبي</Label>
-                                <Input id="support-ly" name="libyan" value={supportNumbers.libyan} onChange={handleSupportNumberChange} className="font-mono" />
+                                <Input id="support-ly" name="libyan" value={supportNumbers.libyan} onChange={handleSupportNumberChange} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="support-eg">رقم الهاتف المصري</Label>
-                                <Input id="support-eg" name="egyptian" value={supportNumbers.egyptian} onChange={handleSupportNumberChange} className="font-mono" />
+                                <Input id="support-eg" name="egyptian" value={supportNumbers.egyptian} onChange={handleSupportNumberChange} />
                             </div>
                         </div>
                     </div>

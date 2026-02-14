@@ -151,23 +151,23 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
           <TableBody>
             {filteredData.map((transaction) => (
               <TableRow key={transaction.id}>
-                <TableCell className="font-mono text-xs">{transaction.id}</TableCell>
+                <TableCell className="text-xs">{transaction.id}</TableCell>
                 <TableCell>{transaction.operationType}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>{transaction.status}</Badge>
                 </TableCell>
-                <TableCell className="text-xs font-mono">{new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn")}</TableCell>
-                <TableCell className="font-medium font-mono">{transaction.senderPhone}</TableCell>
-                <TableCell className="text-left font-mono">{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell className="text-left font-mono">{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell className="font-mono">{transaction.recipientPhone || "-"}</TableCell>
-                <TableCell className="text-left font-mono">{transaction.receivedAmount.toLocaleString("en-US")} {transaction.operationType === 'تحويل للجنيه' ? 'ج.م' : 'د.ل'}</TableCell>
-                <TableCell className="font-mono">{transaction.exchangeRate || "-"}</TableCell>
-                <TableCell className="text-left font-mono">{transaction.convertedAmountEGP ? `${transaction.convertedAmountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
+                <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="font-medium">{transaction.senderPhone}</TableCell>
+                <TableCell className="text-left">{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
+                <TableCell className="text-left">{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
+                <TableCell>{transaction.recipientPhone || "-"}</TableCell>
+                <TableCell className="text-left">{transaction.receivedAmount.toLocaleString("en-US")} {transaction.operationType === 'تحويل للجنيه' ? 'ج.م' : 'د.ل'}</TableCell>
+                <TableCell>{transaction.exchangeRate || "-"}</TableCell>
+                <TableCell className="text-left">{transaction.convertedAmountEGP ? `${transaction.convertedAmountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
                 <TableCell>{transaction.cardType || "-"}</TableCell>
-                <TableCell className="text-left font-mono">{transaction.cardDenomination ? `${transaction.cardDenomination.toLocaleString("en-US")} د.ل` : "-"}</TableCell>
-                <TableCell className="font-mono">{transaction.cardSerial || "-"}</TableCell>
-                <TableCell className="font-mono">{transaction.cardPin || "-"}</TableCell>
+                <TableCell className="text-left">{transaction.cardDenomination ? `${transaction.cardDenomination.toLocaleString("en-US")} د.ل` : "-"}</TableCell>
+                <TableCell>{transaction.cardSerial || "-"}</TableCell>
+                <TableCell>{transaction.cardPin || "-"}</TableCell>
               </TableRow>
             ))}
           </TableBody>
