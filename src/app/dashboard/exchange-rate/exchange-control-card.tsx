@@ -228,8 +228,8 @@ export function ExchangeControlCard() {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
-            <span className="text-sm text-muted-foreground font-mono">
-                {serverTime.toLocaleTimeString("en-US")}
+            <span className="text-sm text-primary font-bold font-mono">
+                {serverTime.toLocaleTimeString("en-US").replace('AM', 'ص').replace('PM', 'م')}
             </span>
           </div>
           <div className="relative">
