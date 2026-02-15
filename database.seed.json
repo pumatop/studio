@@ -1,0 +1,77 @@
+{
+  "transactions": {
+    "DC13101032": {
+      "amount": 5,
+      "balanceAfter": 998914,
+      "balanceBefore": 998919,
+      "cardType": "LIB",
+      "status": "completed",
+      "timestamp": 1771161010442,
+      "type": "recharge_purchase",
+      "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+      "userName": "مبارك ابراهيم ابوعيشه",
+      "userPhone": "+201030926584"
+    },
+    "DD49588767": {
+      "amount": 10,
+      "fee": 1,
+      "recipientBalanceAfter": 2513.8350000000005,
+      "recipientBalanceBefore": 2503.8350000000005,
+      "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+      "recipientName": "حساب تحريبي تجربي",
+      "recipientPhone": "+201200632506",
+      "senderBalanceAfter": 998919,
+      "senderBalanceBefore": 998930,
+      "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+      "senderName": "مبارك ابراهيم ابوعيشه",
+      "senderPhone": "+201030926584",
+      "status": "completed",
+      "timestamp": 1771149588883,
+      "totalDeduction": 11,
+      "type": "account_transfer"
+    },
+    "DG9264951": {
+      "amountEGP": 415.00000000000006,
+      "amountLYD": 50,
+      "balanceEGPAfter": 49666.56300000001,
+      "balanceEGPBefore": 49251.56300000001,
+      "balanceLYDAfter": 998941,
+      "balanceLYDBefore": 998991,
+      "exchangeRate": 8.3,
+      "status": "completed",
+      "timestamp": 1771149265067,
+      "type": "egypt_transfer",
+      "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+      "userName": "مبارك ابراهيم ابوعيشه",
+      "userPhone": "+201030926584"
+    }
+  },
+  "users": {
+    "Mzzg8MinUVfInwNtvdYBVJnpbiB3": {
+      "balanceEGP": 49666.56300000001,
+      "balanceLYD": 998914,
+      "createdAt": 1770150446096,
+      "lastLogin": "2026-02-03T22:27:24.722794",
+      "lastUpdate": 1771161010442,
+      "name": "مبارك ابراهيم ابوعيشه",
+      "phone": "+201030926584",
+      "pin": "147258",
+      "role": "user",
+      "status": "active",
+      "verification": "verified"
+    },
+    "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2": {
+      "balanceEGP": 57713.86950000002,
+      "balanceLYD": 2513.8350000000005,
+      "createdAt": 1770150446096,
+      "lastLogin": "2026-02-03T22:27:24.722794",
+      "lastUpdate": 1771149588883,
+      "name": "حساب تحريبي تجربي",
+      "phone": "+201200632506",
+      "pin": "147258",
+      "role": "user",
+      "status": "active",
+      "verification": "verified"
+    }
+  }
+}

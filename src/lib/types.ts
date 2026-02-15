@@ -1,56 +1,80 @@
-export type Transaction = {
-  id: string;
-  date: string;
+// Base User Type from RTDB
+export type User = {
+  id: string; // Will be added from the object key
+  balanceEGP: number;
+  balanceLYD: number;
+  createdAt: number;
+  lastLogin: string;
+  lastUpdate: number;
+  name: string;
+  phone: string;
+  pin: string;
+  role: 'user' | 'admin' | string; // Can be other roles
+  status: 'active' | 'inactive' | 'banned';
+  verification: 'verified' | 'unverified' | 'pending';
+};
+
+// Discriminated union for Transactions
+type BaseTransaction = {
+  id: string; // Will be added from the object key
+  status: 'completed' | 'pending' | 'failed';
+  timestamp: number;
+};
+
+export type RechargePurchaseTransaction = BaseTransaction & {
+  type: 'recharge_purchase';
   amount: number;
-  product: string;
-  category: 'إلكترونيات' | 'ملابس' | 'طعام' | 'أثاث' | 'كتب' | 'خدمات' | 'صحة';
-  paymentMethod: 'بطاقة ائتمان' | 'نقد' | 'تحويل بنكي';
+  balanceAfter: number;
+  balanceBefore: number;
+  cardType: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
 };
 
-export type DetailedLibyanTransaction = {
-  id: string;
-  operationType: 'تحويل داخلي' | 'تحويل للجنيه' | 'كرت شحن';
+export type AccountTransferTransaction = BaseTransaction & {
+  type: 'account_transfer';
+  amount: number;
+  fee: number;
+  recipientBalanceAfter: number;
+  recipientBalanceBefore: number;
+  recipientId: string;
+  recipientName: string;
+  recipientPhone: string;
+
+  senderBalanceAfter: number;
+  senderBalanceBefore: number;
+  senderId: string;
+  senderName: string;
   senderPhone: string;
-  sentAmount: number;
-  serviceFee: number;
-  exchangeRate?: number;
-  receivedAmount: number;
-  recipientPhone?: string;
-  convertedAmountEGP?: number;
-  cardType?: 'ليبيانا' | 'المدار';
-  cardDenomination?: number;
-  cardSerial?: string;
-  cardPin?: string;
-  timestamp: string;
-  status: 'ناجحة' | 'مرفوضة';
+  totalDeduction: number;
 };
 
+export type EgyptTransferTransaction = BaseTransaction & {
+  type: 'egypt_transfer';
+  amountEGP: number;
+  amountLYD: number;
+  balanceEGPAfter: number;
+  balanceEGPBefore: number;
+  balanceLYDAfter: number;
+  balanceLYDBefore: number;
+  exchangeRate: number;
+  userId: string;
+  userName:string;
+  userPhone: string;
+};
+
+export type Transaction = 
+  | RechargePurchaseTransaction 
+  | AccountTransferTransaction 
+  | EgyptTransferTransaction;
+
+// Keeping other types from the original file that might be used elsewhere
 export type ExchangeRate = {
   id: string;
   currencyPair: string;
   rate: number;
   lastUpdated: string;
-};
-
-export type User = {
-  id: string;
-  name: string;
-  phone: string;
-  type: 'مستخدم' | 'تاجر';
-  connectionStatus: 'متصل' | 'غير متصل';
-  lastSeen: string;
-  verificationStatus: 'موثق' | 'غير موثق' | 'قيد المراجعة';
-  status: 'نشط' | 'محظور';
-  balanceLibyan: number;
-  balanceEgyptian: number;
-  balanceEgyptianPending: number;
-  accountOpenDate: string;
-  idImageUrl: string;
-  lastPasswordChange: string;
-  lastPinChange: string;
-  activeDevice: string;
-  ipAddress: string;
-  phoneOS: 'iOS' | 'Android';
 };
 
 export type Supervisor = {
@@ -90,23 +114,6 @@ export type RateCondition = {
   createdBy: string;
 };
 
-export type EgyptianTransfer = {
-  id: string;
-  userName: string;
-  userPhone: string;
-  transferType: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت';
-  sentAmount: number;
-  recipientNumber: string;
-  serviceFee: number;
-  totalDeducted: number;
-  recipientName: string;
-  delegate: string;
-  requestTimestamp: string;
-  status: 'ناجح' | 'مرفوض' | 'قيد التحويل';
-  executionDuration: string;
-  receiptImageUrl?: string;
-};
-
 export type FeeTier = {
   id: string;
   from: number;
@@ -126,3 +133,7 @@ export type Region = {
   name: string;
   agents: Agent[];
 };
+
+// These types are based on the old mock data and might need to be updated or removed.
+export type DetailedLibyanTransaction = any;
+export type EgyptianTransfer = any;

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
-import Image from "next/image";
 import {
   Table,
   TableHeader,
@@ -28,7 +27,6 @@ import {
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -38,18 +36,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import {
   Eye,
   UserCheck,
   UserX,
   Wallet,
-  FileText,
-  CheckCircle,
-  XCircle,
-  UserCog,
   ShieldCheck,
-  Smartphone,
   LogOut,
   FilterX,
   Pencil,
@@ -59,7 +51,6 @@ import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   Select,
   SelectContent,
@@ -67,22 +58,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const verificationStatusColors: Record<User["verificationStatus"], string> = {
-  "موثق": "bg-green-100 text-green-800",
-  "غير موثق": "bg-red-100 text-red-800",
-  "قيد المراجعة": "bg-yellow-100 text-yellow-800",
+
+const verificationStatusMap: Record<User["verification"], string> = {
+  "verified": "موثق",
+  "pending": "قيد المراجعة",
+  "unverified": "غير موثق",
 };
 
-const connectionStatusColors: Record<User["connectionStatus"], string> = {
-  "متصل": "bg-green-100 text-green-800",
-  "غير متصل": "bg-stone-100 text-stone-800",
+const verificationStatusColors: Record<User["verification"], string> = {
+  "verified": "bg-green-100 text-green-800",
+  "unverified": "bg-red-100 text-red-800",
+  "pending": "bg-yellow-100 text-yellow-800",
 };
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
+const statusMap: Record<User["status"], string> = {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "banned": "محظور",
+};
+
+
+function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void }) {
     if (!user) return null;
     const { toast } = useToast();
-    const idImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
     
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user.name);
@@ -93,16 +93,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         }
     }, [user]);
 
-    const handleVerification = (newStatus: User['verificationStatus']) => {
-        onUserUpdate(user.id, { verificationStatus: newStatus });
-        toast({ title: "حالة التوثيق تم تحديثها" });
-    }
-
-    const handleTypeChange = (newType: User['type']) => {
-        onUserUpdate(user.id, { type: newType });
-        toast({ title: "نوع المستخدم تم تحديثه" });
-    }
-
     const handleNameSave = () => {
         if (name.trim() === '') {
             toast({
@@ -112,8 +102,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
             });
             return;
         }
-        onUserUpdate(user.id, { name });
-        toast({ title: "تم تحديث اسم المستخدم بنجاح" });
+        // Here you would call a function to update the name in the database
+        toast({ title: "تم تحديث اسم المستخدم بنجاح (محاكاة)" });
+        // To reflect the change visually, you'd need to pass an update function from the parent
         setIsEditingName(false);
     }
 
@@ -156,64 +147,33 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                                 <CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle>
                             </CardHeader>
                             <CardContent className="text-sm space-y-2">
-                                <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{user.balanceLibyan.toFixed(2)} د.ل</span></div>
-                                <div className="flex justify-between"><span>الرصيد المصري:</span> <span className="font-semibold">{user.balanceEgyptian.toFixed(2)} ج.م</span></div>
-                                <div className="flex justify-between text-muted-foreground"><span>المصري المعلق:</span> <span className="font-semibold">{user.balanceEgyptianPending.toFixed(2)} ج.م</span></div>
+                                <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{user.balanceLYD.toFixed(2)} د.ل</span></div>
+                                <div className="flex justify-between"><span>الرصيد المصري:</span> <span className="font-semibold">{user.balanceEGP.toFixed(2)} ج.م</span></div>
                             </CardContent>
                         </Card>
                          <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle>
+                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> الحساب</CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                {idImage && <Image src={idImage.imageUrl} alt="ID Card" width={600} height={400} className="rounded-md mb-4" data-ai-hint={idImage.imageHint} />}
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button size="sm" variant="outline" onClick={() => handleVerification('موثق')}><CheckCircle className="ml-2" /> توثيق</Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleVerification('غير موثق')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
-                                    <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.type === 'مستخدم' ? 'تاجر' : 'مستخدم')}>
-                                        <UserCog className="ml-2" /> تحويل إلى {user.type === 'مستخدم' ? 'تاجر' : 'مستخدم'}
-                                    </Button>
-                                </div>
+                            <CardContent className="text-sm space-y-2 pt-4">
+                                <div className="flex justify-between"><span>تاريخ الإنشاء:</span> <span>{new Date(user.createdAt).toLocaleDateString('ar-EG-u-nu-latn')}</span></div>
+                                <div className="flex justify-between"><span>آخر تحديث:</span> <span>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</span></div>
+                                <div className="flex justify-between"><span>آخر تسجيل دخول:</span> <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
+                                <div className="flex justify-between"><span>الدور:</span> <span className="font-semibold">{user.role}</span></div>
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* Column 2: History & Security */}
                     <div className="md:col-span-2 space-y-4">
-                         <Card>
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الأمان</CardTitle>
-                            </CardHeader>
-                             <CardContent className="text-sm space-y-2 pt-4">
-                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.accountOpenDate).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{new Date(user.lastPasswordChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{new Date(user.lastPinChange).toLocaleDateString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' })}</span></div>
-                                <Separator className="my-2" />
-                                <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{user.activeDevice}</span></div>
-                                <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{user.phoneOS}</span></div>
-                                <div className="flex justify-between"><span>عنوان IP:</span> <span>{user.ipAddress}</span></div>
-                                
-                            </CardContent>
-                            <CardFooter>
-                                <Button variant="destructive" className="w-full" onClick={() => toast({title: "تم تسجيل الخروج من جميع الأجهزة"}) }><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button>
-                            </CardFooter>
-                        </Card>
-                         <Tabs defaultValue="libyan">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger>
-                                <TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger>
+                        <Tabs defaultValue="transactions">
+                            <TabsList className="grid w-full grid-cols-1">
+                                <TabsTrigger value="transactions">سجل العمليات</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="libyan">
+                            <TabsContent value="transactions">
                                 <Card>
                                     <CardContent className="pt-6">
-                                        <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                             <TabsContent value="egyptian">
-                                <Card>
-                                    <CardContent className="pt-6">
-                                         <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>
+                                        <p className="text-center text-muted-foreground text-sm">لم يتم ربط سجل العمليات بعد.</p>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
@@ -233,47 +193,41 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
   
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
-  const [verificationStatusFilter, setVerificationStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [verificationFilter, setVerificationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
 
   const filteredData = useMemo(() => {
+    if (!data) return [];
     return data.filter(
       (user) =>
         (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.phone.includes(searchTerm)) &&
-        (typeFilter === 'all' || user.type === typeFilter) &&
-        (connectionStatusFilter === 'all' || user.connectionStatus === connectionStatusFilter) &&
-        (verificationStatusFilter === 'all' || user.verificationStatus === verificationStatusFilter) &&
+        (roleFilter === 'all' || user.role === roleFilter) &&
+        (verificationFilter === 'all' || user.verification === verificationFilter) &&
         (statusFilter === 'all' || user.status === statusFilter)
     );
-  }, [data, searchTerm, typeFilter, connectionStatusFilter, verificationStatusFilter, statusFilter]);
+  }, [data, searchTerm, roleFilter, verificationFilter, statusFilter]);
   
   const handleToggleBan = (userId: string) => {
+      // This is a mock update. In a real app, you would update the database.
       setData(data.map(user => {
           if (user.id === userId) {
-              const newStatus = user.status === 'نشط' ? 'محظور' : 'نشط';
+              const newStatus = user.status === 'active' ? 'banned' : 'active';
               toast({ 
-                  title: newStatus === 'محظور' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
-                  description: `حالة ${user.name} الآن: ${newStatus}`,
-                  variant: newStatus === 'محظور' ? 'destructive' : 'default',
+                  title: newStatus === 'banned' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
+                  description: `حالة ${user.name} الآن: ${statusMap[newStatus]}`,
+                  variant: newStatus === 'banned' ? 'destructive' : 'default',
               });
               return { ...user, status: newStatus };
           }
           return user;
       }));
   }
-  
-  const handleUserUpdate = (userId: string, updates: Partial<User>) => {
-    setData(prevData =>
-      prevData.map(user => (user.id === userId ? { ...user, ...updates } : user))
-    );
-    setSelectedUser(prevUser =>
-      prevUser && prevUser.id === userId ? { ...prevUser, ...updates } : prevUser
-    );
-  };
-
 
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
@@ -281,9 +235,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   }
 
   const handleClearFilters = () => {
-    setTypeFilter("all");
-    setConnectionStatusFilter("all");
-    setVerificationStatusFilter("all");
+    setRoleFilter("all");
+    setVerificationFilter("all");
     setStatusFilter("all");
     setSearchTerm("");
   };
@@ -299,48 +252,37 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
               className="w-full"
             />
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="النوع" />
+                <SelectValue placeholder="الدور" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="all">كل الأنواع</SelectItem>
-                <SelectItem value="مستخدم">مستخدم</SelectItem>
-                <SelectItem value="تاجر">تاجر</SelectItem>
+                <SelectItem value="all">كل الأدوار</SelectItem>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
             </SelectContent>
         </Select>
 
-        <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="حالة الاتصال" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">كل حالات الاتصال</SelectItem>
-                <SelectItem value="متصل">متصل</SelectItem>
-                <SelectItem value="غير متصل">غير متصل</SelectItem>
-            </SelectContent>
-        </Select>
-
-        <Select value={verificationStatusFilter} onValueChange={setVerificationStatusFilter}>
+        <Select value={verificationFilter} onValueChange={setVerificationFilter}>
             <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
                 <SelectValue placeholder="التوثيق" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="all">كل حالات التوثيق</SelectItem>
-                <SelectItem value="موثق">موثق</SelectItem>
-                <SelectItem value="غير موثق">غير موثق</SelectItem>
-                <SelectItem value="قيد المراجعة">قيد المراجعة</SelectItem>
+                <SelectItem value="verified">موثق</SelectItem>
+                <SelectItem value="unverified">غير موثق</SelectItem>
+                <SelectItem value="pending">قيد المراجعة</SelectItem>
             </SelectContent>
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="حالة الحظر" />
+                <SelectValue placeholder="حالة الحساب" />
             </SelectTrigger>
             <SelectContent>
                 <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="نشط">غير محظور</SelectItem>
-                <SelectItem value="محظور">محظور</SelectItem>
+                <SelectItem value="active">نشط</SelectItem>
+                <SelectItem value="banned">محظور</SelectItem>
             </SelectContent>
         </Select>
         <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
@@ -354,29 +296,28 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             <TableRow>
               <TableHead>الاسم</TableHead>
               <TableHead className="hidden sm:table-cell">رقم الهاتف</TableHead>
-              <TableHead className="hidden md:table-cell">النوع</TableHead>
-              <TableHead className="hidden lg:table-cell">الحالة</TableHead>
-              <TableHead className="hidden xl:table-cell">اخر ظهور</TableHead>
+              <TableHead className="hidden md:table-cell">الدور</TableHead>
+              <TableHead className="hidden lg:table-cell">حالة الحساب</TableHead>
+              <TableHead className="hidden xl:table-cell">آخر تحديث</TableHead>
               <TableHead>التوثيق</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.map((user) => (
-              <TableRow key={user.id} className={cn(user.status === 'محظور' && 'bg-red-50/50 opacity-60')}>
+              <TableRow key={user.id} className={cn(user.status === 'banned' && 'bg-red-50/50 opacity-60')}>
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
-                <TableCell className="hidden md:table-cell">{user.type}</TableCell>
+                <TableCell className="hidden md:table-cell">{user.role}</TableCell>
                 <TableCell className="hidden lg:table-cell">
-                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
-                    <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
-                    {user.connectionStatus}
-                  </Badge>
+                   <Badge className={cn(user.status === 'banned' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800')}>
+                        {statusMap[user.status] || user.status}
+                   </Badge>
                 </TableCell>
-                <TableCell className="hidden xl:table-cell">{new Date(user.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit' })}</TableCell>
+                <TableCell className="hidden xl:table-cell">{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
                 <TableCell>
-                  <Badge className={`${verificationStatusColors[user.verificationStatus]} hover:${verificationStatusColors[user.verificationStatus]}`}>
-                      {user.verificationStatus}
+                  <Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>
+                      {verificationStatusMap[user.verification] || user.verification}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-left">
@@ -392,9 +333,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                         <Eye className="ml-2 h-4 w-4" />
                         <span>تفاصيل</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleToggleBan(user.id)} className={cn(user.status === 'محظور' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
-                        {user.status === 'محظور' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
-                        <span>{user.status === 'محظور' ? 'رفع الحظر' : 'حظر'}</span>
+                      <DropdownMenuItem onClick={() => handleToggleBan(user.id)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
+                        {user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
+                        <span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -404,7 +345,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
-       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} />
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} />
     </div>
   );
 }

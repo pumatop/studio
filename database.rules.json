@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": ["role", "status", "verification"],
+      "$uid": {
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "transactions": {
+      ".read": "auth != null",
+      ".indexOn": ["userId", "senderId", "type"],
+       "$transactionId": {
+         ".write": false
+       }
+    }
+  }
+}
