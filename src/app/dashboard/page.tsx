@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -342,19 +343,19 @@ export default function DashboardPage() {
             <div>
               <h4 className="text-sm font-semibold mb-1">اليوم</h4>
               <div className="space-y-1 text-xs text-muted-foreground">
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>العمليات:</span>{" "}
                   <span className="font-semibold text-foreground">
                     {dailyTradeStats.count}
                   </span>
                 </p>
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
                   <span className="font-semibold text-foreground text-left">
                     <FormattedAmount amount={dailyTradeStats.lydAmount} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" />
                   </span>
                 </p>
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
                   <span className="font-semibold text-foreground text-left">
                     <FormattedAmount amount={dailyTradeStats.egpAmount} currency="ج.م" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" />
@@ -366,19 +367,19 @@ export default function DashboardPage() {
             <div>
               <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
               <div className="space-y-1 text-xs text-muted-foreground">
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>العمليات:</span>{" "}
                   <span className="font-semibold text-foreground">
                     {monthlyTradeStats.count}
                   </span>
                 </p>
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>المبلغ بالدينار:</span>{" "}
                   <span className="font-semibold text-foreground text-left">
                     <FormattedAmount amount={monthlyTradeStats.lydAmount} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" />
                   </span>
                 </p>
-                <p className="flex justify-between">
+                <p className="flex flex-col sm:flex-row sm:justify-between">
                   <span>المبلغ بالجنيه:</span>{" "}
                   <span className="font-semibold text-foreground text-left">
                     <FormattedAmount amount={monthlyTradeStats.egpAmount} currency="ج.م" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" />
@@ -414,7 +415,7 @@ export default function DashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <p className="text-xs text-muted-foreground">إجمالي المستخدمين</p>
                     <p className="text-2xl font-bold">{totalUsers}</p>
@@ -437,16 +438,16 @@ export default function DashboardPage() {
                 <div>
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                        <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyCardStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyCardStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
                     </div>
                 </div>
                 <Separator />
                 <div>
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                        <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyCardStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyCardStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
                     </div>
                 </div>
             </CardContent>
@@ -462,16 +463,16 @@ export default function DashboardPage() {
                 <div>
                     <h4 className="text-sm font-semibold mb-1">اليوم</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                        <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyInternalStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyInternalStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
                     </div>
                 </div>
                 <Separator />
                 <div>
                     <h4 className="text-sm font-semibold mb-1">هذا الشهر</h4>
                     <div className="space-y-1 text-xs text-muted-foreground">
-                        <p className="flex justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
-                        <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyInternalStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>عدد المعاملات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
+                        <p className="flex flex-col sm:flex-row sm:justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyInternalStats.revenue} currency="د.ل" integerClass="font-semibold text-foreground" fractionClass="text-xs" currencyClass="text-xs" /></span></p>
                     </div>
                 </div>
             </CardContent>
@@ -514,11 +515,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2">اليوم</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(dailyRevenueByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
+                                <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.revenue} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
@@ -531,11 +532,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
+                                <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.revenue} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
@@ -569,11 +570,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(dailySuccessfulStatsByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
+                                <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
@@ -586,11 +587,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2 text-yellow-600 dark:text-yellow-400">الحوالات المعلقة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(dailyPendingStatsByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
+                                <div key={type} className="flex flex-col items-start gap-1 text-yellow-600 dark:text-yellow-400 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3 border-yellow-500/50 text-yellow-700 dark:text-yellow-400 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 border-yellow-500/50 bg-yellow-50 px-3 text-yellow-700 dark:border-yellow-500/50 dark:bg-yellow-500/10 dark:text-yellow-400">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
@@ -628,11 +629,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(monthlySuccessfulStatsByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center">
+                                <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
@@ -645,11 +646,11 @@ export default function DashboardPage() {
                         <h4 className="text-sm font-semibold mb-2 text-yellow-600 dark:text-yellow-400">الحوالات المعلقة</h4>
                         <div className="space-y-2 text-xs">
                             {Object.entries(monthlyPendingStatsByType).map(([type, stats]) => (
-                                <div key={type} className="flex justify-between items-center text-yellow-600 dark:text-yellow-400">
+                                <div key={type} className="flex flex-col items-start gap-1 text-yellow-600 dark:text-yellow-400 sm:flex-row sm:items-center sm:justify-between">
                                     <span>{type}</span>
-                                    <div className="flex items-center gap-4">
-                                        <Badge variant="outline" className="whitespace-nowrap px-3 border-yellow-500/50 text-yellow-700 dark:text-yellow-400 dark:border-yellow-500/50 bg-yellow-50 dark:bg-yellow-500/10">{stats.count} حوالة</Badge>
-                                        <span className="font-semibold w-24 text-left">
+                                    <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
+                                        <Badge variant="outline" className="shrink-0 border-yellow-500/50 bg-yellow-50 px-3 text-yellow-700 dark:border-yellow-500/50 dark:bg-yellow-500/10 dark:text-yellow-400">{stats.count} حوالة</Badge>
+                                        <span className="font-semibold text-left">
                                             <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
                                         </span>
                                     </div>
