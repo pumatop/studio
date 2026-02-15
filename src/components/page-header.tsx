@@ -39,7 +39,7 @@ export function PageHeader({ title }: { title: string }) {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <SidebarTrigger className="sm:hidden" />
+      <SidebarTrigger className="md:hidden" />
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input

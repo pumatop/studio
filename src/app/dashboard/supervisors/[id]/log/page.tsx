@@ -21,15 +21,15 @@ export default function SupervisorLogPage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-4">
-        <div className="flex justify-between items-center">
-            <div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="w-full">
                  <h1 className="text-2xl font-bold">سجل عمليات: {supervisor.name}</h1>
                  <p className="text-muted-foreground">
                     عرض جميع التحويلات المنفذة والمرفوضة من قبل المشرف/المندوب.
                  </p>
             </div>
-            <Link href="/dashboard/supervisors">
-                <Button variant="outline">
+            <Link href="/dashboard/supervisors" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full">
                     <ArrowRight className="ml-2 h-4 w-4" />
                     العودة للمشرفين
                 </Button>

@@ -13,6 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -47,6 +53,7 @@ import {
   LogOut,
   FilterX,
   Pencil,
+  MoreHorizontal,
 } from "lucide-react";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -346,10 +353,10 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           <TableHeader>
             <TableRow>
               <TableHead>الاسم</TableHead>
-              <TableHead>رقم الهاتف</TableHead>
-              <TableHead>النوع</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>اخر ظهور</TableHead>
+              <TableHead className="hidden sm:table-cell">رقم الهاتف</TableHead>
+              <TableHead className="hidden md:table-cell">النوع</TableHead>
+              <TableHead className="hidden lg:table-cell">الحالة</TableHead>
+              <TableHead className="hidden xl:table-cell">اخر ظهور</TableHead>
               <TableHead>التوثيق</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
@@ -358,33 +365,39 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             {filteredData.map((user) => (
               <TableRow key={user.id} className={cn(user.status === 'محظور' && 'bg-red-50/50 opacity-60')}>
                 <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.type}</TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
+                <TableCell className="hidden md:table-cell">{user.type}</TableCell>
+                <TableCell className="hidden lg:table-cell">
                   <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
                     <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
                     {user.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit' })}</TableCell>
+                <TableCell className="hidden xl:table-cell">{new Date(user.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: '2-digit' })}</TableCell>
                 <TableCell>
                   <Badge className={`${verificationStatusColors[user.verificationStatus]} hover:${verificationStatusColors[user.verificationStatus]}`}>
                       {user.verificationStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="space-x-1 text-left rtl:space-x-reverse">
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleShowDetails(user)}>
-                    <Eye className="h-4 w-4" />
-                    <span className="sr-only">تفاصيل اضافية</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={() => handleToggleBan(user.id)} 
-                    className={cn('h-8 w-8', user.status === 'محظور' ? 'text-green-600 hover:text-green-700 hover:bg-green-50/50' : 'text-destructive hover:text-destructive hover:bg-red-50/50')}>
-                   {user.status === 'محظور' ? <UserCheck className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
-                   <span className="sr-only">{user.status === 'محظور' ? 'رفع الحظر' : 'حظر المستخدم'}</span>
-                  </Button>
+                <TableCell className="text-left">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleShowDetails(user)}>
+                        <Eye className="ml-2 h-4 w-4" />
+                        <span>تفاصيل</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleToggleBan(user.id)} className={cn(user.status === 'محظور' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
+                        {user.status === 'محظور' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
+                        <span>{user.status === 'محظور' ? 'رفع الحظر' : 'حظر'}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}

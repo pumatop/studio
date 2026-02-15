@@ -13,6 +13,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -21,7 +27,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX } from "lucide-react";
+import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -214,16 +220,16 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
             <Input
               placeholder="ابحث بالاسم أو رقم الهاتف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm"
+              className="max-w-xs"
             />
             <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                <SelectTrigger className="w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">كل التخصصات</SelectItem>
                     <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -231,24 +237,8 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
                 </SelectContent>
             </Select>
-            <Select value={canEditRateFilter} onValueChange={setCanEditRateFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="تعديل السعر" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">الكل</SelectItem>
-                    <SelectItem value="مسموح">مسموح</SelectItem>
-                    <SelectItem value="ممنوع">ممنوع</SelectItem>
-                </SelectContent>
-            </Select>
-            <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">الكل</SelectItem>
-                    <SelectItem value="متصل">متصل</SelectItem>
-                    <SelectItem value="غير متصل">غير متصل</SelectItem>
-                </SelectContent>
-            </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
+                <SelectTrigger className="w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">الكل</SelectItem>
                     <SelectItem value="نشط">نشط</SelectItem>
@@ -257,12 +247,12 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
             </Select>
             <Button variant="ghost" onClick={handleClearFilters}>
               <FilterX className="ml-2 h-4 w-4" />
-              مسح الفلاتر
+              مسح
             </Button>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-                <Button onClick={() => setEditingSupervisor(undefined)}>
+                <Button onClick={() => setEditingSupervisor(undefined)} className="w-full sm:w-auto">
                     <PlusCircle className="ml-2 h-4 w-4" />
                     إضافة مستخدم
                 </Button>
@@ -280,12 +270,10 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
           <TableHeader>
             <TableRow>
               <TableHead>الاسم</TableHead>
-              <TableHead>التخصص</TableHead>
-              <TableHead>تعديل السعر</TableHead>
-              <TableHead>حالة الاتصال</TableHead>
-              <TableHead>آخر ظهور</TableHead>
-              <TableHead>العمليات (يوم/شهر)</TableHead>
-              <TableHead>قيمة التحويلات (يوم/شهر)</TableHead>
+              <TableHead className="hidden lg:table-cell">التخصص</TableHead>
+              <TableHead className="hidden md:table-cell">تعديل السعر</TableHead>
+              <TableHead className="hidden md:table-cell">حالة الاتصال</TableHead>
+              <TableHead className="hidden lg:table-cell">آخر ظهور</TableHead>
               <TableHead>حالة الحساب</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
@@ -297,42 +285,44 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <div className="font-medium">{supervisor.name}</div>
                     <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
                 </TableCell>
-                <TableCell>{supervisor.specialization.length === 3 ? 'الكل' : supervisor.specialization.join(', ')}</TableCell>
-                 <TableCell className="text-center">
+                <TableCell className="hidden lg:table-cell">{supervisor.specialization.length === 3 ? 'الكل' : supervisor.specialization.join(', ')}</TableCell>
+                 <TableCell className="hidden md:table-cell text-center">
                     {supervisor.canEditExchangeRate ? <CheckCircle className="text-green-500 mx-auto"/> : <XCircle className="text-red-500 mx-auto"/>}
                  </TableCell>
-                <TableCell>
+                <TableCell className="hidden md:table-cell">
                   <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[supervisor.connectionStatus], `hover:${connectionStatusColors[supervisor.connectionStatus]}`)}>
                     <span className={cn('h-2 w-2 rounded-full', supervisor.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
                     {supervisor.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
-                <TableCell className="text-xs">
-                    <div>اليوم: {supervisor.dailyOperationCount}</div>
-                    <div>الشهر: {supervisor.monthlyOperationCount}</div>
-                </TableCell>
-                <TableCell className="text-xs text-left">
-                    <div>اليوم: {supervisor.dailyTransferValue.toLocaleString('en-US')} ج.م</div>
-                    <div>الشهر: {supervisor.monthlyTransferValue.toLocaleString('en-US')} ج.م</div>
-                </TableCell>
+                <TableCell className="hidden lg:table-cell text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[supervisor.status], `hover:${statusColors[supervisor.status]}`)}>
                       {supervisor.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="space-x-1 text-left rtl:space-x-reverse">
-                    <Button variant="outline" size="sm" onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</Button>
-                    <Link href={`/dashboard/supervisors/${supervisor.id}/log`}>
-                        <Button variant="outline" size="sm">
-                            <FileClock className="ml-1 h-3 w-3"/>
-                            السجل
-                        </Button>
-                    </Link>
-                     <Button variant="destructive" size="sm" onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'}>
-                        <UserX className="ml-1 h-3 w-3"/>
-                        طرد
-                    </Button>
+                <TableCell className="text-left">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">فتح القائمة</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/supervisors/${supervisor.id}/log`}>
+                            <FileClock className="ml-2 h-4 w-4" />
+                            <span>السجل</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'} className="text-destructive">
+                        <UserX className="ml-2 h-4 w-4"/>
+                        <span>طرد</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}

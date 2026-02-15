@@ -672,16 +672,16 @@ export default function DashboardPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
             <span>ملخص أداء المندوبين لشهر</span>
             <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
-              <SelectTrigger className="w-[80px]">
+              <SelectTrigger className="w-full sm:w-[120px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {months.map((m) => (
                   <SelectItem key={m} value={String(m)}>
-                    {String(m).padStart(2, "0")}
+                    {new Date(0, m - 1).toLocaleString('ar', { month: 'long' })}
                   </SelectItem>
                 ))}
               </SelectContent>
