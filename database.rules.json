@@ -16,6 +16,9 @@
         },
         "exchangeRateLogs": {
             ".indexOn": ["date"]
+        },
+        "dailyAggregates": {
+          ".indexOn": ["totalEgpAmount"]
         }
     }
 }
