@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
-import type { User, Transaction, EgyptTransferTransaction, Supervisor } from "@/lib/types";
+import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction } from "@/lib/types";
 import {
   Card,
   CardContent,

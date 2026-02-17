@@ -49,10 +49,8 @@ export type AccountTransferTransaction = BaseTransaction & {
   totalDeduction: number;
 };
 
-// This is a more complete type for Egyptian Transfers, combining mock and real data structures.
 export type EgyptTransferTransaction = BaseTransaction & {
   type: 'egypt_transfer';
-  // From original RTDB data
   amountEGP: number;
   amountLYD: number;
   balanceEGPAfter: number;
@@ -63,15 +61,14 @@ export type EgyptTransferTransaction = BaseTransaction & {
   userId: string;
   userName: string;
   userPhone: string;
-  // Fields from mock data that are useful
   recipientName: string;
-  recipientNumber: string; // e.g. bank account, phone for vodafone cash etc.
+  recipientNumber: string;
   transferType: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت';
   serviceFee: number;
   delegateId?: string;
   delegateName?: string;
   executionDuration?: string;
-  receiptImageUrl?: string;
+  receiptImageUrl?: string; // Optional field
 };
 
 export type Transaction = 
@@ -142,7 +139,7 @@ export type Region = {
   agents: Agent[];
 };
 
-// Main settings object
+// Main settings object from RTDB
 export type MainSettings = {
     isMaintenance: boolean;
     forceUpdate: boolean;
@@ -196,4 +193,4 @@ export type AllSettings = {
     fees: FeeSettings;
     app: AppSettings;
     exchangeControl: ExchangeControlSettings;
-}
+};
