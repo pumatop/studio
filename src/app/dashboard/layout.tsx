@@ -23,9 +23,10 @@ import {
   Settings,
   History,
   CircleDollarSign,
+  CreditCard,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { useUser } from "@/firebase";
+import { useUser, FirebaseClientProvider } from "@/firebase";
 
 const navItems = [
   {
@@ -52,9 +53,16 @@ const navItems = [
   {
     href: "/dashboard/libyan-transactions",
     icon: ReceiptText,
-    label: "المعاملات الليبية",
+    label: "المعاملات المالية",
     match: /^\/dashboard\/libyan-transactions/,
     color: "text-orange-500",
+  },
+  {
+    href: "/dashboard/card-transactions",
+    icon: CreditCard,
+    label: "معاملات الكروت",
+    match: /^\/dashboard\/card-transactions/,
+    color: "text-cyan-500",
   },
   {
     href: "/dashboard/egyptian-transactions",
@@ -97,7 +105,8 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard": "لوحة التحكم",
   "/dashboard/exchange-rate": "سعر الصرف",
   "/dashboard/users": "المستخدمين",
-  "/dashboard/libyan-transactions": "المعاملات الليبية",
+  "/dashboard/libyan-transactions": "المعاملات المالية",
+  "/dashboard/card-transactions": "معاملات الكروت",
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
   "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
@@ -105,11 +114,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/settings": "الإعدادات",
 };
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function InnerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
@@ -120,23 +125,20 @@ export default function DashboardLayout({
     }
   }, [user, isUserLoading, router]);
 
-
   const getPageTitle = () => {
-    // Find the best match for the current path
     let bestMatch = null;
     for (const item of navItems) {
-        if (pathname.match(item.match)) {
-            if (!bestMatch || item.href.length > bestMatch.href.length) {
-                bestMatch = item;
-            }
+      if (pathname.match(item.match)) {
+        if (!bestMatch || item.href.length > bestMatch.href.length) {
+          bestMatch = item;
         }
+      }
     }
 
     if (bestMatch) {
       return pageTitles[bestMatch.href];
     }
     
-    // Fallback for sub-pages not explicitly in navItems
     if (pathname.startsWith('/dashboard/')) {
         const pathSegments = pathname.split('/');
         const lastSegment = pathSegments[pathSegments.length - 1];
@@ -146,7 +148,7 @@ export default function DashboardLayout({
     return "لوحة التحكم";
   };
   
-  if (isUserLoading) {
+  if (isUserLoading || !user) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -156,11 +158,7 @@ export default function DashboardLayout({
       </div>
     );
   }
-
-  if (!user) {
-    return null;
-  }
-
+  
   return (
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
@@ -200,5 +198,18 @@ export default function DashboardLayout({
         </main>
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <FirebaseClientProvider>
+      <InnerLayout>{children}</InnerLayout>
+    </FirebaseClientProvider>
   );
 }

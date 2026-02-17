@@ -20,8 +20,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/firebase";
+import { useAuth, useRtdbObject } from "@/firebase";
 import { signOut } from "firebase/auth";
+import type { ExchangeControlSettings } from "@/lib/types";
+import { Skeleton } from "./ui/skeleton";
 
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
@@ -30,9 +32,7 @@ export function PageHeader({ title }: { title: string }) {
     (img) => img.id === "user-avatar"
   ) as ImagePlaceholder;
 
-  // Mock state for exchange info. In a real app, this would come from a global state or context.
-  const [isExchangeOpen, setExchangeOpen] = useState(true);
-  const [currentRate, setCurrentRate] = useState(9.65);
+  const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
   const [serverTime, setServerTime] = useState(new Date());
 
   useEffect(() => {
@@ -59,23 +59,32 @@ export function PageHeader({ title }: { title: string }) {
       </div>
 
       <div className="hidden md:flex items-center gap-6 text-sm">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-muted-foreground">حالة الصرف:</span>
-          <Badge
-            className={cn(isExchangeOpen 
-              ? "bg-green-100 text-green-800 hover:bg-green-200" 
-              : "bg-red-100 text-red-800 hover:bg-red-200",
-              'font-semibold'
-              )}
-          >
-            {isExchangeOpen ? "مفتوح" : "مغلق"}
-          </Badge>
-        </div>
-        {isExchangeOpen && (
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-muted-foreground">السعر:</span>
-            <span className="text-primary font-bold">{currentRate.toFixed(2)}</span>
-          </div>
+        {isLoading ? (
+          <>
+            <Skeleton className="h-6 w-28" />
+            <Skeleton className="h-6 w-24" />
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-muted-foreground">حالة الصرف:</span>
+              <Badge
+                className={cn(settings?.isOpen
+                  ? "bg-green-100 text-green-800 hover:bg-green-200" 
+                  : "bg-red-100 text-red-800 hover:bg-red-200",
+                  'font-semibold'
+                  )}
+              >
+                {settings?.isOpen ? "مفتوح" : "مغلق"}
+              </Badge>
+            </div>
+            {settings?.isOpen && (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-muted-foreground">السعر:</span>
+                <span className="text-primary font-bold">{settings?.currentRate?.toFixed(2)}</span>
+              </div>
+            )}
+          </>
         )}
          <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />

@@ -1,17 +1,18 @@
 "use client";
 import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
-import { LibyanTransactionsDataTable } from "./data-table";
-import type { Transaction } from "@/lib/types";
+import { CardTransactionsDataTable } from "./data-table";
+import type { Transaction, RechargePurchaseTransaction } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 
-export default function LibyanTransactionsPage() {
+export default function CardTransactionsPage() {
   const { data: transactions, isLoading, error } = useRtdbList<Transaction>("/transactions");
 
-  const financialTransactions = useMemo(() => {
+  const cardTransactions = useMemo(() => {
     if (!transactions) return [];
-    // Exclude card purchase transactions
-    return transactions.filter(t => t.type !== 'recharge_purchase');
+    return transactions.filter(
+        (t): t is RechargePurchaseTransaction => t.type === 'recharge_purchase'
+    );
   }, [transactions]);
 
   if (isLoading) {
@@ -20,7 +21,6 @@ export default function LibyanTransactionsPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Skeleton className="h-10 w-full max-w-sm" />
           <Skeleton className="h-10 w-[260px]" />
-          <Skeleton className="h-10 w-[180px]" />
           <Skeleton className="h-10 w-[150px]" />
           <Skeleton className="h-10 w-[120px]" />
         </div>
@@ -41,7 +41,7 @@ export default function LibyanTransactionsPage() {
 
   return (
     <div>
-      <LibyanTransactionsDataTable initialData={financialTransactions || []} />
+      <CardTransactionsDataTable initialData={cardTransactions || []} />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction, RechargePurchaseTransaction } from "@/lib/types";
+import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,22 +33,21 @@ const statusMap: Record<Transaction['status'], string> = {
     "pending": "قيد الانتظار"
 }
 
-const typeMap: Record<Transaction['type'], string> = {
+const typeMap: Record<AccountTransferTransaction['type'] | EgyptTransferTransaction['type'], string> = {
     'account_transfer': 'تحويل داخلي',
     'egypt_transfer': 'تحويل للجنيه',
-    'recharge_purchase': 'كرت شحن',
 }
 
 const getSenderPhone = (transaction: Transaction): string | null => {
     if (transaction.type === 'account_transfer') return transaction.senderPhone;
-    if (transaction.type === 'egypt_transfer' || transaction.type === 'recharge_purchase') return transaction.userPhone;
+    if (transaction.type === 'egypt_transfer') return transaction.userPhone;
     return null;
 }
 
 export function LibyanTransactionsDataTable({ initialData }: { initialData: Transaction[] }) {
   const [data, setData] = useState<Transaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [operationTypeFilter, setOperationTypeFilter] = useState<"all" | Transaction['type']>("all");
+  const [operationTypeFilter, setOperationTypeFilter] = useState<"all" | keyof typeof typeMap>("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [date, setDate] = useState<Date | undefined>();
 
@@ -92,8 +91,6 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
             return transaction.totalDeduction.toLocaleString("en-US") + " د.ل";
         case 'egypt_transfer':
             return transaction.amountLYD.toLocaleString("en-US") + " د.ل";
-        case 'recharge_purchase':
-            return transaction.amount.toLocaleString("en-US") + " د.ل";
         default:
             return '-';
     }
@@ -102,16 +99,6 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
   const renderServiceFee = (transaction: Transaction) => {
     if ('fee' in transaction && transaction.fee) {
         return transaction.fee.toLocaleString("en-US") + " د.ل";
-    }
-    if (transaction.type === 'recharge_purchase') {
-       const fee = transaction.amount - (transaction.balanceBefore - transaction.balanceAfter);
-       if (transaction.amount && transaction.balanceBefore && transaction.balanceAfter) {
-            // This is a guess based on mock data logic
-            const sentAmount = transaction.amount;
-            const balanceChange = transaction.balanceBefore - transaction.balanceAfter;
-            const fee = balanceChange - sentAmount;
-            return fee > 0 ? fee.toLocaleString("en-US") + " د.ل" : '0 د.ل';
-       }
     }
     return '-';
   }
@@ -161,7 +148,6 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
             <SelectItem value="all">كل العمليات</SelectItem>
             <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
             <SelectItem value="egypt_transfer">تحويل للجنيه</SelectItem>
-            <SelectItem value="recharge_purchase">كرت شحن</SelectItem>
           </SelectContent>
         </Select>
 
@@ -200,7 +186,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
           </TableHeader>
           <TableBody>
             {filteredData.map((transaction) => {
-                const tx = transaction as AccountTransferTransaction | EgyptTransferTransaction | RechargePurchaseTransaction;
+                const tx = transaction as AccountTransferTransaction | EgyptTransferTransaction;
               return (
               <TableRow key={tx.id}>
                 <TableCell className="text-xs">{tx.id}</TableCell>
