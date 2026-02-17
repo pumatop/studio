@@ -128,6 +128,8 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
               <TableHead>اسم المستخدم</TableHead>
               <TableHead>نوع الكرت</TableHead>
               <TableHead>المبلغ (د.ل)</TableHead>
+              <TableHead>الرقم المسلسل</TableHead>
+              <TableHead>الكود</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>وقت العملية</TableHead>
             </TableRow>
@@ -142,6 +144,8 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
                 </TableCell>
                 <TableCell>{transaction.cardType}</TableCell>
                 <TableCell className="text-left font-semibold">{transaction.amount.toLocaleString("en-US")} د.ل</TableCell>
+                <TableCell className="font-mono text-xs">{transaction.serialNumber || '-'}</TableCell>
+                <TableCell className="font-mono text-xs">{transaction.code || '-'}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>{statusMap[transaction.status]}</Badge>
                 </TableCell>

@@ -30,6 +30,8 @@ export type RechargePurchaseTransaction = BaseTransaction & {
   userId: string;
   userName: string;
   userPhone: string;
+  serialNumber?: string;
+  code?: string;
 };
 
 export type AccountTransferTransaction = BaseTransaction & {

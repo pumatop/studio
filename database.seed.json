@@ -51,7 +51,9 @@
       "type": "recharge_purchase",
       "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
       "userName": "مبارك ابراهيم ابوعيشه",
-      "userPhone": "+201030926584"
+      "userPhone": "+201030926584",
+      "serialNumber": "SN-4815162342",
+      "code": "1234-5678-9012-3456"
     },
     "DD49588767": {
       "amount": 10,
