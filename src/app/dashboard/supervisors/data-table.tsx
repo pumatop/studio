@@ -17,6 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   Dialog,
@@ -27,7 +28,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal } from "lucide-react";
+import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2 } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +37,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useRtdbList, useDatabase, setRtdb, updateRtdb } from "@/firebase";
+import { useRtdbList, useDatabase, setRtdb, updateRtdb, removeRtdb } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -227,6 +228,16 @@ export function SupervisorsDataTable() {
       }
   }
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`هل أنت متأكد من حذف المشرف "${name}" بشكل نهائي؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+      try {
+          await removeRtdb(database, `/supervisors/${id}`);
+          toast({ title: "تم حذف المشرف بنجاح", variant: 'destructive' });
+      } catch (error: any) {
+          toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
+      }
+  }
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setSpecializationFilter("all");
@@ -356,6 +367,11 @@ export function SupervisorsDataTable() {
                       <DropdownMenuItem onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'} className="text-destructive">
                         <UserX className="ml-2 h-4 w-4"/>
                         <span>تعطيل</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleDelete(supervisor.id, supervisor.name)} className="text-destructive focus:text-destructive">
+                        <Trash2 className="ml-2 h-4 w-4"/>
+                        <span>حذف نهائي</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

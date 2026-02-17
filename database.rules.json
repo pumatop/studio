@@ -6,7 +6,7 @@
             ".indexOn": ["phone", "role", "status", "verification"]
         },
         "transactions": {
-            ".indexOn": ["userId", "senderId", "type", "delegateId"]
+            ".indexOn": ["userId", "senderId", "type", "delegateId", "status", "timestamp"]
         },
         "supervisors": {
             ".indexOn": ["status", "connectionStatus"]

@@ -248,6 +248,23 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
       }
   }
 
+  const handleVerify = async (userId: string, userName: string) => {
+    if (!window.confirm(`هل أنت متأكد من توثيق حساب ${userName}؟`)) return;
+
+    try {
+        await updateRtdb(database, `/users/${userId}`, { verification: 'verified' });
+        toast({ 
+            title: "تم توثيق الحساب",
+            description: `تم توثيق حساب ${userName} بنجاح.`,
+            className: 'bg-green-100 text-green-800'
+        });
+        // Optimistic update
+        setData(prev => prev.map(user => user.id === userId ? {...user, verification: 'verified'} : user));
+    } catch (e: any) {
+        toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
+    }
+  }
+
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
       setDetailsOpen(true);
@@ -358,6 +375,12 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                         <Eye className="ml-2 h-4 w-4" />
                         <span>تفاصيل</span>
                       </DropdownMenuItem>
+                       {user.verification === 'pending' && (
+                        <DropdownMenuItem onClick={() => handleVerify(user.id, user.name)} className="text-blue-600 focus:text-blue-600">
+                            <ShieldCheck className="ml-2 h-4 w-4" />
+                            <span>توثيق الحساب</span>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
                         {user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
                         <span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span>
