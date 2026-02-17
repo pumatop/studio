@@ -1,5 +1,7 @@
-import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import {onSchedule} from "firebase-functions/v2/scheduler";
+import {onValueCreated} from "firebase-functions/v2/database";
+import {logger} from "firebase-functions/v2";
 
 admin.initializeApp();
 const db = admin.database();
@@ -13,25 +15,26 @@ interface Condition {
 /**
  * Checks for time-based exchange rate conditions every minute.
  */
-export const processScheduledRateChanges = functions
-  .region("asia-southeast1")
-  .pubsub.schedule("every 1 minutes")
-  .onRun(async () => {
+export const processScheduledRateChanges = onSchedule(
+  {
+    schedule: "every 1 minutes",
+    region: "asia-southeast1",
+  },
+  async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
     const settings = settingsSnap.val();
 
     if (!settings?.autoConditionsActive || !settings.conditions) {
-      functions.logger.info(
-        "Auto conditions are disabled or no conditions found."
-      );
+      logger.info("Auto conditions are disabled or no conditions found.");
       return null;
     }
 
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${
-      now.getMinutes().toString().padStart(2, "0")
-    }`;
+    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
 
     const conditions = settings.conditions as Record<string, Condition>;
     const updates: Record<string, unknown> = {};
@@ -39,9 +42,8 @@ export const processScheduledRateChanges = functions
 
     for (const [id, condition] of Object.entries(conditions)) {
       if (condition.type === "time" && condition.value === currentTime) {
-        functions.logger.info(
-          `Time condition met for ID ${id}. Changing rate to ${
-            condition.targetRate}`
+        logger.info(
+          `Time condition met for ID ${id}. Changing rate to ${condition.targetRate}`
         );
 
         updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
@@ -62,25 +64,30 @@ export const processScheduledRateChanges = functions
 
     if (rateChanged) {
       await db.ref().update(updates);
-      functions.logger.log("Successfully applied time-based rate change.");
+      logger.log("Successfully applied time-based rate change.");
     } else {
-      functions.logger.info("No time-based conditions met at this time.");
+      logger.info("No time-based conditions met at this time.");
     }
 
     return null;
-  });
+  }
+);
 
 /**
  * Checks for amount-based exchange rate conditions on new transactions.
  */
-export const processTransactionBasedRateChanges = functions
-  .region("asia-southeast1")
-  .database.ref("/transactions/{transactionId}")
-  .onCreate(async (snapshot) => {
-    const transaction = snapshot.val();
+export const processTransactionBasedRateChanges = onValueCreated(
+  {
+    ref: "/transactions/{transactionId}",
+    region: "asia-southeast1",
+  },
+  async (event) => {
+    const transaction = event.data.val();
 
-    if (transaction.type !== "egypt_transfer" ||
-        transaction.status !== "completed") {
+    if (
+      transaction.type !== "egypt_transfer" ||
+      transaction.status !== "completed"
+    ) {
       return null;
     }
 
@@ -89,9 +96,7 @@ export const processTransactionBasedRateChanges = functions
     const settings = settingsSnap.val();
 
     if (!settings?.autoConditionsActive || !settings.conditions) {
-      functions.logger.info(
-        "Auto conditions disabled or no conditions exist."
-      );
+      logger.info("Auto conditions disabled or no conditions exist.");
       return null;
     }
 
@@ -102,7 +107,7 @@ export const processTransactionBasedRateChanges = functions
       .sort(([, a], [, b]) => (a.value as number) - (b.value as number));
 
     if (amountConditions.length === 0) {
-      functions.logger.info("No amount-based conditions to check.");
+      logger.info("No amount-based conditions to check.");
       return null;
     }
 
@@ -121,26 +126,24 @@ export const processTransactionBasedRateChanges = functions
     );
 
     if (!committed) {
-      functions.logger.error(
+      logger.error(
         "Failed to commit transaction to update daily aggregate."
       );
       return null;
     }
 
     const newTotalAmount = aggSnap.val().totalEgpAmount;
-    functions.logger.info(
-      `New total EGP amount for ${date} is ${newTotalAmount}.`
-    );
+    logger.info(`New total EGP amount for ${date} is ${newTotalAmount}.`);
 
     let rateChanged = false;
     const updates: Record<string, unknown> = {};
 
     for (const [id, condition] of amountConditions) {
       if (newTotalAmount >= (condition.value as number)) {
-        functions.logger.info(
+        logger.info(
           `Amount condition met for ID ${id}. ` +
-          `New total ${newTotalAmount} >= ${condition.value}. ` +
-          `Changing rate to ${condition.targetRate}`
+            `New total ${newTotalAmount} >= ${condition.value}. ` +
+            `Changing rate to ${condition.targetRate}`
         );
 
         updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
@@ -160,8 +163,9 @@ export const processTransactionBasedRateChanges = functions
 
     if (rateChanged) {
       await db.ref().update(updates);
-      functions.logger.log("Successfully applied amount-based rate change.");
+      logger.log("Successfully applied amount-based rate change.");
     }
 
     return null;
-  });
+  }
+);
