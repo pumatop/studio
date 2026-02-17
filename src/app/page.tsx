@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -15,22 +15,64 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, CircleDollarSign } from "lucide-react";
+import { useAuth, useUser } from "@/firebase";
+import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const auth = useAuth();
+  const { user, isUserLoading } = useUser();
+  
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    setError("");
-    // Simple mock authentication
-    if (username === "admin" && password === "password") {
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (!isUserLoading && user) {
       router.push("/dashboard");
-    } else {
-      setError("اسم المستخدم أو كلمة المرور غير صحيحة.");
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      router.push("/dashboard");
+    } catch (e) {
+      const authError = e as AuthError;
+      switch (authError.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة.");
+          break;
+        case 'auth/invalid-email':
+          setError("البريد الإلكتروني غير صالح.");
+          break;
+        case 'auth/too-many-requests':
+          setError("تم حظر هذا الحساب مؤقتًا بسبب كثرة محاولات تسجيل الدخول الفاشلة.");
+          break;
+        default:
+          setError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
+          break;
+      }
+    } finally {
+      setLoading(false);
     }
   };
+  
+  if (isUserLoading || user) {
+    return (
+       <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+            <CircleDollarSign className="h-12 w-12 text-primary animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
@@ -42,7 +84,7 @@ export default function LoginPage() {
         <CardHeader>
           <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
           <CardDescription>
-            الرجاء إدخال اسم المستخدم وكلمة المرور للوصول إلى لوحة التحكم.
+            الرجاء إدخال البريد الإلكتروني وكلمة المرور للوصول إلى لوحة التحكم.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -54,14 +96,15 @@ export default function LoginPage() {
             </Alert>
           )}
           <div className="grid gap-2">
-            <Label htmlFor="username">اسم المستخدم</Label>
+            <Label htmlFor="email">البريد الإلكتروني</Label>
             <Input
-              id="username"
-              type="text"
-              placeholder="admin"
+              id="email"
+              type="email"
+              placeholder="admin@example.com"
               required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
             />
           </div>
           <div className="grid gap-2">
@@ -73,12 +116,13 @@ export default function LoginPage() {
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" onClick={handleLogin}>
-            تسجيل الدخول
+          <Button className="w-full" onClick={handleLogin} disabled={loading}>
+            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </Button>
         </CardFooter>
       </Card>

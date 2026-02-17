@@ -20,9 +20,12 @@ import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
+  const auth = useAuth();
   const avatar = PlaceHolderImages.find(
     (img) => img.id === "user-avatar"
   ) as ImagePlaceholder;
@@ -36,6 +39,12 @@ export function PageHeader({ title }: { title: string }) {
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
+  
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/");
+  };
+
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -102,7 +111,7 @@ export function PageHeader({ title }: { title: string }) {
             الملف الشخصي
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => router.push("/")}>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="w-4 h-4 ml-2" />
             تسجيل الخروج
           </DropdownMenuItem>

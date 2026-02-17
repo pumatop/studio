@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 import {
   SidebarProvider,
   Sidebar,
@@ -24,7 +25,7 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { FirebaseClientProvider } from "@/firebase";
+import { useUser } from "@/firebase";
 
 const navItems = [
   {
@@ -110,6 +111,15 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isUserLoading } = useUser();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.replace("/");
+    }
+  }, [user, isUserLoading, router]);
+
 
   const getPageTitle = () => {
     // Find the best match for the current path
@@ -135,47 +145,60 @@ export default function DashboardLayout({
 
     return "لوحة التحكم";
   };
+  
+  if (isUserLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <CircleDollarSign className="h-12 w-12 animate-pulse text-primary" />
+          <p className="text-muted-foreground">جاري التحقق من الهوية...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <FirebaseClientProvider>
-      <SidebarProvider>
-        <Sidebar side="right" collapsible="icon">
-          <SidebarHeader>
-            <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
-              <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
-              <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
-                  حولّي كاش
-              </div>
+    <SidebarProvider>
+      <Sidebar side="right" collapsible="icon">
+        <SidebarHeader>
+          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
+            <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
+            <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
+                حولّي كاش
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {navItems.map((item) => {
-                const isActive = !!pathname.match(item.match);
-                return (
-                <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      tooltip={{ children: item.label, side: "left" }}
-                    >
-                      <item.icon className={isActive ? "" : item.color} />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
-                </SidebarMenuItem>
-              )})}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-        <SidebarInset className="flex flex-col">
-          <PageHeader title={getPageTitle()} />
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
-              {children}
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    </FirebaseClientProvider>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navItems.map((item) => {
+              const isActive = !!pathname.match(item.match);
+              return (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href}>
+                  <SidebarMenuButton
+                    isActive={isActive}
+                    tooltip={{ children: item.label, side: "left" }}
+                  >
+                    <item.icon className={isActive ? "" : item.color} />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            )})}
+          </SidebarMenu>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset className="flex flex-col">
+        <PageHeader title={getPageTitle()} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
+            {children}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
