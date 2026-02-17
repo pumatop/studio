@@ -1,22 +1,16 @@
 "use server";
 
 import { generateDataInsights, type GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
-import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
-import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
 
-export async function generateInsightsAction(): Promise<{
+export async function generateInsightsAction(allTransactions: any): Promise<{
   data: GenerateDataInsightsOutput | null;
   error: string | null;
 }> {
   try {
-    if (mockLibyanTransactions.length === 0 && mockEgyptianTransfers.length === 0) {
+    if (!allTransactions || Object.keys(allTransactions).length === 0) {
       return { data: null, error: "لا توجد بيانات كافية لإنشاء تقرير. يرجى إضافة بعض المعاملات أولاً." };
     }
     
-    const allTransactions = {
-      libyanTransactions: mockLibyanTransactions,
-      egyptianTransfers: mockEgyptianTransfers
-    };
     const dataString = JSON.stringify(allTransactions, null, 2);
     const result = await generateDataInsights({ data: dataString });
     return { data: result, error: null };

@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import type { DetailedLibyanTransaction } from "@/lib/types";
+import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction, RechargePurchaseTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,16 +21,34 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
 
-const statusColors: Record<DetailedLibyanTransaction['status'], string> = {
-  "ناجحة": "bg-green-100 text-green-800",
-  "مرفوضة": "bg-red-100 text-red-800",
+const statusColors: Record<Transaction['status'], string> = {
+  "completed": "bg-green-100 text-green-800",
+  "failed": "bg-red-100 text-red-800",
+  "pending": "bg-yellow-100 text-yellow-800",
 };
 
+const statusMap: Record<Transaction['status'], string> = {
+    "completed": "ناجحة",
+    "failed": "مرفوضة",
+    "pending": "قيد الانتظار"
+}
 
-export function LibyanTransactionsDataTable({ initialData }: { initialData: DetailedLibyanTransaction[] }) {
-  const [data, setData] = useState<DetailedLibyanTransaction[]>(initialData);
+const typeMap: Record<Transaction['type'], string> = {
+    'account_transfer': 'تحويل داخلي',
+    'egypt_transfer': 'تحويل للجنيه',
+    'recharge_purchase': 'كرت شحن',
+}
+
+const getSenderPhone = (transaction: Transaction): string | null => {
+    if (transaction.type === 'account_transfer') return transaction.senderPhone;
+    if (transaction.type === 'egypt_transfer' || transaction.type === 'recharge_purchase') return transaction.userPhone;
+    return null;
+}
+
+export function LibyanTransactionsDataTable({ initialData }: { initialData: Transaction[] }) {
+  const [data, setData] = useState<Transaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [operationTypeFilter, setOperationTypeFilter] = useState("all");
+  const [operationTypeFilter, setOperationTypeFilter] = useState<"all" | Transaction['type']>("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [date, setDate] = useState<Date | undefined>();
 
@@ -47,11 +65,15 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
                 return false;
             }
         }
+        
+        const senderPhone = getSenderPhone(item) || '';
+        const recipientPhone = (item.type === 'account_transfer' && item.recipientPhone) || '';
+
         return (searchTerm === "" ||
           item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.senderPhone.includes(searchTerm) ||
-          item.recipientPhone?.includes(searchTerm)) &&
-        (operationTypeFilter === "all" || item.operationType === operationTypeFilter) &&
+          senderPhone.includes(searchTerm) ||
+          recipientPhone.includes(searchTerm)) &&
+        (operationTypeFilter === "all" || item.type === operationTypeFilter) &&
         (statusFilter === "all" || item.status === statusFilter);
       }
     );
@@ -63,6 +85,37 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
     setStatusFilter("all");
     setDate(undefined);
   };
+  
+  const renderSentAmount = (transaction: Transaction) => {
+    switch (transaction.type) {
+        case 'account_transfer':
+            return transaction.totalDeduction.toLocaleString("en-US") + " د.ل";
+        case 'egypt_transfer':
+            return transaction.amountLYD.toLocaleString("en-US") + " د.ل";
+        case 'recharge_purchase':
+            return transaction.amount.toLocaleString("en-US") + " د.ل";
+        default:
+            return '-';
+    }
+  }
+
+  const renderServiceFee = (transaction: Transaction) => {
+    if ('fee' in transaction && transaction.fee) {
+        return transaction.fee.toLocaleString("en-US") + " د.ل";
+    }
+    if (transaction.type === 'recharge_purchase') {
+       const fee = transaction.amount - (transaction.balanceBefore - transaction.balanceAfter);
+       if (transaction.amount && transaction.balanceBefore && transaction.balanceAfter) {
+            // This is a guess based on mock data logic
+            const sentAmount = transaction.amount;
+            const balanceChange = transaction.balanceBefore - transaction.balanceAfter;
+            const fee = balanceChange - sentAmount;
+            return fee > 0 ? fee.toLocaleString("en-US") + " د.ل" : '0 د.ل';
+       }
+    }
+    return '-';
+  }
+
 
   return (
     <div className="space-y-4">
@@ -100,15 +153,15 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
             />
           </PopoverContent>
         </Popover>
-        <Select value={operationTypeFilter} onValueChange={setOperationTypeFilter}>
+        <Select value={operationTypeFilter} onValueChange={(value) => setOperationTypeFilter(value as any)}>
           <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
             <SelectValue placeholder="نوع العملية" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل العمليات</SelectItem>
-            <SelectItem value="تحويل داخلي">تحويل داخلي</SelectItem>
-            <SelectItem value="تحويل للجنيه">تحويل للجنيه</SelectItem>
-            <SelectItem value="كرت شحن">كرت شحن</SelectItem>
+            <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
+            <SelectItem value="egypt_transfer">تحويل للجنيه</SelectItem>
+            <SelectItem value="recharge_purchase">كرت شحن</SelectItem>
           </SelectContent>
         </Select>
 
@@ -118,8 +171,9 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الحالات</SelectItem>
-            <SelectItem value="ناجحة">ناجحة</SelectItem>
-            <SelectItem value="مرفوضة">مرفوضة</SelectItem>
+            <SelectItem value="completed">ناجحة</SelectItem>
+            <SelectItem value="failed">مرفوضة</SelectItem>
+            <SelectItem value="pending">قيد الانتظار</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
@@ -135,41 +189,35 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Deta
               <TableHead>نوع العملية</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>وقت العملية</TableHead>
-              <TableHead>رقم هاتف المرسل</TableHead>
+              <TableHead>هاتف المرسل</TableHead>
               <TableHead>المبلغ المرسل</TableHead>
               <TableHead>رسوم الخدمة</TableHead>
-              <TableHead>رقم هاتف المستلم</TableHead>
+              <TableHead>هاتف المستلم</TableHead>
               <TableHead>المبلغ المستلم</TableHead>
               <TableHead>سعر الصرف</TableHead>
-              <TableHead>المبلغ المحول بالجنيه</TableHead>
-              <TableHead>نوع الكارت</TableHead>
-              <TableHead>فئة الكارت</TableHead>
-              <TableHead>سيريال الكارت</TableHead>
-              <TableHead>الرقم السري للكارت</TableHead>
+              <TableHead>المبلغ المحول (EGP)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell className="text-xs">{transaction.id}</TableCell>
-                <TableCell>{transaction.operationType}</TableCell>
+            {filteredData.map((transaction) => {
+                const tx = transaction as AccountTransferTransaction | EgyptTransferTransaction | RechargePurchaseTransaction;
+              return (
+              <TableRow key={tx.id}>
+                <TableCell className="text-xs">{tx.id}</TableCell>
+                <TableCell>{typeMap[tx.type]}</TableCell>
                 <TableCell>
-                  <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>{transaction.status}</Badge>
+                  <Badge className={cn(statusColors[tx.status], `hover:${statusColors[tx.status]}`)}>{statusMap[tx.status]}</Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
-                <TableCell className="font-medium">{transaction.senderPhone}</TableCell>
-                <TableCell className="text-left">{transaction.sentAmount.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell className="text-left">{transaction.serviceFee.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell>{transaction.recipientPhone || "-"}</TableCell>
-                <TableCell className="text-left">{transaction.receivedAmount.toLocaleString("en-US")} {transaction.operationType === 'تحويل للجنيه' ? 'ج.م' : 'د.ل'}</TableCell>
-                <TableCell>{transaction.exchangeRate || "-"}</TableCell>
-                <TableCell className="text-left">{transaction.convertedAmountEGP ? `${transaction.convertedAmountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
-                <TableCell>{transaction.cardType || "-"}</TableCell>
-                <TableCell className="text-left">{transaction.cardDenomination ? `${transaction.cardDenomination.toLocaleString("en-US")} د.ل` : "-"}</TableCell>
-                <TableCell>{transaction.cardSerial || "-"}</TableCell>
-                <TableCell>{transaction.cardPin || "-"}</TableCell>
+                <TableCell className="text-xs">{new Date(tx.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="font-medium">{getSenderPhone(tx)}</TableCell>
+                <TableCell className="text-left">{renderSentAmount(tx)}</TableCell>
+                <TableCell className="text-left">{renderServiceFee(tx)}</TableCell>
+                <TableCell>{tx.type === 'account_transfer' ? tx.recipientPhone : "-"}</TableCell>
+                <TableCell className="text-left">{tx.type === 'account_transfer' ? `${tx.amount.toLocaleString("en-US")} د.ل` : tx.type === 'egypt_transfer' ? `${tx.amountEGP.toLocaleString("en-US")} ج.م` : '-'}</TableCell>
+                <TableCell>{tx.type === 'egypt_transfer' ? tx.exchangeRate : "-"}</TableCell>
+                <TableCell className="text-left">{tx.type === 'egypt_transfer' ? `${tx.amountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
               </TableRow>
-            ))}
+            )})}
           </TableBody>
         </Table>
       </div>

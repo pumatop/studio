@@ -1,7 +1,8 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import type { User, Transaction, EgyptTransferTransaction } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -35,12 +36,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockUsers } from "@/lib/mock-users";
-import { mockLibyanTransactions } from "@/lib/mock-libyan-transactions";
 import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
 import type { EgyptianTransfer } from "@/lib/types";
 import { mockSupervisors } from "@/lib/mock-supervisors";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EGYPTIAN_TRANSFER_TYPES: EgyptianTransfer['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
@@ -70,137 +70,139 @@ const FormattedAmount = ({
 
 
 export default function DashboardPage() {
+  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
+  const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>("/transactions");
+  
   // --- DATE SETUP ---
-  const mostRecentLibyanTimestamp =
-    mockLibyanTransactions.length > 0
-      ? Math.max(
-          ...mockLibyanTransactions.map((t) => new Date(t.timestamp).getTime())
-        )
-      : 0;
-
-  const mostRecentEgyptianTimestamp =
-    mockEgyptianTransfers.length > 0
-      ? Math.max(
-          ...mockEgyptianTransfers.map((t) =>
-            new Date(t.requestTimestamp).getTime()
-          )
-        )
-      : 0;
-
-  const mostRecentTimestamp =
-    Math.max(mostRecentLibyanTimestamp, mostRecentEgyptianTimestamp) || Date.now();
-
+  const mostRecentTimestamp = useMemo(() => {
+    if (!transactions || transactions.length === 0) return Date.now();
+    return Math.max(...transactions.map(t => t.timestamp));
+  }, [transactions]);
+  
   const todayDate = new Date(mostRecentTimestamp);
 
   const [selectedMonth, setSelectedMonth] = useState(() => todayDate.getMonth() + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-
-  const startOfToday = new Date(
-    todayDate.getFullYear(),
-    todayDate.getMonth(),
-    todayDate.getDate()
-  );
-  const startOfMonth = new Date(todayDate.getFullYear(), selectedMonth - 1, 1);
-  const endOfMonth = new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
-
-  // --- ORIGINAL CARDS' CALCULATIONS ---
-  const totalLibyanBalance = mockUsers.reduce(
-    (sum, user) => sum + user.balanceLibyan,
-    0
-  );
-
-  const totalEgyptianBalance = mockUsers.reduce(
-    (sum, user) => sum + user.balanceEgyptian,
-    0
-  );
-
-  const lydToEgpTransactions = mockLibyanTransactions.filter(
-    (t) => t.operationType === "تحويل للجنيه" && t.status === "ناجحة"
-  );
-
-  const dailyTrades = lydToEgpTransactions.filter((t) => {
-    const transactionDate = new Date(t.timestamp);
-    return transactionDate >= startOfToday;
-  });
-
-  const monthlyTrades = lydToEgpTransactions.filter((t) => {
-    const transactionDate = new Date(t.timestamp);
-    return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-  });
-
-  const dailyTradeStats = {
-    count: dailyTrades.length,
-    lydAmount: dailyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
-    egpAmount: dailyTrades.reduce((sum, t) => sum + (t.convertedAmountEGP || 0), 0),
-  };
-
-  const monthlyTradeStats = {
-    count: monthlyTrades.length,
-    lydAmount: monthlyTrades.reduce((sum, t) => sum + t.sentAmount, 0),
-    egpAmount: monthlyTrades.reduce(
-      (sum, t) => sum + (t.convertedAmountEGP || 0),
-      0
-    ),
-  };
   
-  // --- NEW CARDS' CALCULATIONS ---
+  const { 
+    totalLibyanBalance, 
+    totalEgyptianBalance,
+    dailyTradeStats,
+    monthlyTradeStats,
+    totalUsers,
+    pendingVerificationUsers,
+    dailyCardStats,
+    monthlyCardStats,
+    dailyInternalStats,
+    monthlyInternalStats,
+    fakkaBalance
+   } = useMemo(() => {
+    const usersData = users || [];
+    const transactionsData = transactions || [];
 
-  // 1. User Stats
-  const totalUsers = mockUsers.length;
-  const pendingVerificationUsers = mockUsers.filter(
-    (u) => u.verificationStatus === "قيد المراجعة"
-  ).length;
+    const startOfToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+    const startOfMonth = new Date(todayDate.getFullYear(), selectedMonth - 1, 1);
+    const endOfMonth = new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
 
-  // 2. Card Revenue
-  const cardTransactions = mockLibyanTransactions.filter(
-    (t) => t.operationType === "كرت شحن" && t.status === "ناجحة"
-  );
-  const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-  const monthlyCards = cardTransactions.filter(t => {
-      const transactionDate = new Date(t.timestamp);
-      return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-  });
-  const dailyCardStats = {
-      count: dailyCards.length,
-      revenue: dailyCards.reduce((sum, t) => sum + t.serviceFee, 0)
-  };
-  const monthlyCardStats = {
-      count: monthlyCards.length,
-      revenue: monthlyCards.reduce((sum, t) => sum + t.serviceFee, 0)
-  };
+    // --- CARD CALCULATIONS ---
+    const totalLibyanBalance = usersData.reduce((sum, user) => sum + user.balanceLYD, 0);
+    const totalEgyptianBalance = usersData.reduce((sum, user) => sum + user.balanceEGP, 0);
 
-  // 3. Internal Transfer Revenue
-  const internalTransactions = mockLibyanTransactions.filter(
-      (t) => t.operationType === "تحويل داخلي" && t.status === "ناجحة"
-  );
-  const dailyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-  const monthlyInternal = internalTransactions.filter(t => {
-      const transactionDate = new Date(t.timestamp);
-      return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-  });
-  const dailyInternalStats = {
-      count: dailyInternal.length,
-      revenue: dailyInternal.reduce((sum, t) => sum + t.serviceFee, 0)
-  };
-  const monthlyInternalStats = {
-      count: monthlyInternal.length,
-      revenue: monthlyInternal.reduce((sum, t) => sum + t.serviceFee, 0)
-  };
+    const lydToEgpTransactions = transactionsData.filter(
+        (t): t is EgyptTransferTransaction => t.type === "egypt_transfer" && t.status === "completed"
+    );
 
-  // 4. Fakka Safe
-  const fakkaBalance = lydToEgpTransactions.reduce((sum, t) => {
-    const preciseAmount = t.sentAmount * (t.exchangeRate || 0);
-    const fraction = preciseAmount - (t.convertedAmountEGP || 0);
-    return sum + fraction;
-  }, 0);
+    const dailyTrades = lydToEgpTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
+    const monthlyTrades = lydToEgpTransactions.filter(t => {
+        const transactionDate = new Date(t.timestamp);
+        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+    });
 
-  const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= startOfToday);
+    const dailyTradeStats = {
+        count: dailyTrades.length,
+        lydAmount: dailyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
+        egpAmount: dailyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
+    };
+    const monthlyTradeStats = {
+        count: monthlyTrades.length,
+        lydAmount: monthlyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
+        egpAmount: monthlyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
+    };
+
+    const totalUsers = usersData.length;
+    const pendingVerificationUsers = usersData.filter(u => u.verification === "pending").length;
+    
+    const cardTransactions = transactionsData.filter(t => t.type === "recharge_purchase" && t.status === "completed");
+    const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
+    const monthlyCards = cardTransactions.filter(t => {
+        const transactionDate = new Date(t.timestamp);
+        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+    });
+
+    const dailyCardStats = {
+        count: dailyCards.length,
+        revenue: dailyCards.reduce((sum, t) => {
+            const tx = t as RechargePurchaseTransaction;
+            // Simplified fee calculation
+            const balanceChange = tx.balanceBefore - tx.balanceAfter;
+            const fee = balanceChange - tx.amount;
+            return sum + (fee > 0 ? fee : 0);
+        }, 0)
+    };
+    const monthlyCardStats = {
+        count: monthlyCards.length,
+        revenue: monthlyCards.reduce((sum, t) => {
+            const tx = t as RechargePurchaseTransaction;
+            const balanceChange = tx.balanceBefore - tx.balanceAfter;
+            const fee = balanceChange - tx.amount;
+            return sum + (fee > 0 ? fee : 0);
+        }, 0)
+    };
+
+    const internalTransactions = transactionsData.filter((t): t is AccountTransferTransaction => t.type === "account_transfer" && t.status === "completed");
+    const dailyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
+    const monthlyInternal = internalTransactions.filter(t => {
+        const transactionDate = new Date(t.timestamp);
+        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+    });
+    const dailyInternalStats = {
+        count: dailyInternal.length,
+        revenue: dailyInternal.reduce((sum, t) => sum + t.fee, 0)
+    };
+    const monthlyInternalStats = {
+        count: monthlyInternal.length,
+        revenue: monthlyInternal.reduce((sum, t) => sum + t.fee, 0)
+    };
+
+    const fakkaBalance = lydToEgpTransactions.reduce((sum, t) => {
+        const preciseAmount = t.amountLYD * t.exchangeRate;
+        const fraction = preciseAmount - t.amountEGP;
+        return sum + (fraction > 0 ? fraction : 0);
+    }, 0);
+
+    return {
+        totalLibyanBalance,
+        totalEgyptianBalance,
+        dailyTradeStats,
+        monthlyTradeStats,
+        totalUsers,
+        pendingVerificationUsers,
+        dailyCardStats,
+        monthlyCardStats,
+        dailyInternalStats,
+        monthlyInternalStats,
+        fakkaBalance
+    };
+
+   }, [users, transactions, selectedMonth, todayDate]);
+
+  // --- MOCK DATA FOR UI PARTS NOT SUPPORTED BY RTDB YET ---
+  const dailyEgyptianTransfers = mockEgyptianTransfers.filter(t => new Date(t.requestTimestamp) >= new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()));
   const monthlyEgyptianTransfers = mockEgyptianTransfers.filter(t => {
     const transactionDate = new Date(t.requestTimestamp);
-    return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
+    return transactionDate >= new Date(todayDate.getFullYear(), selectedMonth - 1, 1) && transactionDate <= new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
   });
   
-  // 5. Egyptian Transfers Summary
   const dailySuccessfulTransfersEGP = dailyEgyptianTransfers
     .filter((t) => t.status === "ناجح")
     .reduce((sum, t) => sum + t.sentAmount, 0);
@@ -259,8 +261,6 @@ export default function DashboardPage() {
   const dailyEgyptianTransferStatus = calculateStatusCounts(dailyEgyptianTransfers);
   const monthlyEgyptianTransferStatus = calculateStatusCounts(monthlyEgyptianTransfers);
 
-
-  // 6. Egyptian Transfers Revenue
   const successfulEgyptianTransfers = mockEgyptianTransfers.filter(t => t.status === 'ناجح');
   const totalRevenueEGP = successfulEgyptianTransfers.reduce((sum, t) => sum + t.serviceFee, 0);
 
@@ -281,7 +281,6 @@ export default function DashboardPage() {
   const dailyRevenueByType = calculateRevenueByType(dailyEgyptianTransfers);
   const monthlyRevenueByType = calculateRevenueByType(monthlyEgyptianTransfers);
   
-  // Supervisor Performance Stats
   const supervisorStats = mockSupervisors.map(supervisor => {
     const supervisorDailyTransfers = dailyEgyptianTransfers.filter(
       transfer => transfer.delegate === supervisor.name && transfer.status === 'ناجح'
@@ -289,26 +288,35 @@ export default function DashboardPage() {
     const supervisorMonthlyTransfers = monthlyEgyptianTransfers.filter(
       transfer => transfer.delegate === supervisor.name && transfer.status === 'ناجح'
     );
-
     const dailyTotalAmount = supervisorDailyTransfers.reduce((sum, t) => sum + t.sentAmount, 0);
-
     const monthlyTotalAmount = supervisorMonthlyTransfers.reduce((sum, t) => sum + t.sentAmount, 0);
     const monthlyTotalCount = supervisorMonthlyTransfers.length;
-    
     const monthlyStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
       acc[type] = supervisorMonthlyTransfers.filter(t => t.transferType === type).length;
       return acc;
     }, {} as Record<EgyptianTransfer['transferType'], number>);
 
-    return {
-      ...supervisor,
-      dailyTotalAmount,
-      monthlyTotalAmount,
-      monthlyTotalCount,
-      monthlyStatsByType,
-    };
+    return { ...supervisor, dailyTotalAmount, monthlyTotalAmount, monthlyTotalCount, monthlyStatsByType };
   });
 
+  const isLoading = usersLoading || transactionsLoading;
+
+  if (isLoading) {
+    return (
+        <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-36" />
+                <Skeleton className="h-64" />
+                <Skeleton className="h-36" />
+                <Skeleton className="h-28" />
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+            </div>
+            <Skeleton className="h-96" />
+            <Skeleton className="h-64" />
+        </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -497,10 +505,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* New Card 6: Egyptian Transfers Revenue */}
+            {/* New Card 6: Egyptian Transfers Revenue (MOCK) */}
             <Card>
                 <CardHeader>
-                    <CardTitle>إيرادات التحويلات المصرية</CardTitle>
+                    <CardTitle>إيرادات التحويلات المصرية (وهمي)</CardTitle>
                     <CardDescription>إجمالي رسوم التحويلات الناجحة</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -549,11 +557,11 @@ export default function DashboardPage() {
         </div>
 
 
-        {/* New Card 5: Egyptian Transfers Summary */}
+        {/* New Card 5: Egyptian Transfers Summary (MOCK) */}
         <div className="lg:col-span-2 grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص اليوم</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص اليوم (وهمي)</CardTitle>
                     <CardDescription>
                     حوالات الجنيه المصري اليوم.
                     </CardDescription>
@@ -612,7 +620,7 @@ export default function DashboardPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص الشهر</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Activity /> ملخص الشهر (وهمي)</CardTitle>
                     <CardDescription>
                     حوالات الجنيه المصري هذا الشهر.
                     </CardDescription>
@@ -689,7 +697,7 @@ export default function DashboardPage() {
             </Select>
           </CardTitle>
           <CardDescription>
-            ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
+            ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة (بيانات وهمية).
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">

@@ -2,7 +2,7 @@
   "rules": {
     "users": {
       ".read": "auth != null",
-      ".indexOn": ["role", "status", "verification"],
+      ".indexOn": ["phone", "role", "status", "verification"],
       "$uid": {
         ".write": "auth != null && auth.uid == $uid"
       }

@@ -8,6 +8,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateInsightsAction } from "./actions";
 import type { GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
 import { BrainCircuit, Lightbulb, ListChecks, TrendingUp, AlertTriangle } from "lucide-react";
+import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import type { Transaction } from "@/lib/types";
 
 function LoadingSkeleton() {
     return (
@@ -41,12 +43,13 @@ export default function AiReporter() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerateDataInsightsOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
 
   const handleGenerate = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
-    const { data, error } = await generateInsightsAction();
+    const { data, error } = await generateInsightsAction(transactions);
     if (error) {
       setError(error);
     } else {
@@ -68,8 +71,8 @@ export default function AiReporter() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button onClick={handleGenerate} disabled={loading}>
-            {loading ? "جاري التحليل..." : "توليد تقرير AI"}
+          <Button onClick={handleGenerate} disabled={loading || transactionsLoading}>
+            {loading ? "جاري التحليل..." : transactionsLoading ? "جاري تحميل البيانات..." : "توليد تقرير AI"}
           </Button>
         </CardContent>
       </Card>

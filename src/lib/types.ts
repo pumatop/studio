@@ -14,7 +14,7 @@ export type User = {
   verification: 'verified' | 'unverified' | 'pending';
 };
 
-// Discriminated union for Transactions
+// Discriminated union for Transactions from RTDB
 type BaseTransaction = {
   id: string; // Will be added from the object key
   status: 'completed' | 'pending' | 'failed';
@@ -41,7 +41,6 @@ export type AccountTransferTransaction = BaseTransaction & {
   recipientId: string;
   recipientName: string;
   recipientPhone: string;
-
   senderBalanceAfter: number;
   senderBalanceBefore: number;
   senderId: string;
@@ -134,6 +133,5 @@ export type Region = {
   agents: Agent[];
 };
 
-// These types are based on the old mock data and might need to be updated or removed.
-export type DetailedLibyanTransaction = any;
+// This type is based on mock data and may need to be updated or removed.
 export type EgyptianTransfer = any;
