@@ -24,6 +24,7 @@ import {
   CircleDollarSign,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { FirebaseClientProvider } from "@/firebase";
 
 const navItems = [
   {
@@ -136,43 +137,45 @@ export default function DashboardLayout({
   };
 
   return (
-    <SidebarProvider>
-      <Sidebar side="right" collapsible="icon">
-        <SidebarHeader>
-          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
-            <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
-            <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
-                حولّي كاش
+    <FirebaseClientProvider>
+      <SidebarProvider>
+        <Sidebar side="right" collapsible="icon">
+          <SidebarHeader>
+            <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
+              <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
+              <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
+                  حولّي كاش
+              </div>
             </div>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navItems.map((item) => {
-              const isActive = !!pathname.match(item.match);
-              return (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
-                  <SidebarMenuButton
-                    isActive={isActive}
-                    tooltip={{ children: item.label, side: "left" }}
-                  >
-                    <item.icon className={isActive ? "" : item.color} />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            )})}
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset className="flex flex-col">
-        <PageHeader title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
-            {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {navItems.map((item) => {
+                const isActive = !!pathname.match(item.match);
+                return (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={{ children: item.label, side: "left" }}
+                    >
+                      <item.icon className={isActive ? "" : item.color} />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              )})}
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarInset className="flex flex-col">
+          <PageHeader title={getPageTitle()} />
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
+              {children}
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </FirebaseClientProvider>
   );
 }
