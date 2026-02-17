@@ -1,132 +1,199 @@
-import type { EgyptianTransfer } from "@/lib/types";
+// Base User Type from RTDB
+export type User = {
+  id: string; // Will be added from the object key
+  balanceEGP: number;
+  balanceLYD: number;
+  createdAt: number;
+  lastLogin: string;
+  lastUpdate: number;
+  name: string;
+  phone: string;
+  pin: string;
+  role: 'user' | 'admin' | string; // Can be other roles
+  status: 'active' | 'inactive' | 'banned';
+  verification: 'verified' | 'unverified' | 'pending';
+};
 
-// Get a reference date from the most recent user's lastSeen
-const now = new Date();
+// Discriminated union for Transactions from RTDB
+type BaseTransaction = {
+  id: string; // Will be added from the object key
+  status: 'completed' | 'pending' | 'failed';
+  timestamp: number;
+};
 
-export const mockEgyptianTransfers: EgyptianTransfer[] = [
-  {
-    id: "txn_eg_1",
-    userName: "محمد علي",
-    userPhone: "+218912345678",
-    transferType: "محفظة كاش",
-    sentAmount: 5000,
-    recipientNumber: "01098765432",
-    serviceFee: 50,
-    totalDeducted: 5050,
-    recipientName: "علي أحمد",
-    delegate: "مندوب 1",
-    requestTimestamp: new Date(now.getTime() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
-    status: "ناجح",
-    executionDuration: "5 دقائق",
-    receiptImageUrl: "receipt.jpg",
-  },
-  {
-    id: "txn_eg_2",
-    userName: "فاطمة حسين",
-    userPhone: "+218923456789",
-    transferType: "انستاباي",
-    sentAmount: 20000,
-    recipientNumber: "account@instapay",
-    serviceFee: 100,
-    totalDeducted: 20100,
-    recipientName: "شركة التجارة الحديثة",
-    delegate: "مندوب 2",
-    requestTimestamp: new Date(now.getTime() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
-    status: "قيد التحويل",
-    executionDuration: "-",
-  },
-  {
-    id: "txn_eg_3",
-    userName: "محمد علي",
-    userPhone: "+218912345678",
-    transferType: "وصلني البيت",
-    sentAmount: 15000,
-    recipientNumber: "01234567890",
-    serviceFee: 200,
-    totalDeducted: 15200,
-    recipientName: "سيد مصطفى",
-    delegate: "مندوب 3",
-    requestTimestamp: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    status: "ناجح",
-    executionDuration: "ساعة و 25 دقيقة",
-    receiptImageUrl: "receipt.jpg",
-  },
-  {
-    id: "txn_eg_4",
-    userName: "أحمد محمود",
-    userPhone: "+201012345678",
-    transferType: "محفظة كاش",
-    sentAmount: 750,
-    recipientNumber: "01122334455",
-    serviceFee: 10,
-    totalDeducted: 760,
-    recipientName: "هبة خالد",
-    delegate: "مندوب 1",
-    requestTimestamp: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-    status: "مرفوض",
-    executionDuration: "10 دقائق",
-  },
-  {
-    id: "txn_eg_5",
-    userName: "سارة إبراهيم",
-    userPhone: "+218911122334",
-    transferType: "انستاباي",
-    sentAmount: 50000,
-    recipientNumber: "sarah.ib@instapay",
-    serviceFee: 250,
-    totalDeducted: 50250,
-    recipientName: "سارة إبراهيم",
-    delegate: "مندوب 2",
-    requestTimestamp: new Date(now.getTime() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-    status: "ناجح",
-    executionDuration: "دقيقتان",
-    receiptImageUrl: "receipt.jpg",
-  },
-  {
-    id: "txn_eg_6",
-    userName: "خالد عبد الله",
-    userPhone: "+201123456789",
-    transferType: 'وصلني البيت',
-    sentAmount: 25000,
-    recipientNumber: '01556677889',
-    serviceFee: 300,
-    totalDeducted: 25300,
-    recipientName: 'عمر الشريف',
-    delegate: 'مندوب 3',
-    requestTimestamp: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
-    status: 'ناجح',
-    executionDuration: '3 ساعات',
-    receiptImageUrl: 'receipt.jpg',
-  },
-   {
-    id: "txn_eg_7",
-    userName: "سارة إبراهيم",
-    userPhone: "+218911122334",
-    transferType: "محفظة كاش",
-    sentAmount: 10000,
-    recipientNumber: "01011112222",
-    serviceFee: 100,
-    totalDeducted: 10100,
-    recipientName: "متجر الهدايا",
-    delegate: "مندوب 1",
-    requestTimestamp: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
-    status: "قيد التحويل",
-    executionDuration: "-",
-  },
-   {
-    id: "txn_eg_8",
-    userName: "فاطمة حسين",
-    userPhone: "+218923456789",
-    transferType: "انستاباي",
-    sentAmount: 100000,
-    recipientNumber: "supplier.egy@instapay",
-    serviceFee: 500,
-    totalDeducted: 100500,
-    recipientName: "موردين مصر",
-    delegate: "مندوب 2",
-    requestTimestamp: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-    status: "ناجح",
-    executionDuration: "15 دقيقة",
-    receiptImageUrl: "receipt.jpg",
-  }
-];
+export type RechargePurchaseTransaction = BaseTransaction & {
+  type: 'recharge_purchase';
+  amount: number;
+  balanceAfter: number;
+  balanceBefore: number;
+  cardType: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+};
+
+export type AccountTransferTransaction = BaseTransaction & {
+  type: 'account_transfer';
+  amount: number;
+  fee: number;
+  recipientBalanceAfter: number;
+  recipientBalanceBefore: number;
+  recipientId: string;
+  recipientName: string;
+  recipientPhone: string;
+  senderBalanceAfter: number;
+  senderBalanceBefore: number;
+  senderId: string;
+  senderName: string;
+  senderPhone: string;
+  totalDeduction: number;
+};
+
+// This is a more complete type for Egyptian Transfers, combining mock and real data structures.
+export type EgyptTransferTransaction = BaseTransaction & {
+  type: 'egypt_transfer';
+  // From original RTDB data
+  amountEGP: number;
+  amountLYD: number;
+  balanceEGPAfter: number;
+  balanceEGPBefore: number;
+  balanceLYDAfter: number;
+  balanceLYDBefore: number;
+  exchangeRate: number;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  // Fields from mock data that are useful
+  recipientName: string;
+  recipientNumber: string; // e.g. bank account, phone for vodafone cash etc.
+  transferType: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت';
+  serviceFee: number;
+  delegateId?: string;
+  delegateName?: string;
+  executionDuration?: string;
+  receiptImageUrl?: string;
+};
+
+export type Transaction = 
+  | RechargePurchaseTransaction 
+  | AccountTransferTransaction 
+  | EgyptTransferTransaction;
+
+// Types for Exchange Rate page
+export type ExchangeRate = {
+  id: string;
+  currencyPair: string;
+  rate: number;
+  lastUpdated: string;
+};
+
+export type ExchangeRateLog = {
+  id: string;
+  date: string;
+  modifiedBy: string;
+  oldRate: number;
+  newRate: number;
+};
+
+export type DailyRate = {
+  date: string;
+  rate: number;
+};
+
+// Types for Supervisors page
+export type Supervisor = {
+  id: string;
+  name: string;
+  phone: string;
+  canEditExchangeRate: boolean;
+  connectionStatus: 'متصل' | 'غير متصل';
+  lastSeen: string;
+  password?: string;
+  specialization: ('محفظة كاش' | 'انستاباي' | 'وصلني البيت')[];
+  status: 'نشط' | 'غير نشط';
+};
+
+// Types for Settings page
+export type RateCondition = {
+  id: string;
+  type: "amount" | "time";
+  value: number | string;
+  targetRate: number;
+  createdBy: string;
+};
+
+export type FeeTier = {
+  id: string;
+  from: number;
+  to: number;
+  fee: number;
+};
+
+export type Agent = {
+  id: string;
+  name: string;
+  phone: string;
+  address: string;
+};
+
+export type Region = {
+  id: string;
+  name: string;
+  agents: Agent[];
+};
+
+// Main settings object
+export type MainSettings = {
+    isMaintenance: boolean;
+    forceUpdate: boolean;
+    isOtpDisabled: boolean;
+    isRegistrationDisabled: boolean;
+};
+
+export type TransactionLimits = {
+    internal: {
+        unverified: { min: number, max: number },
+        verified: { min: number, max: number },
+        merchant: { min: number, max: number },
+    },
+    egypt: {
+        instapay: { min: number, max: number },
+        wallet: { min: number, max: number },
+        delivery: { min: number, max: number },
+    }
+};
+
+export type AppSettings = {
+    banners: (string | null)[];
+    supportNumbers: {
+        libyan: string;
+        egyptian: string;
+    };
+    regions: Region[];
+};
+
+export type FeeSettings = {
+    internal: FeeTier[];
+    wallet: FeeTier[];
+    instapay: FeeTier[];
+    delivery: FeeTier[];
+    internalFreeTransactions: number;
+};
+
+export type ExchangeControlSettings = {
+    mode: "manual" | "auto";
+    isOpen: boolean;
+    autoCloseThreshold: number;
+    currentRate: number;
+    autoConditionsActive: boolean;
+    conditions: RateCondition[];
+};
+
+// Unified settings type for RTDB
+export type AllSettings = {
+    main: MainSettings;
+    limits: TransactionLimits;
+    fees: FeeSettings;
+    app: AppSettings;
+    exchangeControl: ExchangeControlSettings;
+}

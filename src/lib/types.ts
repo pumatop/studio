@@ -49,8 +49,10 @@ export type AccountTransferTransaction = BaseTransaction & {
   totalDeduction: number;
 };
 
+// This is a more complete type for Egyptian Transfers, combining mock and real data structures.
 export type EgyptTransferTransaction = BaseTransaction & {
   type: 'egypt_transfer';
+  // From original RTDB data
   amountEGP: number;
   amountLYD: number;
   balanceEGPAfter: number;
@@ -59,8 +61,17 @@ export type EgyptTransferTransaction = BaseTransaction & {
   balanceLYDBefore: number;
   exchangeRate: number;
   userId: string;
-  userName:string;
+  userName: string;
   userPhone: string;
+  // Fields from mock data that are useful
+  recipientName: string;
+  recipientNumber: string; // e.g. bank account, phone for vodafone cash etc.
+  transferType: 'محفظة كاش' | 'انستاباي' | 'وصلني البيت';
+  serviceFee: number;
+  delegateId?: string;
+  delegateName?: string;
+  executionDuration?: string;
+  receiptImageUrl?: string;
 };
 
 export type Transaction = 
@@ -68,28 +79,12 @@ export type Transaction =
   | AccountTransferTransaction 
   | EgyptTransferTransaction;
 
-// Keeping other types from the original file that might be used elsewhere
+// Types for Exchange Rate page
 export type ExchangeRate = {
   id: string;
   currencyPair: string;
   rate: number;
   lastUpdated: string;
-};
-
-export type Supervisor = {
-  id: string;
-  name: string;
-  phone: string;
-  canEditExchangeRate: boolean;
-  connectionStatus: 'متصل' | 'غير متصل';
-  lastSeen: string;
-  password?: string;
-  specialization: string[];
-  dailyTransferValue: number;
-  monthlyTransferValue: number;
-  dailyOperationCount: number;
-  monthlyOperationCount: number;
-  status: 'نشط' | 'غير نشط';
 };
 
 export type ExchangeRateLog = {
@@ -105,6 +100,20 @@ export type DailyRate = {
   rate: number;
 };
 
+// Types for Supervisors page
+export type Supervisor = {
+  id: string;
+  name: string;
+  phone: string;
+  canEditExchangeRate: boolean;
+  connectionStatus: 'متصل' | 'غير متصل';
+  lastSeen: string;
+  password?: string;
+  specialization: ('محفظة كاش' | 'انستاباي' | 'وصلني البيت')[];
+  status: 'نشط' | 'غير نشط';
+};
+
+// Types for Settings page
 export type RateCondition = {
   id: string;
   type: "amount" | "time";
@@ -133,5 +142,58 @@ export type Region = {
   agents: Agent[];
 };
 
-// This type is based on mock data and may need to be updated or removed.
-export type EgyptianTransfer = any;
+// Main settings object
+export type MainSettings = {
+    isMaintenance: boolean;
+    forceUpdate: boolean;
+    isOtpDisabled: boolean;
+    isRegistrationDisabled: boolean;
+};
+
+export type TransactionLimits = {
+    internal: {
+        unverified: { min: number, max: number },
+        verified: { min: number, max: number },
+        merchant: { min: number, max: number },
+    },
+    egypt: {
+        instapay: { min: number, max: number },
+        wallet: { min: number, max: number },
+        delivery: { min: number, max: number },
+    }
+};
+
+export type AppSettings = {
+    banners: (string | null)[];
+    supportNumbers: {
+        libyan: string;
+        egyptian: string;
+    };
+    regions: Region[];
+};
+
+export type FeeSettings = {
+    internal: FeeTier[];
+    wallet: FeeTier[];
+    instapay: FeeTier[];
+    delivery: FeeTier[];
+    internalFreeTransactions: number;
+};
+
+export type ExchangeControlSettings = {
+    mode: "manual" | "auto";
+    isOpen: boolean;
+    autoCloseThreshold: number;
+    currentRate: number;
+    autoConditionsActive: boolean;
+    conditions: RateCondition[];
+};
+
+// Unified settings type for RTDB
+export type AllSettings = {
+    main: MainSettings;
+    limits: TransactionLimits;
+    fees: FeeSettings;
+    app: AppSettings;
+    exchangeControl: ExchangeControlSettings;
+}

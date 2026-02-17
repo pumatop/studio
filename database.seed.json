@@ -15,8 +15,8 @@
     "DD49588767": {
       "amount": 10,
       "fee": 1,
-      "recipientBalanceAfter": 2513.8350000000005,
-      "recipientBalanceBefore": 2503.8350000000005,
+      "recipientBalanceAfter": 2513.835,
+      "recipientBalanceBefore": 2503.835,
       "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
       "recipientName": "حساب تحريبي تجربي",
       "recipientPhone": "+201200632506",
@@ -31,10 +31,10 @@
       "type": "account_transfer"
     },
     "DG9264951": {
-      "amountEGP": 415.00000000000006,
+      "amountEGP": 415,
       "amountLYD": 50,
-      "balanceEGPAfter": 49666.56300000001,
-      "balanceEGPBefore": 49251.56300000001,
+      "balanceEGPAfter": 49666.563,
+      "balanceEGPBefore": 49251.563,
       "balanceLYDAfter": 998941,
       "balanceLYDBefore": 998991,
       "exchangeRate": 8.3,
@@ -43,15 +43,22 @@
       "type": "egypt_transfer",
       "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
       "userName": "مبارك ابراهيم ابوعيشه",
-      "userPhone": "+201030926584"
+      "userPhone": "+201030926584",
+      "recipientName": "علي أحمد",
+      "recipientNumber": "01098765432",
+      "transferType": "محفظة كاش",
+      "serviceFee": 5,
+      "delegateId": "sup_1",
+      "delegateName": "مندوب 1",
+      "executionDuration": "5 دقائق"
     }
   },
   "users": {
     "Mzzg8MinUVfInwNtvdYBVJnpbiB3": {
-      "balanceEGP": 49666.56300000001,
+      "balanceEGP": 49666.563,
       "balanceLYD": 998914,
       "createdAt": 1770150446096,
-      "lastLogin": "2026-02-03T22:27:24.722794",
+      "lastLogin": "2026-02-03T22:27:24.722Z",
       "lastUpdate": 1771161010442,
       "name": "مبارك ابراهيم ابوعيشه",
       "phone": "+201030926584",
@@ -61,10 +68,10 @@
       "verification": "verified"
     },
     "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2": {
-      "balanceEGP": 57713.86950000002,
-      "balanceLYD": 2513.8350000000005,
+      "balanceEGP": 57713.87,
+      "balanceLYD": 2513.835,
       "createdAt": 1770150446096,
-      "lastLogin": "2026-02-03T22:27:24.722794",
+      "lastLogin": "2026-02-03T22:27:24.722Z",
       "lastUpdate": 1771149588883,
       "name": "حساب تحريبي تجربي",
       "phone": "+201200632506",
@@ -72,6 +79,98 @@
       "role": "user",
       "status": "active",
       "verification": "verified"
+    }
+  },
+  "supervisors": {
+    "sup_1": {
+      "name": "مندوب 1",
+      "phone": "+201000000001",
+      "canEditExchangeRate": true,
+      "connectionStatus": "متصل",
+      "lastSeen": "2026-02-04T12:00:00.000Z",
+      "specialization": ["محفظة كاش", "انستاباي"],
+      "status": "نشط"
+    },
+    "sup_2": {
+      "name": "مندوب 2",
+      "phone": "+201000000002",
+      "canEditExchangeRate": false,
+      "connectionStatus": "غير متصل",
+      "lastSeen": "2026-02-04T10:00:00.000Z",
+      "specialization": ["انستاباي"],
+      "status": "نشط"
+    }
+  },
+  "exchangeRates": {
+    "rate_1": { "currencyPair": "LYD/EGP", "rate": 9.65, "lastUpdated": "2026-02-04T12:00:00.000Z" },
+    "rate_2": { "currencyPair": "USD/LYD", "rate": 4.85, "lastUpdated": "2026-02-02T12:00:00.000Z" }
+  },
+  "exchangeRateLogs": {
+    "log_1": { "date": "2026-01-29T12:00:00.000Z", "modifiedBy": "مشرف النظام", "oldRate": 9.60, "newRate": 9.65 }
+  },
+  "settings": {
+    "main": {
+      "isMaintenance": false,
+      "forceUpdate": false,
+      "isOtpDisabled": false,
+      "isRegistrationDisabled": false
+    },
+    "fees": {
+      "internal": [
+        { "id": "internal_1", "from": 1, "to": 1000, "fee": 1 },
+        { "id": "internal_2", "from": 1001, "to": 5000, "fee": 3 }
+      ],
+      "wallet": [
+        { "id": "wallet_1", "from": 100, "to": 10000, "fee": 20 }
+      ],
+      "instapay": [
+        { "id": "instapay_1", "from": 100, "to": 50000, "fee": 100 }
+      ],
+      "delivery": [
+        { "id": "delivery_1", "from": 1000, "to": 20000, "fee": 150 }
+      ],
+      "internalFreeTransactions": 3
+    },
+    "limits": {
+        "internal": {
+            "unverified": { "min": 10, "max": 1000 },
+            "verified": { "min": 10, "max": 5000 },
+            "merchant": { "min": 10, "max": 20000 }
+        },
+        "egypt": {
+            "instapay": { "min": 100, "max": 50000 },
+            "wallet": { "min": 100, "max": 30000 },
+            "delivery": { "min": 1000, "max": 100000 }
+        }
+    },
+    "app": {
+        "banners": [
+            "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBiYW5uZXJ8ZW58MHx8fHwxNzE2NDg3ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+            null, null, null, null
+        ],
+        "supportNumbers": {
+            "libyan": "091-0000000",
+            "egyptian": "010-00000000"
+        },
+        "regions": [
+            {
+                "id": "region_1",
+                "name": "طرابلس",
+                "agents": [
+                    { "id": "agent_1_1", "name": "وكيل الظهرة", "phone": "091-1111111", "address": "الظهرة، بجانب مقهى المدينة" }
+                ]
+            }
+        ]
+    },
+    "exchangeControl": {
+        "mode": "manual",
+        "isOpen": true,
+        "autoCloseThreshold": 1000000,
+        "currentRate": 9.65,
+        "autoConditionsActive": true,
+        "conditions": [
+            { "id": "cond_1", "type": "amount", "value": 500000, "targetRate": 9.70, "createdBy": "Admin" }
+        ]
     }
   }
 }

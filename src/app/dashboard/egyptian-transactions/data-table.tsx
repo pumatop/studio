@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Eye, FilterX, Calendar as CalendarIcon } from "lucide-react";
-import type { EgyptianTransfer } from "@/lib/types";
+import type { EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -37,17 +37,23 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
 
-const statusColors: Record<EgyptianTransfer["status"], string> = {
-  "ناجح": "bg-green-100 text-green-800",
-  "مرفوض": "bg-red-100 text-red-800",
-  "قيد التحويل": "bg-yellow-100 text-yellow-800",
+const statusColors: Record<EgyptTransferTransaction["status"], string> = {
+  "completed": "bg-green-100 text-green-800",
+  "failed": "bg-red-100 text-red-800",
+  "pending": "bg-yellow-100 text-yellow-800",
+};
+const statusMap: Record<EgyptTransferTransaction["status"], string> = {
+    "completed": "ناجح",
+    "failed": "مرفوض",
+    "pending": "قيد التحويل",
 };
 
-export function EgyptianTransfersDataTable({ initialData }: { initialData: EgyptianTransfer[] }) {
-  const [data, setData] = useState<EgyptianTransfer[]>(initialData);
+
+export function EgyptianTransfersDataTable({ initialData }: { initialData: EgyptTransferTransaction[] }) {
+  const [data, setData] = useState<EgyptTransferTransaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
   const [transferTypeFilter, setTransferTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | EgyptTransferTransaction['status']>("all");
   const [date, setDate] = useState<Date | undefined>();
 
   const { toast } = useToast();
@@ -57,7 +63,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   const filteredData = useMemo(() => {
     return data.filter(
       (item) => {
-        const itemDate = new Date(item.requestTimestamp);
+        const itemDate = new Date(item.timestamp);
         if (date) {
             const startOfDay = new Date(date);
             startOfDay.setHours(0, 0, 0, 0);
@@ -130,15 +136,15 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
             <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
           <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
             <SelectValue placeholder="حالة الطلب" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">كل الحالات</SelectItem>
-            <SelectItem value="ناجح">ناجح</SelectItem>
-            <SelectItem value="مرفوض">مرفوض</SelectItem>
-            <SelectItem value="قيد التحويل">قيد التحويل</SelectItem>
+            <SelectItem value="completed">ناجح</SelectItem>
+            <SelectItem value="failed">مرفوض</SelectItem>
+            <SelectItem value="pending">قيد التحويل</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="ghost" onClick={handleClearFilters}>
@@ -153,7 +159,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               <TableHead>رقم العملية</TableHead>
               <TableHead>اسم المستخدم</TableHead>
               <TableHead>نوع التحويل</TableHead>
-              <TableHead>المبلغ</TableHead>
+              <TableHead>المبلغ (EGP)</TableHead>
               <TableHead>اسم المستلم</TableHead>
               <TableHead>رقم المستلم</TableHead>
               <TableHead>المندوب</TableHead>
@@ -165,7 +171,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           </TableHeader>
           <TableBody>
             {filteredData.map((transfer) => (
-              <TableRow key={transfer.id} className={cn(transfer.status === 'قيد التحويل' && 'bg-yellow-50 dark:bg-yellow-500/10')}>
+              <TableRow key={transfer.id} className={cn(transfer.status === 'pending' && 'bg-yellow-50 dark:bg-yellow-500/10')}>
                 <TableCell className="text-xs">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
@@ -173,22 +179,21 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                 </TableCell>
                 <TableCell>{transfer.transferType}</TableCell>
                 <TableCell className="text-left">
-                    <div className="font-semibold">{transfer.sentAmount.toLocaleString('en-US')} ج.م</div>
+                    <div className="font-semibold">{transfer.amountEGP.toLocaleString('en-US')} ج.م</div>
                     <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
-                    <div className="text-xs text-muted-foreground">الإجمالي: {transfer.totalDeducted.toLocaleString('en-US')} ج.م</div>
                 </TableCell>
                 <TableCell className="font-medium">{transfer.recipientName}</TableCell>
                 <TableCell>{transfer.recipientNumber}</TableCell>
-                <TableCell>{transfer.delegate}</TableCell>
+                <TableCell>{transfer.delegateName || '-'}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>
-                    {transfer.status}
+                    {statusMap[transfer.status]}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transfer.requestTimestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
-                <TableCell>{transfer.executionDuration}</TableCell>
+                <TableCell className="text-xs">{new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell>{transfer.executionDuration || '-'}</TableCell>
                 <TableCell>
-                  {transfer.receiptImageUrl && transfer.status === 'ناجح' && receiptPlaceholder ? (
+                  {transfer.receiptImageUrl && transfer.status === 'completed' && receiptPlaceholder ? (
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="icon" className="h-8 w-8">

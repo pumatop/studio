@@ -1,8 +1,8 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
 import { LibyanTransactionsDataTable } from "@/app/dashboard/libyan-transactions/data-table";
-import { mockEgyptianTransfers } from "@/lib/mock-egyptian-transfers";
 import { EgyptianTransfersDataTable } from "@/app/dashboard/egyptian-transactions/data-table";
 import {
   Card,
@@ -12,10 +12,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Transaction } from "@/lib/types";
+import type { Transaction, EgyptTransferTransaction } from "@/lib/types";
 
 export default function AuditLogPage() {
   const { data: transactions, isLoading, error } = useRtdbList<Transaction>("/transactions");
+
+  const egyptianTransfers = useMemo(() => {
+    if (!transactions) return [];
+    return transactions.filter(
+      (t): t is EgyptTransferTransaction => t.type === "egypt_transfer"
+    );
+  }, [transactions]);
 
   return (
     <div className="space-y-6">
@@ -40,13 +47,22 @@ export default function AuditLogPage() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>سجل التحويلات المصرية (بيانات وهمية)</CardTitle>
+          <CardTitle>سجل التحويلات المصرية</CardTitle>
           <CardDescription>
-            عرض لجميع التحويلات المصرية المسجلة في النظام. (ملاحظة: هذه البيانات وهمية حالياً وتحتاج للربط بمصدر بيانات حقيقي).
+            عرض لجميع التحويلات المصرية المسجلة في النظام من قاعدة البيانات الحية.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EgyptianTransfersDataTable initialData={mockEgyptianTransfers} />
+           {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          ) : error ? (
+            <div className="text-red-500">Error: {error.message}</div>
+          ) : (
+            <EgyptianTransfersDataTable initialData={egyptianTransfers} />
+          )}
         </CardContent>
       </Card>
     </div>
