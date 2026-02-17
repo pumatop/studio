@@ -17,26 +17,52 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
-import { mockExchangeRateLogs } from "@/lib/mock-exchange-rate-log";
 import { ArrowDown, ArrowUp, History } from "lucide-react";
+import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ChangeLogCard() {
+  const { data: allLogs, isLoading } = useRtdbList<ExchangeRateLog>('/exchangeRateLogs');
+
   const logs = (() => {
-    if (!mockExchangeRateLogs || mockExchangeRateLogs.length === 0) {
+    if (!allLogs || allLogs.length === 0) {
       return [];
     }
     // Use the most recent log entry as the reference for "today"
     const mostRecentDate = new Date(
-      Math.max(...mockExchangeRateLogs.map(log => new Date(log.date).getTime()))
+      Math.max(...allLogs.map(log => new Date(log.date).getTime()))
     );
     const oneWeekAgo = new Date(mostRecentDate);
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    return mockExchangeRateLogs.filter(log => new Date(log.date) >= oneWeekAgo).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return allLogs
+      .filter(log => new Date(log.date) >= oneWeekAgo)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   })();
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
   };
+  
+  if (isLoading) {
+      return (
+          <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <History className="h-5 w-5" />
+                    <Skeleton className="h-6 w-32" />
+                </CardTitle>
+                <Skeleton className="h-4 w-48 mt-1" />
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2 border rounded-lg p-2">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            </CardContent>
+          </Card>
+      );
+  }
 
   return (
     <Card>
