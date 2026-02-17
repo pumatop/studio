@@ -12,10 +12,10 @@ export function updateRtdb(db: Database, path: string, data: object): Promise<vo
   return update(dbRef, data);
 }
 
-export function pushRtdb(db: Database, path: string, data: any): Promise<string | null> {
+export function pushRtdb(db: Database, path: string, data: any): Promise<{ key: string | null }> {
     const dbRef = ref(db, path);
     const newRef = push(dbRef, data);
-    return Promise.resolve(newRef.key);
+    return Promise.resolve(newRef);
 }
 
 export function removeRtdb(db: Database, path: string): Promise<void> {

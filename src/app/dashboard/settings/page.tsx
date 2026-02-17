@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -14,50 +14,45 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { PlusCircle, Trash2 } from "lucide-react";
-import type { FeeTier } from "@/lib/types";
+import type { FeeTier, TransactionLimits, FeeSettings } from "@/lib/types";
 import { AppSettingsCard } from "./app-settings-card";
 import { MainSettingsCard } from "./main-settings-card";
-
-// Initial Data
-const initialInternalFees: FeeTier[] = [
-    { id: "internal_1", from: 1, to: 1000, fee: 1 },
-    { id: "internal_2", from: 1001, to: 5000, fee: 3 },
-    { id: "internal_3", from: 5001, to: 20000, fee: 5 },
-];
-const initialWalletFees: FeeTier[] = [
-    { id: "wallet_1", from: 100, to: 10000, fee: 20 },
-    { id: "wallet_2", from: 10001, to: 30000, fee: 50 },
-];
-const initialInstapayFees: FeeTier[] = [
-    { id: "instapay_1", from: 100, to: 50000, fee: 100 },
-];
-const initialDeliveryFees: FeeTier[] = [
-    { id: "delivery_1", from: 1000, to: 20000, fee: 150 },
-    { id: "delivery_2", from: 20001, to: 100000, fee: 250 },
-];
+import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function FeeTierManager({
   title,
   description,
   currency,
   tiers,
-  setTiers,
+  onTiersChange,
   showFreeTransactionsInput = false,
+  freeTransactions,
+  onFreeTransactionsChange,
 }: {
   title: string;
   description?: string;
   currency: string;
-  tiers: FeeTier[];
-  setTiers: React.Dispatch<React.SetStateAction<FeeTier[]>>;
+  tiers: { [key: string]: FeeTier };
+  onTiersChange: (tiers: { [key: string]: FeeTier }) => void;
   showFreeTransactionsInput?: boolean;
+  freeTransactions?: number;
+  onFreeTransactionsChange?: (value: number) => void;
 }) {
-  const [freeTransactions, setFreeTransactions] = useState(3);
+
+  const tiersArray = Object.entries(tiers || {}).map(([id, tier]) => ({ ...tier, id }));
+
   const handleAddTier = () => {
-    setTiers([...tiers, { id: `tier_${Date.now()}`, from: 0, to: 0, fee: 0 }]);
+    const newId = `tier_${Date.now()}`;
+    const newTiers = { ...tiers, [newId]: { from: 0, to: 0, fee: 0 } };
+    onTiersChange(newTiers);
   };
 
   const handleDeleteTier = (id: string) => {
-    setTiers(tiers.filter((tier) => tier.id !== id));
+    const newTiers = { ...tiers };
+    delete newTiers[id];
+    onTiersChange(newTiers);
   };
 
   const handleTierChange = (
@@ -65,11 +60,9 @@ function FeeTierManager({
     field: keyof Omit<FeeTier, "id">,
     value: string
   ) => {
-    setTiers(
-      tiers.map((tier) =>
-        tier.id === id ? { ...tier, [field]: Number(value) } : tier
-      )
-    );
+    const newTiers = { ...tiers };
+    newTiers[id] = { ...newTiers[id], [field]: Number(value) };
+    onTiersChange(newTiers);
   };
 
   return (
@@ -86,14 +79,14 @@ function FeeTierManager({
                     id="free-transactions"
                     type="number"
                     value={freeTransactions}
-                    onChange={(e) => setFreeTransactions(Number(e.target.value))}
+                    onChange={(e) => onFreeTransactionsChange?.(Number(e.target.value))}
                     className="w-24"
                 />
             </div>
         )}
       </div>
       <div className="space-y-3">
-        {tiers.map((tier) => (
+        {tiersArray.map((tier) => (
           <div
             key={tier.id}
             className="flex flex-wrap items-end gap-2"
@@ -150,13 +143,70 @@ function FeeTierManager({
 }
 
 export default function SettingsPage() {
-  const [internalFees, setInternalFees] = useState(initialInternalFees);
-  const [walletFees, setWalletFees] = useState(initialWalletFees);
-  const [instapayFees, setInstapayFees] = useState(initialInstapayFees);
-  const [deliveryFees, setDeliveryFees] = useState(initialDeliveryFees);
+    const { data: limitsData, isLoading: limitsLoading } = useRtdbObject<TransactionLimits>('/settings/limits');
+    const { data: feesData, isLoading: feesLoading } = useRtdbObject<FeeSettings>('/settings/fees');
+    const { database } = useDatabase();
+    const { toast } = useToast();
+
+    const [localLimits, setLocalLimits] = useState<Partial<TransactionLimits>>({});
+    const [localFees, setLocalFees] = useState<Partial<FeeSettings>>({});
+    const [isSavingLimits, setIsSavingLimits] = useState(false);
+    const [isSavingFees, setIsSavingFees] = useState(false);
+
+    useEffect(() => {
+        if(limitsData) setLocalLimits(limitsData);
+    }, [limitsData]);
+
+    useEffect(() => {
+        if(feesData) setLocalFees(feesData);
+    }, [feesData]);
+
+    const handleLimitsChange = (path: string, value: any) => {
+        setLocalLimits(prev => {
+            const keys = path.split('.');
+            let current = prev;
+            for(let i = 0; i < keys.length - 1; i++) {
+                current = (current as any)[keys[i]];
+            }
+            (current as any)[keys[keys.length - 1]] = Number(value);
+            return {...prev};
+        })
+    };
+    
+    const handleSaveLimits = async () => {
+        setIsSavingLimits(true);
+        try {
+            await updateRtdb(database, '/settings/limits', localLimits);
+            toast({title: "تم حفظ حدود المعاملات بنجاح"});
+        } catch (error: any) {
+            toast({title: "حدث خطأ", description: error.message, variant: "destructive"});
+        } finally {
+            setIsSavingLimits(false);
+        }
+    };
+    
+    const handleSaveFees = async () => {
+        setIsSavingFees(true);
+        try {
+            await updateRtdb(database, '/settings/fees', localFees);
+            toast({title: "تم حفظ رسوم الخدمة بنجاح"});
+        } catch (error: any) {
+            toast({title: "حدث خطأ", description: error.message, variant: "destructive"});
+        } finally {
+            setIsSavingFees(false);
+        }
+    };
+    
+    const isLoading = limitsLoading || feesLoading;
 
   return (
     <div className="space-y-6">
+    {isLoading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <Skeleton className="h-[800px]" />
+            <Skeleton className="h-[800px]" />
+        </div>
+    ) : (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <Card>
           <CardHeader>
@@ -166,216 +216,64 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Internal Transfer LYD */}
             <div className="space-y-4 rounded-lg border p-4">
-              <h3 className="font-semibold text-lg">
-                التحويل الداخلي (بالدينار الليبي)
-              </h3>
+              <h3 className="font-semibold text-lg">التحويل الداخلي (بالدينار الليبي)</h3>
               <div className="space-y-4">
-                {/* Unverified User */}
                 <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">المستخدم غير الموثق</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-unverified-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-unverified-min"
-                        type="number"
-                        defaultValue="10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-unverified-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-unverified-max"
-                        type="number"
-                        defaultValue="1000"
-                      />
-                    </div>
+                    <Input value={localLimits.internal?.unverified?.min || ''} onChange={e => handleLimitsChange('internal.unverified.min', e.target.value)} type="number" />
+                    <Input value={localLimits.internal?.unverified?.max || ''} onChange={e => handleLimitsChange('internal.unverified.max', e.target.value)} type="number" />
                   </div>
                 </div>
-                {/* Verified User */}
                 <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">المستخدم الموثق</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-verified-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-verified-min"
-                        type="number"
-                        defaultValue="10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-verified-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-verified-max"
-                        type="number"
-                        defaultValue="5000"
-                      />
-                    </div>
+                    <Input value={localLimits.internal?.verified?.min || ''} onChange={e => handleLimitsChange('internal.verified.min', e.target.value)} type="number" />
+                    <Input value={localLimits.internal?.verified?.max || ''} onChange={e => handleLimitsChange('internal.verified.max', e.target.value)} type="number" />
                   </div>
                 </div>
-                {/* Merchant */}
                 <div className="rounded-lg border p-3 space-y-3">
                   <Label className="font-medium">التاجر</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-merchant-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-merchant-min"
-                        type="number"
-                        defaultValue="10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="internal-merchant-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (د.ل)
-                      </Label>
-                      <Input
-                        id="internal-merchant-max"
-                        type="number"
-                        defaultValue="20000"
-                      />
-                    </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input value={localLimits.internal?.merchant?.min || ''} onChange={e => handleLimitsChange('internal.merchant.min', e.target.value)} type="number" />
+                    <Input value={localLimits.internal?.merchant?.max || ''} onChange={e => handleLimitsChange('internal.merchant.max', e.target.value)} type="number" />
                   </div>
                 </div>
               </div>
             </div>
-
             <Separator />
-
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">
-                التحويلات إلى مصر (بالجنيه المصري)
-              </h3>
+              <h3 className="font-semibold text-lg">التحويلات إلى مصر (بالجنيه المصري)</h3>
               <div className="space-y-4">
                 <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">
-                    حدود التحويل عبر انستاباي
-                  </Label>
+                  <Label className="font-medium">حدود التحويل عبر انستاباي</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="instapay-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (ج.م)
-                      </Label>
-                      <Input
-                        id="instapay-min"
-                        type="number"
-                        defaultValue="100"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="instapay-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (ج.م)
-                      </Label>
-                      <Input
-                        id="instapay-max"
-                        type="number"
-                        defaultValue="50000"
-                      />
-                    </div>
+                    <Input value={localLimits.egypt?.instapay?.min || ''} onChange={e => handleLimitsChange('egypt.instapay.min', e.target.value)} type="number" />
+                    <Input value={localLimits.egypt?.instapay?.max || ''} onChange={e => handleLimitsChange('egypt.instapay.max', e.target.value)} type="number" />
                   </div>
                 </div>
-
                 <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">
-                    حدود التحويل عبر محفظة كاش
-                  </Label>
+                  <Label className="font-medium">حدود التحويل عبر محفظة كاش</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="wallet-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (ج.م)
-                      </Label>
-                      <Input id="wallet-min" type="number" defaultValue="100" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="wallet-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (ج.م)
-                      </Label>
-                      <Input id="wallet-max" type="number" defaultValue="30000" />
-                    </div>
+                     <Input value={localLimits.egypt?.wallet?.min || ''} onChange={e => handleLimitsChange('egypt.wallet.min', e.target.value)} type="number" />
+                     <Input value={localLimits.egypt?.wallet?.max || ''} onChange={e => handleLimitsChange('egypt.wallet.max', e.target.value)} type="number" />
                   </div>
                 </div>
-
                 <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">
-                    حدود التحويل عبر وصلني البيت
-                  </Label>
+                  <Label className="font-medium">حدود التحويل عبر وصلني البيت</Label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="delivery-min"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأدنى (ج.م)
-                      </Label>
-                      <Input
-                        id="delivery-min"
-                        type="number"
-                        defaultValue="1000"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="delivery-max"
-                        className="text-sm text-muted-foreground"
-                      >
-                        الحد الأقصى (ج.م)
-                      </Label>
-                      <Input
-                        id="delivery-max"
-                        type="number"
-                        defaultValue="100000"
-                      />
-                    </div>
+                    <Input value={localLimits.egypt?.delivery?.min || ''} onChange={e => handleLimitsChange('egypt.delivery.min', e.target.value)} type="number" />
+                    <Input value={localLimits.egypt?.delivery?.max || ''} onChange={e => handleLimitsChange('egypt.delivery.max', e.target.value)} type="number" />
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button>حفظ التغييرات</Button>
+            <Button onClick={handleSaveLimits} disabled={isSavingLimits}>
+                {isSavingLimits ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+            </Button>
           </CardFooter>
         </Card>
 
@@ -391,40 +289,43 @@ export default function SettingsPage() {
               title="التحويل الداخلي"
               description="(الرسوم لا تطبق على حسابات التجار)"
               currency="د.ل"
-              tiers={internalFees}
-              setTiers={setInternalFees}
+              tiers={localFees.internal || {}}
+              onTiersChange={(tiers) => setLocalFees(p => ({...p, internal: tiers}))}
               showFreeTransactionsInput={true}
+              freeTransactions={localFees.internalFreeTransactions || 0}
+              onFreeTransactionsChange={(val) => setLocalFees(p => ({...p, internalFreeTransactions: val}))}
             />
             <Separator />
             <div className="space-y-4">
-              <h3 className="font-semibold text-lg">
-                رسوم الخدمات (بالجنيه المصري)
-              </h3>
+              <h3 className="font-semibold text-lg">رسوم الخدمات (بالجنيه المصري)</h3>
               <FeeTierManager
                 title="محفظة كاش"
                 currency="ج.م"
-                tiers={walletFees}
-                setTiers={setWalletFees}
+                tiers={localFees.wallet || {}}
+                onTiersChange={(tiers) => setLocalFees(p => ({...p, wallet: tiers}))}
               />
               <FeeTierManager
                 title="انستاباي"
                 currency="ج.م"
-                tiers={instapayFees}
-                setTiers={setInstapayFees}
+                tiers={localFees.instapay || {}}
+                onTiersChange={(tiers) => setLocalFees(p => ({...p, instapay: tiers}))}
               />
               <FeeTierManager
                 title="وصلني البيت"
                 currency="ج.م"
-                tiers={deliveryFees}
-                setTiers={setDeliveryFees}
+                tiers={localFees.delivery || {}}
+                onTiersChange={(tiers) => setLocalFees(p => ({...p, delivery: tiers}))}
               />
             </div>
           </CardContent>
           <CardFooter>
-            <Button>حفظ رسوم الخدمة</Button>
+            <Button onClick={handleSaveFees} disabled={isSavingFees}>
+                {isSavingFees ? 'جاري الحفظ...' : 'حفظ رسوم الخدمة'}
+            </Button>
           </CardFooter>
         </Card>
       </div>
+    )}
       <AppSettingsCard />
       <MainSettingsCard />
     </div>

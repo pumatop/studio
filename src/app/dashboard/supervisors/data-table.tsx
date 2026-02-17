@@ -36,6 +36,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useRtdbList, useDatabase, setRtdb, updateRtdb } from "@/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const connectionStatusColors: Record<Supervisor["connectionStatus"], string> = {
@@ -52,9 +54,11 @@ const statusColors: Record<Supervisor["status"], string> = {
 function SupervisorForm({
   supervisor,
   onSave,
+  isSaving,
 }: {
   supervisor?: Supervisor;
-  onSave: (s: Supervisor) => void;
+  onSave: (s: Partial<Supervisor>) => void;
+  isSaving: boolean;
 }) {
   const [formData, setFormData] = useState<Partial<Supervisor>>(
     supervisor || {
@@ -67,7 +71,7 @@ function SupervisorForm({
     }
   );
 
-  const specializations: string[] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
+  const specializations: Supervisor['specialization'] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -84,25 +88,16 @@ function SupervisorForm({
     setFormData(prev => {
         const prevSpecs = prev.specialization || [];
         if (checked) {
-            return { ...prev, specialization: [...prevSpecs, spec] };
+            return { ...prev, specialization: [...prevSpecs, spec] as Supervisor['specialization'] };
         } else {
-            return { ...prev, specialization: prevSpecs.filter(s => s !== spec) };
+            return { ...prev, specialization: prevSpecs.filter(s => s !== spec) as Supervisor['specialization'] };
         }
     });
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you wouldn't do this. Mocking derived data.
-    const mockExtraData = {
-        lastSeen: new Date().toISOString(),
-        connectionStatus: 'متصل',
-        dailyOperationCount: supervisor?.dailyOperationCount || 0,
-        monthlyOperationCount: supervisor?.monthlyOperationCount || 0,
-        dailyTransferValue: supervisor?.dailyTransferValue || 0,
-        monthlyTransferValue: supervisor?.monthlyTransferValue || 0,
-    }
-    onSave({...mockExtraData, ...formData} as Supervisor);
+    onSave(formData);
   };
 
   return (
@@ -110,17 +105,17 @@ function SupervisorForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
             <Label htmlFor="name">الاسم</Label>
-            <Input id="name" name="name" value={formData.name || ""} onChange={handleChange} required />
+            <Input id="name" name="name" value={formData.name || ""} onChange={handleChange} required disabled={isSaving} />
         </div>
         <div className="space-y-2">
             <Label htmlFor="phone">رقم الهاتف</Label>
-            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} required />
+            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} required disabled={isSaving}/>
         </div>
       </div>
        <div className="space-y-2">
             <Label htmlFor="password">كلمة المرور</Label>
             <div className="relative">
-                <Input id="password" name="password" type="password" value={formData.password || ""} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : "••••••••"} />
+                <Input id="password" name="password" type="password" value={formData.password || ""} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : "••••••••"} disabled={isSaving} />
                 <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
       </div>
@@ -134,6 +129,7 @@ function SupervisorForm({
                             id={`spec-${spec}`}
                             checked={formData.specialization?.includes(spec)}
                             onCheckedChange={(checked) => handleSpecializationChange(spec, !!checked)}
+                             disabled={isSaving}
                         />
                         <Label htmlFor={`spec-${spec}`} className="font-normal">{spec}</Label>
                     </div>
@@ -142,81 +138,118 @@ function SupervisorForm({
         </div>
         <div className="space-y-2">
             <Label htmlFor="status">حالة الحساب</Label>
-            <select id="status" name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border rounded-md bg-background h-10 text-sm">
-                <option value="نشط">نشط</option>
-                <option value="غير نشط">غير نشط</option>
-            </select>
+            <Select name="status" value={formData.status} onValueChange={(v) => setFormData(p => ({...p, status: v as any}))} disabled={isSaving}>
+                <SelectTrigger>
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="نشط">نشط</SelectItem>
+                    <SelectItem value="غير نشط">غير نشط</SelectItem>
+                </SelectContent>
+            </Select>
         </div>
       </div>
       <div className="flex items-center justify-between rounded-lg border p-3">
           <div className="space-y-0.5">
               <Label htmlFor="canEditExchangeRate">السماح بتعديل سعر الصرف</Label>
           </div>
-          <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} />
+          <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} disabled={isSaving} />
       </div>
 
       <DialogFooter>
         <DialogClose asChild>
-            <Button type="button" variant="secondary">إلغاء</Button>
+            <Button type="button" variant="secondary" disabled={isSaving}>إلغاء</Button>
         </DialogClose>
-        <Button type="submit">حفظ</Button>
+        <Button type="submit" disabled={isSaving}>{isSaving ? "جاري الحفظ..." : "حفظ"}</Button>
       </DialogFooter>
     </form>
   );
 }
 
-export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[] }) {
-  const [data, setData] = useState<Supervisor[]>(initialData);
+export function SupervisorsDataTable() {
+  const { data: supervisors, isLoading } = useRtdbList<Supervisor>("/supervisors");
+  const { database } = useDatabase();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const { toast } = useToast();
 
   const [specializationFilter, setSpecializationFilter] = useState("all");
-  const [canEditRateFilter, setCanEditRateFilter] = useState("all");
-  const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
 
   const filteredData = useMemo(() => {
-    return data.filter(
+    if (!supervisors) return [];
+    return supervisors.filter(
       (item) =>
         (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.phone.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (specializationFilter === "all" || item.specialization.includes(specializationFilter)) &&
-        (canEditRateFilter === 'all' || (canEditRateFilter === 'مسموح' && item.canEditExchangeRate) || (canEditRateFilter === 'ممنوع' && !item.canEditExchangeRate)) &&
-        (connectionStatusFilter === "all" || item.connectionStatus === connectionStatusFilter) &&
+        (specializationFilter === "all" || item.specialization?.includes(specializationFilter as any)) &&
         (statusFilter === "all" || item.status === statusFilter)
     );
-  }, [data, searchTerm, specializationFilter, canEditRateFilter, connectionStatusFilter, statusFilter]);
+  }, [supervisors, searchTerm, specializationFilter, statusFilter]);
   
-  const handleSave = (supervisor: Supervisor) => {
-    if(editingSupervisor) {
-        // Edit
-        setData(data.map(d => d.id === editingSupervisor.id ? {...d, ...supervisor} : d));
-        toast({ title: "تم تحديث البيانات بنجاح" });
-    } else {
-        // Add
-        const newSupervisor = {...supervisor, id: `sup_${Date.now()}`};
-        setData([newSupervisor, ...data]);
-        toast({ title: "تمت إضافة مستخدم بنجاح" });
+  const handleSave = async (supervisorData: Partial<Supervisor>) => {
+    setIsSaving(true);
+    try {
+        if (editingSupervisor) {
+            const path = `/supervisors/${editingSupervisor.id}`;
+            await updateRtdb(database, path, supervisorData);
+            toast({ title: "تم تحديث البيانات بنجاح" });
+        } else {
+            const newId = `sup_${Date.now()}`;
+            const path = `/supervisors/${newId}`;
+            const newSupervisorData = {
+                ...supervisorData,
+                connectionStatus: 'غير متصل',
+                lastSeen: new Date().toISOString(),
+            };
+            await setRtdb(database, path, newSupervisorData);
+            toast({ title: "تمت إضافة مستخدم بنجاح" });
+        }
+        setDialogOpen(false);
+        setEditingSupervisor(undefined);
+    } catch(error: any) {
+        toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
     }
-    setDialogOpen(false);
-    setEditingSupervisor(undefined);
   };
   
-  const handleKick = (id: string) => {
-      setData(data.map(d => d.id === id ? {...d, status: 'غير نشط'} : d));
-      toast({ title: "تم طرد المستخدم", variant: 'destructive' });
+  const handleKick = async (id: string) => {
+    if (!window.confirm("هل أنت متأكد من تعطيل هذا الحساب؟")) return;
+      try {
+        await updateRtdb(database, `/supervisors/${id}`, { status: 'غير نشط' });
+        toast({ title: "تم تعطيل حساب المستخدم" });
+      } catch(e: any) {
+        toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
+      }
   }
 
   const handleClearFilters = () => {
     setSearchTerm("");
     setSpecializationFilter("all");
-    setCanEditRateFilter("all");
-    setConnectionStatusFilter("all");
     setStatusFilter("all");
   };
+  
+  if (isLoading) {
+    return (
+       <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+            <Skeleton className="h-10 w-full max-w-xs" />
+            <Skeleton className="h-10 w-[150px]" />
+            <Skeleton className="h-10 w-[150px]" />
+            <Skeleton className="h-10 w-[100px]" />
+        </div>
+        <div className="rounded-lg border p-4 space-y-2">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -229,7 +262,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
               className="max-w-xs"
             />
             <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">كل التخصصات</SelectItem>
                     <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -238,7 +271,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">الكل</SelectItem>
                     <SelectItem value="نشط">نشط</SelectItem>
@@ -250,9 +283,12 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
               مسح
             </Button>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if(!open) setEditingSupervisor(undefined);
+            setDialogOpen(open);
+        }}>
             <DialogTrigger asChild>
-                <Button onClick={() => setEditingSupervisor(undefined)} className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto">
                     <PlusCircle className="ml-2 h-4 w-4" />
                     إضافة مستخدم
                 </Button>
@@ -261,7 +297,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 <DialogHeader>
                     <DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
                 </DialogHeader>
-                <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} />
+                <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
             </DialogContent>
         </Dialog>
       </div>
@@ -285,7 +321,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                     <div className="font-medium">{supervisor.name}</div>
                     <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell">{supervisor.specialization.length === 3 ? 'الكل' : supervisor.specialization.join(', ')}</TableCell>
+                <TableCell className="hidden lg:table-cell">{supervisor.specialization?.join(', ') || 'غير محدد'}</TableCell>
                  <TableCell className="hidden md:table-cell text-center">
                     {supervisor.canEditExchangeRate ? <CheckCircle className="text-green-500 mx-auto"/> : <XCircle className="text-red-500 mx-auto"/>}
                  </TableCell>
@@ -319,7 +355,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'} className="text-destructive">
                         <UserX className="ml-2 h-4 w-4"/>
-                        <span>طرد</span>
+                        <span>تعطيل</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

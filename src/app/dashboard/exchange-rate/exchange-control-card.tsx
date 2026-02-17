@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import type { RateCondition } from "@/lib/types";
+import type { RateCondition, ExchangeControlSettings } from "@/lib/types";
 import { Clock, DollarSign, PlusCircle, Trash2 } from "lucide-react";
 import {
   Dialog,
@@ -29,9 +29,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-// Mock Data for initial conditions
-const initialConditions: RateCondition[] = [];
+import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
     const [type, setType] = useState<'amount' | 'time'>('amount');
@@ -41,7 +40,6 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!value || !targetRate) {
-          // Basic validation
           return;
         }
         onSave({
@@ -105,44 +103,78 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 
 
 export function ExchangeControlCard() {
+  const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
+  const { database, user } = useDatabase();
   const { toast } = useToast();
-  const [exchangeStatusMode, setExchangeStatusMode] = useState<"manual" | "auto">("manual");
-  const [isExchangeOpen, setExchangeOpen] = useState(true);
-  const [autoCloseThreshold, setAutoCloseThreshold] = useState(1000000);
-  const [currentRate, setCurrentRate] = useState(9.65);
-  const [conditions, setConditions] = useState<RateCondition[]>(initialConditions);
+
+  const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings>>({});
   const [isFormOpen, setFormOpen] = useState(false);
   const [serverTime, setServerTime] = useState(new Date());
-  const [autoConditionsActive, setAutoConditionsActive] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  useEffect(() => {
+    if (settings) {
+      setLocalSettings(settings);
+    }
+  }, [settings]);
 
   useEffect(() => {
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
 
+  const handleSettingChange = (key: keyof ExchangeControlSettings, value: any) => {
+    setLocalSettings(prev => ({...prev, [key]: value}));
+  };
 
   const handleAddCondition = (condition: Omit<RateCondition, 'id' | 'createdBy'>) => {
     const newCondition: RateCondition = {
         ...condition,
         id: `cond_${Date.now()}`,
-        createdBy: 'أنت' // Mocked user
+        createdBy: user?.displayName || 'Admin'
     };
-    setConditions(prev => [...prev, newCondition]);
+    
+    const currentConditions = localSettings.conditions ? 
+        Object.values(localSettings.conditions) : 
+        [];
+    
+    const newConditionsList = [...currentConditions, newCondition];
+    const newConditionsObject = newConditionsList.reduce((acc, cond) => {
+        acc[cond.id] = cond;
+        return acc;
+    }, {} as {[key: string]: RateCondition});
+
+    handleSettingChange('conditions', newConditionsObject);
     toast({ title: "تم إضافة الشرط بنجاح" });
     setFormOpen(false);
   };
 
   const handleDeleteCondition = (id: string) => {
-    setConditions(prev => prev.filter(c => c.id !== id));
+    if (!localSettings.conditions) return;
+    const newConditions = {...localSettings.conditions};
+    delete newConditions[id];
+    handleSettingChange('conditions', newConditions);
     toast({ title: "تم حذف الشرط", variant: 'destructive' });
   }
 
-  const handleSave = () => {
-    toast({
-      title: "تم حفظ الإعدادات",
-      description: "تم تحديث إعدادات سعر الصرف بنجاح.",
-    });
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+        await updateRtdb(database, '/settings/exchangeControl', localSettings);
+        toast({
+          title: "تم حفظ الإعدادات",
+          description: "تم تحديث إعدادات سعر الصرف بنجاح.",
+        });
+    } catch (error: any) {
+        toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
+    }
   };
+
+  if (isLoading) {
+    return <Skeleton className="h-[700px] w-full" />
+  }
 
   return (
     <Card className="h-full flex flex-col">
@@ -159,15 +191,15 @@ export function ExchangeControlCard() {
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-base">حالة الصرف</h3>
               <Badge
-                  variant={isExchangeOpen ? "default" : "destructive"}
-                  className={isExchangeOpen ? "bg-green-100 text-green-800 hover:bg-green-200" : "bg-red-100 text-red-800 hover:bg-red-200"}
+                  variant={localSettings.isOpen ? "default" : "destructive"}
+                  className={localSettings.isOpen ? "bg-green-100 text-green-800 hover:bg-green-200" : "bg-red-100 text-red-800 hover:bg-red-200"}
               >
-                  {isExchangeOpen ? "مفتوح" : "مغلق"}
+                  {localSettings.isOpen ? "مفتوح" : "مغلق"}
               </Badge>
             </div>
              <RadioGroup
-                value={exchangeStatusMode}
-                onValueChange={(v: "manual" | "auto") => setExchangeStatusMode(v)}
+                value={localSettings.mode}
+                onValueChange={(v: "manual" | "auto") => handleSettingChange('mode', v)}
                 className="flex gap-4"
             >
                 <div className="flex items-center space-x-2 space-x-reverse">
@@ -180,28 +212,28 @@ export function ExchangeControlCard() {
                 </div>
             </RadioGroup>
 
-            {exchangeStatusMode === 'manual' && (
+            {localSettings.mode === 'manual' && (
                  <div className="flex items-center justify-between rounded-lg border p-4 animate-in fade-in-0 duration-300">
                     <div>
                         <Label htmlFor="exchange-status" className="font-semibold">فتح/غلق الصرف يدوي</Label>
                     </div>
                     <Switch
                         id="exchange-status"
-                        checked={isExchangeOpen}
-                        onCheckedChange={setExchangeOpen}
+                        checked={localSettings.isOpen}
+                        onCheckedChange={(checked) => handleSettingChange('isOpen', checked)}
                         aria-label="Toggle exchange status"
                         className="data-[state=checked]:bg-green-600"
                     />
                 </div>
             )}
-             {exchangeStatusMode === 'auto' && (
+             {localSettings.mode === 'auto' && (
                 <div className="space-y-2 animate-in fade-in-0 duration-300">
                     <Label htmlFor="auto-close-threshold">إغلاق الصرف عند وصول التداول إلى جنيه مصري</Label>
                     <Input
                         id="auto-close-threshold"
                         type="number"
-                        value={autoCloseThreshold}
-                        onChange={(e) => setAutoCloseThreshold(parseInt(e.target.value, 10))}
+                        value={localSettings.autoCloseThreshold}
+                        onChange={(e) => handleSettingChange('autoCloseThreshold', parseInt(e.target.value, 10))}
                     />
                 </div>
             )}
@@ -221,10 +253,10 @@ export function ExchangeControlCard() {
             <Input
               id="current-rate"
               type="number"
-              value={currentRate}
-              onChange={(e) => setCurrentRate(parseFloat(e.target.value))}
+              value={localSettings.currentRate || 0}
+              onChange={(e) => handleSettingChange('currentRate', parseFloat(e.target.value))}
               className="text-lg font-bold pl-16 text-left"
-              step="0.01"
+              step="0.001"
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
               ج.م
@@ -243,8 +275,8 @@ export function ExchangeControlCard() {
                 </div>
                 <Switch
                     id="auto-conditions-switch"
-                    checked={autoConditionsActive}
-                    onCheckedChange={setAutoConditionsActive}
+                    checked={localSettings.autoConditionsActive}
+                    onCheckedChange={(checked) => handleSettingChange('autoConditionsActive', checked)}
                     className="data-[state=checked]:bg-green-600"
                 />
             </div>
@@ -253,7 +285,7 @@ export function ExchangeControlCard() {
                  <h3 className="font-semibold text-base">شروط التغيير التلقائي للسعر</h3>
                  <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!autoConditionsActive}>
+                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive}>
                             <PlusCircle className="ml-2 h-4 w-4" />
                             إضافة شرط
                         </Button>
@@ -267,9 +299,11 @@ export function ExchangeControlCard() {
                  </Dialog>
             </div>
             
-            <div className={cn("space-y-2 transition-opacity", !autoConditionsActive && "opacity-50 pointer-events-none")}>
-                {conditions.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">لا توجد شروط حالياً.</p>}
-                {conditions.map(condition => (
+            <div className={cn("space-y-2 transition-opacity", !localSettings.autoConditionsActive && "opacity-50 pointer-events-none")}>
+                {!localSettings.conditions || Object.keys(localSettings.conditions).length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">لا توجد شروط حالياً.</p>
+                ) : (
+                    Object.values(localSettings.conditions).map(condition => (
                     <div key={condition.id} className="flex items-center justify-between rounded-lg border p-3">
                        <div className="flex items-center gap-3">
                             {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-muted-foreground" /> : <Clock className="h-5 w-5 text-muted-foreground" />}
@@ -288,14 +322,14 @@ export function ExchangeControlCard() {
                             <span className="sr-only">حذف الشرط</span>
                        </Button>
                     </div>
-                ))}
+                )))}
             </div>
         </div>
 
       </CardContent>
       <CardFooter>
-        <Button onClick={handleSave} className="w-full">
-          حفظ الإعدادات
+        <Button onClick={handleSave} className="w-full" disabled={isSaving}>
+          {isSaving ? "جاري الحفظ..." : "حفظ الإعدادات"}
         </Button>
       </CardFooter>
     </Card>

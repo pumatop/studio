@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -12,21 +12,35 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ShieldOff, Smartphone, UserPlus, Wrench } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import type { MainSettings } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function MainSettingsCard() {
+  const { data: settings, isLoading } = useRtdbObject<MainSettings>('/settings/main');
+  const { database } = useDatabase();
   const { toast } = useToast();
-  const [isMaintenance, setMaintenance] = useState(false);
-  const [forceUpdate, setForceUpdate] = useState(false);
-  const [isOtpDisabled, setOtpDisabled] = useState(false);
-  const [isRegistrationDisabled, setRegistrationDisabled] = useState(false);
-
-  const handleSettingChange = (settingName: string, value: boolean) => {
-    // A mock handler to show a toast
-    toast({
-      title: "تم تحديث الإعدادات",
-      description: `${settingName} الآن في وضع ${value ? "التفعيل" : "الإيقاف"}.`,
-    });
+  
+  const handleSettingChange = async (settingName: keyof MainSettings, value: boolean, label: string) => {
+    try {
+        await updateRtdb(database, '/settings/main', { [settingName]: value });
+        toast({
+          title: "تم تحديث الإعدادات",
+          description: `${label} الآن في وضع ${value ? "التفعيل" : "الإيقاف"}.`,
+        });
+    } catch(error: any) {
+        toast({ title: "حدث خطأ", description: error.message, variant: 'destructive' });
+    }
   };
+
+  if (isLoading) {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <Skeleton className="h-60" />
+            <Skeleton className="h-60" />
+        </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -50,10 +64,9 @@ export function MainSettingsCard() {
             </div>
             <Switch
               id="maintenance-mode"
-              checked={isMaintenance}
+              checked={settings?.isMaintenance || false}
               onCheckedChange={(checked) => {
-                setMaintenance(checked);
-                handleSettingChange("وضع الصيانة", checked);
+                handleSettingChange("isMaintenance", checked, "وضع الصيانة");
               }}
               className="data-[state=checked]:bg-destructive"
             />
@@ -70,10 +83,9 @@ export function MainSettingsCard() {
             </div>
             <Switch
               id="force-update"
-              checked={forceUpdate}
+              checked={settings?.forceUpdate || false}
               onCheckedChange={(checked) => {
-                setForceUpdate(checked);
-                handleSettingChange("التحديث الإجباري", checked);
+                handleSettingChange("forceUpdate", checked, "التحديث الإجباري");
               }}
             />
           </div>
@@ -99,10 +111,9 @@ export function MainSettingsCard() {
             </div>
             <Switch
               id="otp-verification"
-              checked={isOtpDisabled}
+              checked={settings?.isOtpDisabled || false}
               onCheckedChange={(checked) => {
-                setOtpDisabled(checked);
-                handleSettingChange("إيقاف التحقق (OTP)", checked);
+                handleSettingChange("isOtpDisabled", checked, "إيقاف التحقق (OTP)");
               }}
                className="data-[state=checked]:bg-orange-500"
             />
@@ -119,10 +130,9 @@ export function MainSettingsCard() {
             </div>
             <Switch
               id="disable-registration"
-              checked={isRegistrationDisabled}
+              checked={settings?.isRegistrationDisabled || false}
               onCheckedChange={(checked) => {
-                setRegistrationDisabled(checked);
-                handleSettingChange("تعطيل التسجيل", checked);
+                handleSettingChange("isRegistrationDisabled", checked, "تعطيل التسجيل");
               }}
                className="data-[state=checked]:bg-destructive"
             />

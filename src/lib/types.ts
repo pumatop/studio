@@ -9,7 +9,7 @@ export type User = {
   name: string;
   phone: string;
   pin: string;
-  role: 'user' | 'admin' | string; // Can be other roles
+  role: 'user' | 'admin';
   status: 'active' | 'inactive' | 'banned';
   verification: 'verified' | 'unverified' | 'pending';
 };
@@ -90,6 +90,7 @@ export type ExchangeRateLog = {
   modifiedBy: string;
   oldRate: number;
   newRate: number;
+  currencyPair: string;
 };
 
 export type DailyRate = {
@@ -120,23 +121,20 @@ export type RateCondition = {
 };
 
 export type FeeTier = {
-  id: string;
   from: number;
   to: number;
   fee: number;
 };
 
 export type Agent = {
-  id: string;
   name: string;
   phone: string;
   address: string;
 };
 
 export type Region = {
-  id: string;
   name: string;
-  agents: Agent[];
+  agents: { [key: string]: Agent };
 };
 
 // Main settings object from RTDB
@@ -166,14 +164,14 @@ export type AppSettings = {
         libyan: string;
         egyptian: string;
     };
-    regions: Region[];
+    regions: { [key: string]: Region };
 };
 
 export type FeeSettings = {
-    internal: FeeTier[];
-    wallet: FeeTier[];
-    instapay: FeeTier[];
-    delivery: FeeTier[];
+    internal: { [key: string]: FeeTier };
+    wallet: { [key: string]: FeeTier };
+    instapay: { [key: string]: FeeTier };
+    delivery: { [key: string]: FeeTier };
     internalFreeTransactions: number;
 };
 
@@ -183,7 +181,7 @@ export type ExchangeControlSettings = {
     autoCloseThreshold: number;
     currentRate: number;
     autoConditionsActive: boolean;
-    conditions: RateCondition[];
+    conditions: { [key: string]: RateCondition };
 };
 
 // Unified settings type for RTDB

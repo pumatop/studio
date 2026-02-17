@@ -42,12 +42,11 @@ import {
   UserX,
   Wallet,
   ShieldCheck,
-  LogOut,
   FilterX,
   Pencil,
   MoreHorizontal,
 } from "lucide-react";
-import type { User } from "@/lib/types";
+import type { User, Transaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -58,7 +57,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useDatabase, updateRtdb, useRtdbList } from "@/firebase";
+import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
 
 
 const verificationStatusMap: Record<User["verification"], string> = {
@@ -80,12 +80,21 @@ const statusMap: Record<User["status"], string> = {
 };
 
 
-function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void }) {
-    if (!user) return null;
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: () => void }) {
     const { toast } = useToast();
+    const { database } = useDatabase();
     
     const [isEditingName, setIsEditingName] = useState(false);
-    const [name, setName] = useState(user.name);
+    const [name, setName] = useState(user?.name || "");
+    const {data: allTransactions, isLoading} = useRtdbList<Transaction>('/transactions');
+
+    const userTransactions = useMemo(() => {
+        if (!user || !allTransactions) return [];
+        return allTransactions.filter(t => {
+            if (t.type === 'account_transfer') return t.senderId === user.id || t.recipientId === user.id;
+            return t.userId === user.id;
+        });
+    }, [user, allTransactions]);
 
     useEffect(() => {
         if (user) {
@@ -93,8 +102,8 @@ function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, op
         }
     }, [user]);
 
-    const handleNameSave = () => {
-        if (name.trim() === '') {
+    const handleNameSave = async () => {
+        if (!user || name.trim() === '') {
             toast({
                 title: "خطأ",
                 description: "اسم المستخدم لا يمكن أن يكون فارغاً.",
@@ -102,25 +111,30 @@ function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, op
             });
             return;
         }
-        // Here you would call a function to update the name in the database
-        toast({ title: "تم تحديث اسم المستخدم بنجاح (محاكاة)" });
-        // To reflect the change visually, you'd need to pass an update function from the parent
-        setIsEditingName(false);
+        try {
+            await updateRtdb(database, `/users/${user.id}`, { name: name });
+            toast({ title: "تم تحديث اسم المستخدم بنجاح" });
+            onUserUpdate(); // Callback to refetch or update parent state
+        } catch (e: any) {
+            toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
+        } finally {
+            setIsEditingName(false);
+        }
     }
 
     const handleCancelEdit = () => {
         setIsEditingName(false);
-        setName(user.name);
+        if (user) setName(user.name);
     }
+    
+    if (!user) return null;
 
     return (
         <Dialog open={open} onOpenChange={(o) => {
-            if (!o) {
-                setIsEditingName(false);
-            }
+            if (!o) setIsEditingName(false);
             onOpenChange(o);
         }}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-5xl">
                 <DialogHeader>
                     {isEditingName ? (
                         <div className="flex items-center gap-2">
@@ -137,7 +151,7 @@ function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, op
                             </Button>
                         </div>
                     )}
-                    <DialogDescription>تفاصيل المستخدم الكاملة</DialogDescription>
+                    <DialogDescription>تفاصيل المستخدم الكاملة وسجل معاملاته</DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
                     {/* Column 1: Balances & Personal Info */}
@@ -166,18 +180,18 @@ function UserDetailsDialog({ user, open, onOpenChange }: { user: User | null, op
 
                     {/* Column 2: History & Security */}
                     <div className="md:col-span-2 space-y-4">
-                        <Tabs defaultValue="transactions">
-                            <TabsList className="grid w-full grid-cols-1">
-                                <TabsTrigger value="transactions">سجل العمليات</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value="transactions">
-                                <Card>
-                                    <CardContent className="pt-6">
-                                        <p className="text-center text-muted-foreground text-sm">لم يتم ربط سجل العمليات بعد.</p>
-                                    </CardContent>
-                                </Card>
-                            </TabsContent>
-                        </Tabs>
+                         <Card>
+                            <CardHeader>
+                                <CardTitle>سجل العمليات</CardTitle>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                                {isLoading ? <p>جاري تحميل العمليات...</p> : 
+                                    userTransactions.length > 0 ?
+                                    <LibyanTransactionsDataTable initialData={userTransactions} /> :
+                                    <p className="text-center text-muted-foreground text-sm">لا توجد معاملات لهذا المستخدم.</p>
+                                }
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </DialogContent>
@@ -192,6 +206,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
+  const { database } = useDatabase();
   
   const [roleFilter, setRoleFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
@@ -213,25 +228,35 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     );
   }, [data, searchTerm, roleFilter, verificationFilter, statusFilter]);
   
-  const handleToggleBan = (userId: string) => {
-      // This is a mock update. In a real app, you would update the database.
-      setData(data.map(user => {
-          if (user.id === userId) {
-              const newStatus = user.status === 'active' ? 'banned' : 'active';
-              toast({ 
-                  title: newStatus === 'banned' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
-                  description: `حالة ${user.name} الآن: ${statusMap[newStatus]}`,
-                  variant: newStatus === 'banned' ? 'destructive' : 'default',
-              });
-              return { ...user, status: newStatus };
-          }
-          return user;
-      }));
+  const handleToggleBan = async (userId: string, currentStatus: User['status']) => {
+      const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+      const userName = data.find(u => u.id === userId)?.name || '';
+      
+      if (!window.confirm(`هل أنت متأكد من ${newStatus === 'banned' ? 'حظر' : 'رفع الحظر عن'} ${userName}؟`)) return;
+
+      try {
+          await updateRtdb(database, `/users/${userId}`, { status: newStatus });
+          toast({ 
+              title: newStatus === 'banned' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
+              description: `حالة ${userName} الآن: ${statusMap[newStatus]}`,
+              variant: newStatus === 'banned' ? 'destructive' : 'default',
+          });
+          // Optimistic update
+          setData(prev => prev.map(user => user.id === userId ? {...user, status: newStatus} : user));
+      } catch (e: any) {
+          toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
+      }
   }
 
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
       setDetailsOpen(true);
+  }
+  
+  const handleUserUpdate = () => {
+    // This could be a refetch, but for now we just close the dialog
+    // A more robust solution might involve a global state management or context to trigger refetch
+    setDetailsOpen(false); 
   }
 
   const handleClearFilters = () => {
@@ -333,7 +358,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                         <Eye className="ml-2 h-4 w-4" />
                         <span>تفاصيل</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleToggleBan(user.id)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
+                      <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
                         {user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
                         <span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span>
                       </DropdownMenuItem>
@@ -345,7 +370,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
-       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} />
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} />
     </div>
   );
 }

@@ -1,37 +1,21 @@
 {
     "rules": {
+        ".read": "auth != null",
+        ".write": "auth != null",
         "users": {
-            ".read": "auth != null",
-            ".indexOn": ["phone", "role", "status", "verification"],
-            "$uid": {
-                ".write": "auth != null && auth.uid == $uid"
-            }
+            ".indexOn": ["phone", "role", "status", "verification"]
         },
         "transactions": {
-            ".read": "auth != null",
-            ".indexOn": ["userId", "senderId", "type", "delegateId"],
-            "$transactionId": {
-                ".write": false
-            }
+            ".indexOn": ["userId", "senderId", "type", "delegateId"]
         },
         "supervisors": {
-            ".read": "auth != null",
-            ".indexOn": ["status", "connectionStatus"],
-             "$supervisorId": {
-                ".write": false
-            }
-        },
-        "settings": {
-            ".read": "auth != null",
-            ".write": false
+            ".indexOn": ["status", "connectionStatus"]
         },
         "exchangeRates": {
-            ".read": "auth != null",
-            ".write": false
+            ".indexOn": ["currencyPair"]
         },
         "exchangeRateLogs": {
-            ".read": "auth != null",
-            ".write": false
+            ".indexOn": ["date"]
         }
     }
 }

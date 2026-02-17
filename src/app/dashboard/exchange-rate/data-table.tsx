@@ -29,17 +29,22 @@ import {
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import type { ExchangeRate } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useRtdbList, setRtdb, updateRtdb, removeRtdb, pushRtdb, useDatabase, useUser } from "@/firebase";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function ExchangeRateForm({
   rate,
   onSave,
+  isSaving,
 }: {
   rate?: ExchangeRate;
-  onSave: (r: ExchangeRate) => void;
+  onSave: (r: Omit<ExchangeRate, 'id' | 'lastUpdated'>) => void;
+  isSaving: boolean;
 }) {
   const [formData, setFormData] = useState<Partial<ExchangeRate>>(
     rate || {
-      lastUpdated: new Date().toISOString(),
+      currencyPair: "",
+      rate: 0,
     }
   );
 
@@ -47,12 +52,16 @@ function ExchangeRateForm({
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const isNumber = e.target.type === 'number';
+    setFormData((prev) => ({ ...prev, [name]: isNumber ? parseFloat(value) : value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData as ExchangeRate);
+    if (!formData.currencyPair || !formData.rate) {
+      return;
+    }
+    onSave(formData as Omit<ExchangeRate, 'id' | 'lastUpdated'>);
   };
 
   return (
@@ -65,6 +74,7 @@ function ExchangeRateForm({
           onChange={handleChange}
           required
           placeholder="e.g. USD/LYD"
+          disabled={isSaving}
         />
       </div>
       <div>
@@ -72,55 +82,105 @@ function ExchangeRateForm({
         <Input
           name="rate"
           type="number"
-          step="0.0001"
+          step="0.001"
           value={formData.rate || ""}
           onChange={handleChange}
           required
+          disabled={isSaving}
         />
       </div>
       <DialogFooter>
         <DialogClose asChild>
-            <Button type="button" variant="secondary">إلغاء</Button>
+            <Button type="button" variant="secondary" disabled={isSaving}>إلغاء</Button>
         </DialogClose>
-        <Button type="submit">حفظ</Button>
+        <Button type="submit" disabled={isSaving}>
+            {isSaving ? 'جاري الحفظ...' : 'حفظ'}
+        </Button>
       </DialogFooter>
     </form>
   );
 }
 
-export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRate[] }) {
-  const [data, setData] = useState<ExchangeRate[]>(initialData);
+export function ExchangeRateDataTable() {
+  const { data: rates, isLoading } = useRtdbList<ExchangeRate>('/exchangeRates');
+  const { database } = useDatabase();
+  const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editingRate, setEditingRate] = useState<ExchangeRate | undefined>(undefined);
   const { toast } = useToast();
 
   const filteredData = useMemo(() => {
-    return data.filter(
+    if (!rates) return [];
+    return rates.filter(
       (item) =>
         item.currencyPair.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [data, searchTerm]);
+  }, [rates, searchTerm]);
   
-  const handleSave = (rate: ExchangeRate) => {
-    const finalRate = { ...rate, lastUpdated: new Date().toISOString() };
-    if(editingRate) {
-        // Edit
-        setData(data.map(d => d.id === editingRate.id ? {...d, ...finalRate} : d));
-        toast({ title: "تم التحديث بنجاح" });
-    } else {
-        // Add
-        const newRate = {...finalRate, id: `rate_${Date.now()}`};
-        setData([newRate, ...data]);
-        toast({ title: "تمت الإضافة بنجاح" });
+  const handleSave = async (rateData: Omit<ExchangeRate, 'id' | 'lastUpdated'>) => {
+    setIsSaving(true);
+    try {
+        const rateId = editingRate ? editingRate.id : rateData.currencyPair.replace('/', '_');
+        const path = `/exchangeRates/${rateId}`;
+        const finalData = { 
+            ...rateData, 
+            lastUpdated: new Date().toISOString() 
+        };
+
+        if (editingRate) {
+            // Log the change
+            const logPath = '/exchangeRateLogs';
+            const newLog = {
+                date: new Date().toISOString(),
+                modifiedBy: user?.displayName || 'Admin',
+                oldRate: editingRate.rate,
+                newRate: finalData.rate,
+                currencyPair: finalData.currencyPair,
+            };
+            await pushRtdb(database, logPath, newLog);
+            // Update the rate
+            await setRtdb(database, path, finalData);
+            toast({ title: "تم التحديث بنجاح" });
+        } else {
+            // Add new rate
+            await setRtdb(database, path, finalData);
+            toast({ title: "تمت الإضافة بنجاح" });
+        }
+
+        setDialogOpen(false);
+        setEditingRate(undefined);
+    } catch (error: any) {
+        toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
+    } finally {
+        setIsSaving(false);
     }
-    setDialogOpen(false);
-    setEditingRate(undefined);
   };
   
-  const handleDelete = (id: string) => {
-      setData(data.filter(d => d.id !== id));
-      toast({ title: "تم الحذف بنجاح", variant: 'destructive' });
+  const handleDelete = async (id: string) => {
+      if (!window.confirm("هل أنت متأكد من حذف سعر الصرف هذا؟")) return;
+      try {
+          await removeRtdb(database, `/exchangeRates/${id}`);
+          toast({ title: "تم الحذف بنجاح", variant: 'destructive' });
+      } catch (error: any) {
+          toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
+      }
+  }
+
+  if (isLoading) {
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center justify-between">
+                <Skeleton className="h-10 w-full max-w-sm" />
+                <Skeleton className="h-10 w-28" />
+            </div>
+            <div className="rounded-lg border p-2 space-y-2">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+        </div>
+    );
   }
 
   return (
@@ -132,9 +192,12 @@ export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRa
           onChange={(e) => setSearchTerm(e.target.value)}
           className="max-w-sm"
         />
-        <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) setEditingRate(undefined);
+            setDialogOpen(open);
+        }}>
             <DialogTrigger asChild>
-                <Button onClick={() => setEditingRate(undefined)}>
+                <Button>
                     <PlusCircle className="ml-2 h-4 w-4" />
                     إضافة سعر
                 </Button>
@@ -143,7 +206,7 @@ export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRa
                 <DialogHeader>
                     <DialogTitle>{editingRate ? 'تعديل السعر' : 'إضافة سعر جديد'}</DialogTitle>
                 </DialogHeader>
-                <ExchangeRateForm onSave={handleSave} rate={editingRate} />
+                <ExchangeRateForm onSave={handleSave} rate={editingRate} isSaving={isSaving} />
             </DialogContent>
         </Dialog>
       </div>
@@ -163,7 +226,7 @@ export function ExchangeRateDataTable({ initialData }: { initialData: ExchangeRa
             {filteredData.map((rate) => (
               <TableRow key={rate.id}>
                 <TableCell className="font-medium">{rate.currencyPair}</TableCell>
-                <TableCell>{rate.rate}</TableCell>
+                <TableCell>{rate.rate.toFixed(3)}</TableCell>
                 <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
                 <TableCell>
                   <DropdownMenu>

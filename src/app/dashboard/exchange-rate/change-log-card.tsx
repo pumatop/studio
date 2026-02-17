@@ -20,24 +20,20 @@ import type { ExchangeRateLog } from "@/lib/types";
 import { ArrowDown, ArrowUp, History } from "lucide-react";
 import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 
 export function ChangeLogCard() {
   const { data: allLogs, isLoading } = useRtdbList<ExchangeRateLog>('/exchangeRateLogs');
 
-  const logs = (() => {
+  const logs = useMemo(() => {
     if (!allLogs || allLogs.length === 0) {
       return [];
     }
-    // Use the most recent log entry as the reference for "today"
-    const mostRecentDate = new Date(
-      Math.max(...allLogs.map(log => new Date(log.date).getTime()))
-    );
-    const oneWeekAgo = new Date(mostRecentDate);
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    return allLogs
-      .filter(log => new Date(log.date) >= oneWeekAgo)
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  })();
+    return [...allLogs]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 10); // Show last 10 changes
+  }, [allLogs]);
+
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
@@ -71,14 +67,15 @@ export function ChangeLogCard() {
             <History className="h-5 w-5" />
             <span>سجل التغيرات</span>
         </CardTitle>
-        <CardDescription>التغييرات التي تمت على سعر الصرف في آخر أسبوع.</CardDescription>
+        <CardDescription>آخر التغييرات التي تمت على أسعار الصرف.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[200px]">التاريخ</TableHead>
+              <TableHead className="w-[150px]">التاريخ</TableHead>
+              <TableHead>زوج العملات</TableHead>
               <TableHead>المُعدِّل</TableHead>
               <TableHead className="text-center">السعر القديم</TableHead>
               <TableHead className="text-center">السعر الجديد</TableHead>
@@ -93,16 +90,16 @@ export function ChangeLogCard() {
                 <TableRow key={log.id}>
                   <TableCell>
                     {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
-                      year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
                   </TableCell>
+                  <TableCell className="font-medium">{log.currencyPair}</TableCell>
                   <TableCell className="font-medium">{log.modifiedBy}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(2)}</TableCell>
-                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(2)}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(3)}</TableCell>
+                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(3)}</TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
@@ -117,7 +114,7 @@ export function ChangeLogCard() {
                       ) : (
                         <ArrowDown className="h-3 w-3" />
                       )}
-                      <span>{difference.toFixed(2)}</span>
+                      <span>{difference.toFixed(3)}</span>
                     </Badge>
                   </TableCell>
                 </TableRow>
