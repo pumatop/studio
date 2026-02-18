@@ -34,6 +34,12 @@ import {
 } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Eye,
   UserCheck,
   UserX,
@@ -63,6 +69,7 @@ import {
 } from "@/components/ui/select";
 import { useDatabase, updateRtdb, useRtdbList } from "@/firebase";
 import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
+import { EgyptianTransfersDataTable } from "../egyptian-transactions/data-table";
 
 const verificationStatusColors: Record<User["verification"], string> = {
   "verified": "bg-green-100 text-green-800",
@@ -88,6 +95,11 @@ const statusMap: Record<User["status"], string> = {
     "banned": "محظور",
 };
 
+const connectionStatusColors: Record<User["connectionStatus"], string> = {
+    "متصل": "bg-green-100 text-green-800",
+    "غير متصل": "bg-stone-100 text-stone-800",
+};
+
 
 function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
     if (!user) return null;
@@ -106,6 +118,13 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         return allTransactions.filter(t => 
             (t.type === 'account_transfer' && (t.senderId === user.id || t.recipientId === user.id)) ||
             (t.type === 'egypt_transfer' && t.userId === user.id)
+        ).filter(t => t.type !== 'recharge_purchase');
+    }, [user, allTransactions]);
+    
+    const userEgyptianTransactions = useMemo(() => {
+        if (!user || !allTransactions) return [];
+        return allTransactions.filter((t): t is EgyptTransferTransaction => 
+            t.type === 'egypt_transfer' && t.userId === user.id
         );
     }, [user, allTransactions]);
 
@@ -210,8 +229,8 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                                 <div className="grid grid-cols-2 gap-2">
                                     <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
                                     <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
-                                    <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'admin' : 'user')}>
-                                        <UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'Admin' : 'User'}
+                                    <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'merchant' : 'user')}>
+                                        <UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'تاجر' : 'مستخدم'}
                                     </Button>
                                 </div>
                             </CardContent>
@@ -229,26 +248,42 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                                 <div className="flex justify-between"><span>آخر تحديث:</span> <span>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</span></div>
                                 <div className="flex justify-between"><span>آخر تسجيل دخول:</span> <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
                                 <Separator className="my-2" />
-                                <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{'iPhone 14 Pro'}</span></div>
-                                <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{'iOS 17.2'}</span></div>
-                                <div className="flex justify-between"><span>عنوان IP:</span> <span>{'192.168.1.1'}</span></div>
+                                <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{user.activeDevice}</span></div>
+                                <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{user.phoneOS}</span></div>
+                                <div className="flex justify-between"><span>عنوان IP:</span> <span>{user.ipAddress}</span></div>
                             </CardContent>
                             <CardFooter>
                                 <Button variant="destructive" className="w-full" onClick={handleLogoutAll}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button>
                             </CardFooter>
                         </Card>
-                         <Card>
-                            <CardHeader>
-                                <CardTitle>سجل العمليات المالية</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-0">
-                                {transactionsLoading ? <p>جاري تحميل العمليات...</p> : 
-                                    userFinancialTransactions.length > 0 ?
-                                    <LibyanTransactionsDataTable initialData={userFinancialTransactions} /> :
-                                    <p className="text-center text-muted-foreground text-sm">لا توجد معاملات لهذا المستخدم.</p>
-                                }
-                            </CardContent>
-                        </Card>
+                         <Tabs defaultValue="libyan">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger>
+                                <TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="libyan">
+                                <Card>
+                                    <CardContent className="pt-6">
+                                       {transactionsLoading ? <p>جاري تحميل العمليات...</p> : 
+                                            userFinancialTransactions.length > 0 ?
+                                            <LibyanTransactionsDataTable initialData={userFinancialTransactions} /> :
+                                            <p className="text-center text-muted-foreground text-sm">لا توجد معاملات ليبية لهذا المستخدم.</p>
+                                        }
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                             <TabsContent value="egyptian">
+                                <Card>
+                                    <CardContent className="pt-6">
+                                        {transactionsLoading ? <p>جاري تحميل العمليات...</p> : 
+                                            userEgyptianTransactions.length > 0 ?
+                                            <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> :
+                                            <p className="text-center text-muted-foreground text-sm">لا توجد تحويلات مصرية لهذا المستخدم.</p>
+                                        }
+                                    </CardContent>
+                                </Card>
+                            </TabsContent>
+                        </Tabs>
                     </div>
                 </div>
             </DialogContent>
@@ -266,6 +301,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const { database } = useDatabase();
   
   const [roleFilter, setRoleFilter] = useState("all");
+  const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   
@@ -280,10 +316,11 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
         (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.phone.includes(searchTerm)) &&
         (roleFilter === 'all' || user.role === roleFilter) &&
+        (connectionStatusFilter === 'all' || user.connectionStatus === connectionStatusFilter) &&
         (verificationFilter === 'all' || user.verification === verificationFilter) &&
         (statusFilter === 'all' || user.status === statusFilter)
     );
-  }, [data, searchTerm, roleFilter, verificationFilter, statusFilter]);
+  }, [data, searchTerm, roleFilter, verificationFilter, statusFilter, connectionStatusFilter]);
   
   const handleToggleBan = async (userId: string, currentStatus: User['status']) => {
       const newStatus = currentStatus === 'active' ? 'banned' : 'active';
@@ -302,6 +339,15 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
       } catch (e: any) {
           toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
       }
+  }
+    
+  const handleVerification = async (userId: string, newStatus: User['verification']) => {
+    try {
+        await updateRtdb(database, `/users/${userId}`, { verification: newStatus });
+        toast({ title: "حالة التوثيق تم تحديثها" });
+    } catch(e: any) {
+        toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
+    }
   }
   
   const handleUserUpdate = (userId: string, updates: Partial<User>) => {
@@ -322,6 +368,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
 
   const handleClearFilters = () => {
     setRoleFilter("all");
+    setConnectionStatusFilter("all");
     setVerificationFilter("all");
     setStatusFilter("all");
     setSearchTerm("");
@@ -340,12 +387,24 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="الدور" />
+                <SelectValue placeholder="النوع" />
             </SelectTrigger>
             <SelectContent>
-                <SelectItem value="all">كل الأدوار</SelectItem>
-                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="all">كل الأنواع</SelectItem>
+                <SelectItem value="user">مستخدم</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="merchant">تاجر</SelectItem>
+            </SelectContent>
+        </Select>
+
+        <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                <SelectValue placeholder="حالة الاتصال" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">كل حالات الاتصال</SelectItem>
+                <SelectItem value="متصل">متصل</SelectItem>
+                <SelectItem value="غير متصل">غير متصل</SelectItem>
             </SelectContent>
         </Select>
 
@@ -382,9 +441,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             <TableRow>
               <TableHead>الاسم</TableHead>
               <TableHead className="hidden sm:table-cell">رقم الهاتف</TableHead>
-              <TableHead className="hidden md:table-cell">الدور</TableHead>
-              <TableHead className="hidden lg:table-cell">حالة الحساب</TableHead>
-              <TableHead className="hidden xl:table-cell">آخر تحديث</TableHead>
+              <TableHead className="hidden md:table-cell">النوع</TableHead>
+              <TableHead>الحالة</TableHead>
+              <TableHead className="hidden lg:table-cell">اخر ظهور</TableHead>
               <TableHead>التوثيق</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
@@ -395,12 +454,13 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                 <TableCell className="font-medium">{user.name}</TableCell>
                 <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
                 <TableCell className="hidden md:table-cell">{user.role}</TableCell>
-                <TableCell className="hidden lg:table-cell">
-                   <Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>
-                        {statusMap[user.status] || user.status}
-                   </Badge>
+                <TableCell>
+                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
+                    <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
+                    {user.connectionStatus}
+                  </Badge>
                 </TableCell>
-                <TableCell className="hidden xl:table-cell">{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
+                <TableCell className="hidden lg:table-cell">{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
                 <TableCell>
                   <Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>
                       {verificationStatusMap[user.verification] || user.verification}
@@ -420,7 +480,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                         <span>تفاصيل</span>
                       </DropdownMenuItem>
                        {user.verification === 'pending' && (
-                        <DropdownMenuItem onClick={() => handleVerification('verified')} className="text-blue-600 focus:text-blue-600">
+                        <DropdownMenuItem onClick={() => handleVerification(user.id, 'verified')} className="text-blue-600 focus:text-blue-600">
                             <ShieldCheck className="ml-2 h-4 w-4" />
                             <span>توثيق الحساب</span>
                         </DropdownMenuItem>
