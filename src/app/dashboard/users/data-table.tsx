@@ -316,13 +316,18 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   }
   
   const handleUserUpdate = async (userId: string, updates: Partial<User>) => {
-    await updateRtdb(database, `/users/${userId}`, updates);
-    // The useRtdbList hook will handle the UI update automatically.
-    // We update the selected user for the dialog to re-render if it's open.
-    if (selectedUser && selectedUser.id === userId) {
-      setSelectedUser(prev => prev ? {...prev, ...updates} : null);
+    try {
+        await updateRtdb(database, `/users/${userId}`, updates);
+        // The useRtdbList hook will handle the UI update automatically.
+        // We update the selected user for the dialog to re-render if it's open.
+        if (selectedUser && selectedUser.id === userId) {
+          setSelectedUser(prev => prev ? {...prev, ...updates} : null);
+        }
+    } catch(e: any) {
+        toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
     }
   };
+
 
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
@@ -429,7 +434,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       {user.verificationStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="space-x-1 text-left rtl:space-x-reverse">
+                <TableCell className="text-left">
                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
