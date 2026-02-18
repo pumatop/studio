@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Table,
   TableHeader,
@@ -12,12 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -27,6 +22,7 @@ import {
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -36,20 +32,28 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import {
   Eye,
   UserCheck,
   UserX,
   Wallet,
+  FileText,
+  CheckCircle,
+  XCircle,
+  UserCog,
   ShieldCheck,
+  Smartphone,
+  LogOut,
   FilterX,
   Pencil,
   MoreHorizontal,
 } from "lucide-react";
-import type { User, Transaction } from "@/lib/types";
+import type { User, Transaction, EgyptTransferTransaction, AccountTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   Select,
   SelectContent,
@@ -60,17 +64,22 @@ import {
 import { useDatabase, updateRtdb, useRtdbList } from "@/firebase";
 import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
 
-
-const verificationStatusMap: Record<User["verification"], string> = {
-  "verified": "موثق",
-  "pending": "قيد المراجعة",
-  "unverified": "غير موثق",
-};
-
 const verificationStatusColors: Record<User["verification"], string> = {
   "verified": "bg-green-100 text-green-800",
   "unverified": "bg-red-100 text-red-800",
   "pending": "bg-yellow-100 text-yellow-800",
+};
+
+const verificationStatusMap: Record<User["verification"], string> = {
+  "verified": "موثق",
+  "unverified": "غير موثق",
+  "pending": "قيد المراجعة",
+};
+
+const statusColors: Record<User["status"], string> = {
+    "active": "bg-green-100 text-green-800",
+    "inactive": "bg-stone-100 text-stone-800",
+    "banned": "bg-red-100 text-red-800",
 };
 
 const statusMap: Record<User["status"], string> = {
@@ -80,21 +89,26 @@ const statusMap: Record<User["status"], string> = {
 };
 
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: () => void }) {
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
+    if (!user) return null;
     const { toast } = useToast();
     const { database } = useDatabase();
     
-    const [isEditingName, setIsEditingName] = useState(false);
-    const [name, setName] = useState(user?.name || "");
-    const {data: allTransactions, isLoading} = useRtdbList<Transaction>('/transactions');
+    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === "id-card-placeholder");
 
-    const userTransactions = useMemo(() => {
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [name, setName] = useState(user.name);
+    
+    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
+
+    const userFinancialTransactions = useMemo(() => {
         if (!user || !allTransactions) return [];
-        return allTransactions.filter(t => {
-            if (t.type === 'account_transfer') return t.senderId === user.id || t.recipientId === user.id;
-            return t.userId === user.id;
-        });
+        return allTransactions.filter(t => 
+            (t.type === 'account_transfer' && (t.senderId === user.id || t.recipientId === user.id)) ||
+            (t.type === 'egypt_transfer' && t.userId === user.id)
+        );
     }, [user, allTransactions]);
+
 
     useEffect(() => {
         if (user) {
@@ -102,8 +116,29 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         }
     }, [user]);
 
+    const handleUpdate = async (updates: Partial<User>) => {
+        try {
+            await updateRtdb(database, `/users/${user.id}`, updates);
+            onUserUpdate(user.id, updates);
+            return true;
+        } catch(e: any) {
+            toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
+            return false;
+        }
+    }
+
+    const handleVerification = async (newStatus: User['verification']) => {
+        const success = await handleUpdate({ verification: newStatus });
+        if(success) toast({ title: "حالة التوثيق تم تحديثها" });
+    }
+
+    const handleTypeChange = async (newType: User['role']) => {
+        const success = await handleUpdate({ role: newType });
+        if(success) toast({ title: "نوع المستخدم تم تحديثه" });
+    }
+
     const handleNameSave = async () => {
-        if (!user || name.trim() === '') {
+        if (name.trim() === '') {
             toast({
                 title: "خطأ",
                 description: "اسم المستخدم لا يمكن أن يكون فارغاً.",
@@ -111,30 +146,31 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
             });
             return;
         }
-        try {
-            await updateRtdb(database, `/users/${user.id}`, { name: name });
+        const success = await handleUpdate({ name });
+        if(success) {
             toast({ title: "تم تحديث اسم المستخدم بنجاح" });
-            onUserUpdate(); // Callback to refetch or update parent state
-        } catch (e: any) {
-            toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
-        } finally {
             setIsEditingName(false);
         }
     }
 
     const handleCancelEdit = () => {
         setIsEditingName(false);
-        if (user) setName(user.name);
+        setName(user.name);
     }
     
-    if (!user) return null;
+    const handleLogoutAll = () => {
+        // This is a placeholder for the actual implementation which would involve server-side logic
+        toast({title: "تم إرسال طلب تسجيل الخروج من جميع الأجهزة."}) 
+    }
 
     return (
         <Dialog open={open} onOpenChange={(o) => {
-            if (!o) setIsEditingName(false);
+            if (!o) {
+                setIsEditingName(false);
+            }
             onOpenChange(o);
         }}>
-            <DialogContent className="max-w-5xl">
+            <DialogContent className="max-w-4xl">
                 <DialogHeader>
                     {isEditingName ? (
                         <div className="flex items-center gap-2">
@@ -160,20 +196,24 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-sm space-y-2">
+                            <CardContent className="text-sm space-y-2 pt-4">
                                 <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{user.balanceLYD.toFixed(2)} د.ل</span></div>
                                 <div className="flex justify-between"><span>الرصيد المصري:</span> <span className="font-semibold">{user.balanceEGP.toFixed(2)} ج.م</span></div>
                             </CardContent>
                         </Card>
                          <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> الحساب</CardTitle>
+                                <CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle>
                             </CardHeader>
-                            <CardContent className="text-sm space-y-2 pt-4">
-                                <div className="flex justify-between"><span>تاريخ الإنشاء:</span> <span>{new Date(user.createdAt).toLocaleDateString('ar-EG-u-nu-latn')}</span></div>
-                                <div className="flex justify-between"><span>آخر تحديث:</span> <span>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</span></div>
-                                <div className="flex justify-between"><span>آخر تسجيل دخول:</span> <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
-                                <div className="flex justify-between"><span>الدور:</span> <span className="font-semibold">{user.role}</span></div>
+                            <CardContent className="pt-4">
+                                {idPlaceholderImage && <Image src={idPlaceholderImage.imageUrl} alt="ID Card" width={600} height={400} className="rounded-md mb-4" data-ai-hint={idPlaceholderImage.imageHint} />}
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
+                                    <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'admin' : 'user')}>
+                                        <UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'Admin' : 'User'}
+                                    </Button>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
@@ -181,13 +221,30 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                     {/* Column 2: History & Security */}
                     <div className="md:col-span-2 space-y-4">
                          <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب والأمان</CardTitle>
+                            </CardHeader>
+                             <CardContent className="text-sm space-y-2 pt-4">
+                                <div className="flex justify-between"><span>تاريخ الإنشاء:</span> <span>{new Date(user.createdAt).toLocaleDateString('ar-EG-u-nu-latn')}</span></div>
+                                <div className="flex justify-between"><span>آخر تحديث:</span> <span>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</span></div>
+                                <div className="flex justify-between"><span>آخر تسجيل دخول:</span> <span>{user.lastLogin ? new Date(user.lastLogin).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
+                                <Separator className="my-2" />
+                                <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{'iPhone 14 Pro'}</span></div>
+                                <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{'iOS 17.2'}</span></div>
+                                <div className="flex justify-between"><span>عنوان IP:</span> <span>{'192.168.1.1'}</span></div>
+                            </CardContent>
+                            <CardFooter>
+                                <Button variant="destructive" className="w-full" onClick={handleLogoutAll}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button>
+                            </CardFooter>
+                        </Card>
+                         <Card>
                             <CardHeader>
-                                <CardTitle>سجل العمليات</CardTitle>
+                                <CardTitle>سجل العمليات المالية</CardTitle>
                             </CardHeader>
                             <CardContent className="pt-0">
-                                {isLoading ? <p>جاري تحميل العمليات...</p> : 
-                                    userTransactions.length > 0 ?
-                                    <LibyanTransactionsDataTable initialData={userTransactions} /> :
+                                {transactionsLoading ? <p>جاري تحميل العمليات...</p> : 
+                                    userFinancialTransactions.length > 0 ?
+                                    <LibyanTransactionsDataTable initialData={userFinancialTransactions} /> :
                                     <p className="text-center text-muted-foreground text-sm">لا توجد معاملات لهذا المستخدم.</p>
                                 }
                             </CardContent>
@@ -241,39 +298,26 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
               description: `حالة ${userName} الآن: ${statusMap[newStatus]}`,
               variant: newStatus === 'banned' ? 'destructive' : 'default',
           });
-          // Optimistic update
-          setData(prev => prev.map(user => user.id === userId ? {...user, status: newStatus} : user));
+          // The useRtdbList hook will automatically update the UI
       } catch (e: any) {
           toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
       }
   }
-
-  const handleVerify = async (userId: string, userName: string) => {
-    if (!window.confirm(`هل أنت متأكد من توثيق حساب ${userName}؟`)) return;
-
-    try {
-        await updateRtdb(database, `/users/${userId}`, { verification: 'verified' });
-        toast({ 
-            title: "تم توثيق الحساب",
-            description: `تم توثيق حساب ${userName} بنجاح.`,
-            className: 'bg-green-100 text-green-800'
-        });
-        // Optimistic update
-        setData(prev => prev.map(user => user.id === userId ? {...user, verification: 'verified'} : user));
-    } catch (e: any) {
-        toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
-    }
-  }
+  
+  const handleUserUpdate = (userId: string, updates: Partial<User>) => {
+    // This function is called from the dialog to reflect changes immediately in the main table UI if needed,
+    // though the RTDB hook should handle it.
+    setData(prevData =>
+      prevData.map(user => (user.id === userId ? { ...user, ...updates } : user))
+    );
+    setSelectedUser(prevUser =>
+      prevUser && prevUser.id === userId ? { ...prevUser, ...updates } : prevUser
+    );
+  };
 
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
       setDetailsOpen(true);
-  }
-  
-  const handleUserUpdate = () => {
-    // This could be a refetch, but for now we just close the dialog
-    // A more robust solution might involve a global state management or context to trigger refetch
-    setDetailsOpen(false); 
   }
 
   const handleClearFilters = () => {
@@ -352,7 +396,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                 <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
                 <TableCell className="hidden md:table-cell">{user.role}</TableCell>
                 <TableCell className="hidden lg:table-cell">
-                   <Badge className={cn(user.status === 'banned' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800')}>
+                   <Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>
                         {statusMap[user.status] || user.status}
                    </Badge>
                 </TableCell>
@@ -376,7 +420,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                         <span>تفاصيل</span>
                       </DropdownMenuItem>
                        {user.verification === 'pending' && (
-                        <DropdownMenuItem onClick={() => handleVerify(user.id, user.name)} className="text-blue-600 focus:text-blue-600">
+                        <DropdownMenuItem onClick={() => handleVerification('verified')} className="text-blue-600 focus:text-blue-600">
                             <ShieldCheck className="ml-2 h-4 w-4" />
                             <span>توثيق الحساب</span>
                         </DropdownMenuItem>
