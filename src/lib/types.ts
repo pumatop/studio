@@ -1,18 +1,28 @@
 // Base User Type from RTDB
+
 export type User = {
-  id: string; // Will be added from the object key
-  balanceEGP: number;
-  balanceLYD: number;
-  createdAt: number;
+  id: string;
+  balanceEgyptian: number;
+  balanceLibyan: number;
+  balanceEgyptianPending: number;
+  accountOpenDate: number;
   lastLogin: string;
-  lastUpdate: number;
+  lastSeen: number;
   name: string;
   phone: string;
   pin: string;
-  role: 'user' | 'admin';
-  status: 'active' | 'inactive' | 'banned';
-  verification: 'verified' | 'unverified' | 'pending';
+  type: 'مستخدم' | 'تاجر' | 'admin';
+  status: 'نشط' | 'محظور';
+  verificationStatus: 'موثق' | 'غير موثق' | 'قيد المراجعة';
+  connectionStatus: 'متصل' | 'غير متصل';
+  activeDevice?: string;
+  phoneOS?: string;
+  ipAddress?: string;
+  idImageUrl?: string;
+  lastPasswordChange?: number;
+  lastPinChange?: number;
 };
+
 
 // Discriminated union for Transactions from RTDB
 type BaseTransaction = {
