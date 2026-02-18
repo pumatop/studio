@@ -125,7 +125,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                 <TableCell>{transfer.transferType}</TableCell>
                 <TableCell className="text-left">
                     <div className="font-semibold">{transfer.amountEGP.toLocaleString('en-US')} ج.م</div>
-                    <div className="text-xs text-muted-foreground">الرسوم: {transfer.serviceFee.toLocaleString('en-US')} ج.م</div>
+                    <div className="text-xs text-muted-foreground">الرسوم: {(transfer.serviceFee || 0).toLocaleString('en-US')} ج.م</div>
                 </TableCell>
                 <TableCell className="font-medium">{transfer.recipientName}</TableCell>
                 <TableCell>{transfer.recipientNumber}</TableCell>
