@@ -2,18 +2,18 @@
 
 export type User = {
   id: string;
-  balanceEgyptian: number;
-  balanceLibyan: number;
+  balanceEGP: number;
+  balanceLYD: number;
   balanceEgyptianPending: number;
-  accountOpenDate: number;
+  createdAt: number;
   lastLogin: string;
-  lastSeen: number;
+  lastUpdate: number;
   name: string;
   phone: string;
   pin: string;
-  type: 'مستخدم' | 'تاجر' | 'admin';
-  status: 'نشط' | 'محظور';
-  verificationStatus: 'موثق' | 'غير موثق' | 'قيد المراجعة';
+  role: 'admin' | 'user' | 'merchant';
+  status: 'active' | 'banned';
+  verification: 'verified' | 'unverified' | 'pending';
   connectionStatus: 'متصل' | 'غير متصل';
   activeDevice?: string;
   phoneOS?: string;

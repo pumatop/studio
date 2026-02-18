@@ -117,8 +117,8 @@ export default function DashboardPage() {
     const startOfMonth = new Date(todayDate.getFullYear(), selectedMonth - 1, 1);
     const endOfMonth = new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
 
-    const totalLibyanBalance = usersData.reduce((sum, user) => sum + user.balanceLibyan, 0);
-    const totalEgyptianBalance = usersData.reduce((sum, user) => sum + user.balanceEgyptian, 0);
+    const totalLibyanBalance = usersData.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
+    const totalEgyptianBalance = usersData.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
 
     const lydToEgpTransactions = transactionsData.filter(
         (t): t is EgyptTransferTransaction => t.type === "egypt_transfer" && t.status === "completed"
@@ -142,7 +142,7 @@ export default function DashboardPage() {
     };
 
     const totalUsers = usersData.length;
-    const pendingVerificationUsers = usersData.filter(u => u.verificationStatus === "قيد المراجعة").length;
+    const pendingVerificationUsers = usersData.filter(u => u.verification === "pending").length;
     
     const cardTransactions = transactionsData.filter((t): t is RechargePurchaseTransaction => t.type === "recharge_purchase" && t.status === "completed");
     const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
