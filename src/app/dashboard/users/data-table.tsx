@@ -101,10 +101,15 @@ const connectionStatusColors: Record<User["connectionStatus"], string> = {
   "غير متصل": "bg-stone-100 text-stone-800",
 };
 
+const statusColors: Record<User['status'], string> = {
+  "active": "bg-green-100 text-green-800",
+  "banned": "bg-red-100 text-red-800",
+};
+
 function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
     if (!user) return null;
     const { toast } = useToast();
-    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === "id-card-placeholder");
+    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
     
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user.name);
@@ -412,7 +417,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
               <TableHead>الاسم</TableHead>
               <TableHead>رقم الهاتف</TableHead>
               <TableHead>النوع</TableHead>
-              <TableHead>الحالة</TableHead>
+              <TableHead>حالة الاتصال</TableHead>
+              <TableHead>حالة الحساب</TableHead>
               <TableHead>اخر ظهور</TableHead>
               <TableHead>التوثيق</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
@@ -428,6 +434,11 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                   <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
                     <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
                     {user.connectionStatus}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>
+                      {statusMap[user.status]}
                   </Badge>
                 </TableCell>
                 <TableCell>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
