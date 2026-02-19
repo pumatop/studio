@@ -11,9 +11,29 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useRtdbList } from "@/firebase";
-import type { User, Supervisor, Transaction } from "@/lib/types";
-import { Users, UserCog, ReceiptText, Search } from "lucide-react";
+import type { User, Supervisor, Transaction, RechargePurchaseTransaction, AccountTransferTransaction, EgyptTransferTransaction } from "@/lib/types";
+import { 
+    Users, UserCog, ReceiptText, Search, LayoutDashboard, 
+    ArrowRightLeft, PiggyBank, BrainCircuit, History, Settings, FileSearch 
+} from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+
+const searchablePages = [
+  { group: 'الصفحات', title: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
+  { group: 'الصفحات', title: 'سعر الصرف', href: '/dashboard/exchange-rate', icon: ArrowRightLeft },
+  { group: 'الصفحات', title: 'المستخدمين', href: '/dashboard/users', icon: Users },
+  { group: 'الصفحات', title: 'المشرفين والمندوبين', href: '/dashboard/supervisors', icon: UserCog },
+  { group: 'الصفحات', title: 'حصالة الفكة', href: '/dashboard/fakka-log', icon: PiggyBank },
+  { group: 'الصفحات', title: 'تقارير الذكاء الاصطناعي', href: '/dashboard/reports', icon: BrainCircuit },
+  { group: 'الصفحات', title: 'سجل التدقيق', href: '/dashboard/audit-log', icon: History },
+  { group: 'الصفحات', title: 'الإعدادات', href: '/dashboard/settings', icon: Settings },
+  { group: 'المعاملات', title: 'التحويل من دينار لدينار (DD)', href: '/dashboard/transfers/dd', icon: ReceiptText },
+  { group: 'المعاملات', title: 'التحويل من دينار لجنيه (DG)', href: '/dashboard/dg-transfers', icon: ReceiptText },
+  { group: 'المعاملات', title: 'شراء الكروت (DC)', href: '/dashboard/card-transactions', icon: ReceiptText },
+  { group: 'المعاملات', title: 'تحويل محفظة كاش (EC)', href: '/dashboard/transfers/ec', icon: ReceiptText },
+  { group: 'المعاملات', title: 'تحويل انستاباي (EI)', href: '/dashboard/transfers/ei', icon: ReceiptText },
+  { group: 'المعاملات', title: 'وصلي للبيت (EW)', href: '/dashboard/transfers/ew', icon: ReceiptText },
+];
 
 export function GlobalSearch() {
   const router = useRouter();
@@ -29,10 +49,14 @@ export function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (!query) {
-      return { users: [], supervisors: [], transactions: [] };
+      return { pages: [], users: [], supervisors: [], transactions: [] };
     }
 
     const lowerCaseQuery = query.toLowerCase();
+
+    const filteredPages = searchablePages.filter(
+      (page) => page.title.toLowerCase().includes(lowerCaseQuery)
+    );
 
     const filteredUsers = (users || []).filter(
       (user) =>
@@ -47,10 +71,33 @@ export function GlobalSearch() {
     ).slice(0, 5);
 
     const filteredTransactions = (transactions || []).filter(
-      (transaction) => transaction.id.toLowerCase().includes(lowerCaseQuery)
+      (transaction) => {
+        if (transaction.id.toLowerCase().includes(lowerCaseQuery)) return true;
+        
+        const castedTransaction = transaction as RechargePurchaseTransaction | AccountTransferTransaction | EgyptTransferTransaction;
+
+        switch (castedTransaction.type) {
+          case 'recharge_purchase':
+            return castedTransaction.userName.toLowerCase().includes(lowerCaseQuery) ||
+                   castedTransaction.userPhone.includes(lowerCaseQuery);
+          case 'account_transfer':
+            return castedTransaction.senderName.toLowerCase().includes(lowerCaseQuery) ||
+                   castedTransaction.senderPhone.includes(lowerCaseQuery) ||
+                   castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery) ||
+                   castedTransaction.recipientPhone.includes(lowerCaseQuery);
+          case 'egypt_transfer':
+            return castedTransaction.userName.toLowerCase().includes(lowerCaseQuery) ||
+                   castedTransaction.userPhone.includes(lowerCaseQuery) ||
+                   castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery) ||
+                   castedTransaction.recipientNumber.includes(lowerCaseQuery);
+          default:
+            return false;
+        }
+      }
     ).slice(0, 5);
 
     return {
+      pages: filteredPages,
       users: filteredUsers,
       supervisors: filteredSupervisors,
       transactions: filteredTransactions,
@@ -83,7 +130,7 @@ export function GlobalSearch() {
     }
   }, [open]);
 
-  const hasResults = searchResults.users.length > 0 || searchResults.supervisors.length > 0 || searchResults.transactions.length > 0;
+  const hasResults = searchResults.pages.length > 0 || searchResults.users.length > 0 || searchResults.supervisors.length > 0 || searchResults.transactions.length > 0;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -106,7 +153,7 @@ export function GlobalSearch() {
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="ابحث في المستخدمين، المشرفين، المعاملات..."
+              placeholder="ابحث في الصفحات، المستخدمين، المعاملات..."
               className="h-12 text-lg pr-12"
             />
         </div>
@@ -127,7 +174,23 @@ export function GlobalSearch() {
           )}
           {hasResults && (
             <ScrollArea className="h-[40vh] max-h-[300px]">
-                <div className="p-2 space-y-2">
+                <div className="p-2 space-y-4">
+                  {searchResults.pages.length > 0 && (
+                     <div>
+                      <h3 className="text-xs font-semibold text-muted-foreground px-2 py-1 flex items-center gap-2"><FileSearch size={14}/> الصفحات</h3>
+                      <div className="space-y-1">
+                        {searchResults.pages.map(page => (
+                          <div key={page.href} onClick={() => handleSelect(page.href)} className="p-2 rounded-md hover:bg-accent cursor-pointer flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <page.icon className="h-4 w-4 text-muted-foreground" />
+                                <p className="font-medium text-sm">{page.title}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{page.group}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {searchResults.users.length > 0 && (
                     <div>
                       <h3 className="text-xs font-semibold text-muted-foreground px-2 py-1 flex items-center gap-2"><Users size={14}/> المستخدمون</h3>
