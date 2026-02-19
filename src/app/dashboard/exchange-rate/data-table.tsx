@@ -134,7 +134,7 @@ export function ExchangeRateDataTable() {
             const logPath = '/exchangeRateLogs';
             const newLog = {
                 date: new Date().toISOString(),
-                modifiedBy: user?.displayName || 'Admin',
+                modifiedBy: user?.displayName || 'المسؤول',
                 oldRate: editingRate.rate,
                 newRate: finalData.rate,
                 currencyPair: finalData.currencyPair,

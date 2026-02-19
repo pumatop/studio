@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import { useRtdbObject, useDatabase, updateRtdb, pushRtdb } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
@@ -186,6 +186,19 @@ export function ExchangeControlCard() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
+        // Check if the current rate has been changed manually
+        if (settings && typeof localSettings.currentRate === 'number' && localSettings.currentRate !== settings.currentRate) {
+            const logPath = '/exchangeRateLogs';
+            const newLog = {
+                date: new Date().toISOString(),
+                modifiedBy: user?.displayName || 'المسؤول',
+                oldRate: settings.currentRate,
+                newRate: localSettings.currentRate,
+                currencyPair: "LYD/EGP",
+            };
+            await pushRtdb(database, logPath, newLog);
+        }
+
         await updateRtdb(database, '/settings/exchangeControl', localSettings);
         toast({
           title: "تم حفظ الإعدادات",
