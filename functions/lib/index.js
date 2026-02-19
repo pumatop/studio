@@ -1,4 +1,5 @@
 "use strict";
+"use server";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -52,7 +53,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     const settings = settingsSnap.val();
     if (!(settings === null || settings === void 0 ? void 0 : settings.autoConditionsActive) || !settings.conditions) {
         v2_1.logger.info("Auto conditions are disabled or no conditions found.");
-        return null;
+        return;
     }
     const now = new Date();
     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
@@ -86,7 +87,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     else {
         v2_1.logger.info("No time-based conditions met at this time.");
     }
-    return null;
+    return;
 });
 /**
  * Checks for amount-based exchange rate conditions on new transactions.
@@ -98,21 +99,21 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
     const transaction = event.data.val();
     if (transaction.type !== "egypt_transfer" ||
         transaction.status !== "completed") {
-        return null;
+        return;
     }
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
     const settings = settingsSnap.val();
     if (!(settings === null || settings === void 0 ? void 0 : settings.autoConditionsActive) || !settings.conditions) {
         v2_1.logger.info("Auto conditions disabled or no conditions exist.");
-        return null;
+        return;
     }
     const amountConditions = Object.entries(settings.conditions)
         .filter(([, cond]) => cond.type === "amount")
         .sort(([, a], [, b]) => a.value - b.value);
     if (amountConditions.length === 0) {
         v2_1.logger.info("No amount-based conditions to check.");
-        return null;
+        return;
     }
     const date = new Date(transaction.timestamp).toISOString().split("T")[0];
     const aggregateRef = db.ref(`/dailyAggregates/${date}`);
@@ -126,7 +127,7 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
     });
     if (!committed) {
         v2_1.logger.error("Failed to commit transaction to update daily aggregate.");
-        return null;
+        return;
     }
     const newTotalAmount = aggSnap.val().totalEgpAmount;
     v2_1.logger.info(`New total EGP amount for ${date} is ${newTotalAmount}.`);
@@ -155,6 +156,6 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
         await db.ref().update(updates);
         v2_1.logger.log("Successfully applied amount-based rate change.");
     }
-    return null;
+    return;
 });
 //# sourceMappingURL=index.js.map
