@@ -109,14 +109,11 @@ const statusColors: Record<User['status'], string> = {
 };
 
 function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
-    if (!user) return null;
     const { toast } = useToast();
-    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
-    
     const [isEditingName, setIsEditingName] = useState(false);
-    const [name, setName] = useState(user.name);
+    const [name, setName] = useState(user?.name || "");
 
-    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
+    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList<Transaction>(user ? '/transactions' : null);
     const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
 
 
@@ -140,6 +137,12 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
             setName(user.name);
         }
     }, [user]);
+
+    if (!user) {
+        return null;
+    }
+    
+    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
 
     const handleVerification = async (newStatus: User['verification']) => {
         await onUserUpdate(user.id, { verification: newStatus });
