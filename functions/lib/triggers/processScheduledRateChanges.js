@@ -71,7 +71,8 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     for (const [id, condition] of Object.entries(conditions)) {
         if (condition.type === "time" && condition.value === currentTime) {
             v2_1.logger.info(`Time condition met for ID ${id}. Changing rate to ${condition.targetRate}`);
-            updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+            updates["/settings/exchangeControl/currentRate"] =
+                condition.targetRate;
             const logId = db.ref("/exchangeRateLogs").push().key;
             updates[`/exchangeRateLogs/${logId}`] = {
                 date: new Date().toISOString(),

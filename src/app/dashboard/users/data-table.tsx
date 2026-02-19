@@ -62,7 +62,6 @@ import type { User, Transaction, EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn, exportToCsv } from "@/lib/utils";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   Select,
   SelectContent,
@@ -113,7 +112,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
 
-    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList<Transaction>(user ? '/transactions' : null);
+    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList(open && user ? '/transactions' : null);
     const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
 
 
@@ -142,8 +141,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         return null;
     }
     
-    const idPlaceholderImage = PlaceHolderImages.find(p => p.id === user.idImageUrl);
-
     const handleVerification = async (newStatus: User['verification']) => {
         await onUserUpdate(user.id, { verification: newStatus });
         toast({ title: "حالة التوثيق تم تحديثها" });
@@ -221,9 +218,44 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-4">
-                                {idPlaceholderImage && <Image src={idPlaceholderImage.imageUrl} alt="ID Card" width={600} height={400} className="rounded-md mb-4" data-ai-hint={idPlaceholderImage.imageHint} />}
-                                <div className="grid grid-cols-2 gap-2">
+                            <CardContent className="pt-4 space-y-4">
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الأمامية)</h4>
+                                    {user.idImageUrl ? (
+                                        <a href={user.idImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={user.idImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                        </a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
+                                            <p className="text-sm text-muted-foreground">غير متوفرة</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الخلفية)</h4>
+                                    {user.idImageBackUrl ? (
+                                        <a href={user.idImageBackUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={user.idImageBackUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                        </a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
+                                            <p className="text-sm text-muted-foreground">غير متوفرة</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">مستند إضافي</h4>
+                                    {user.idImageOtherUrl ? (
+                                        <a href={user.idImageOtherUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={user.idImageOtherUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                        </a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
+                                            <p className="text-sm text-muted-foreground">غير متوفر</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-2">
                                     <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
                                     <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
                                     <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'merchant' : 'user')}>

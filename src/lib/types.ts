@@ -19,6 +19,8 @@ export type User = {
   phoneOS?: string;
   ipAddress?: string;
   idImageUrl?: string;
+  idImageBackUrl?: string;
+  idImageOtherUrl?: string;
   lastPasswordChange?: number;
   lastPinChange?: number;
 };

@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processTransactionBasedRateChanges = void 0;
 const admin = __importStar(require("firebase-admin"));
@@ -60,7 +70,8 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
     try {
         const preciseAmount = transaction.amountLYD * transaction.exchangeRate;
         const fakka = preciseAmount - transaction.amountEGP;
-        if (fakka > 0.001) { // Use a small threshold to avoid floating point inaccuracies
+        if (fakka > 0.001) {
+            // Use a small threshold to avoid floating point inaccuracies
             v2_1.logger.info(`Fakka detected for transaction ${event.params.transactionId}. Amount: ${fakka}`);
             const fakkaLogRef = db.ref("/fakkaSafe/logs").push();
             await fakkaLogRef.set({
@@ -68,7 +79,7 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
                 amount: fakka,
                 timestamp: transaction.timestamp,
                 userName: transaction.userName,
-                userPhone: transaction.userPhone
+                userPhone: transaction.userPhone,
             });
             const totalFakkaRef = db.ref("/fakkaSafe/totalFakka");
             await totalFakkaRef.transaction((currentTotal) => {
@@ -104,7 +115,8 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
             v2_1.logger.info(`Amount-based rate condition met for ID ${id}. ` +
                 `New total ${newTotalAmount} >= ${condition.value}. ` +
                 `Changing rate to ${condition.targetRate}`);
-            updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+            updates["/settings/exchangeControl/currentRate"] =
+                condition.targetRate;
             const logId = db.ref("/exchangeRateLogs").push().key;
             updates[`/exchangeRateLogs/${logId}`] = {
                 date: new Date().toISOString(),
