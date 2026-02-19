@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -69,7 +70,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDatabase, updateRtdb, useRtdbList, removeRtdb } from "@/firebase";
+import { useDatabase, updateRtdb, useRtdbList, useFunctions } from "@/firebase";
+import { httpsCallable } from "firebase/functions";
 import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
 import { EgyptianTransfersDataTable } from "../egyptian-transactions/data-table";
 
@@ -422,6 +424,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
   const { database } = useDatabase();
+  const functions = useFunctions();
   
   const [roleFilter, setRoleFilter] = useState("all");
   const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");
@@ -491,7 +494,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
       return;
     }
     try {
-      await removeRtdb(database, `/users/${userId}/sessions/${sessionId}`);
+      const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
+      await manageUserSessions({ userId, sessionId });
+
       toast({
         title: "تم إنهاء الجلسة بنجاح",
         description: "تم تسجيل خروج المستخدم من هذا الجهاز.",
@@ -517,8 +522,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
       return;
     }
     try {
-      // Remove the entire 'sessions' node for the user
-      await removeRtdb(database, `/users/${userId}/sessions`);
+      const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
+      await manageUserSessions({ userId, action: 'deleteAll' });
+      
       toast({
         title: "تم تسجيل الخروج من جميع الأجهزة بنجاح",
         description: "تم حذف جميع جلسات المستخدم.",

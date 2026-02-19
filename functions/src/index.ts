@@ -12,3 +12,4 @@ admin.initializeApp();
 export * from "./triggers/handleAutoExchangeStatus";
 export * from "./triggers/processScheduledRateChanges";
 export * from "./triggers/processTransactionBasedRateChanges";
+export * from "./triggers/manageUserSessions";
