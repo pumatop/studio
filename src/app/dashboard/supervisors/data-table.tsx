@@ -28,7 +28,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2 } from "lucide-react";
+import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2, FileDown, Printer } from "lucide-react";
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -167,7 +167,7 @@ function SupervisorForm({
   );
 }
 
-export function SupervisorsDataTable() {
+export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[] }) {
   const { data: supervisors, isLoading } = useRtdbList<Supervisor>("/supervisors");
   const { database } = useDatabase();
   const [searchTerm, setSearchTerm] = useState("");
@@ -181,15 +181,15 @@ export function SupervisorsDataTable() {
 
 
   const filteredData = useMemo(() => {
-    if (!supervisors) return [];
-    return supervisors.filter(
+    if (!initialData) return [];
+    return initialData.filter(
       (item) =>
         (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.phone.toLowerCase().includes(searchTerm.toLowerCase())) &&
         (specializationFilter === "all" || item.specialization?.includes(specializationFilter as any)) &&
         (statusFilter === "all" || item.status === statusFilter)
     );
-  }, [supervisors, searchTerm, specializationFilter, statusFilter]);
+  }, [initialData, searchTerm, specializationFilter, statusFilter]);
   
   const handleSave = async (supervisorData: Partial<Supervisor>) => {
     setIsSaving(true);
@@ -243,8 +243,17 @@ export function SupervisorsDataTable() {
     setSpecializationFilter("all");
     setStatusFilter("all");
   };
+
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      window.print();
+  };
   
-  if (isLoading) {
+  if (!supervisors && isLoading) {
     return (
        <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
@@ -264,8 +273,8 @@ export function SupervisorsDataTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو رقم الهاتف..."
               value={searchTerm}
@@ -294,23 +303,42 @@ export function SupervisorsDataTable() {
               مسح
             </Button>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            if(!open) setEditingSupervisor(undefined);
-            setDialogOpen(open);
-        }}>
-            <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                    <PlusCircle className="ml-2 h-4 w-4" />
-                    إضافة مستخدم
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
-                </DialogHeader>
-                <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
-            </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                if(!open) setEditingSupervisor(undefined);
+                setDialogOpen(open);
+            }}>
+                <DialogTrigger asChild>
+                    <Button className="w-full sm:w-auto">
+                        <PlusCircle className="ml-2 h-4 w-4" />
+                        إضافة مستخدم
+                    </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle>
+                    </DialogHeader>
+                    <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
+                </DialogContent>
+            </Dialog>
+        </div>
       </div>
       <div className="rounded-lg border">
         <Table>

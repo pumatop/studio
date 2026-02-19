@@ -23,6 +23,13 @@ export default function AuditLogPage() {
       (t): t is EgyptTransferTransaction => t.type === "egypt_transfer"
     );
   }, [transactions]);
+  
+    const allButCards = useMemo(() => {
+    if (!transactions) return [];
+    return transactions.filter(
+      (t) => t.type !== "recharge_purchase"
+    );
+  }, [transactions]);
 
   return (
     <div className="space-y-6">
@@ -41,7 +48,7 @@ export default function AuditLogPage() {
           ) : error ? (
             <div className="text-red-500">Error: {error.message}</div>
           ) : (
-            <LibyanTransactionsDataTable initialData={transactions || []} />
+            <LibyanTransactionsDataTable initialData={allButCards || []} />
           )}
         </CardContent>
       </Card>

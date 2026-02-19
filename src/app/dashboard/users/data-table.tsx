@@ -55,6 +55,8 @@ import {
   FilterX,
   Pencil,
   MoreHorizontal,
+  FileDown, 
+  Printer
 } from "lucide-react";
 import type { User, Transaction, EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -123,7 +125,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         return allTransactions.filter(t => 
             (t.type === 'account_transfer' && (t.senderId === user.id || t.recipientId === user.id)) ||
             (t.type === 'egypt_transfer' && t.userId === user.id)
-        ).filter(t => t.type !== 'recharge_purchase');
+        );
     }, [user, allTransactions]);
     
     const userEgyptianTransactions = useMemo(() => {
@@ -351,66 +353,96 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     setSearchTerm("");
   };
 
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+      // Placeholder for actual export logic
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      // Placeholder for actual print logic
+      window.print();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-grow max-w-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو رقم الهاتف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
+              className="w-full max-w-sm"
             />
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                    <SelectValue placeholder="النوع" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">كل الأنواع</SelectItem>
+                    <SelectItem value="user">مستخدم</SelectItem>
+                    <SelectItem value="merchant">تاجر</SelectItem>
+                     <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                    <SelectValue placeholder="حالة الاتصال" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">كل حالات الاتصال</SelectItem>
+                    <SelectItem value="متصل">متصل</SelectItem>
+                    <SelectItem value="غير متصل">غير متصل</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={verificationFilter} onValueChange={setVerificationFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                    <SelectValue placeholder="التوثيق" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">كل حالات التوثيق</SelectItem>
+                    <SelectItem value="verified">موثق</SelectItem>
+                    <SelectItem value="unverified">غير موثق</SelectItem>
+                    <SelectItem value="pending">قيد المراجعة</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+                    <SelectValue placeholder="حالة الحظر" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="active">غير محظور</SelectItem>
+                    <SelectItem value="banned">محظور</SelectItem>
+                </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+                <FilterX className="ml-2 h-4 w-4" />
+                مسح
+            </Button>
+          </div>
+           <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="النوع" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">كل الأنواع</SelectItem>
-                <SelectItem value="user">مستخدم</SelectItem>
-                <SelectItem value="merchant">تاجر</SelectItem>
-                 <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-        </Select>
-
-        <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="حالة الاتصال" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">كل حالات الاتصال</SelectItem>
-                <SelectItem value="متصل">متصل</SelectItem>
-                <SelectItem value="غير متصل">غير متصل</SelectItem>
-            </SelectContent>
-        </Select>
-
-        <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="التوثيق" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">كل حالات التوثيق</SelectItem>
-                <SelectItem value="verified">موثق</SelectItem>
-                <SelectItem value="unverified">غير موثق</SelectItem>
-                <SelectItem value="pending">قيد المراجعة</SelectItem>
-            </SelectContent>
-        </Select>
-
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-                <SelectValue placeholder="حالة الحظر" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="active">غير محظور</SelectItem>
-                <SelectItem value="banned">محظور</SelectItem>
-            </SelectContent>
-        </Select>
-        <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-            <FilterX className="ml-2 h-4 w-4" />
-            مسح الفلاتر
-        </Button>
       </div>
       <div className="rounded-lg border">
         <Table>

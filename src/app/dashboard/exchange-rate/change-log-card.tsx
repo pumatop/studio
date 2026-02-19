@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
-import { ArrowDown, ArrowUp, History } from "lucide-react";
+import { ArrowDown, ArrowUp, History, FileDown, Printer } from "lucide-react";
 import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export function ChangeLogCard() {
   const { data: allLogs, isLoading } = useRtdbList<ExchangeRateLog>('/exchangeRateLogs');
@@ -37,6 +39,17 @@ export function ChangeLogCard() {
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
+  };
+
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+      // Placeholder for actual export logic
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      // Placeholder for actual print logic
+      window.print();
   };
   
   if (isLoading) {
@@ -62,12 +75,33 @@ export function ChangeLogCard() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
-            <span>سجل التغيرات</span>
-        </CardTitle>
-        <CardDescription>آخر التغييرات التي تمت على أسعار الصرف.</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5" />
+              <span>سجل التغيرات</span>
+          </CardTitle>
+          <CardDescription>آخر التغييرات التي تمت على أسعار الصرف.</CardDescription>
+        </div>
+        <div className="flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" size="sm" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="border rounded-lg">

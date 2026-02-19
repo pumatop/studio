@@ -15,11 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { FilterX, Calendar as CalendarIcon } from "lucide-react";
+import { FilterX, Calendar as CalendarIcon, FileDown, Printer } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const statusColors: Record<RechargePurchaseTransaction['status'], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -67,58 +68,88 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
     setDate(undefined);
   };
   
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+      // Placeholder for actual export logic
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      // Placeholder for actual print logic
+      window.print();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-grow max-w-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2 flex-grow">
           <Input
             placeholder="ابحث برقم المعاملة، الاسم أو الهاتف..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="w-full max-w-sm"
           />
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              id="date"
-              variant={"outline"}
-              className={cn(
-                "w-full sm:w-[260px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="ml-2 h-4 w-4" />
-              {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              initialFocus
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              locale={arEG}
-              formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
-            />
-          </PopoverContent>
-        </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant={"outline"}
+                className={cn(
+                  "w-full sm:w-[200px] justify-start text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="ml-2 h-4 w-4" />
+                {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                locale={arEG}
+                formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
+              />
+            </PopoverContent>
+          </Popover>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-            <SelectValue placeholder="الحالة" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">كل الحالات</SelectItem>
-            <SelectItem value="completed">ناجحة</SelectItem>
-            <SelectItem value="failed">مرفوضة</SelectItem>
-            <SelectItem value="pending">قيد الانتظار</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-          <FilterX className="ml-2 h-4 w-4" />
-          مسح الفلاتر
-        </Button>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
+              <SelectValue placeholder="الحالة" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="completed">ناجحة</SelectItem>
+              <SelectItem value="failed">مرفوضة</SelectItem>
+              <SelectItem value="pending">قيد الانتظار</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
+            <FilterX className="ml-2 h-4 w-4" />
+            مسح
+          </Button>
+        </div>
+        <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
+        </div>
       </div>
       <div className="rounded-lg border">
         <Table>

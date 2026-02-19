@@ -10,6 +10,8 @@ import { ArrowRight } from "lucide-react";
 import type { Supervisor, Transaction, EgyptTransferTransaction } from "@/lib/types";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 
 export default function SupervisorLogPage({ params }: { params: { id: string } }) {
   const { data: supervisor, isLoading: supervisorLoading } = useRtdbObject<Supervisor>(`/supervisors/${params.id}`);
@@ -28,23 +30,27 @@ export default function SupervisorLogPage({ params }: { params: { id: string } }
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="w-full space-y-2">
-            <Skeleton className="h-8 w-1/2" />
-            <Skeleton className="h-5 w-3/4" />
-          </div>
-          <Skeleton className="h-10 w-full sm:w-auto" />
-        </div>
-        <div className="space-y-4">
-            <Skeleton className="h-10 w-full max-w-lg" />
-            <div className="rounded-lg border p-4 space-y-2">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
+      <Card>
+        <CardHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="w-full space-y-2">
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-5 w-3/4" />
+              </div>
+              <Skeleton className="h-10 w-full sm:w-[170px]" />
             </div>
-        </div>
-      </div>
+        </CardHeader>
+        <CardContent>
+            <div className="space-y-4">
+                <Skeleton className="h-10 w-full max-w-lg" />
+                <div className="rounded-lg border p-4 space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                </div>
+            </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -53,22 +59,26 @@ export default function SupervisorLogPage({ params }: { params: { id: string } }
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="w-full">
-          <h1 className="text-2xl font-bold">سجل عمليات: {supervisor.name}</h1>
-          <p className="text-muted-foreground">
-            عرض جميع التحويلات المنفذة والمرفوضة من قبل المشرف/المندوب.
-          </p>
-        </div>
-        <Link href="/dashboard/supervisors" className="w-full sm:w-auto">
-          <Button variant="outline" className="w-full">
-            <ArrowRight className="ml-2 h-4 w-4" />
-            العودة للمشرفين
-          </Button>
-        </Link>
-      </div>
-      <SupervisorLogDataTable initialData={supervisorTransfers} />
-    </div>
+    <Card>
+       <CardHeader>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="w-full">
+                    <CardTitle>سجل عمليات: {supervisor.name}</CardTitle>
+                    <CardDescription>
+                        عرض جميع التحويلات المنفذة والمرفوضة من قبل المشرف/المندوب.
+                    </CardDescription>
+                </div>
+                <Link href="/dashboard/supervisors" className="w-full sm:w-auto shrink-0">
+                    <Button variant="outline" className="w-full">
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                        العودة للمشرفين
+                    </Button>
+                </Link>
+            </div>
+       </CardHeader>
+       <CardContent>
+            <SupervisorLogDataTable initialData={supervisorTransfers} />
+       </CardContent>
+    </Card>
   );
 }

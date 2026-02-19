@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Eye, FilterX, Calendar as CalendarIcon } from "lucide-react";
+import { Eye, FilterX, Calendar as CalendarIcon, FileDown, Printer } from "lucide-react";
 import type { EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -91,66 +92,98 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
     setDate(undefined);
   };
 
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+      // Placeholder for actual export logic
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      // Placeholder for actual print logic
+      window.print();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          placeholder="ابحث بالاسم أو الرقم..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm flex-grow"
-        />
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              id="date"
-              variant={"outline"}
-              className={cn(
-                "w-full sm:w-[260px] justify-start text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="ml-2 h-4 w-4" />
-              {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              initialFocus
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              locale={arEG}
-              formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 flex-grow">
+            <Input
+              placeholder="ابحث بالاسم أو الرقم..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm flex-grow"
             />
-          </PopoverContent>
-        </Popover>
-        <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
-          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
-            <SelectValue placeholder="نوع التحويل" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">كل الأنواع</SelectItem>
-            <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
-            <SelectItem value="انستاباي">انستاباي</SelectItem>
-            <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
-            <SelectValue placeholder="حالة الطلب" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">كل الحالات</SelectItem>
-            <SelectItem value="completed">ناجح</SelectItem>
-            <SelectItem value="failed">مرفوض</SelectItem>
-            <SelectItem value="pending">قيد التحويل</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="ghost" onClick={handleClearFilters}>
-          <FilterX className="ml-2 h-4 w-4" />
-          مسح الفلاتر
-        </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-full sm:w-[200px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="ml-2 h-4 w-4" />
+                  {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  locale={arEG}
+                  formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
+                />
+              </PopoverContent>
+            </Popover>
+            <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
+              <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+                <SelectValue placeholder="نوع التحويل" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الأنواع</SelectItem>
+                <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
+                <SelectItem value="انستاباي">انستاباي</SelectItem>
+                <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+              <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+                <SelectValue placeholder="حالة الطلب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">كل الحالات</SelectItem>
+                <SelectItem value="completed">ناجح</SelectItem>
+                <SelectItem value="failed">مرفوض</SelectItem>
+                <SelectItem value="pending">قيد التحويل</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" onClick={handleClearFilters}>
+              <FilterX className="ml-2 h-4 w-4" />
+              مسح
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
+        </div>
       </div>
       <div className="rounded-lg border">
         <Table>

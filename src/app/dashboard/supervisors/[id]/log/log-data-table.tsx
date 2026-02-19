@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Eye, FilterX } from "lucide-react";
+import { Eye, FilterX, FileDown, Printer } from "lucide-react";
 import type { EgyptTransferTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -68,29 +69,59 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
     setStatusFilter("all");
   };
 
+  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      console.log(`Exporting data to ${format}...`);
+  };
+
+  const handlePrint = () => {
+      console.log('Printing data...');
+      window.print();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          placeholder="ابحث..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm flex-grow"
-        />
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-          <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
-            <SelectValue placeholder="حالة الطلب" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">كل الحالات</SelectItem>
-            <SelectItem value="completed">ناجح</SelectItem>
-            <SelectItem value="failed">مرفوض</SelectItem>
-          </SelectContent>
-        </Select>
-        <Button variant="ghost" onClick={handleClearFilters}>
-          <FilterX className="ml-2 h-4 w-4" />
-          مسح الفلاتر
-        </Button>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-2 flex-grow">
+          <Input
+            placeholder="ابحث..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm flex-grow"
+          />
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
+            <SelectTrigger className="w-full sm:w-auto md:w-[180px]">
+              <SelectValue placeholder="حالة الطلب" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">كل الحالات</SelectItem>
+              <SelectItem value="completed">ناجح</SelectItem>
+              <SelectItem value="failed">مرفوض</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="ghost" onClick={handleClearFilters}>
+            <FilterX className="ml-2 h-4 w-4" />
+            مسح الفلاتر
+          </Button>
+        </div>
+         <div className="flex items-center gap-2 self-end">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <FileDown className="ml-2 h-4 w-4" />
+                        تصدير
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" onClick={handlePrint}>
+                <Printer className="ml-2 h-4 w-4" />
+                طباعة
+            </Button>
+        </div>
       </div>
       <div className="rounded-lg border">
         <Table>
