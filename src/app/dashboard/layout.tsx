@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SidebarProvider,
   Sidebar,
@@ -14,6 +14,11 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   LayoutDashboard,
   BrainCircuit,
   ArrowRightLeft,
@@ -24,6 +29,8 @@ import {
   History,
   CircleDollarSign,
   CreditCard,
+  ChevronDown,
+  ChevronsRight,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
@@ -44,39 +51,25 @@ const navItems = [
     color: "text-lime-500",
   },
   {
+    icon: ReceiptText,
+    label: "التحويلات والمعاملات",
+    match: /^\/dashboard\/(dg-transfers|card-transactions|transfers)/,
+    color: "text-orange-500",
+    subItems: [
+        { href: '/dashboard/dg-transfers', label: 'تحويلات DG' },
+        { href: '/dashboard/card-transactions', label: 'معاملات الكروت (DC)' },
+        { href: '/dashboard/transfers/dd', label: 'تحويلات داخلية (DD)' },
+        { href: '/dashboard/transfers/ec', label: 'تحويلات EC' },
+        { href: '/dashboard/transfers/el', label: 'تحويلات EL' },
+        { href: '/dashboard/transfers/ew', label: 'تحويلات EW' },
+    ]
+  },
+  {
     href: "/dashboard/users",
     icon: Users,
     label: "المستخدمين",
     match: /^\/dashboard\/users/,
     color: "text-violet-500",
-  },
-  {
-    href: "/dashboard/libyan-transactions",
-    icon: ReceiptText,
-    label: "المعاملات المالية",
-    match: /^\/dashboard\/libyan-transactions/,
-    color: "text-orange-500",
-  },
-  {
-    href: "/dashboard/card-transactions",
-    icon: CreditCard,
-    label: "معاملات الكروت",
-    match: /^\/dashboard\/card-transactions/,
-    color: "text-cyan-500",
-  },
-  {
-    href: "/dashboard/egyptian-transactions",
-    icon: ReceiptText,
-    label: "التحويلات المصرية",
-    match: /^\/dashboard\/egyptian-transactions/,
-    color: "text-amber-500",
-  },
-  {
-    href: "/dashboard/dg-transfers",
-    icon: CircleDollarSign,
-    label: "تحويلات DG",
-    match: /^\/dashboard\/dg-transfers/,
-    color: "text-green-500",
   },
   {
     href: "/dashboard/supervisors",
@@ -120,6 +113,10 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/audit-log": "سجل التدقيق",
   "/dashboard/settings": "الإعدادات",
+  "/dashboard/transfers/dd": "تحويلات داخلية (DD)",
+  "/dashboard/transfers/ec": "تحويلات EC",
+  "/dashboard/transfers/el": "تحويلات EL",
+  "/dashboard/transfers/ew": "تحويلات EW",
 };
 
 function InnerLayout({ children }: { children: React.ReactNode }) {
@@ -135,14 +132,22 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     let bestMatch = null;
+    // Check main items and sub-items
     for (const item of navItems) {
-      if (pathname.match(item.match)) {
-        if (!bestMatch || item.href.length > bestMatch.href.length) {
+      if (item.href && pathname.match(item.match)) {
+         if (!bestMatch || item.href.length > bestMatch.href.length) {
           bestMatch = item;
         }
       }
+      if (item.subItems) {
+        for (const subItem of item.subItems) {
+          if (pathname.startsWith(subItem.href)) {
+            return pageTitles[subItem.href] || subItem.label;
+          }
+        }
+      }
     }
-
+    
     if (bestMatch) {
       return pageTitles[bestMatch.href];
     }
@@ -150,6 +155,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     if (pathname.startsWith('/dashboard/')) {
         const pathSegments = pathname.split('/');
         const lastSegment = pathSegments[pathSegments.length - 1];
+        if (pageTitles[pathname]) return pageTitles[pathname];
         return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
     }
 
@@ -182,9 +188,47 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navItems.map((item) => {
               const isActive = !!pathname.match(item.match);
+              
+              if (item.subItems) {
+                return (
+                  <SidebarMenuItem key={item.label}>
+                    <Collapsible>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          tooltip={{ children: item.label, side: "left" }}
+                          className="w-full justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <item.icon className={isActive ? "" : item.color} />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                        <div className="pl-7 pt-1 space-y-1">
+                          {item.subItems.map((subItem) => {
+                            const isSubActive = pathname.startsWith(subItem.href);
+                            return (
+                              <Link href={subItem.href} key={subItem.href}>
+                                <SidebarMenuButton isActive={isSubActive} size="sm" className="w-full h-8 justify-start">
+                                  <ChevronsRight className="h-3 w-3" />
+                                  <span>{subItem.label}</span>
+                                </SidebarMenuButton>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </SidebarMenuItem>
+                )
+              }
+
               return (
               <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
+                <Link href={item.href!}>
                   <SidebarMenuButton
                     isActive={isActive}
                     tooltip={{ children: item.label, side: "left" }}
