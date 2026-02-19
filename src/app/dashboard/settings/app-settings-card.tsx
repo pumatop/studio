@@ -50,6 +50,7 @@ export function AppSettingsCard() {
     const [localSettings, setLocalSettings] = useState<Partial<AppSettings>>({ banners: [] });
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,16 +152,16 @@ export function AppSettingsCard() {
             const downloadURL = await getDownloadURL(snapshot.ref);
 
             const newBanners = [...(localSettings.banners || []), downloadURL];
-            handleSettingChange('banners', newBanners);
+            await updateRtdb(database, '/settings/app', { banners: newBanners });
 
             toast({
-                title: "تم رفع الملف بنجاح!",
-                description: "تمت إضافة البانر الجديد. اضغط على 'حفظ الإعدادات' لتثبيت التغيير.",
+                title: "تم رفع وإضافة البانر بنجاح!",
+                description: "تم تحديث قاعدة البيانات تلقائياً.",
             });
         } catch (error: any) {
-            console.error("Upload error:", error);
+            console.error("Upload/DB error:", error);
             toast({
-                title: "فشل رفع الملف",
+                title: "فشل رفع الملف أو تحديث القاعدة",
                 description: error.message,
                 variant: "destructive",
             });
@@ -172,14 +173,21 @@ export function AppSettingsCard() {
         }
     };
 
-    const handleDeleteBanner = (index: number) => {
+    const handleDeleteBanner = async (index: number) => {
+        setDeletingIndex(index);
         const newBanners = [...(localSettings.banners || [])];
         newBanners.splice(index, 1);
-        handleSettingChange('banners', newBanners);
-        toast({
-            title: `تم حذف البانر`,
-            variant: "destructive"
-        });
+        try {
+            await updateRtdb(database, '/settings/app', { banners: newBanners });
+            toast({
+                title: `تم حذف البانر بنجاح`,
+                variant: "destructive"
+            });
+        } catch (error: any) {
+            toast({ title: "حدث خطأ عند الحذف", description: error.message, variant: "destructive" });
+        } finally {
+            setDeletingIndex(null);
+        }
     };
 
     if (isLoading) {
@@ -215,15 +223,19 @@ export function AppSettingsCard() {
                         </Button>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                        يمكنك إضافة صور أو مقاطع فيديو. بعد الإضافة، اضغط على "حفظ إعدادات التطبيق" لتثبيت التغييرات.
+                        يمكنك إضافة صور أو مقاطع فيديو. بعد الإضافة، يتم الحفظ في قاعدة البيانات تلقائياً.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {(localSettings.banners || []).map((bannerUrl, index) => (
                             <div key={index} className="relative group aspect-video rounded-md border bg-muted/50 overflow-hidden">
                                 <BannerContent url={bannerUrl} />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)} disabled={isUploading}>
-                                        <Trash2 className="h-4 w-4" />
+                                    <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)} disabled={isUploading || deletingIndex !== null}>
+                                        {deletingIndex === index ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                        )}
                                     </Button>
                                 </div>
                             </div>
