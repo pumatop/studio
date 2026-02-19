@@ -72,6 +72,13 @@ const navItems = [
     color: "text-amber-500",
   },
   {
+    href: "/dashboard/dg-transfers",
+    icon: CircleDollarSign,
+    label: "تحويلات DG",
+    match: /^\/dashboard\/dg-transfers/,
+    color: "text-green-500",
+  },
+  {
     href: "/dashboard/supervisors",
     icon: UserCog,
     label: "المشرفين والمندوبين",
@@ -108,6 +115,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/libyan-transactions": "المعاملات المالية",
   "/dashboard/card-transactions": "معاملات الكروت",
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
+  "/dashboard/dg-transfers": "تحويلات DG",
   "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/audit-log": "سجل التدقيق",
