@@ -1,5 +1,26 @@
 {
   "users": {
+    "lHlYeU2fvIX2WeErPOJbqgjgzY12": {
+      "balanceEGP": 100000,
+      "balanceLYD": 1000000,
+      "createdAt": 1770150446096,
+      "lastLogin": "2026-02-04T12:00:00.000Z",
+      "lastUpdate": 1771161010442,
+      "name": "المسؤول الجديد",
+      "phone": "+10000000000",
+      "pin": "123456",
+      "role": "admin",
+      "status": "active",
+      "verification": "verified",
+      "connectionStatus": "متصل",
+      "balanceEgyptianPending": 0,
+      "activeDevice": "Emulator",
+      "phoneOS": "Test Environment",
+      "ipAddress": "127.0.0.1",
+      "idImageUrl": "id-card-placeholder",
+      "lastPasswordChange": 1770150446096,
+      "lastPinChange": 1770150446096
+    },
     "Mzzg8MinUVfInwNtvdYBVJnpbiB3": {
       "balanceEGP": 49666.56,
       "balanceLYD": 998914,
