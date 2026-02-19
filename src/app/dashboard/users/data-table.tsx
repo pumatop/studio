@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Card,
@@ -108,7 +107,7 @@ const statusColors: Record<User['status'], string> = {
   "banned": "bg-red-100 text-red-800",
 };
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void }) {
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession, onLogoutAllSessions }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void, onLogoutAllSessions: (userId: string) => void }) {
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
@@ -223,8 +222,8 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     }
     
     const handleLogoutAll = () => {
-        // This is a placeholder for the actual implementation which would involve server-side logic
-        toast({title: "تم إرسال طلب تسجيل الخروج من جميع الأجهزة."}) 
+        if (!user) return;
+        onLogoutAllSessions(user.id);
     }
 
     return (
@@ -513,6 +512,31 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     }
   };
 
+  const handleLogoutAllSessions = async (userId: string) => {
+    if (!window.confirm("هل أنت متأكد من تسجيل الخروج من جميع الأجهزة؟ سيتم حذف جميع الجلسات النشطة.")) {
+      return;
+    }
+    try {
+      // Remove the entire 'sessions' node for the user
+      await removeRtdb(database, `/users/${userId}/sessions`);
+      toast({
+        title: "تم تسجيل الخروج من جميع الأجهزة بنجاح",
+        description: "تم حذف جميع جلسات المستخدم.",
+      });
+      // Update local state to reflect the change immediately
+      setSelectedUser(prev => {
+        if (!prev || prev.id !== userId) return prev;
+        return { ...prev, sessions: {} }; // Clear the sessions object
+      });
+    } catch (e: any) {
+      toast({
+        title: "خطأ في تسجيل الخروج",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
@@ -693,7 +717,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
-       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} onDeleteSession={handleDeleteSession} />
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} onDeleteSession={handleDeleteSession} onLogoutAllSessions={handleLogoutAllSessions} />
     </div>
   );
 }
+
+    
