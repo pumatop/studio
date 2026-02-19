@@ -342,7 +342,7 @@ export function SupervisorsDataTable() {
                     {supervisor.connectionStatus}
                   </Badge>
                 </TableCell>
-                <TableCell className="hidden lg:table-cell text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="hidden lg:table-cell text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell>
                   <Badge className={cn(statusColors[supervisor.status], `hover:${statusColors[supervisor.status]}`)}>
                       {supervisor.status}

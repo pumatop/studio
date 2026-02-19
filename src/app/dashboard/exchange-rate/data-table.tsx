@@ -227,7 +227,7 @@ export function ExchangeRateDataTable() {
               <TableRow key={rate.id}>
                 <TableCell className="font-medium">{rate.currencyPair}</TableCell>
                 <TableCell>{rate.rate.toFixed(3)}</TableCell>
-                <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
+                <TableCell>{new Date(rate.lastUpdated).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

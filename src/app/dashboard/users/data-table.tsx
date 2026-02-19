@@ -115,6 +115,8 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
     const [name, setName] = useState(user.name);
 
     const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
+    const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
+
 
     const userFinancialTransactions = useMemo(() => {
         if (!user || !allTransactions) return [];
@@ -234,9 +236,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                                 <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الأمان</CardTitle>
                             </CardHeader>
                              <CardContent className="text-sm space-y-2 pt-4">
-                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleDateString('ar-EG-u-nu-latn')}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn') : 'غير معروف'}</span></div>
+                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
+                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
+                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
                                 <Separator className="my-2" />
                                 <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{user.activeDevice || 'N/A'}</span></div>
                                 <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{user.phoneOS || 'N/A'}</span></div>
@@ -441,7 +443,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
                       {statusMap[user.status]}
                   </Badge>
                 </TableCell>
-                <TableCell>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn')}</TableCell>
+                <TableCell>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell>
                   <Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>
                       {verificationMap[user.verification]}

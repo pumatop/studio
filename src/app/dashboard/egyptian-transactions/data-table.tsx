@@ -190,7 +190,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                     {statusMap[transfer.status]}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="text-xs">{new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell>{transfer.executionDuration || '-'}</TableCell>
                 <TableCell>
                   {transfer.receiptImageUrl && transfer.status === 'completed' && receiptPlaceholder ? (

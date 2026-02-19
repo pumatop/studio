@@ -194,7 +194,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
                 <TableCell>
                   <Badge className={cn(statusColors[tx.status], `hover:${statusColors[tx.status]}`)}>{statusMap[tx.status]}</Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(tx.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                <TableCell className="text-xs">{new Date(tx.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell className="font-medium">{getSenderPhone(tx)}</TableCell>
                 <TableCell className="text-left">{renderSentAmount(tx)}</TableCell>
                 <TableCell className="text-left">{renderServiceFee(tx)}</TableCell>

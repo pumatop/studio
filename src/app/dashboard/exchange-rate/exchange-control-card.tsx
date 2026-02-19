@@ -108,6 +108,17 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
     );
 }
 
+function formatTime12h(timeString: string) {
+  if (!timeString || !/^\d{2}:\d{2}$/.test(timeString)) {
+    return timeString;
+  }
+  const [hour, minute] = timeString.split(':');
+  let h = parseInt(hour, 10);
+  const suffix = h >= 12 ? 'م' : 'ص';
+  h = ((h + 11) % 12) + 1; // Convert 24h to 12h
+  return `${h}:${minute} ${suffix}`;
+}
+
 
 export function ExchangeControlCard() {
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
@@ -261,7 +272,12 @@ export function ExchangeControlCard() {
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
             <span className="text-sm text-primary font-bold">
-                {serverTime.toLocaleTimeString("en-US").replace('AM', 'ص').replace('PM', 'م')}
+              {serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
+                hour: 'numeric',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+              })}
             </span>
           </div>
           <div className="relative">
@@ -349,7 +365,7 @@ export function ExchangeControlCard() {
                             <div className="text-sm">
                                 <p>
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
-                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.value}</span>
+                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
                                     {condition.type === 'amount' && ` جنيه مصري،`}
                                     غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
                                 </p>
