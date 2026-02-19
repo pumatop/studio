@@ -84,6 +84,7 @@ import { useDatabase, updateRtdb, useRtdbList, useFunctions } from "@/firebase";
 import { httpsCallable } from "firebase/functions";
 import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
 import { EgyptianTransfersDataTable } from "../egyptian-transactions/data-table";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 // Maps for UI display
 const verificationMap: Record<User["verification"], string> = {
@@ -128,6 +129,20 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList(open && user ? '/transactions' : null);
     const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
 
+    const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
+
+    const getImageUrl = (urlOrPlaceholder: string | null | undefined): string | null => {
+        if (!urlOrPlaceholder) return null;
+        if (urlOrPlaceholder.startsWith('http')) return urlOrPlaceholder;
+        if (urlOrPlaceholder === 'id-card-placeholder' && idCardPlaceholder) {
+            return idCardPlaceholder.imageUrl;
+        }
+        return null;
+    }
+
+    const frontImageUrl = getImageUrl(user?.idImageUrl);
+    const backImageUrl = getImageUrl(user?.idImageBackUrl);
+    const otherImageUrl = getImageUrl(user?.idImageOtherUrl);
 
     const userFinancialTransactions = useMemo(() => {
         if (!user || !allTransactions) return [];
@@ -285,9 +300,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                             <CardContent className="pt-4 space-y-4">
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الأمامية)</h4>
-                                    {user.idImageUrl ? (
-                                        <a href={user.idImageUrl} target="_blank" rel="noopener noreferrer">
-                                            <Image src={user.idImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                    {frontImageUrl ? (
+                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={frontImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
                                         </a>
                                     ) : (
                                         <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
@@ -297,9 +312,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                 </div>
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الخلفية)</h4>
-                                    {user.idImageBackUrl ? (
-                                        <a href={user.idImageBackUrl} target="_blank" rel="noopener noreferrer">
-                                            <Image src={user.idImageBackUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                    {backImageUrl ? (
+                                        <a href={backImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={backImageUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
                                         </a>
                                     ) : (
                                         <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
@@ -309,9 +324,9 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                 </div>
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-muted-foreground">مستند إضافي</h4>
-                                    {user.idImageOtherUrl ? (
-                                        <a href={user.idImageOtherUrl} target="_blank" rel="noopener noreferrer">
-                                            <Image src={user.idImageOtherUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
+                                    {otherImageUrl ? (
+                                        <a href={otherImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={otherImageUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" />
                                         </a>
                                     ) : (
                                         <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50">
@@ -759,7 +774,3 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     </div>
   );
 }
-
-    
-
-    
