@@ -69,7 +69,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDatabase, updateRtdb, useRtdbList } from "@/firebase";
+import { useDatabase, updateRtdb, useRtdbList, removeRtdb } from "@/firebase";
 import { LibyanTransactionsDataTable } from "../libyan-transactions/data-table";
 import { EgyptianTransfersDataTable } from "../egyptian-transactions/data-table";
 
@@ -107,7 +107,7 @@ const statusColors: Record<User['status'], string> = {
   "banned": "bg-red-100 text-red-800",
 };
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void }) {
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void }) {
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
@@ -160,8 +160,8 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
     }, [user]);
     
     const handleLogoutSession = (sessionId: string) => {
-        // This is a placeholder for the actual implementation which would involve server-side logic
-        toast({ title: `تم إرسال طلب إنهاء الجلسة ${sessionId}.` });
+        if (!user) return;
+        onDeleteSession(user.id, sessionId);
     };
 
     if (!user) {
@@ -318,7 +318,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                     </div>
 
                     {/* Column 2: History & Security */}
-                    <div className="md:col-span-3 space-y-4">
+                    <div className="md:col-span-2 space-y-4">
                         <Card>
                             <CardHeader className="pb-2">
                                 <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle>
@@ -486,6 +486,33 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     }
   };
 
+  const handleDeleteSession = async (userId: string, sessionId: string) => {
+    if (!window.confirm("هل أنت متأكد من رغبتك في إنهاء هذه الجلسة؟")) {
+      return;
+    }
+    try {
+      await removeRtdb(database, `/users/${userId}/sessions/${sessionId}`);
+      toast({
+        title: "تم إنهاء الجلسة بنجاح",
+        description: "تم تسجيل خروج المستخدم من هذا الجهاز.",
+      });
+      // Update the local state to reflect the change immediately
+      setSelectedUser(prev => {
+        if (!prev || prev.id !== userId) return prev;
+        const newSessions = {...prev.sessions};
+        delete (newSessions as any)[sessionId];
+        return {...prev, sessions: newSessions};
+      });
+    } catch (e: any) {
+      toast({
+        title: "خطأ في إنهاء الجلسة",
+        description: e.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+
   const handleShowDetails = (user: User) => {
       setSelectedUser(user);
       setDetailsOpen(true);
@@ -513,10 +540,6 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const handlePrint = () => {
       window.print();
   };
-
-  const MemoizedUserDetailsDialog = useMemo(() => {
-    return <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} />
-  }, [selectedUser, isDetailsOpen, handleUserUpdate]);
 
   return (
     <div className="space-y-4">
@@ -669,7 +692,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
-       {MemoizedUserDetailsDialog}
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} onDeleteSession={handleDeleteSession} />
     </div>
   );
 }
