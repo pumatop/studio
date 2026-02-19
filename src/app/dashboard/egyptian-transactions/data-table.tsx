@@ -18,8 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Eye, FilterX, Calendar as CalendarIcon, FileDown, Printer, CircleDollarSign } from "lucide-react";
+import { Eye, FilterX, Calendar as CalendarIcon, FileDown, Printer, CircleDollarSign, User, Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft, Landmark, Receipt, Wallet } from "lucide-react";
 import type { EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -229,59 +230,65 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                       </DialogTrigger>
                       <DialogContent className="max-w-md">
                         <DialogHeader>
-                          <DialogTitle>إيصال العملية {transfer.id}</DialogTitle>
+                          <DialogTitle className="flex items-center gap-2">
+                              <CircleDollarSign className="h-8 w-8 text-primary" />
+                              <span className="text-2xl font-bold text-primary">حولّي كاش</span>
+                          </DialogTitle>
+                          <DialogDescription>إيصال تحويل إلكتروني</DialogDescription>
                         </DialogHeader>
                         <div className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/50" dir="rtl">
-                          <div className="flex justify-between items-center border-b pb-4 mb-4">
-                            <div className="flex items-center gap-2">
-                              <CircleDollarSign className="h-8 w-8 text-primary" />
-                              <h2 className="text-xl font-bold text-primary">حولّي كاش</h2>
-                            </div>
-                            <span className="text-sm font-semibold">إيصال تحويل</span>
-                          </div>
                           
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm mb-4">
-                            <div><span className="font-semibold text-muted-foreground">رقم العملية:</span> {transfer.id}</div>
-                            <div className="text-left"><span className="font-semibold text-muted-foreground">الحالة:</span> <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>{statusMap[transfer.status]}</Badge></div>
-                            <div className="col-span-2"><span className="font-semibold text-muted-foreground">التاريخ:</span> {new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</div>
+                          <div className="space-y-2 text-sm mb-4">
+                              <div className="flex justify-between">
+                                  <span className="font-semibold text-muted-foreground flex items-center gap-2"><Hash size={14} />رقم العملية:</span> 
+                                  <span className="font-mono">{transfer.id}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                  <span className="font-semibold text-muted-foreground flex items-center gap-2"><CalendarDays size={14} />التاريخ:</span> 
+                                  <span>{new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="font-semibold text-muted-foreground flex items-center gap-2"><Info size={14} />الحالة:</span> 
+                                  <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>{statusMap[transfer.status]}</Badge>
+                              </div>
                           </div>
                           
                           <Separator className="my-4" />
                           
                           <div className="grid grid-cols-2 gap-4 my-4 text-sm">
-                            <div>
-                              <h3 className="font-bold mb-1">من (المرسل)</h3>
-                              <p>{transfer.userName}</p>
-                              <p className="text-muted-foreground">{transfer.userPhone}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-bold mb-1">إلى (المستلم)</h3>
-                              <p>{transfer.recipientName}</p>
-                              <p className="text-muted-foreground">{transfer.recipientNumber}</p>
-                            </div>
+                              <div>
+                                  <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> من (المرسل)</h3>
+                                  <p className="flex items-center gap-2"><User size={14} className="opacity-70"/> {transfer.userName}</p>
+                                  <p className="text-muted-foreground flex items-center gap-2"><Phone size={14} className="opacity-70"/> {transfer.userPhone}</p>
+                              </div>
+                              <div>
+                                  <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> إلى (المستلم)</h3>
+                                  <p className="flex items-center gap-2"><User size={14} className="opacity-70"/> {transfer.recipientName || 'غير متوفر'}</p>
+                                  <p className="text-muted-foreground flex items-center gap-2"><Phone size={14} className="opacity-70"/> {transfer.recipientNumber || 'غير متوفر'}</p>
+                              </div>
                           </div>
                           
-                          <div className="border rounded-lg text-sm">
+                          <div className="border rounded-lg text-sm bg-background">
                             <Table>
                               <TableBody>
                                 <TableRow>
-                                  <TableCell className="font-semibold">المبلغ بالدينار</TableCell>
+                                  <TableCell className="font-semibold flex items-center gap-2"><Database className="text-muted-foreground" size={14} /> المبلغ بالدينار</TableCell>
                                   <TableCell className="text-left font-mono">{transfer.amountLYD.toLocaleString('en-US', {minimumFractionDigits: 2})} د.ل</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                  <TableCell className="font-semibold">سعر الصرف</TableCell>
+                                  <TableCell className="font-semibold flex items-center gap-2"><ArrowRightLeft className="text-muted-foreground" size={14} /> سعر الصرف</TableCell>
                                   <TableCell className="text-left font-mono">x {transfer.exchangeRate}</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                  <TableCell className="font-semibold">المبلغ بالجنيه</TableCell>
+                                  <TableCell className="font-semibold flex items-center gap-2"><Landmark className="text-muted-foreground" size={14} /> المبلغ بالجنيه</TableCell>
                                   <TableCell className="text-left font-mono">{transfer.amountEGP.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                  <TableCell className="font-semibold">رسوم الخدمة</TableCell>
+                                  <TableCell className="font-semibold flex items-center gap-2"><Receipt className="text-muted-foreground" size={14} /> رسوم الخدمة</TableCell>
                                   <TableCell className="text-left font-mono">{(transfer.serviceFee || 0).toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell>
                                 </TableRow>
                                 <TableRow className="bg-muted/50">
-                                  <TableCell className="font-bold">الإجمالي المستلم</TableCell>
+                                  <TableCell className="font-bold flex items-center gap-2"><Wallet className="text-primary" size={14} /> الإجمالي المستلم</TableCell>
                                   <TableCell className="text-left font-bold font-mono">{transfer.amountEGP.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell>
                                 </TableRow>
                               </TableBody>
