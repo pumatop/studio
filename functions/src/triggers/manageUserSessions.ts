@@ -14,8 +14,12 @@ export const manageUserSessions = onCall({region: "asia-southeast1"}, async (req
   const adminUserSnapshot = await adminUserRef.get();
   const adminUserData = adminUserSnapshot.val();
 
-  if (!adminUserData || adminUserData.role !== "admin") {
-    throw new HttpsError("permission-denied", "Only administrators can manage user sessions.");
+  if (!adminUserData) {
+    throw new HttpsError("permission-denied", `Permission denied. User profile not found in database for UID: ${adminUid}.`);
+  }
+
+  if (adminUserData.role !== "admin") {
+    throw new HttpsError("permission-denied", `Permission denied. User does not have admin role. Role found: '${adminUserData.role}'.`);
   }
 
   const {userId, sessionId, action} = request.data;
