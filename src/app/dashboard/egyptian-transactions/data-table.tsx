@@ -278,7 +278,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                                 </TableRow>
                                 <TableRow>
                                   <TableCell className="font-semibold">رسوم الخدمة</TableCell>
-                                  <TableCell className="text-left font-mono">{transfer.serviceFee.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell>
+                                  <TableCell className="text-left font-mono">{(transfer.serviceFee || 0).toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell>
                                 </TableRow>
                                 <TableRow className="bg-muted/50">
                                   <TableCell className="font-bold">الإجمالي المستلم</TableCell>
