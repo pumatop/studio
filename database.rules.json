@@ -29,6 +29,10 @@
             ".write": "auth != null",
             ".indexOn": ["date"]
         },
+        "fakkaSafe": {
+            ".read": "auth != null",
+            ".write": false
+        },
         "dailyAggregates": {
             ".read": "auth != null",
             ".write": false,

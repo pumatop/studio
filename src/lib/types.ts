@@ -110,6 +110,21 @@ export type DailyRate = {
   rate: number;
 };
 
+export type FakkaLog = {
+  id: string;
+  transactionId: string;
+  amount: number;
+  timestamp: number;
+  userName: string;
+  userPhone: string;
+};
+
+export type FakkaSafe = {
+  totalFakka: number;
+  logs: { [key: string]: Omit<FakkaLog, 'id'> };
+};
+
+
 // Types for Supervisors page
 export type Supervisor = {
   id: string;

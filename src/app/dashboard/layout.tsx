@@ -31,6 +31,7 @@ import {
   CreditCard,
   ChevronDown,
   ChevronsRight,
+  PiggyBank,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
@@ -79,6 +80,13 @@ const navItems = [
     color: "text-rose-500",
   },
   {
+    href: "/dashboard/fakka-log",
+    icon: PiggyBank,
+    label: "حصالة الفكة",
+    match: /^\/dashboard\/fakka-log/,
+    color: "text-amber-500",
+  },
+  {
     href: "/dashboard/reports",
     icon: BrainCircuit,
     label: "تقارير الذكاء الاصطناعي",
@@ -110,6 +118,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
   "/dashboard/dg-transfers": "التحويل من دينار لجنيه (DG)",
   "/dashboard/supervisors": "المشرفين والمندوبين",
+  "/dashboard/fakka-log": "حصالة الفكة",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/audit-log": "سجل التدقيق",
   "/dashboard/settings": "الإعدادات",

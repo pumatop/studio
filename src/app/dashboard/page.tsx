@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList, useRtdbObject } from "@/firebase/rtdb";
 import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction } from "@/lib/types";
 import {
   Card,
@@ -71,6 +71,7 @@ export default function DashboardPage() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>("/transactions");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
+  const { data: fakkaSafeData, isLoading: fakkaLoading } = useRtdbObject<{totalFakka: number}>("/fakkaSafe");
 
   const mostRecentTimestamp = useMemo(() => {
     if (!transactions || transactions.length === 0) return Date.now();
@@ -183,11 +184,7 @@ export default function DashboardPage() {
         revenue: monthlyInternal.reduce((sum, t) => sum + t.fee, 0)
     };
 
-    const fakkaBalance = lydToEgpTransactions.reduce((sum, t) => {
-        const preciseAmount = t.amountLYD * t.exchangeRate;
-        const fraction = preciseAmount - t.amountEGP;
-        return sum + (fraction > 0 ? fraction : 0);
-    }, 0);
+    const fakkaBalance = fakkaSafeData?.totalFakka || 0;
 
     // Egyptian Transfers Stats (from live data)
     const egyptianTransfers = transactionsData.filter((t): t is EgyptTransferTransaction => t.type === 'egypt_transfer');
@@ -310,9 +307,9 @@ export default function DashboardPage() {
         supervisorStats,
     };
 
-   }, [users, transactions, supervisors, selectedMonth, todayDate]);
+   }, [users, transactions, supervisors, selectedMonth, todayDate, fakkaSafeData]);
 
-  const isLoading = usersLoading || transactionsLoading || supervisorsLoading;
+  const isLoading = usersLoading || transactionsLoading || supervisorsLoading || fakkaLoading;
 
   if (isLoading) {
     return (

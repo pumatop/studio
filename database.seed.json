@@ -165,6 +165,18 @@
     "log_2": { "date": "2026-02-01T10:00:00.000Z", "modifiedBy": "مندوب 1", "oldRate": 9.65, "newRate": 9.70, "currencyPair": "LYD/EGP" },
     "log_3": { "date": "2026-02-03T18:00:00.000Z", "modifiedBy": "مشرف النظام", "oldRate": 9.70, "newRate": 9.65, "currencyPair": "LYD/EGP" }
   },
+  "fakkaSafe": {
+    "totalFakka": 0.325,
+    "logs": {
+      "log_fakka_1": {
+        "transactionId": "DG_HYPOTHETICAL",
+        "amount": 0.325,
+        "timestamp": 1771149265067,
+        "userName": "مبارك ابراهيم ابوعيشه",
+        "userPhone": "+201030926584"
+      }
+    }
+  },
   "settings": {
     "main": {
       "isMaintenance": false,
