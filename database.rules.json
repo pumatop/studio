@@ -12,21 +12,21 @@
         },
         "supervisors": {
             ".read": "auth != null",
-            ".write": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
             ".indexOn": ["status", "connectionStatus"]
         },
         "exchangeRates": {
             ".read": "auth != null",
-            ".write": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
             ".indexOn": ["currencyPair"]
         },
         "settings": {
             ".read": "auth != null",
-            ".write": "auth != null"
+            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
         },
         "exchangeRateLogs": {
             ".read": "auth != null",
-            ".write": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
             ".indexOn": ["date"]
         },
         "fakkaSafe": {
