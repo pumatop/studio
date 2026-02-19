@@ -1,28 +1,41 @@
 // Base User Type from RTDB
 
+export type UserSession = {
+  activeDevice: string;
+  phoneOS: string;
+  connectionStatus: 'متصل' | 'غير متصل';
+  ipAddress: string;
+  lastLogin: string;
+  lastUpdate: number;
+};
+
 export type User = {
   id: string;
   balanceEGP: number;
   balanceLYD: number;
   balanceEgyptianPending: number;
   createdAt: number;
-  lastLogin: string;
-  lastUpdate: number;
   name: string;
   phone: string;
   pin: string;
   role: 'admin' | 'user' | 'merchant';
   status: 'active' | 'banned';
   verification: 'verified' | 'unverified' | 'pending';
-  connectionStatus: 'متصل' | 'غير متصل';
+  
+  // For backward compatibility, these can exist at root
+  connectionStatus?: 'متصل' | 'غير متصل';
+  lastLogin?: string;
+  lastUpdate?: number;
   activeDevice?: string;
   phoneOS?: string;
   ipAddress?: string;
+
   idImageUrl?: string;
-  idImageBackUrl?: string;
-  idImageOtherUrl?: string;
+  idImageBackUrl?: string | null;
+  idImageOtherUrl?: string | null;
   lastPasswordChange?: number;
   lastPinChange?: number;
+  sessions?: { [sessionId: string]: UserSession };
 };
 
 

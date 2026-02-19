@@ -58,7 +58,7 @@ import {
   FileDown, 
   Printer
 } from "lucide-react";
-import type { User, Transaction, EgyptTransferTransaction } from "@/lib/types";
+import type { User, Transaction, EgyptTransferTransaction, UserSession } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { cn, exportToCsv } from "@/lib/utils";
@@ -97,7 +97,7 @@ const verificationStatusColors: Record<User["verification"], string> = {
   "pending": "bg-yellow-100 text-yellow-800",
 };
 
-const connectionStatusColors: Record<User["connectionStatus"], string> = {
+const connectionStatusColors: Record<UserSession["connectionStatus"], string> = {
   "متصل": "bg-green-100 text-green-800",
   "غير متصل": "bg-stone-100 text-stone-800",
 };
@@ -131,11 +131,38 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         );
     }, [user, allTransactions]);
 
+    const sessions: (UserSession & { id: string })[] = useMemo(() => {
+        if (!user) return [];
+        if (user.sessions) {
+            return Object.entries(user.sessions)
+                .map(([id, sessionData]) => ({ id, ...sessionData }))
+                .sort((a, b) => b.lastUpdate - a.lastUpdate);
+        }
+        // Fallback for old data structure
+        if (user.activeDevice) {
+            return [{
+                id: 'legacy-session',
+                activeDevice: user.activeDevice,
+                phoneOS: user.phoneOS || 'N/A',
+                connectionStatus: user.connectionStatus || 'غير متصل',
+                ipAddress: user.ipAddress || 'N/A',
+                lastLogin: user.lastLogin || new Date(user.lastUpdate || 0).toISOString(),
+                lastUpdate: user.lastUpdate || 0
+            }];
+        }
+        return [];
+    }, [user]);
+
     useEffect(() => {
         if (user) {
             setName(user.name);
         }
     }, [user]);
+    
+    const handleLogoutSession = (sessionId: string) => {
+        // This is a placeholder for the actual implementation which would involve server-side logic
+        toast({ title: `تم إرسال طلب إنهاء الجلسة ${sessionId}.` });
+    };
 
     if (!user) {
         return null;
@@ -147,7 +174,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
         const updates: Partial<User> = { verification: newStatus };
 
         if (newStatus === 'verified') {
-            // To delete fields in RTDB, we set their value to null
             updates.idImageBackUrl = null;
             updates.idImageOtherUrl = null;
             await onUserUpdate(user.id, updates);
@@ -156,7 +182,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                 description: "تم حذف صور الهوية الإضافية والاحتفاظ بالصورة الأمامية.",
             });
         } else if (newStatus === 'unverified') {
-            // To delete fields in RTDB, we set their value to null
             updates.idImageUrl = null;
             updates.idImageBackUrl = null;
             updates.idImageOtherUrl = null;
@@ -167,7 +192,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                 variant: "destructive",
             });
         } else {
-             // For 'pending' or any other status, just update the status
             await onUserUpdate(user.id, { verification: newStatus });
             toast({ title: "حالة التوثيق تم تحديثها" });
         }
@@ -209,7 +233,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
             }
             onOpenChange(o);
         }}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-4xl">
                 <DialogHeader>
                     {isEditingName ? (
                         <div className="flex items-center gap-2">
@@ -226,7 +250,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                             </Button>
                         </div>
                     )}
-                    <DialogDescription>تفاصيل المستخدم الكاملة</DialogDescription>
+                    <DialogDescription>تفاصيل المستخدم الكاملة ({user.phone})</DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
                     {/* Column 1: Balances & Personal Info */}
@@ -294,22 +318,66 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
                     </div>
 
                     {/* Column 2: History & Security */}
-                    <div className="md:col-span-2 space-y-4">
-                         <Card>
+                    <div className="md:col-span-3 space-y-4">
+                        <Card>
                             <CardHeader className="pb-2">
-                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الأمان</CardTitle>
+                                <CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle>
                             </CardHeader>
-                             <CardContent className="text-sm space-y-2 pt-4">
+                            <CardContent className="text-sm space-y-2 pt-4">
                                 <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
                                 <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
                                 <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
-                                <Separator className="my-2" />
-                                <div className="flex justify-between"><span>الجهاز النشط:</span> <span className="flex items-center gap-2"><Smartphone size={16} />{user.activeDevice || 'N/A'}</span></div>
-                                <div className="flex justify-between"><span>نظام التشغيل:</span> <span>{user.phoneOS || 'N/A'}</span></div>
-                                <div className="flex justify-between"><span>عنوان IP:</span> <span>{user.ipAddress || 'N/A'}</span></div>
+                            </CardContent>
+                        </Card>
+                         <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات والأجهزة</CardTitle>
+                                <CardDescription>عرض وإدارة الجلسات النشطة للمستخدم.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {sessions.length > 0 ? (
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>الجهاز</TableHead>
+                                                <TableHead>آخر ظهور</TableHead>
+                                                <TableHead>الحالة</TableHead>
+                                                <TableHead>IP</TableHead>
+                                                <TableHead className="text-left">إجراء</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sessions.map((session) => (
+                                                <TableRow key={session.id}>
+                                                    <TableCell>
+                                                        <div className="font-medium">{session.activeDevice}</div>
+                                                        <div className="text-xs text-muted-foreground">{session.phoneOS}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell>
+                                                    <TableCell>
+                                                        <Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>
+                                                            {session.connectionStatus}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="font-mono text-xs">{session.ipAddress}</TableCell>
+                                                    <TableCell className="text-left">
+                                                        <Button variant="ghost" size="sm" onClick={() => handleLogoutSession(session.id)} disabled={session.id === 'legacy-session'}>
+                                                            <LogOut className="ml-2 h-3 w-3" />
+                                                            إنهاء
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات لعرضها.</p>
+                                )}
                             </CardContent>
                             <CardFooter>
-                                <Button variant="destructive" className="w-full" onClick={handleLogoutAll}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button>
+                                <Button variant="destructive" className="w-full" onClick={handleLogoutAll}>
+                                    <LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة
+                                </Button>
                             </CardFooter>
                         </Card>
                          <Tabs defaultValue="libyan">
@@ -360,16 +428,32 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [verificationFilter, setVerificationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  const getLatestSessionInfo = (user: User) => {
+    if (user.sessions) {
+      const sessions = Object.values(user.sessions);
+      if (sessions.length > 0) {
+        return sessions.sort((a, b) => b.lastUpdate - a.lastUpdate)[0];
+      }
+    }
+    // Fallback to root-level properties for old data structure
+    return {
+      connectionStatus: user.connectionStatus || 'غير متصل',
+      lastUpdate: user.lastUpdate || user.createdAt,
+    };
+  };
+
   const filteredData = useMemo(() => {
     if (!initialData) return [];
     return initialData.filter(
-      (user) =>
-        (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user) => {
+        const latestSession = getLatestSessionInfo(user);
+        return (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           user.phone.includes(searchTerm)) &&
         (roleFilter === 'all' || user.role === roleFilter) &&
-        (connectionStatusFilter === 'all' || user.connectionStatus === connectionStatusFilter) &&
+        (connectionStatusFilter === 'all' || latestSession.connectionStatus === connectionStatusFilter) &&
         (verificationFilter === 'all' || user.verification === verificationFilter) &&
         (statusFilter === 'all' || user.status === statusFilter)
+      }
     );
   }, [initialData, searchTerm, roleFilter, connectionStatusFilter, verificationFilter, statusFilter]);
   
@@ -429,6 +513,10 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const handlePrint = () => {
       window.print();
   };
+
+  const MemoizedUserDetailsDialog = useMemo(() => {
+    return <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} />
+  }, [selectedUser, isDetailsOpen, handleUserUpdate]);
 
   return (
     <div className="space-y-4">
@@ -525,60 +613,63 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((user) => (
-              <TableRow key={user.id} className={cn(user.status === 'banned' && 'bg-red-50/50 opacity-60')}>
-                <TableCell className="font-medium">{user.name}</TableCell>
-                <TableCell>{user.phone}</TableCell>
-                <TableCell>{roleMap[user.role]}</TableCell>
-                <TableCell>
-                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[user.connectionStatus], `hover:${connectionStatusColors[user.connectionStatus]}`)}>
-                    <span className={cn('h-2 w-2 rounded-full', user.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
-                    {user.connectionStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>
-                      {statusMap[user.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{new Date(user.lastUpdate).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
-                <TableCell>
-                  <Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>
-                      {verificationMap[user.verification]}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-left">
-                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">فتح القائمة</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleShowDetails(user)}>
-                        <Eye className="ml-2 h-4 w-4" />
-                        <span>تفاصيل</span>
-                      </DropdownMenuItem>
-                       {user.verification === 'pending' && (
-                        <DropdownMenuItem onClick={() => handleUserUpdate(user.id, {verification: 'verified'})} className="text-blue-600 focus:text-blue-600">
-                            <ShieldCheck className="ml-2 h-4 w-4" />
-                            <span>توثيق الحساب</span>
+            {filteredData.map((user) => {
+              const latestSession = getLatestSessionInfo(user);
+              return (
+                <TableRow key={user.id} className={cn(user.status === 'banned' && 'bg-red-50/50 opacity-60')}>
+                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell>{user.phone}</TableCell>
+                  <TableCell>{roleMap[user.role]}</TableCell>
+                  <TableCell>
+                    <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[latestSession.connectionStatus], `hover:${connectionStatusColors[latestSession.connectionStatus]}`)}>
+                      <span className={cn('h-2 w-2 rounded-full', latestSession.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
+                      {latestSession.connectionStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>
+                        {statusMap[user.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{new Date(latestSession.lastUpdate).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
+                  <TableCell>
+                    <Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>
+                        {verificationMap[user.verification]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">فتح القائمة</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleShowDetails(user)}>
+                          <Eye className="ml-2 h-4 w-4" />
+                          <span>تفاصيل</span>
                         </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
-                        {user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
-                        <span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+                        {user.verification === 'pending' && (
+                          <DropdownMenuItem onClick={() => handleUserUpdate(user.id, {verification: 'verified'})} className="text-blue-600 focus:text-blue-600">
+                              <ShieldCheck className="ml-2 h-4 w-4" />
+                              <span>توثيق الحساب</span>
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>
+                          {user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}
+                          <span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>
-       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} />
+       {MemoizedUserDetailsDialog}
     </div>
   );
 }
