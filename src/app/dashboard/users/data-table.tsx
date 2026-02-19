@@ -21,6 +21,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -113,6 +123,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
+    const [confirmation, setConfirmation] = useState<{ action: 'delete-session', sessionId: string } | { action: 'logout-all' } | null>(null);
 
     const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList(open && user ? '/transactions' : null);
     const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
@@ -363,7 +374,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                                     </TableCell>
                                                     <TableCell className="font-mono text-xs">{session.ipAddress}</TableCell>
                                                     <TableCell className="text-left">
-                                                        <Button variant="ghost" size="sm" onClick={() => handleLogoutSession(session.id)} disabled={session.id === 'legacy-session'}>
+                                                        <Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}>
                                                             <LogOut className="ml-2 h-3 w-3" />
                                                             إنهاء
                                                         </Button>
@@ -377,7 +388,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                 )}
                             </CardContent>
                             <CardFooter>
-                                <Button variant="destructive" className="w-full" onClick={handleLogoutAll}>
+                                <Button variant="destructive" className="w-full" onClick={() => setConfirmation({ action: 'logout-all' })}>
                                     <LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة
                                 </Button>
                             </CardFooter>
@@ -412,6 +423,33 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                         </Tabs>
                     </div>
                 </div>
+                 <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {confirmation?.action === 'delete-session'
+                            ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.'
+                            : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                            if (confirmation?.action === 'delete-session' && confirmation.sessionId) {
+                                handleLogoutSession(confirmation.sessionId);
+                            } else if (confirmation?.action === 'logout-all') {
+                                handleLogoutAll();
+                            }
+                            setConfirmation(null);
+                            }}
+                        >
+                            نعم، متابعة
+                        </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
             </DialogContent>
         </Dialog>
     )
@@ -490,9 +528,6 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   };
 
   const handleDeleteSession = async (userId: string, sessionId: string) => {
-    if (!window.confirm("هل أنت متأكد من رغبتك في إنهاء هذه الجلسة؟")) {
-      return;
-    }
     try {
       const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
       await manageUserSessions({ userId, sessionId });
@@ -518,9 +553,6 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   };
 
   const handleLogoutAllSessions = async (userId: string) => {
-    if (!window.confirm("هل أنت متأكد من تسجيل الخروج من جميع الأجهزة؟ سيتم حذف جميع الجلسات النشطة.")) {
-      return;
-    }
     try {
       const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
       await manageUserSessions({ userId, action: 'deleteAll' });
