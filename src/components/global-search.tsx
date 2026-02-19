@@ -3,18 +3,21 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
 import { useRtdbList } from "@/firebase";
 import type { User, Supervisor, Transaction } from "@/lib/types";
 import { Users, UserCog, ReceiptText, Search } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
 
-export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+export function GlobalSearch() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -56,8 +59,19 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
 
   const handleSelect = (path: string) => {
     router.push(path);
-    onOpenChange(false);
+    setOpen(false);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((open) => !open);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     if (!open) {
@@ -72,8 +86,20 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
   const hasResults = searchResults.users.length > 0 || searchResults.supervisors.length > 0 || searchResults.transactions.length > 0;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0" onOpenAutoFocus={(e) => e.preventDefault()}>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="relative w-full justify-start rounded-lg bg-muted/30 pr-9 md:w-[200px] lg:w-[330px] border-transparent text-muted-foreground transition-colors hover:bg-muted/60"
+        >
+          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <span>ابحث...</span>
+          <kbd className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+            <span className="text-xs">⌘</span>K
+          </kbd>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[330px] lg:w-[450px] p-0" align="start">
         <div className="relative p-4">
             <Search className="absolute right-7 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
@@ -100,7 +126,7 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
             </div>
           )}
           {hasResults && (
-            <ScrollArea className="h-[50vh]">
+            <ScrollArea className="h-[40vh] max-h-[300px]">
                 <div className="p-2 space-y-2">
                   {searchResults.users.length > 0 && (
                     <div>
@@ -147,7 +173,7 @@ export function GlobalSearch({ open, onOpenChange }: { open: boolean; onOpenChan
             </ScrollArea>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </PopoverContent>
+    </Popover>
   );
 }
