@@ -1,6 +1,6 @@
 "use client";
 
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { SupervisorsDataTable } from "./data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Supervisor } from "@/lib/types";

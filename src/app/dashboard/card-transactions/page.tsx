@@ -1,5 +1,5 @@
 "use client";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { CardTransactionsDataTable } from "./data-table";
 import type { Transaction, RechargePurchaseTransaction } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";

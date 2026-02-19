@@ -1,5 +1,5 @@
 "use client";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { FakkaLogDataTable } from "./data-table";
 import type { FakkaLog } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";

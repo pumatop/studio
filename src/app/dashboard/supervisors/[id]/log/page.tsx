@@ -1,7 +1,6 @@
 "use client";
 
-import { useRtdbObject } from "@/firebase/rtdb/use-rtdb-object";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbObject, useRtdbList } from "@/firebase";
 import { SupervisorLogDataTable } from "./log-data-table";
 import { notFound } from "next/navigation";
 import Link from "next/link";

@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateInsightsAction } from "./actions";
 import type { GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
 import { BrainCircuit, Lightbulb, ListChecks, TrendingUp, AlertTriangle } from "lucide-react";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import type { Transaction } from "@/lib/types";
 
 function LoadingSkeleton() {

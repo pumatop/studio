@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ExchangeControlCard } from "./exchange-control-card";
 import { ExchangeRateChartCard } from "./exchange-rate-chart-card";
 import { ChangeLogCard } from "./change-log-card";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import type { ExchangeRateLog, DailyRate } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 

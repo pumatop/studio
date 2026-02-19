@@ -1,5 +1,5 @@
 "use client";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { LibyanTransactionsDataTable } from "@/app/dashboard/libyan-transactions/data-table";
 import type { Transaction } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";

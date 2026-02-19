@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { EgyptianTransfersDataTable } from "@/app/dashboard/egyptian-transactions/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Transaction, EgyptTransferTransaction } from "@/lib/types";

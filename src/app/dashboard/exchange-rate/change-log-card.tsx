@@ -18,7 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
 import { ArrowDown, ArrowUp, History, FileDown, Printer } from "lucide-react";
-import { useRtdbList } from "@/firebase/rtdb/use-rtdb-list";
+import { useRtdbList } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
