@@ -1,3 +1,4 @@
+'use server';
 import * as admin from "firebase-admin";
 import {onSchedule} from "firebase-functions/v2/scheduler";
 import {onValueCreated} from "firebase-functions/v2/database";
@@ -27,7 +28,7 @@ export const processScheduledRateChanges = onSchedule(
 
     if (!settings?.autoConditionsActive || !settings.conditions) {
       logger.info("Auto conditions are disabled or no conditions found.");
-      return null;
+      return;
     }
 
     const now = new Date();
@@ -69,7 +70,7 @@ export const processScheduledRateChanges = onSchedule(
       logger.info("No time-based conditions met at this time.");
     }
 
-    return null;
+    return;
   }
 );
 
@@ -88,7 +89,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
       transaction.type !== "egypt_transfer" ||
       transaction.status !== "completed"
     ) {
-      return null;
+      return;
     }
 
     const settingsRef = db.ref("/settings/exchangeControl");
@@ -97,7 +98,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
 
     if (!settings?.autoConditionsActive || !settings.conditions) {
       logger.info("Auto conditions disabled or no conditions exist.");
-      return null;
+      return;
     }
 
     const amountConditions = Object.entries(
@@ -108,7 +109,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
 
     if (amountConditions.length === 0) {
       logger.info("No amount-based conditions to check.");
-      return null;
+      return;
     }
 
     const date = new Date(transaction.timestamp).toISOString().split("T")[0];
@@ -129,7 +130,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
       logger.error(
         "Failed to commit transaction to update daily aggregate."
       );
-      return null;
+      return;
     }
 
     const newTotalAmount = aggSnap.val().totalEgpAmount;
@@ -166,6 +167,6 @@ export const processTransactionBasedRateChanges = onValueCreated(
       logger.log("Successfully applied amount-based rate change.");
     }
 
-    return null;
+    return;
   }
 );
