@@ -19,8 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Eye, FilterX, Calendar as CalendarIcon, FileDown, Printer, CircleDollarSign, User, Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft, Landmark, Receipt, Wallet } from "lucide-react";
+import { Eye, FilterX, Calendar as CalendarIcon, FileDown, Printer, CircleDollarSign, User, Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft, Landmark, Receipt, Wallet, Save, Share2 } from "lucide-react";
 import type { EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -100,6 +101,20 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
       console.log('Printing data...');
       // Placeholder for actual print logic
       window.print();
+  };
+  
+  const handleSaveAsPng = () => {
+    toast({
+      title: "خاصية قيد التطوير",
+      description: "سيتم إضافة إمكانية حفظ الإيصال كصورة PNG قريبًا.",
+    });
+  };
+
+  const handleShare = () => {
+    toast({
+      title: "خاصية قيد التطوير",
+      description: "سيتم إضافة إمكانية مشاركة الإيصال قريبًا. يمكنك حفظ الصورة ومشاركتها يدويًا.",
+    });
   };
 
   return (
@@ -255,16 +270,11 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                           
                           <Separator className="my-4" />
                           
-                          <div className="grid grid-cols-2 gap-4 my-4 text-sm">
+                          <div className="grid grid-cols-1 gap-4 my-4 text-sm">
                               <div>
                                   <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> من (المرسل)</h3>
                                   <p className="flex items-center gap-2"><User size={14} className="opacity-70"/> {transfer.userName}</p>
                                   <p className="text-muted-foreground flex items-center gap-2"><Phone size={14} className="opacity-70"/> {transfer.userPhone}</p>
-                              </div>
-                              <div>
-                                  <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> إلى (المستلم)</h3>
-                                  <p className="flex items-center gap-2"><User size={14} className="opacity-70"/> {transfer.recipientName || 'غير متوفر'}</p>
-                                  <p className="text-muted-foreground flex items-center gap-2"><Phone size={14} className="opacity-70"/> {transfer.recipientNumber || 'غير متوفر'}</p>
                               </div>
                           </div>
                           
@@ -299,6 +309,16 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                             شكراً لاستخدامكم خدمات حولّي كاش
                           </div>
                         </div>
+                        <DialogFooter className="pt-4 gap-2 sm:justify-start">
+                           <Button variant="outline" onClick={handleShare}>
+                               <Share2 className="ml-2 h-4 w-4" />
+                               مشاركة الإيصال
+                           </Button>
+                           <Button onClick={handleSaveAsPng}>
+                               <Save className="ml-2 h-4 w-4" />
+                               حفظ كصورة
+                           </Button>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   ) : (
