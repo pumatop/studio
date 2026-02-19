@@ -253,8 +253,8 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <PageHeader title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-            <h1 className="text-2xl font-bold mb-4 sr-only">{getPageTitle()}</h1>
+        <main className="flex-1 overflow-y-auto p-4 pt-24 sm:p-6 sm:pt-26">
+            <h1 className="text-2xl font-bold mb-4 md:hidden">{getPageTitle()}</h1>
             {children}
         </main>
       </SidebarInset>
