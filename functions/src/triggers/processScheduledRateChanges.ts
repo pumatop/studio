@@ -27,7 +27,9 @@ export const processScheduledRateChanges = onSchedule(
 
     // This function only runs if automatic conditions are enabled.
     if (!settings?.autoConditionsActive || !settings.conditions) {
-      logger.info("Automatic rate conditions are disabled or no conditions found.");
+      logger.info(
+        "Automatic rate conditions are disabled or no conditions found."
+      );
       return;
     }
 
@@ -42,7 +44,10 @@ export const processScheduledRateChanges = onSchedule(
       hourCycle: "h23", // Use h23 for 00-23 hour format
     });
 
-    logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, {conditions: settings.conditions});
+    logger.info(
+      `Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`,
+      {conditions: settings.conditions}
+    );
 
     const conditions = settings.conditions as Record<string, Condition>;
     const updates: Record<string, unknown> = {};
@@ -54,7 +59,8 @@ export const processScheduledRateChanges = onSchedule(
           `Time condition met for ID ${id}. Changing rate to ${condition.targetRate}`
         );
 
-        updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+        updates["/settings/exchangeControl/currentRate"] =
+          condition.targetRate;
 
         const logId = db.ref("/exchangeRateLogs").push().key;
         updates[`/exchangeRateLogs/${logId}`] = {

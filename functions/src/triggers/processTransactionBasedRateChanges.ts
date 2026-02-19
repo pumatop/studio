@@ -52,27 +52,30 @@ export const processTransactionBasedRateChanges = onValueCreated(
 
     // START FAKKA LOGIC
     try {
-        const preciseAmount = transaction.amountLYD * transaction.exchangeRate;
-        const fakka = preciseAmount - transaction.amountEGP;
+      const preciseAmount = transaction.amountLYD * transaction.exchangeRate;
+      const fakka = preciseAmount - transaction.amountEGP;
 
-        if (fakka > 0.001) { // Use a small threshold to avoid floating point inaccuracies
-            logger.info(`Fakka detected for transaction ${event.params.transactionId}. Amount: ${fakka}`);
-            const fakkaLogRef = db.ref("/fakkaSafe/logs").push();
-            await fakkaLogRef.set({
-                transactionId: event.params.transactionId,
-                amount: fakka,
-                timestamp: transaction.timestamp,
-                userName: transaction.userName,
-                userPhone: transaction.userPhone
-            });
+      if (fakka > 0.001) {
+        // Use a small threshold to avoid floating point inaccuracies
+        logger.info(
+          `Fakka detected for transaction ${event.params.transactionId}. Amount: ${fakka}`
+        );
+        const fakkaLogRef = db.ref("/fakkaSafe/logs").push();
+        await fakkaLogRef.set({
+          transactionId: event.params.transactionId,
+          amount: fakka,
+          timestamp: transaction.timestamp,
+          userName: transaction.userName,
+          userPhone: transaction.userPhone,
+        });
 
-            const totalFakkaRef = db.ref("/fakkaSafe/totalFakka");
-            await totalFakkaRef.transaction((currentTotal) => {
-                return (currentTotal || 0) + fakka;
-            });
-        }
+        const totalFakkaRef = db.ref("/fakkaSafe/totalFakka");
+        await totalFakkaRef.transaction((currentTotal) => {
+          return (currentTotal || 0) + fakka;
+        });
+      }
     } catch (fakkaError) {
-        logger.error("Error processing fakka logic:", fakkaError);
+      logger.error("Error processing fakka logic:", fakkaError);
     }
     // END FAKKA LOGIC
 
@@ -98,7 +101,9 @@ export const processTransactionBasedRateChanges = onValueCreated(
     }
 
     const newTotalAmount = aggSnap.val().totalEgpAmount;
-    logger.info(`New total EGP amount for ${date} is ${newTotalAmount}. Checking for rate changes.`);
+    logger.info(
+      `New total EGP amount for ${date} is ${newTotalAmount}. Checking for rate changes.`
+    );
 
     let rateChanged = false;
     const updates: Record<string, unknown> = {};
@@ -111,7 +116,8 @@ export const processTransactionBasedRateChanges = onValueCreated(
             `Changing rate to ${condition.targetRate}`
         );
 
-        updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+        updates["/settings/exchangeControl/currentRate"] =
+          condition.targetRate;
         const logId = db.ref("/exchangeRateLogs").push().key;
         updates[`/exchangeRateLogs/${logId}`] = {
           date: new Date().toISOString(),
