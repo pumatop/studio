@@ -32,10 +32,15 @@ export const processScheduledRateChanges = onSchedule(
     }
 
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
+    // Get the current time in Africa/Cairo timezone, formatted as HH:mm
+    const currentTime = now.toLocaleTimeString('en-GB', {
+      timeZone: 'Africa/Cairo',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23' // Use h23 for 00-23 hour format
+    });
+    
+    logger.info(`Checking for time conditions. Current Cairo Time: ${currentTime}`, { conditions: settings.conditions });
 
     const conditions = settings.conditions as Record<string, Condition>;
     const updates: Record<string, unknown> = {};
