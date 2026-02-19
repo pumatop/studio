@@ -229,7 +229,8 @@
       "autoConditionsActive": true,
       "conditions": {
         "cond_1": { "type": "amount", "value": 500000, "targetRate": 9.70, "createdBy": "Admin" }
-      }
+      },
+      "timezone": "Africa/Cairo"
     }
   }
 }

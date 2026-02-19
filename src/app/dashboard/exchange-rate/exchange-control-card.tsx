@@ -27,6 +27,13 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
@@ -272,6 +279,30 @@ export function ExchangeControlCard() {
           </div>
         </div>
 
+        <Separator />
+
+        {/* Timezone Setting */}
+        <div className="space-y-2">
+          <Label htmlFor="timezone-select" className="font-semibold">المنطقة الزمنية</Label>
+          <p className="text-xs text-muted-foreground">
+            تُستخدم هذه المنطقة الزمنية للتحقق من شروط تغيير السعر المستندة إلى الوقت.
+          </p>
+          <Select
+            value={localSettings.timezone}
+            onValueChange={(value) => handleSettingChange('timezone', value)}
+          >
+            <SelectTrigger id="timezone-select">
+              <SelectValue placeholder="اختر منطقة زمنية..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Africa/Cairo">توقيت القاهرة (EET)</SelectItem>
+              <SelectItem value="Asia/Riyadh">توقيت الرياض (AST)</SelectItem>
+              <SelectItem value="UTC">التوقيت العالمي المنسق (UTC)</SelectItem>
+              <SelectItem value="Europe/London">توقيت لندن (GMT)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
         <Separator />
         
         {/* Automatic Rate Change Conditions */}

@@ -18,7 +18,7 @@ export const processScheduledRateChanges = onSchedule(
   {
     schedule: "every 1 minutes",
     region: "asia-southeast1",
-    timeZone: "Africa/Cairo",
+    timeZone: "UTC", // Run every minute based on UTC, but logic inside will use user's timezone
   },
   async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
@@ -30,17 +30,19 @@ export const processScheduledRateChanges = onSchedule(
       logger.info("Automatic rate conditions are disabled or no conditions found.");
       return;
     }
+    
+    const userTimezone = settings.timezone || "UTC"; // Fallback to UTC
 
     const now = new Date();
-    // Get the current time in Africa/Cairo timezone, formatted as HH:mm
-    const currentTime = now.toLocaleTimeString('en-GB', {
-      timeZone: 'Africa/Cairo',
-      hour: '2-digit',
-      minute: '2-digit',
-      hourCycle: 'h23' // Use h23 for 00-23 hour format
+    // Get the current time in the user-defined timezone, formatted as HH:mm
+    const currentTime = now.toLocaleTimeString("en-GB", {
+        timeZone: userTimezone,
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23", // Use h23 for 00-23 hour format
     });
     
-    logger.info(`Checking for time conditions. Current Cairo Time: ${currentTime}`, { conditions: settings.conditions });
+    logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, { conditions: settings.conditions });
 
     const conditions = settings.conditions as Record<string, Condition>;
     const updates: Record<string, unknown> = {};

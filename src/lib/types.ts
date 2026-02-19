@@ -194,6 +194,7 @@ export type ExchangeControlSettings = {
     currentRate: number;
     autoConditionsActive: boolean;
     conditions: { [key: string]: RateCondition };
+    timezone: string;
 };
 
 // Unified settings type for RTDB
