@@ -14,35 +14,50 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PlusCircle, Trash2, Upload, Phone, MapPin } from "lucide-react";
+import { PlusCircle, Trash2, Phone, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Agent, Region, AppSettings } from "@/lib/types";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import { useRtdbObject, useDatabase, updateRtdb, useStorage } from "@/firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WithId } from "@/firebase/rtdb/use-rtdb-list";
+
+// Helper component to render banner content (image or video)
+function BannerContent({ url }: { url: string }) {
+    const isVideo = ['.mp4', '.webm', '.ogg'].some(ext => url.toLowerCase().includes(ext));
+
+    if (isVideo) {
+        return (
+            <video
+                src={url}
+                controls
+                className="w-full h-full object-cover"
+            >
+                متصفحك لا يدعم عرض الفيديو.
+            </video>
+        );
+    }
+    return <Image src={url} alt="Banner" layout="fill" objectFit="cover" />;
+}
 
 
 export function AppSettingsCard() {
     const { data: settings, isLoading } = useRtdbObject<AppSettings>('/settings/app');
     const { database } = useDatabase();
+    const storage = useStorage(); // Get storage instance
     const { toast } = useToast();
 
-    const [localSettings, setLocalSettings] = useState<Partial<AppSettings>>({});
+    const [localSettings, setLocalSettings] = useState<Partial<AppSettings>>({ banners: [] });
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     
-    const bannerPlaceholder = PlaceHolderImages.find(p => p.id === 'promo-banner-placeholder');
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [editingBannerIndex, setEditingBannerIndex] = useState<number | null>(null);
 
     useEffect(() => {
         if (settings) {
-            // Ensure banners is always an array of 5
-            const banners = Array.isArray(settings.banners) ? settings.banners : [];
-            const paddedBanners = Array(5).fill(null).map((_, i) => banners[i] || null);
-
-            setLocalSettings({...settings, banners: paddedBanners});
+            // Filter out any null/empty values from banners array, handles both array and object-like array from Firebase
+            const validBanners = (Array.isArray(settings.banners) ? settings.banners : Object.values(settings.banners || {})).filter(Boolean);
+            setLocalSettings({...settings, banners: validBanners});
         }
     }, [settings]);
 
@@ -106,7 +121,12 @@ export function AppSettingsCard() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            await updateRtdb(database, '/settings/app', localSettings);
+            // Ensure banners are saved correctly, filtering any potential bad data
+            const settingsToSave = {
+                ...localSettings,
+                banners: (localSettings.banners || []).filter(Boolean)
+            };
+            await updateRtdb(database, '/settings/app', settingsToSave);
             toast({ title: "تم حفظ إعدادات التطبيق" });
         } catch (error: any) {
              toast({ title: "حدث خطأ", description: error.message, variant: "destructive" });
@@ -115,38 +135,49 @@ export function AppSettingsCard() {
         }
     };
 
-    const handleUploadBanner = (index: number) => {
-        setEditingBannerIndex(index);
-        fileInputRef.current?.click();
-    };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file && editingBannerIndex !== null) {
-            const reader = new FileReader();
-            reader.onload = (loadEvent) => {
-                const dataUrl = loadEvent.target?.result as string;
-                const newBanners = [...(localSettings.banners || [])];
-                newBanners[editingBannerIndex] = dataUrl;
-                handleSettingChange('banners', newBanners);
-                toast({
-                    title: `تم رفع البانر رقم ${editingBannerIndex + 1} بنجاح.`,
-                });
-                setEditingBannerIndex(null);
-            };
-            reader.readAsDataURL(file);
-        }
-        if (e.target) {
-            e.target.value = '';
+        if (!file) return;
+
+        setIsUploading(true);
+        toast({
+            title: "جاري رفع الملف...",
+            description: "قد يستغرق هذا بعض الوقت حسب حجم الملف."
+        });
+
+        try {
+            const fileRef = storageRef(storage, `banners/${Date.now()}_${file.name}`);
+            const snapshot = await uploadBytes(fileRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+
+            const newBanners = [...(localSettings.banners || []), downloadURL];
+            handleSettingChange('banners', newBanners);
+
+            toast({
+                title: "تم رفع الملف بنجاح!",
+                description: "تمت إضافة البانر الجديد. اضغط على 'حفظ الإعدادات' لتثبيت التغيير.",
+            });
+        } catch (error: any) {
+            console.error("Upload error:", error);
+            toast({
+                title: "فشل رفع الملف",
+                description: error.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsUploading(false);
+            if (e.target) {
+                e.target.value = ''; // Reset file input
+            }
         }
     };
 
     const handleDeleteBanner = (index: number) => {
         const newBanners = [...(localSettings.banners || [])];
-        newBanners[index] = null;
+        newBanners.splice(index, 1);
         handleSettingChange('banners', newBanners);
         toast({
-            title: `تم حذف البانر رقم ${index + 1}`,
+            title: `تم حذف البانر`,
             variant: "destructive"
         });
     };
@@ -167,34 +198,50 @@ export function AppSettingsCard() {
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     className="hidden"
-                    accept="image/*"
+                    accept="image/*,video/*"
+                    disabled={isUploading}
                 />
                 {/* Promotional Banners */}
                 <div className="space-y-4 rounded-lg border p-4">
-                    <h3 className="font-semibold text-lg">اللوحة الدعائية للتطبيق</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {(localSettings.banners || []).map((banner, index) => (
-                            <div key={index} className="relative aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden">
-                                {banner ? (
-                                     <Image src={banner} alt={`Banner ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint={bannerPlaceholder?.imageHint} />
-                                ) : (
-                                    <div className="text-center">
-                                        <span className="text-xs text-muted-foreground">صورة {index + 1}</span>
-                                    </div>
-                                )}
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
-                                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => handleUploadBanner(index)}>
-                                        <Upload className="h-4 w-4" />
+                    <div className="flex items-center justify-between">
+                         <h3 className="font-semibold text-lg">اللوحة الدعائية للتطبيق</h3>
+                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                            {isUploading ? (
+                                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <PlusCircle className="ml-2 h-4 w-4" />
+                            )}
+                            إضافة بانر
+                        </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                        يمكنك إضافة صور أو مقاطع فيديو. بعد الإضافة، اضغط على "حفظ إعدادات التطبيق" لتثبيت التغييرات.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {(localSettings.banners || []).map((bannerUrl, index) => (
+                            <div key={index} className="relative group aspect-video rounded-md border bg-muted/50 overflow-hidden">
+                                <BannerContent url={bannerUrl} />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)} disabled={isUploading}>
+                                        <Trash2 className="h-4 w-4" />
                                     </Button>
-                                    {banner && (
-                                        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         ))}
+                         {isUploading && (
+                             <div className="relative aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden">
+                                <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                    <Loader2 className="h-8 w-8 animate-spin" />
+                                    <span className="text-sm">جاري الرفع...</span>
+                                </div>
+                             </div>
+                         )}
                     </div>
+                     {(!localSettings.banners || localSettings.banners?.length === 0) && !isUploading && (
+                        <div className="text-center py-8 text-muted-foreground">
+                            لا توجد بانرات إعلانية حالياً.
+                        </div>
+                     )}
                 </div>
                 
                 <Separator />
@@ -287,8 +334,8 @@ export function AppSettingsCard() {
                 </div>
             </CardContent>
              <CardFooter>
-                <Button onClick={handleSave} className="w-full" disabled={isSaving}>
-                    {isSaving ? "جاري الحفظ..." : "حفظ إعدادات التطبيق"}
+                <Button onClick={handleSave} className="w-full" disabled={isSaving || isUploading}>
+                    {isSaving ? "جاري الحفظ..." : isUploading ? "يرجى انتظار انتهاء الرفع..." : "حفظ إعدادات التطبيق"}
                 </Button>
             </CardFooter>
         </Card>

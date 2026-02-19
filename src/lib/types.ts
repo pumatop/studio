@@ -201,7 +201,7 @@ export type TransactionLimits = {
 };
 
 export type AppSettings = {
-    banners: (string | null)[];
+    banners: string[];
     supportNumbers: {
         libyan: string;
         egyptian: string;

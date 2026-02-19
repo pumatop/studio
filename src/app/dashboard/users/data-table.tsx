@@ -134,9 +134,15 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
 
     const getImageUrl = (urlOrPlaceholder: string | null | undefined): string | null => {
         if (!urlOrPlaceholder) return null;
-        if (urlOrPlaceholder.startsWith('http')) return urlOrPlaceholder;
-        if (urlOrPlaceholder === 'id-card-placeholder' && idCardPlaceholder) {
-            return idCardPlaceholder.imageUrl;
+        try {
+            // Check if it's a valid URL, if not, it will throw an error
+            new URL(urlOrPlaceholder);
+            return urlOrPlaceholder;
+        } catch (_) {
+            // If it's not a valid URL, check if it's our placeholder key
+            if (urlOrPlaceholder === 'id-card-placeholder' && idCardPlaceholder) {
+                return idCardPlaceholder.imageUrl;
+            }
         }
         return null;
     }
@@ -480,7 +486,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
-  const { database, functions } = useDatabase();
+  const { database } = useDatabase();
+  const functions = useFunctions();
   
   const [roleFilter, setRoleFilter] = useState("all");
   const [connectionStatusFilter, setConnectionStatusFilter] = useState("all");

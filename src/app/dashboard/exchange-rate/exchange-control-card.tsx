@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useRtdbObject, useDatabase, updateRtdb, pushRtdb } from "@/firebase";
+import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
@@ -122,7 +122,8 @@ function formatTime12h(timeString: string) {
 
 export function ExchangeControlCard() {
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
-  const { database, user } = useDatabase();
+  const { database } = useDatabase();
+  const { user } = useUser();
   const { toast } = useToast();
 
   const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings>>({});
