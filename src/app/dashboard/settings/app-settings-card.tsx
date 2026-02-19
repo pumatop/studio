@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Agent, Region, AppSettings } from "@/lib/types";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useRtdbObject, useDatabase, updateRtdb, useStorage } from "@/firebase";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Helper component to render banner content (image or video)
@@ -175,20 +175,60 @@ export function AppSettingsCard() {
 
     const handleDeleteBanner = async (index: number) => {
         setDeletingIndex(index);
-        const newBanners = [...(localSettings.banners || [])];
-        newBanners.splice(index, 1);
+
+        const banners = localSettings.banners || [];
+        const bannerUrlToDelete = banners[index];
+        
+        if (!bannerUrlToDelete) {
+            toast({ title: "خطأ", description: "لم يتم العثور على رابط البانر.", variant: "destructive" });
+            setDeletingIndex(null);
+            return;
+        }
+
         try {
+            // Create a reference from the HTTPS download URL
+            const fileRef = storageRef(storage, bannerUrlToDelete);
+
+            // Delete the file from Firebase Storage
+            await deleteObject(fileRef);
+            
+            // If Storage deletion is successful, update the Realtime Database
+            const newBanners = banners.filter((_, i) => i !== index);
             await updateRtdb(database, '/settings/app', { banners: newBanners });
+
             toast({
-                title: `تم حذف البانر بنجاح`,
+                title: "تم حذف البانر بنجاح",
+                description: "تم حذف الملف من الخادم وقاعدة البيانات.",
                 variant: "destructive"
             });
+
         } catch (error: any) {
-            toast({ title: "حدث خطأ عند الحذف", description: error.message, variant: "destructive" });
+            console.error("Error deleting banner:", error);
+            if (error.code === 'storage/object-not-found') {
+                // If file doesn't exist in storage, just remove it from RTDB
+                toast({
+                    title: "الملف غير موجود بالتخزين",
+                    description: "سيتم حذفه من قاعدة البيانات فقط.",
+                    variant: "destructive"
+                });
+                try {
+                    const newBanners = banners.filter((_, i) => i !== index);
+                    await updateRtdb(database, '/settings/app', { banners: newBanners });
+                } catch (dbError: any) {
+                    toast({ title: "خطأ بحذف البيانات", description: dbError.message, variant: "destructive" });
+                }
+            } else {
+                toast({
+                    title: "فشل حذف البانر",
+                    description: error.message,
+                    variant: "destructive",
+                });
+            }
         } finally {
             setDeletingIndex(null);
         }
     };
+
 
     if (isLoading) {
         return <Skeleton className="h-[600px] w-full" />;
