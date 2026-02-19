@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import type { RateCondition, ExchangeControlSettings } from "@/lib/types";
-import { Clock, DollarSign, PlusCircle, Trash2 } from "lucide-react";
+import { Clock, DollarSign, PlusCircle, Trash2, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -111,12 +111,20 @@ export function ExchangeControlCard() {
   const [isFormOpen, setFormOpen] = useState(false);
   const [serverTime, setServerTime] = useState(new Date());
   const [isSaving, setIsSaving] = useState(false);
+  const previousRateRef = useRef<number | undefined>();
   
   useEffect(() => {
     if (settings) {
+      if (previousRateRef.current !== undefined && previousRateRef.current !== settings.currentRate) {
+        toast({
+            title: <div className="flex items-center gap-2"><Info /> <span>تم تحديث السعر تلقائياً</span></div>,
+            description: `السعر الجديد هو: ${settings.currentRate.toFixed(3)}`,
+        });
+      }
       setLocalSettings(settings);
+      previousRateRef.current = settings.currentRate;
     }
-  }, [settings]);
+  }, [settings, toast]);
 
   useEffect(() => {
     const timerId = setInterval(() => setServerTime(new Date()), 1000);

@@ -18,6 +18,7 @@ export const processScheduledRateChanges = onSchedule(
   {
     schedule: "every 1 minutes",
     region: "asia-southeast1",
+    timeZone: "Asia/Riyadh",
   },
   async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
