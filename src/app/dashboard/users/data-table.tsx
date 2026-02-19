@@ -142,8 +142,35 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate }: { user: U
     }
     
     const handleVerification = async (newStatus: User['verification']) => {
-        await onUserUpdate(user.id, { verification: newStatus });
-        toast({ title: "حالة التوثيق تم تحديثها" });
+        if (!user) return;
+
+        const updates: Partial<User> = { verification: newStatus };
+
+        if (newStatus === 'verified') {
+            // To delete fields in RTDB, we set their value to null
+            updates.idImageBackUrl = null;
+            updates.idImageOtherUrl = null;
+            await onUserUpdate(user.id, updates);
+            toast({ 
+                title: "تم توثيق الحساب بنجاح",
+                description: "تم حذف صور الهوية الإضافية والاحتفاظ بالصورة الأمامية.",
+            });
+        } else if (newStatus === 'unverified') {
+            // To delete fields in RTDB, we set their value to null
+            updates.idImageUrl = null;
+            updates.idImageBackUrl = null;
+            updates.idImageOtherUrl = null;
+            await onUserUpdate(user.id, updates);
+            toast({ 
+                title: "تم إلغاء توثيق الحساب", 
+                description: "تم حذف جميع صور إثبات الهوية.",
+                variant: "destructive",
+            });
+        } else {
+             // For 'pending' or any other status, just update the status
+            await onUserUpdate(user.id, { verification: newStatus });
+            toast({ title: "حالة التوثيق تم تحديثها" });
+        }
     }
 
     const handleTypeChange = async (newType: User['role']) => {
