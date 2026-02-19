@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, exportToCsv } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FilterX, Calendar as CalendarIcon, FileDown, Printer } from "lucide-react";
@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { arEG } from "date-fns/locale";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<Transaction['status'], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -53,6 +54,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
   const [operationTypeFilter, setOperationTypeFilter] = useState<"all" | keyof typeof typeMap>("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [date, setDate] = useState<Date | undefined>();
+  const { toast } = useToast();
 
   const filteredData = useMemo(() => {
     return data.filter(
@@ -113,13 +115,17 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
   }
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
-      // Placeholder for actual export logic
+      if (format === 'csv') {
+        exportToCsv('libyan-transactions.csv', filteredData);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
-      // Placeholder for actual print logic
       window.print();
   };
 

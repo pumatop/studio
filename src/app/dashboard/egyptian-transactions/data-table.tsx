@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, exportToCsv } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -93,13 +93,17 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
-      // Placeholder for actual export logic
+      if (format === 'csv') {
+        exportToCsv('egyptian-transfers.csv', filteredData);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
-      // Placeholder for actual print logic
       window.print();
   };
   

@@ -32,7 +32,7 @@ import { PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, 
 import type { Supervisor } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, exportToCsv } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -245,11 +245,17 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
+      if (format === 'csv') {
+        exportToCsv('supervisors.csv', filteredData);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
       window.print();
   };
   

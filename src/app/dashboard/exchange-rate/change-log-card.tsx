@@ -23,9 +23,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { exportToCsv } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 export function ChangeLogCard() {
   const { data: allLogs, isLoading } = useRtdbList<ExchangeRateLog>('/exchangeRateLogs');
+  const { toast } = useToast();
 
   const logs = useMemo(() => {
     if (!allLogs || allLogs.length === 0) {
@@ -42,13 +45,17 @@ export function ChangeLogCard() {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
-      // Placeholder for actual export logic
+      if (format === 'csv') {
+        exportToCsv('exchange-rate-logs.csv', logs);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
-      // Placeholder for actual print logic
       window.print();
   };
   

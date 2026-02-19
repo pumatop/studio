@@ -29,9 +29,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { cn, exportToCsv } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -50,6 +51,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
   const [data, setData] = useState<EgyptTransferTransaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "failed">("all");
+  const { toast } = useToast();
 
   const receiptPlaceholder = PlaceHolderImages.find(p => p.id === 'receipt-placeholder');
 
@@ -70,11 +72,17 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
+      if (format === 'csv') {
+        exportToCsv('supervisor-log.csv', filteredData);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
       window.print();
   };
 

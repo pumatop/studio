@@ -61,7 +61,7 @@ import {
 import type { User, Transaction, EgyptTransferTransaction } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, exportToCsv } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   Select,
@@ -354,13 +354,17 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   };
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      console.log(`Exporting data to ${format}...`);
-      // Placeholder for actual export logic
+      if (format === 'csv') {
+        exportToCsv('users.csv', filteredData);
+      } else {
+        toast({
+            title: "خاصية قيد التطوير",
+            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+        });
+      }
   };
 
   const handlePrint = () => {
-      console.log('Printing data...');
-      // Placeholder for actual print logic
       window.print();
   };
 
