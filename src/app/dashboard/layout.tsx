@@ -186,7 +186,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20">
+          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20 sm:h-24">
             <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
             <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
                 حولّي كاش
@@ -253,7 +253,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <PageHeader title={getPageTitle()} />
-        <main className="flex-1 overflow-y-auto p-4 pt-24 sm:p-6 sm:pt-26">
+        <main className="flex-1 overflow-y-auto p-4 pt-4 sm:p-6 sm:pt-6">
             <h1 className="text-2xl font-bold mb-4 md:hidden">{getPageTitle()}</h1>
             {children}
         </main>

@@ -48,7 +48,7 @@ export function PageHeader({ title }: { title: string }) {
 
   return (
     <>
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-lg sm:px-8">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-lg sm:h-24 sm:px-8">
       <div className="flex items-center gap-3">
         <SidebarTrigger className="md:hidden" />
         <h1 className="hidden text-2xl font-bold tracking-tight text-foreground md:block">
@@ -56,8 +56,8 @@ export function PageHeader({ title }: { title: string }) {
         </h1>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="hidden md:block">
+      <div className="flex flex-1 items-center justify-end gap-4">
+        <div className="w-full max-w-sm lg:max-w-md">
           <GlobalSearch />
         </div>
 

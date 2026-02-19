@@ -60,14 +60,14 @@ export function GlobalSearch() {
 
     const filteredUsers = (users || []).filter(
       (user) =>
-        user.name.toLowerCase().includes(lowerCaseQuery) ||
-        user.phone.includes(lowerCaseQuery)
+        (user.name && user.name.toLowerCase().includes(lowerCaseQuery)) ||
+        (user.phone && user.phone.includes(lowerCaseQuery))
     ).slice(0, 5);
 
     const filteredSupervisors = (supervisors || []).filter(
       (supervisor) =>
-        supervisor.name.toLowerCase().includes(lowerCaseQuery) ||
-        supervisor.phone.includes(lowerCaseQuery)
+        (supervisor.name && supervisor.name.toLowerCase().includes(lowerCaseQuery)) ||
+        (supervisor.phone && supervisor.phone.includes(lowerCaseQuery))
     ).slice(0, 5);
 
     const filteredTransactions = (transactions || []).filter(
@@ -78,18 +78,18 @@ export function GlobalSearch() {
 
         switch (castedTransaction.type) {
           case 'recharge_purchase':
-            return castedTransaction.userName.toLowerCase().includes(lowerCaseQuery) ||
-                   castedTransaction.userPhone.includes(lowerCaseQuery);
+            return (castedTransaction.userName && castedTransaction.userName.toLowerCase().includes(lowerCaseQuery)) ||
+                   (castedTransaction.userPhone && castedTransaction.userPhone.includes(lowerCaseQuery));
           case 'account_transfer':
-            return castedTransaction.senderName.toLowerCase().includes(lowerCaseQuery) ||
-                   castedTransaction.senderPhone.includes(lowerCaseQuery) ||
-                   castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery) ||
-                   castedTransaction.recipientPhone.includes(lowerCaseQuery);
+            return (castedTransaction.senderName && castedTransaction.senderName.toLowerCase().includes(lowerCaseQuery)) ||
+                   (castedTransaction.senderPhone && castedTransaction.senderPhone.includes(lowerCaseQuery)) ||
+                   (castedTransaction.recipientName && castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery)) ||
+                   (castedTransaction.recipientPhone && castedTransaction.recipientPhone.includes(lowerCaseQuery));
           case 'egypt_transfer':
-            return castedTransaction.userName.toLowerCase().includes(lowerCaseQuery) ||
-                   castedTransaction.userPhone.includes(lowerCaseQuery) ||
-                   castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery) ||
-                   castedTransaction.recipientNumber.includes(lowerCaseQuery);
+            return (castedTransaction.userName && castedTransaction.userName.toLowerCase().includes(lowerCaseQuery)) ||
+                   (castedTransaction.userPhone && castedTransaction.userPhone.includes(lowerCaseQuery)) ||
+                   (castedTransaction.recipientName && castedTransaction.recipientName.toLowerCase().includes(lowerCaseQuery)) ||
+                   (castedTransaction.recipientNumber && castedTransaction.recipientNumber.includes(lowerCaseQuery));
           default:
             return false;
         }
@@ -137,11 +137,11 @@ export function GlobalSearch() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="relative w-full justify-start rounded-lg bg-muted/30 pr-9 md:w-[200px] lg:w-[330px] border-transparent text-muted-foreground transition-colors hover:bg-muted/60"
+          className="relative w-full justify-start rounded-lg bg-muted/30 px-9 text-muted-foreground transition-colors hover:bg-muted/60 md:w-[200px] lg:w-[330px]"
         >
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <span>ابحث...</span>
-          <kbd className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100">
+          <kbd className="pointer-events-none absolute left-3 top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
             <span className="text-xs">⌘</span>K
           </kbd>
         </Button>
