@@ -56,12 +56,12 @@ const navItems = [
     match: /^\/dashboard\/(dg-transfers|card-transactions|transfers)/,
     color: "text-orange-500",
     subItems: [
-        { href: '/dashboard/dg-transfers', label: 'تحويلات DG' },
-        { href: '/dashboard/card-transactions', label: 'معاملات الكروت (DC)' },
-        { href: '/dashboard/transfers/dd', label: 'تحويلات داخلية (DD)' },
-        { href: '/dashboard/transfers/ec', label: 'تحويلات EC' },
-        { href: '/dashboard/transfers/el', label: 'تحويلات EL' },
-        { href: '/dashboard/transfers/ew', label: 'تحويلات EW' },
+        { href: '/dashboard/transfers/dd', label: 'التحويل من دينار لدينار (DD)' },
+        { href: '/dashboard/dg-transfers', label: 'التحويل من دينار لجنيه (DG)' },
+        { href: '/dashboard/card-transactions', label: 'شراء الكروت (DC)' },
+        { href: '/dashboard/transfers/ec', label: 'تحويل محفظة كاش (EC)' },
+        { href: '/dashboard/transfers/ei', label: 'تحويل انستاباي (EI)' },
+        { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)' },
     ]
   },
   {
@@ -106,17 +106,17 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/exchange-rate": "سعر الصرف",
   "/dashboard/users": "المستخدمين",
   "/dashboard/libyan-transactions": "المعاملات المالية",
-  "/dashboard/card-transactions": "معاملات الكروت",
+  "/dashboard/card-transactions": "شراء الكروت (DC)",
   "/dashboard/egyptian-transactions": "التحويلات المصرية",
-  "/dashboard/dg-transfers": "تحويلات DG",
+  "/dashboard/dg-transfers": "التحويل من دينار لجنيه (DG)",
   "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/audit-log": "سجل التدقيق",
   "/dashboard/settings": "الإعدادات",
-  "/dashboard/transfers/dd": "تحويلات داخلية (DD)",
-  "/dashboard/transfers/ec": "تحويلات EC",
-  "/dashboard/transfers/el": "تحويلات EL",
-  "/dashboard/transfers/ew": "تحويلات EW",
+  "/dashboard/transfers/dd": "التحويل من دينار لدينار (DD)",
+  "/dashboard/transfers/ec": "تحويل محفظة كاش (EC)",
+  "/dashboard/transfers/ei": "تحويل انستاباي (EI)",
+  "/dashboard/transfers/ew": "وصلي للبيت (EW)",
 };
 
 function InnerLayout({ children }: { children: React.ReactNode }) {

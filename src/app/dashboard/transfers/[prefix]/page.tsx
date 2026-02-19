@@ -8,13 +8,12 @@ import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const prefixToTitle: Record<string, string> = {
-    'dd': 'تحويلات DD (تحويل داخلي)',
-    'dc': 'تحويلات DC (شراء كروت)',
-    'dg': 'تحويلات DG (تحويل للجنيه)',
-    'ec': 'تحويلات EC',
-    'el': 'تحويلات EL',
-    'ew': 'تحويلات EW',
-    'dh': 'تحويلات DH (تحويل للجنيه)',
+    'dd': 'التحويل من دينار لدينار (DD)',
+    'dg': 'التحويل من دينار لجنيه (DG)',
+    'dc': 'شراء الكروت (DC)',
+    'ec': 'تحويل محفظة كاش (EC)',
+    'ei': 'تحويل انستاباي (EI)',
+    'ew': 'وصلي للبيت (EW)',
 };
 
 export default function TransfersByPrefixPage() {
