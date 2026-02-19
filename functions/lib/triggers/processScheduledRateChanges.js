@@ -54,7 +54,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
         minute: "2-digit",
         hourCycle: "h23", // Use h23 for 00-23 hour format
     });
-    v2_1.logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, { conditions: settings.conditions });
+    v2_1.logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, {conditions: settings.conditions});
     const conditions = settings.conditions;
     const updates = {};
     let rateChanged = false;

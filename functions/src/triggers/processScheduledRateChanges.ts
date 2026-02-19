@@ -30,19 +30,19 @@ export const processScheduledRateChanges = onSchedule(
       logger.info("Automatic rate conditions are disabled or no conditions found.");
       return;
     }
-    
+
     const userTimezone = settings.timezone || "UTC"; // Fallback to UTC
 
     const now = new Date();
     // Get the current time in the user-defined timezone, formatted as HH:mm
     const currentTime = now.toLocaleTimeString("en-GB", {
-        timeZone: userTimezone,
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23", // Use h23 for 00-23 hour format
+      timeZone: userTimezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23", // Use h23 for 00-23 hour format
     });
-    
-    logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, { conditions: settings.conditions });
+
+    logger.info(`Checking for time conditions in timezone ${userTimezone}. Current Time: ${currentTime}`, {conditions: settings.conditions});
 
     const conditions = settings.conditions as Record<string, Condition>;
     const updates: Record<string, unknown> = {};
