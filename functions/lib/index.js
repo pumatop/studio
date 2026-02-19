@@ -46,7 +46,7 @@ const db = admin.database();
  */
 exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     schedule: "every 1 minutes",
-    region: "us-central1",
+    region: "asia-southeast1",
 }, async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
@@ -94,7 +94,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
  */
 exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
     ref: "/transactions/{transactionId}",
-    region: "us-central1",
+    region: "asia-southeast1",
 }, async (event) => {
     const transaction = event.data.val();
     if (transaction.type !== "egypt_transfer" ||
