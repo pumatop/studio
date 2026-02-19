@@ -35,7 +35,7 @@ const db = admin.database();
 exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     schedule: "every 1 minutes",
     region: "asia-southeast1",
-    timeZone: "Asia/Riyadh",
+    timeZone: "Africa/Cairo",
 }, async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
@@ -59,7 +59,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
             updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
             const logId = db.ref("/exchangeRateLogs").push().key;
             updates[`/exchangeRateLogs/${logId}`] = {
-                date: now.toISOString(),
+                date: new Date().toISOString(),
                 modifiedBy: "النظام التلقائي",
                 oldRate: settings.currentRate,
                 newRate: condition.targetRate,

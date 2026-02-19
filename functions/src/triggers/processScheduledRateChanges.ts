@@ -18,7 +18,7 @@ export const processScheduledRateChanges = onSchedule(
   {
     schedule: "every 1 minutes",
     region: "asia-southeast1",
-    timeZone: "Asia/Riyadh",
+    timeZone: "Africa/Cairo",
   },
   async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
@@ -51,7 +51,7 @@ export const processScheduledRateChanges = onSchedule(
 
         const logId = db.ref("/exchangeRateLogs").push().key;
         updates[`/exchangeRateLogs/${logId}`] = {
-          date: now.toISOString(),
+          date: new Date().toISOString(),
           modifiedBy: "النظام التلقائي",
           oldRate: settings.currentRate,
           newRate: condition.targetRate,
