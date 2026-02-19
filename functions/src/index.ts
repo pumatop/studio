@@ -19,7 +19,7 @@ interface Condition {
 export const processScheduledRateChanges = onSchedule(
   {
     schedule: "every 1 minutes",
-    region: "asia-southeast1",
+    region: "us-central1",
   },
   async () => {
     const settingsRef = db.ref("/settings/exchangeControl");
@@ -80,7 +80,7 @@ export const processScheduledRateChanges = onSchedule(
 export const processTransactionBasedRateChanges = onValueCreated(
   {
     ref: "/transactions/{transactionId}",
-    region: "asia-southeast1",
+    region: "us-central1",
   },
   async (event) => {
     const transaction = event.data.val();
