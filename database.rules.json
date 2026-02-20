@@ -24,6 +24,10 @@
             ".read": "auth != null",
             ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
         },
+        "appVersions": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
+        },
         "exchangeRateLogs": {
             ".read": "auth != null",
             ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",

@@ -179,6 +179,15 @@ export type Region = {
   agents: { [key: string]: Agent };
 };
 
+export type AppVersion = {
+  id: string;
+  versionName: string; // e.g., "1.2.0"
+  versionCode: number; // e.g., 120
+  description: string;
+  changelog: string;
+  createdAt: number;
+};
+
 // Main settings object from RTDB
 export type MainSettings = {
     isMaintenance: boolean;

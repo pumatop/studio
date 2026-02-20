@@ -198,6 +198,15 @@
       }
     }
   },
+  "appVersions": {
+    "v100": {
+      "versionName": "1.0.0",
+      "versionCode": 100,
+      "description": "الإصدار الأولي للتطبيق مع الميزات الأساسية.",
+      "changelog": "- إطلاق التطبيق الأولي.\\n- ميزة التحويلات الداخلية.\\n- ميزة التحويلات المصرية.",
+      "createdAt": 1770150446096
+    }
+  },
   "settings": {
     "main": {
       "isMaintenance": false,
