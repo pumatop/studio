@@ -52,6 +52,7 @@ import {
   CreditCard as CreditCardIcon,
   Sparkles,
   Shield,
+  Coins,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
@@ -71,11 +72,10 @@ const navGroups = [
             { href: "/dashboard/users", icon: Users, label: "المستخدمين", description: "إدارة حسابات المستخدمين", match: /^\/dashboard\/users/, bgColor: "bg-purple-100 dark:bg-purple-900/50", iconColor: "text-purple-600 dark:text-purple-400" },
             { href: "/dashboard/supervisors", icon: UserCog, label: "المشرفين", description: "إدارة المشرفين والمندوبين", match: /^\/dashboard\/supervisors/, bgColor: "bg-orange-100 dark:bg-orange-900/50", iconColor: "text-orange-600 dark:text-orange-400" },
             { href: "/dashboard/exchange-rate", icon: ArrowRightLeft, label: "سعر الصرف", description: "مراقبة وتعديل الأسعار", match: /^\/dashboard\/exchange-rate/, bgColor: "bg-teal-100 dark:bg-teal-900/50", iconColor: "text-teal-600 dark:text-teal-400" },
-            { href: "/dashboard/fakka-log", icon: PiggyBank, label: "حصالة الفكة", description: "سجل كسور التحويلات", match: /^\/dashboard\/fakka-log/, bgColor: "bg-pink-100 dark:bg-pink-900/50", iconColor: "text-pink-600 dark:text-pink-400" },
         ]
     },
     {
-        label: "المعاملات",
+        label: "المعاملات والايرادات",
         items: [
             { 
                 icon: FolderKanban, 
@@ -91,6 +91,20 @@ const navGroups = [
                     { href: '/dashboard/transfers/ec', label: 'محفظة كاش (EC)', icon: Landmark, bgColor: "bg-indigo-100 dark:bg-indigo-900/50", iconColor: "text-indigo-600 dark:text-indigo-400" },
                     { href: '/dashboard/transfers/ei', label: 'انستاباي (EI)', icon: Banknote, bgColor: "bg-emerald-100 dark:bg-emerald-900/50", iconColor: "text-emerald-600 dark:text-emerald-400" },
                     { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)', icon: Truck, bgColor: "bg-rose-100 dark:bg-rose-900/50", iconColor: "text-rose-600 dark:text-rose-400" },
+                ]
+            },
+            { 
+                icon: Coins, 
+                label: "سجلات الإيرادات", 
+                description: "تتبع مصادر إيرادات النظام",
+                match: /^\/dashboard\/(egyptian-transactions|fakka-log|card-transactions|transfers\/dd)/,
+                bgColor: "bg-green-100 dark:bg-green-900/50", 
+                iconColor: "text-green-600 dark:text-green-400",
+                subItems: [
+                    { href: '/dashboard/egyptian-transactions', label: 'إيرادات التحويلات المصرية', icon: Banknote, bgColor: "bg-emerald-100 dark:bg-emerald-900/50", iconColor: "text-emerald-600 dark:text-emerald-400" },
+                    { href: '/dashboard/card-transactions', label: 'إيرادات شراء الكروت', icon: CreditCardIcon, bgColor: "bg-sky-100 dark:bg-sky-900/50", iconColor: "text-sky-600 dark:text-sky-400" },
+                    { href: '/dashboard/transfers/dd', label: 'إيرادات التحويلات الداخلية', icon: Wallet, bgColor: "bg-green-100 dark:bg-green-900/50", iconColor: "text-green-600 dark:text-green-400" },
+                    { href: '/dashboard/fakka-log', label: 'حصالة الفكة', icon: PiggyBank, bgColor: "bg-pink-100 dark:bg-pink-900/50", iconColor: "text-pink-600 dark:text-pink-400" },
                 ]
             },
         ]
@@ -111,7 +125,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/users": "المستخدمين",
   "/dashboard/libyan-transactions": "المعاملات المالية",
   "/dashboard/card-transactions": "شراء الكروت (DC)",
-  "/dashboard/egyptian-transactions": "التحويلات المصرية",
+  "/dashboard/egyptian-transactions": "سجل التحويلات المصرية",
   "/dashboard/dg-transfers": "التحويل من دينار لجنيه (DG)",
   "/dashboard/supervisors": "المشرفين والمندوبين",
   "/dashboard/fakka-log": "حصالة الفكة",
