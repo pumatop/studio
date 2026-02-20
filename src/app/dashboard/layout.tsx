@@ -209,7 +209,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                   if (item.subItems) {
                     return (
                       <SidebarMenuItem key={item.label}>
-                        <Collapsible>
+                        <Collapsible defaultOpen={isActive}>
                           <CollapsibleTrigger asChild>
                             <SidebarMenuButton
                               isActive={isActive}
