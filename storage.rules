@@ -3,10 +3,15 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     // Banners are publicly readable.
-    // For production, you should restrict write access to admins only,
-    // likely using a Cloud Function or custom claims, as Storage Rules
-    // cannot directly read from the Realtime Database to check a user's role.
+    // Writes are allowed for any authenticated user. For production, restrict this further.
     match /banners/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null;
+    }
+
+    // App update files are publicly readable.
+    // Writes are allowed for any authenticated user. For production, restrict this further.
+    match /app_updates/{allPaths=**} {
       allow read;
       allow write: if request.auth != null;
     }

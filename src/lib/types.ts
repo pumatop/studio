@@ -186,6 +186,10 @@ export type AppVersion = {
   description: string;
   changelog: string;
   createdAt: number;
+  directDownloadUrl?: string | null;
+  googlePlayUrl?: string | null;
+  appleStoreUrl?: string | null;
+  huaweiAppGalleryUrl?: string | null;
 };
 
 // Main settings object from RTDB

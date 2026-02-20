@@ -204,7 +204,11 @@
       "versionCode": 100,
       "description": "الإصدار الأولي للتطبيق مع الميزات الأساسية.",
       "changelog": "- إطلاق التطبيق الأولي.\\n- ميزة التحويلات الداخلية.\\n- ميزة التحويلات المصرية.",
-      "createdAt": 1770150446096
+      "createdAt": 1770150446096,
+      "directDownloadUrl": null,
+      "googlePlayUrl": null,
+      "appleStoreUrl": null,
+      "huaweiAppGalleryUrl": null
     }
   },
   "settings": {
@@ -244,11 +248,7 @@
     },
     "app": {
       "banners": [
-        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBiYW5uZXJ8ZW58MHx8fHwxNzE2NDg3ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-        null,
-        null,
-        null,
-        null
+        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBiYW5uZXJ8ZW58MHx8fHwxNzE2NDg3ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080"
       ],
       "supportNumbers": {
         "libyan": "091-0000000",
