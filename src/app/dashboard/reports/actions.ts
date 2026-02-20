@@ -1,10 +1,10 @@
 "use server";
 
+import { generateDataInsights } from "@/ai/flows/generate-data-insights-flow";
 import {
-  generateDataInsights,
   type GenerateDataInsightsInput,
   type GenerateDataInsightsOutput,
-} from "@/ai/flows/generate-data-insights-flow";
+} from "@/ai/flows/generate-data-insights-schemas";
 import type { User, Transaction, Supervisor, EgyptTransferTransaction, AccountTransferTransaction } from "@/lib/types";
 
 export async function generateInsightsAction(

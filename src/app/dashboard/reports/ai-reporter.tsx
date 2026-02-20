@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { generateInsightsAction } from "./actions";
-import type { GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-flow";
+import type { GenerateDataInsightsOutput } from "@/ai/flows/generate-data-insights-schemas";
 import { 
     BrainCircuit, Lightbulb, ListChecks, TrendingUp, AlertTriangle, Users as UsersIcon, 
     BarChart3, PieChartIcon, Coins, ArrowUp, ArrowDown, ArrowRight 
