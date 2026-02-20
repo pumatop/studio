@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   SidebarProvider,
   Sidebar,
@@ -11,17 +11,23 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarInset,
   SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubItem,
-  SidebarMenuSubButton
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   LayoutDashboard,
   BrainCircuit,
@@ -32,27 +38,34 @@ import {
   Settings,
   History,
   CircleDollarSign,
-  CreditCard,
-  ChevronDown,
-  ChevronsRight,
   PiggyBank,
+  ChevronDown,
+  DatabaseZap,
+  RefreshCw,
+  FolderKanban,
+  Wallet,
+  Landmark,
+  Banknote,
+  Truck,
+  CreditCard as CreditCardIcon,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
+import { Button } from "@/components/ui/button";
 
 const navGroups = [
     {
         label: null,
         items: [
-            { href: "/dashboard", icon: LayoutDashboard, label: "لوحة التحكم", match: /^\/dashboard\/?$/ },
+            { href: "/dashboard", icon: LayoutDashboard, label: "لوحة التحكم", description: "نظرة عامة وإحصائيات", match: /^\/dashboard\/?$/ },
         ]
     },
     {
         label: "الإدارة والمالية",
         items: [
-            { href: "/dashboard/users", icon: Users, label: "المستخدمين", match: /^\/dashboard\/users/ },
-            { href: "/dashboard/supervisors", icon: UserCog, label: "المشرفين", match: /^\/dashboard\/supervisors/ },
-            { href: "/dashboard/exchange-rate", icon: ArrowRightLeft, label: "سعر الصرف", match: /^\/dashboard\/exchange-rate/ },
+            { href: "/dashboard/users", icon: Users, label: "المستخدمين", description: "إدارة حسابات المستخدمين", match: /^\/dashboard\/users/ },
+            { href: "/dashboard/supervisors", icon: UserCog, label: "المشرفين", description: "إدارة المشرفين والمندوبين", match: /^\/dashboard\/supervisors/ },
+            { href: "/dashboard/exchange-rate", icon: ArrowRightLeft, label: "سعر الصرف", description: "مراقبة وتعديل الأسعار", match: /^\/dashboard\/exchange-rate/ },
 
         ]
     },
@@ -60,27 +73,28 @@ const navGroups = [
         label: "المعاملات",
         items: [
             { 
-                icon: ReceiptText, 
-                label: "التحويلات", 
+                icon: FolderKanban, 
+                label: "سجلات التحويلات", 
+                description: "تصفح جميع أنواع المعاملات",
                 match: /^\/dashboard\/(dg-transfers|card-transactions|transfers)/,
                 subItems: [
-                    { href: '/dashboard/transfers/dd', label: 'دينار لدينار (DD)' },
-                    { href: '/dashboard/dg-transfers', label: 'دينار لجنيه (DG)' },
-                    { href: '/dashboard/card-transactions', label: 'شراء الكروت (DC)' },
-                    { href: '/dashboard/transfers/ec', label: 'محفظة كاش (EC)' },
-                    { href: '/dashboard/transfers/ei', label: 'انستاباي (EI)' },
-                    { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)' },
+                    { href: '/dashboard/transfers/dd', label: 'دينار لدينار (DD)', icon: Wallet },
+                    { href: '/dashboard/dg-transfers', label: 'دينار لجنيه (DG)', icon: ArrowRightLeft },
+                    { href: '/dashboard/card-transactions', label: 'شراء الكروت (DC)', icon: CreditCardIcon },
+                    { href: '/dashboard/transfers/ec', label: 'محفظة كاش (EC)', icon: Landmark },
+                    { href: '/dashboard/transfers/ei', label: 'انستاباي (EI)', icon: Banknote },
+                    { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)', icon: Truck },
                 ]
             },
-            { href: "/dashboard/fakka-log", icon: PiggyBank, label: "حصالة الفكة", match: /^\/dashboard\/fakka-log/ },
+            { href: "/dashboard/fakka-log", icon: PiggyBank, label: "حصالة الفكة", description: "سجل كسور التحويلات", match: /^\/dashboard\/fakka-log/ },
         ]
     },
     {
         label: "الأدوات والإعدادات",
         items: [
-            { href: "/dashboard/reports", icon: BrainCircuit, label: "تقارير الذكاء الاصطناعي", match: /^\/dashboard\/reports/ },
-            { href: "/dashboard/audit-log", icon: History, label: "سجل التدقيق", match: /^\/dashboard\/audit-log/ },
-            { href: "/dashboard/settings", icon: Settings, label: "الإعدادات", match: /^\/dashboard\/settings/ },
+            { href: "/dashboard/reports", icon: BrainCircuit, label: "تقارير AI", description: "تحليلات ذكية للبيانات", match: /^\/dashboard\/reports/ },
+            { href: "/dashboard/audit-log", icon: History, label: "سجل التدقيق", description: "عرض جميع المعاملات", match: /^\/dashboard\/audit-log/ },
+            { href: "/dashboard/settings", icon: Settings, label: "الإعدادات", description: "إعدادات النظام والتطبيق", match: /^\/dashboard\/settings/ },
         ]
     }
 ];
@@ -116,12 +130,9 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   }, [user, isUserLoading, router]);
 
   const getPageTitle = () => {
-    // Exact match first
     if (pageTitles[pathname]) {
       return pageTitles[pathname];
     }
-    
-    // Check main items and sub-items for prefix match
     let bestMatch: { href: string } | null = null;
     for (const group of navGroups) {
       for (const item of group.items) {
@@ -139,12 +150,9 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         }
       }
     }
-    
     if (bestMatch && pageTitles[bestMatch.href]) {
       return pageTitles[bestMatch.href];
     }
-    
-    // Fallback for dynamic pages like supervisor logs
     if (pathname.startsWith('/dashboard/')) {
         const pathSegments = pathname.split('/');
         const lastSegment = pathSegments[pathSegments.length - 1];
@@ -152,7 +160,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         if (pathname.includes('/log')) return `سجل عمليات`;
         return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
     }
-
     return "لوحة التحكم";
   };
   
@@ -170,18 +177,21 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
-        <SidebarHeader>
-          <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center h-20 sm:h-24">
-            <CircleDollarSign className="h-9 w-9 text-primary shrink-0" />
-            <div className="font-bold text-primary group-data-[collapsible=icon]:hidden leading-tight text-md">
-                حولّي كاش
+        <SidebarHeader className="h-24 border-b border-sidebar-border/20">
+           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center">
+            <div className="p-3 bg-primary/10 rounded-xl text-primary">
+              <CircleDollarSign className="h-7 w-7 shrink-0" />
+            </div>
+            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                <h2 className="font-bold text-lg text-sidebar-foreground">حولّي كاش</h2>
+                <p className="text-xs text-sidebar-foreground/70">لوحة تحكم الإدارة</p>
             </div>
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navGroups.map((group) => (
-              <React.Fragment key={group.label || 'main'}>
+            {navGroups.map((group, i) => (
+              <React.Fragment key={group.label || `group-${i}`}>
                 {group.label && <SidebarGroupLabel className="mt-3">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item) => {
                   const isActive = !!pathname.match(item.match);
@@ -195,11 +205,17 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                               isActive={isActive}
                               tooltip={{ children: item.label, side: "left" }}
                               className="w-full justify-between"
+                              size="lg"
                             >
-                              <div className="flex items-center gap-2">
-                                <item.icon />
-                                <span>{item.label}</span>
-                              </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-sidebar-accent rounded-lg text-sidebar-accent-foreground">
+                                        <item.icon className="h-5 w-5" />
+                                    </div>
+                                    <div className="flex flex-col items-start">
+                                        <span className="font-semibold">{item.label}</span>
+                                        {item.description && <span className="text-xs text-sidebar-foreground/60">{item.description}</span>}
+                                    </div>
+                                </div>
                               <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
@@ -210,8 +226,8 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                 return (
                                   <SidebarMenuSubItem key={subItem.href}>
                                     <Link href={subItem.href}>
-                                      <SidebarMenuSubButton isActive={isSubActive} size="sm">
-                                        <ChevronsRight className="h-3 w-3" />
+                                      <SidebarMenuSubButton isActive={isSubActive} size="md">
+                                        <subItem.icon className="h-4 w-4" />
                                         <span>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
@@ -228,19 +244,42 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                   return (
                   <SidebarMenuItem key={item.href}>
                     <Link href={item.href!}>
-                      <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={{ children: item.label, side: "left" }}
-                      >
-                        <item.icon />
-                        <span>{item.label}</span>
-                      </SidebarMenuButton>
+                       <SidebarMenuButton isActive={isActive} tooltip={{ children: item.label, side: "left" }} size="lg">
+                            <div className="p-2 bg-sidebar-accent rounded-lg text-sidebar-accent-foreground">
+                                <item.icon className="h-5 w-5" />
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="font-semibold">{item.label}</span>
+                                {item.description && <span className="text-xs text-sidebar-foreground/60">{item.description}</span>}
+                            </div>
+                        </SidebarMenuButton>
                     </Link>
                   </SidebarMenuItem>
                 )})}
               </React.Fragment>
             ))}
           </SidebarMenu>
+          <div className="mt-auto p-2 group-data-[collapsible=icon]:hidden">
+                <Card className="bg-primary/5 border-primary/20">
+                    <CardHeader className="p-3">
+                        <CardTitle className="flex items-center gap-2 text-sm">
+                            <DatabaseZap className="h-5 w-5 text-primary"/>
+                            <span>بيانات مباشرة</span>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 pt-0">
+                        <p className="text-xs text-muted-foreground">
+                            انقر للتحديث ومزامنة آخر البيانات من قاعدة البيانات.
+                        </p>
+                    </CardContent>
+                    <CardFooter className="p-3 pt-0">
+                        <Button className="w-full" size="sm" onClick={() => window.location.reload()}>
+                            <RefreshCw className="ml-2 h-4 w-4"/>
+                            تحديث الآن
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
         </SidebarContent>
       </Sidebar>
       <SidebarInset className="flex flex-col">
@@ -253,7 +292,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
-
 
 export default function DashboardLayout({
   children,
