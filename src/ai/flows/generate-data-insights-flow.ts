@@ -6,6 +6,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
 import {
     GenerateDataInsightsInputSchema,
     GenerateDataInsightsOutputSchema,
@@ -19,9 +20,19 @@ export async function generateDataInsights(
   return generateDataInsightsFlow(input);
 }
 
+
+// Define a schema for the prompt's input, where complex objects are strings.
+const GenerateDataInsightsPromptInputSchema = GenerateDataInsightsInputSchema.extend({
+    transactionsByType: z.string(),
+    usersByRole: z.string(),
+    usersByVerification: z.string(),
+    recentTransactions: z.string(),
+});
+
+
 const prompt = ai.definePrompt({
   name: 'generateDataInsightsPrompt',
-  input: {schema: GenerateDataInsightsInputSchema},
+  input: {schema: GenerateDataInsightsPromptInputSchema},
   output: {schema: GenerateDataInsightsOutputSchema},
   prompt: `أنت خبير تحليل بيانات استراتيجي متخصص في تحليل بيانات تطبيقات التحويلات المالية مثل 'حولّي كاش'. مهمتك هي تحويل البيانات الرقمية الخام إلى تقرير استراتيجي شامل ومفهوم، مع تصورات بيانية وتوصيات قابلة للتنفيذ.
 
@@ -35,12 +46,12 @@ const prompt = ai.definePrompt({
 - إجمالي حجم التحويلات الداخلية: {{summary.totalInternalTransferVolume}} د.ل
 
 ### توزيعات البيانات
-- توزيع المستخدمين حسب الدور: {{{JSON.stringify usersByRole}}}
-- توزيع المستخدمين حسب حالة التوثيق: {{{JSON.stringify usersByVerification}}}
-- توزيع المعاملات حسب النوع: {{{JSON.stringify transactionsByType}}}
+- توزيع المستخدمين حسب الدور: {{{usersByRole}}}
+- توزيع المستخدمين حسب حالة التوثيق: {{{usersByVerification}}}
+- توزيع المعاملات حسب النوع: {{{transactionsByType}}}
 
 ### عينة من آخر 10 معاملات
-{{{JSON.stringify recentTransactions}}}
+{{{recentTransactions}}}
 
 
 **مهمتك:**
@@ -75,7 +86,16 @@ const generateDataInsightsFlow = ai.defineFlow(
     outputSchema: GenerateDataInsightsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Transform the input to match the prompt's schema (stringify complex objects)
+    const promptInput = {
+        ...input,
+        usersByRole: JSON.stringify(input.usersByRole),
+        usersByVerification: JSON.stringify(input.usersByVerification),
+        transactionsByType: JSON.stringify(input.transactionsByType),
+        recentTransactions: JSON.stringify(input.recentTransactions, null, 2), // Pretty-print for the model
+    };
+
+    const {output} = await prompt(promptInput);
     return output!;
   }
 );
