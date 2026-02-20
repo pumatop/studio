@@ -8,6 +8,8 @@ import {
   Sidebar,
   SidebarHeader,
   SidebarContent,
+  SidebarFooter,
+  SidebarSeparator,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -48,6 +50,8 @@ import {
   Banknote,
   Truck,
   CreditCard as CreditCardIcon,
+  Sparkles,
+  Shield,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
@@ -181,10 +185,12 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader className="h-24 border-b border-sidebar-border/20">
-           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center">
-            <div className="p-3 bg-primary/10 rounded-xl text-primary">
-              <CircleDollarSign className="h-7 w-7 shrink-0" />
+           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
+            <div className="p-3 bg-gradient-to-br from-primary/80 to-primary rounded-xl text-primary-foreground shadow-lg shadow-primary/30">
+              <CircleDollarSign className="h-8 w-8 shrink-0" />
             </div>
+             <Sparkles className="h-4 w-4 text-primary/50 absolute top-2 right-14 group-data-[collapsible=icon]:hidden" />
+             <Shield className="h-4 w-4 text-accent/50 absolute bottom-2 right-2 group-data-[collapsible=icon]:hidden" />
             <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                 <h2 className="font-bold text-lg text-sidebar-foreground">حولّي كاش</h2>
                 <p className="text-xs text-sidebar-foreground/70">لوحة تحكم الإدارة</p>
@@ -195,6 +201,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
+                {i > 0 && <SidebarSeparator className="my-1" />}
                 {group.label && <SidebarGroupLabel className="mt-3">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item) => {
                   const isActive = !!pathname.match(item.match);
@@ -247,7 +254,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                   }
 
                   return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.href!}>
                     <Link href={item.href!}>
                        <SidebarMenuButton isActive={isActive} tooltip={{ children: item.label, side: "left" }} size="lg">
                             <div className={cn("p-2 rounded-lg", item.bgColor)}>
@@ -264,28 +271,28 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
               </React.Fragment>
             ))}
           </SidebarMenu>
-          <div className="mt-auto p-2 group-data-[collapsible=icon]:hidden">
-                <Card className="bg-primary/5 border-primary/20">
-                    <CardHeader className="p-3">
-                        <CardTitle className="flex items-center gap-2 text-sm">
-                            <DatabaseZap className="h-5 w-5 text-primary"/>
-                            <span>بيانات مباشرة</span>
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 pt-0">
-                        <p className="text-xs text-muted-foreground">
-                            انقر للتحديث ومزامنة آخر البيانات من قاعدة البيانات.
-                        </p>
-                    </CardContent>
-                    <CardFooter className="p-3 pt-0">
-                        <Button className="w-full" size="sm" onClick={() => window.location.reload()}>
-                            <RefreshCw className="ml-2 h-4 w-4"/>
-                            تحديث الآن
-                        </Button>
-                    </CardFooter>
-                </Card>
-            </div>
         </SidebarContent>
+        <SidebarFooter className="p-2 group-data-[collapsible=icon]:hidden">
+            <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="p-3">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <DatabaseZap className="h-5 w-5 text-primary"/>
+                        <span>بيانات مباشرة</span>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3 pt-0">
+                    <p className="text-xs text-muted-foreground">
+                        انقر للتحديث ومزامنة آخر البيانات من قاعدة البيانات.
+                    </p>
+                </CardContent>
+                <CardFooter className="p-3 pt-0">
+                    <Button className="w-full" size="sm" onClick={() => window.location.reload()}>
+                        <RefreshCw className="ml-2 h-4 w-4"/>
+                        تحديث الآن
+                    </Button>
+                </CardFooter>
+            </Card>
+        </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-background">
         <PageHeader title={getPageTitle()} />
