@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -400,7 +399,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -416,7 +415,7 @@ export default function DashboardPage() {
                     <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -432,7 +431,7 @@ export default function DashboardPage() {
                     <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -449,7 +448,7 @@ export default function DashboardPage() {
                     <div className="text-lg text-yellow-600 dark:text-yellow-400">({pendingVerificationUsers} معلق)</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -468,7 +467,7 @@ export default function DashboardPage() {
         </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -501,7 +500,7 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
         
-        <Card>
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -532,7 +531,7 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -565,7 +564,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-          <Card>
+          <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -602,7 +601,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 bg-card/50 dark:bg-card/30 backdrop-blur-xl">
             <Tabs defaultValue="today" dir="rtl">
                 <CardHeader>
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -626,7 +625,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
         <CardHeader>
           <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
             <span>ملخص أداء المندوبين لشهر</span>
@@ -685,5 +684,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
