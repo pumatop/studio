@@ -12,6 +12,10 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
+  SidebarGroupLabel,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -36,77 +40,49 @@ import {
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
 
-const navItems = [
-  {
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    label: "لوحة التحكم",
-    match: /^\/dashboard\/?$/,
-    color: "text-sky-500",
-  },
-  {
-    href: "/dashboard/exchange-rate",
-    icon: ArrowRightLeft,
-    label: "سعر الصرف",
-    match: /^\/dashboard\/exchange-rate/,
-    color: "text-lime-500",
-  },
-  {
-    icon: ReceiptText,
-    label: "التحويلات والمعاملات",
-    match: /^\/dashboard\/(dg-transfers|card-transactions|transfers)/,
-    color: "text-orange-500",
-    subItems: [
-        { href: '/dashboard/transfers/dd', label: 'التحويل من دينار لدينار (DD)' },
-        { href: '/dashboard/dg-transfers', label: 'التحويل من دينار لجنيه (DG)' },
-        { href: '/dashboard/card-transactions', label: 'شراء الكروت (DC)' },
-        { href: '/dashboard/transfers/ec', label: 'تحويل محفظة كاش (EC)' },
-        { href: '/dashboard/transfers/ei', label: 'تحويل انستاباي (EI)' },
-        { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)' },
-    ]
-  },
-  {
-    href: "/dashboard/users",
-    icon: Users,
-    label: "المستخدمين",
-    match: /^\/dashboard\/users/,
-    color: "text-violet-500",
-  },
-  {
-    href: "/dashboard/supervisors",
-    icon: UserCog,
-    label: "المشرفين والمندوبين",
-    match: /^\/dashboard\/supervisors/,
-    color: "text-rose-500",
-  },
-  {
-    href: "/dashboard/fakka-log",
-    icon: PiggyBank,
-    label: "حصالة الفكة",
-    match: /^\/dashboard\/fakka-log/,
-    color: "text-amber-500",
-  },
-  {
-    href: "/dashboard/reports",
-    icon: BrainCircuit,
-    label: "تقارير الذكاء الاصطناعي",
-    match: /^\/dashboard\/reports/,
-    color: "text-teal-500",
-  },
-  {
-    href: "/dashboard/audit-log",
-    icon: History,
-    label: "سجل التدقيق",
-    match: /^\/dashboard\/audit-log/,
-    color: "text-blue-500",
-  },
-  {
-    href: "/dashboard/settings",
-    icon: Settings,
-    label: "الإعدادات",
-    match: /^\/dashboard\/settings/,
-    color: "text-slate-500",
-  },
+const navGroups = [
+    {
+        label: null,
+        items: [
+            { href: "/dashboard", icon: LayoutDashboard, label: "لوحة التحكم", match: /^\/dashboard\/?$/ },
+        ]
+    },
+    {
+        label: "الإدارة والمالية",
+        items: [
+            { href: "/dashboard/users", icon: Users, label: "المستخدمين", match: /^\/dashboard\/users/ },
+            { href: "/dashboard/supervisors", icon: UserCog, label: "المشرفين", match: /^\/dashboard\/supervisors/ },
+            { href: "/dashboard/exchange-rate", icon: ArrowRightLeft, label: "سعر الصرف", match: /^\/dashboard\/exchange-rate/ },
+
+        ]
+    },
+    {
+        label: "المعاملات",
+        items: [
+            { 
+                icon: ReceiptText, 
+                label: "التحويلات", 
+                match: /^\/dashboard\/(dg-transfers|card-transactions|transfers)/,
+                subItems: [
+                    { href: '/dashboard/transfers/dd', label: 'دينار لدينار (DD)' },
+                    { href: '/dashboard/dg-transfers', label: 'دينار لجنيه (DG)' },
+                    { href: '/dashboard/card-transactions', label: 'شراء الكروت (DC)' },
+                    { href: '/dashboard/transfers/ec', label: 'محفظة كاش (EC)' },
+                    { href: '/dashboard/transfers/ei', label: 'انستاباي (EI)' },
+                    { href: '/dashboard/transfers/ew', label: 'وصلي للبيت (EW)' },
+                ]
+            },
+            { href: "/dashboard/fakka-log", icon: PiggyBank, label: "حصالة الفكة", match: /^\/dashboard\/fakka-log/ },
+        ]
+    },
+    {
+        label: "الأدوات والإعدادات",
+        items: [
+            { href: "/dashboard/reports", icon: BrainCircuit, label: "تقارير الذكاء الاصطناعي", match: /^\/dashboard\/reports/ },
+            { href: "/dashboard/audit-log", icon: History, label: "سجل التدقيق", match: /^\/dashboard\/audit-log/ },
+            { href: "/dashboard/settings", icon: Settings, label: "الإعدادات", match: /^\/dashboard\/settings/ },
+        ]
+    }
 ];
 
 const pageTitles: { [key: string]: string } = {
@@ -140,31 +116,40 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   }, [user, isUserLoading, router]);
 
   const getPageTitle = () => {
-    let bestMatch = null;
-    // Check main items and sub-items
-    for (const item of navItems) {
-      if (item.href && pathname.match(item.match)) {
-         if (!bestMatch || item.href.length > bestMatch.href.length) {
-          bestMatch = item;
+    // Exact match first
+    if (pageTitles[pathname]) {
+      return pageTitles[pathname];
+    }
+    
+    // Check main items and sub-items for prefix match
+    let bestMatch: { href: string } | null = null;
+    for (const group of navGroups) {
+      for (const item of group.items) {
+        if (item.href && pathname.startsWith(item.href)) {
+           if (!bestMatch || item.href.length > bestMatch.href.length) {
+            bestMatch = item;
+          }
         }
-      }
-      if (item.subItems) {
-        for (const subItem of item.subItems) {
-          if (pathname.startsWith(subItem.href)) {
-            return pageTitles[subItem.href] || subItem.label;
+        if (item.subItems) {
+          for (const subItem of item.subItems) {
+            if (pathname.startsWith(subItem.href)) {
+              return pageTitles[subItem.href] || subItem.label;
+            }
           }
         }
       }
     }
     
-    if (bestMatch) {
+    if (bestMatch && pageTitles[bestMatch.href]) {
       return pageTitles[bestMatch.href];
     }
     
+    // Fallback for dynamic pages like supervisor logs
     if (pathname.startsWith('/dashboard/')) {
         const pathSegments = pathname.split('/');
         const lastSegment = pathSegments[pathSegments.length - 1];
         if (pageTitles[pathname]) return pageTitles[pathname];
+        if (pathname.includes('/log')) return `سجل عمليات`;
         return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
     }
 
@@ -195,59 +180,66 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => {
-              const isActive = !!pathname.match(item.match);
-              
-              if (item.subItems) {
-                return (
-                  <SidebarMenuItem key={item.label}>
-                    <Collapsible>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton
-                          isActive={isActive}
-                          tooltip={{ children: item.label, side: "left" }}
-                          className="w-full justify-between"
-                        >
-                          <div className="flex items-center gap-2">
-                            <item.icon className={isActive ? "" : item.color} />
-                            <span>{item.label}</span>
-                          </div>
-                          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
-                        </SidebarMenuButton>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-                        <div className="pl-7 pt-1 space-y-1">
-                          {item.subItems.map((subItem) => {
-                            const isSubActive = pathname.startsWith(subItem.href);
-                            return (
-                              <Link href={subItem.href} key={subItem.href}>
-                                <SidebarMenuButton isActive={isSubActive} size="sm" className="w-full h-8 justify-start">
-                                  <ChevronsRight className="h-3 w-3" />
-                                  <span>{subItem.label}</span>
-                                </SidebarMenuButton>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </SidebarMenuItem>
-                )
-              }
+            {navGroups.map((group) => (
+              <React.Fragment key={group.label || 'main'}>
+                {group.label && <SidebarGroupLabel className="mt-3">{group.label}</SidebarGroupLabel>}
+                {group.items.map((item) => {
+                  const isActive = !!pathname.match(item.match);
+                  
+                  if (item.subItems) {
+                    return (
+                      <SidebarMenuItem key={item.label}>
+                        <Collapsible>
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton
+                              isActive={isActive}
+                              tooltip={{ children: item.label, side: "left" }}
+                              className="w-full justify-between"
+                            >
+                              <div className="flex items-center gap-2">
+                                <item.icon />
+                                <span>{item.label}</span>
+                              </div>
+                              <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                            <SidebarMenuSub>
+                              {item.subItems.map((subItem) => {
+                                const isSubActive = pathname.startsWith(subItem.href);
+                                return (
+                                  <SidebarMenuSubItem key={subItem.href}>
+                                    <Link href={subItem.href}>
+                                      <SidebarMenuSubButton isActive={isSubActive} size="sm">
+                                        <ChevronsRight className="h-3 w-3" />
+                                        <span>{subItem.label}</span>
+                                      </SidebarMenuSubButton>
+                                    </Link>
+                                  </SidebarMenuSubItem>
+                                );
+                              })}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </SidebarMenuItem>
+                    )
+                  }
 
-              return (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href!}>
-                  <SidebarMenuButton
-                    isActive={isActive}
-                    tooltip={{ children: item.label, side: "left" }}
-                  >
-                    <item.icon className={isActive ? "" : item.color} />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            )})}
+                  return (
+                  <SidebarMenuItem key={item.href}>
+                    <Link href={item.href!}>
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={{ children: item.label, side: "left" }}
+                      >
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                )})}
+              </React.Fragment>
+            ))}
           </SidebarMenu>
         </SidebarContent>
       </Sidebar>
