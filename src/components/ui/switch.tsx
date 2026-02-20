@@ -21,7 +21,9 @@ const Switch = React.forwardRef<
   >
     <SwitchPrimitives.Thumb
       className={cn(
-        "pointer-events-none relative block h-6 w-6 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-0"
+        "pointer-events-none relative block h-6 w-6 rounded-full bg-background shadow-lg ring-0 transition-transform",
+        "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-7",
+        "rtl:data-[state=unchecked]:-translate-x-7 rtl:data-[state=checked]:translate-x-0"
       )}
     >
       <Check className="absolute top-1/2 left-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 text-primary opacity-0 transition-opacity duration-200 group-data-[state=checked]:opacity-100" />
