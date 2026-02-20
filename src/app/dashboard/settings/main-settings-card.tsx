@@ -34,26 +34,21 @@ import { Separator } from "@/components/ui/separator";
 import { ShieldOff, Smartphone, UserPlus, Wrench, PlusCircle, MoreHorizontal, Trash2, UploadCloud, Package, Apple, Link as LinkIcon, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useRtdbObject, useRtdbList, useDatabase, updateRtdb, removeRtdb, setRtdb, useStorage } from "@/firebase";
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage";
 import type { MainSettings, AppVersion } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useMemo } from "react";
 
-function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSave: (data: Partial<Omit<AppVersion, 'id' | 'createdAt'>>, file: File | null, packageName: string) => void; isSaving: boolean; }) {
-  const [formData, setFormData] = useState<Partial<Omit<AppVersion, 'id' | 'createdAt'>>>({});
+function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSave: (data: Partial<AppVersion>, file: File | null, packageName: string) => void; isSaving: boolean; }) {
+  const [formData, setFormData] = useState<Partial<AppVersion>>({});
   const [downloadType, setDownloadType] = useState<'none' | 'direct' | 'google'>('none');
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [packageName, setPackageName] = useState('');
 
   useEffect(() => {
     if (version) {
-        setFormData({
-            versionName: version.versionName,
-            versionCode: version.versionCode,
-            description: version.description,
-            changelog: version.changelog,
-        });
+        setFormData(version);
         if (version.directDownloadUrl) {
             setDownloadType('direct');
         } else if (version.googlePlayUrl) {
@@ -89,7 +84,6 @@ function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSa
     if (!formData.versionName || !formData.versionCode) return;
     
     const finalData = {...formData};
-    // Clear old links if download type changed
     if (downloadType !== 'direct') finalData.directDownloadUrl = null;
     if (downloadType !== 'google') finalData.googlePlayUrl = null;
 
@@ -200,11 +194,11 @@ function AppVersionManager() {
     return [...versions].sort((a, b) => b.versionCode - a.versionCode);
   }, [versions]);
 
-  const handleSave = async (data: Partial<Omit<AppVersion, 'id' | 'createdAt'>>, file: File | null, packageName: string) => {
+  const handleSave = async (data: Partial<AppVersion>, file: File | null, packageName: string) => {
     setIsSaving(true);
     setUploadProgress(null);
     
-    const dataToSave = {...data};
+    const dataToSave: Partial<AppVersion> = {...data};
 
     try {
         if (file) {
@@ -234,7 +228,7 @@ function AppVersionManager() {
         } else {
             const id = `v${data.versionCode}`;
             const path = `/appVersions/${id}`;
-            const newVersion = { ...dataToSave, createdAt: Date.now() };
+            const newVersion = { ...dataToSave, createdAt: Date.now(), id: id };
             await setRtdb(database, path, newVersion);
             toast({ title: "تمت إضافة الإصدار بنجاح" });
         }
@@ -248,14 +242,36 @@ function AppVersionManager() {
     }
   };
 
-  const handleDelete = async (versionId: string) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا الإصدار؟ لا يمكن التراجع عن هذا الإجراء.")) return;
+  const handleDelete = async (version: AppVersion) => {
+    if (!window.confirm(`هل أنت متأكد من حذف الإصدار "${version.versionName}"؟ سيتم حذف الملف المرتبط به من الخادم.`)) return;
     try {
-        // Here you could also add logic to delete the file from storage if it exists
-        await removeRtdb(database, `/appVersions/${versionId}`);
+        // Delete file from storage if URL exists
+        if (version.directDownloadUrl) {
+            try {
+                const fileRef = storageRef(storage, version.directDownloadUrl);
+                await deleteObject(fileRef);
+                toast({
+                    title: "تم حذف الملف من التخزين",
+                    description: "تم حذف ملف التطبيق المرتبط بهذا الإصدار.",
+                });
+            } catch (storageError: any) {
+                if (storageError.code === 'storage/object-not-found') {
+                     toast({
+                        variant: 'default',
+                        title: "ملاحظة",
+                        description: "لم يتم العثور على الملف في التخزين، سيتم حذفه من قاعدة البيانات فقط.",
+                    });
+                } else {
+                    // For other errors, re-throw to be caught by the outer catch block
+                    throw storageError;
+                }
+            }
+        }
+        // Delete the version entry from Realtime Database
+        await removeRtdb(database, `/appVersions/${version.id}`);
         toast({ title: "تم حذف الإصدار بنجاح", variant: "destructive"});
     } catch (error: any) {
-        toast({ title: "حدث خطأ", description: error.message, variant: "destructive"});
+        toast({ title: "حدث خطأ أثناء الحذف", description: error.message, variant: "destructive"});
     }
   };
 
@@ -325,7 +341,7 @@ function AppVersionManager() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => openDialogForEdit(version)}>تعديل</DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleDelete(version.id)} className="text-destructive focus:text-destructive">حذف</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleDelete(version)} className="text-destructive focus:text-destructive">حذف</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
