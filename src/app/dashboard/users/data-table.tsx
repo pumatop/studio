@@ -513,8 +513,8 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     return initialData.filter(
       (user) => {
         const latestSession = getLatestSessionInfo(user);
-        return (user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.phone.includes(searchTerm)) &&
+        return ((user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (user.phone || '').includes(searchTerm)) &&
         (roleFilter === 'all' || user.role === roleFilter) &&
         (connectionStatusFilter === 'all' || latestSession.connectionStatus === connectionStatusFilter) &&
         (verificationFilter === 'all' || user.verification === verificationFilter) &&
