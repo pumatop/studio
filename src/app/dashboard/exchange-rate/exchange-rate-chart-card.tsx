@@ -25,12 +25,25 @@ const colors = {
     increase: "hsl(142.1 76.2% 36.3%)", // green-600
     decrease: "hsl(0 72.2% 50.6%)",  // red-600
     equal: "hsl(215.4 9.3% 62.2%)",   // stone-500
+    selected: "hsl(var(--primary))",
 };
 
-export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
+export function ExchangeRateChartCard({ 
+    data, 
+    onDateSelect,
+    selectedDate 
+}: { 
+    data: DailyRate[],
+    onDateSelect: (date: string) => void,
+    selectedDate: string | null
+}) {
+    
   const getColorForRate = (index: number) => {
+    if (selectedDate && new Date(data[index].date).toISOString().split('T')[0] === new Date(selectedDate).toISOString().split('T')[0]) {
+      return colors.selected;
+    }
     if (index === 0) {
-      return colors.equal; // Default color for the first bar
+      return colors.equal;
     }
     const currentRate = data[index].rate;
     const previousRate = data[index - 1].rate;
@@ -42,19 +55,32 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
     }
     return colors.equal;
   };
+  
+  const handleBarClick = (payload: any) => {
+    if(payload && payload.activePayload && payload.activePayload[0]) {
+        const date = payload.activePayload[0].payload.date;
+        onDateSelect(date);
+    }
+  }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>أسعار الصرف لآخر 7 أيام</CardTitle>
-        <CardDescription>زوج العملات: LYD/EGP</CardDescription>
+        <CardDescription>زوج العملات: LYD/EGP. اضغط على يوم لعرض تفاصيله.</CardDescription>
       </CardHeader>
       <CardContent>
+        {data.length === 0 ? (
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+            لا توجد بيانات كافية لعرض الرسم البياني.
+          </div>
+        ) : (
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
           <BarChart
             data={data}
             margin={{ top: 30, right: 20, left: -10, bottom: 0 }}
             accessibilityLayer
+            onClick={handleBarClick}
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -78,7 +104,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
               tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
             />
             <Tooltip
-              cursor={false}
+              cursor={{fill: 'hsl(var(--accent) / 0.5)'}}
               content={<ChartTooltipContent indicator="dot" formatter={(value, name, props) => {
                 const { payload } = props;
                 return (
@@ -92,6 +118,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
             <Bar
                 dataKey="rate"
                 radius={[4, 4, 0, 0]}
+                className="cursor-pointer"
             >
                 {data.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={getColorForRate(index)} />
@@ -106,6 +133,7 @@ export function ExchangeRateChartCard({ data }: { data: DailyRate[] }) {
             </Bar>
           </BarChart>
         </ChartContainer>
+        )}
       </CardContent>
     </Card>
   );

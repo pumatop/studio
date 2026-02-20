@@ -17,34 +17,38 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
-import { ArrowDown, ArrowUp, History, FileDown, Printer } from "lucide-react";
-import { useRtdbList } from "@/firebase";
+import { ArrowDown, ArrowUp, History, FileDown, Printer, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { exportToCsv } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-export function ChangeLogCard() {
-  const { data: allLogs, isLoading } = useRtdbList<ExchangeRateLog>('/exchangeRateLogs');
+export function ChangeLogCard({ 
+    logs, 
+    isLoading,
+    selectedDate,
+    onClearSelection,
+}: { 
+    logs?: ExchangeRateLog[], 
+    isLoading?: boolean,
+    selectedDate: string | null,
+    onClearSelection: () => void,
+}) {
   const { toast } = useToast();
-
-  const logs = useMemo(() => {
-    if (!allLogs || allLogs.length === 0) {
-      return [];
-    }
-    return [...allLogs]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 10); // Show last 10 changes
-  }, [allLogs]);
-
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
   };
+  
+  const cardTitle = selectedDate ? `سجل تغييرات يوم: ${new Date(selectedDate).toLocaleDateString("ar-EG-u-nu-latn", { day: 'numeric', month: 'long' })}` : "آخر 10 تغييرات";
+  const cardDescription = selectedDate ? "عرض جميع التغييرات التي تمت على سعر الصرف في هذا اليوم." : "آخر التغييرات التي تمت على أسعار الصرف.";
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
+      if (!logs || logs.length === 0) {
+        toast({ title: "لا توجد بيانات للتصدير", variant: "destructive" });
+        return;
+      }
       if (format === 'csv') {
         exportToCsv('exchange-rate-logs.csv', logs);
       } else {
@@ -86,11 +90,17 @@ export function ChangeLogCard() {
         <div>
           <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5" />
-              <span>سجل التغيرات</span>
+              <span>{cardTitle}</span>
           </CardTitle>
-          <CardDescription>آخر التغييرات التي تمت على أسعار الصرف.</CardDescription>
+          <CardDescription>{cardDescription}</CardDescription>
         </div>
         <div className="flex items-center gap-2">
+            {selectedDate && (
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={onClearSelection}>
+                    <XCircle className="h-5 w-5" />
+                    <span className="sr-only">Clear selection</span>
+                </Button>
+            )}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm">
@@ -115,7 +125,7 @@ export function ChangeLogCard() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[150px]">التاريخ</TableHead>
+              <TableHead className="w-[150px]">الوقت</TableHead>
               <TableHead>زوج العملات</TableHead>
               <TableHead>المُعدِّل</TableHead>
               <TableHead className="text-center">السعر القديم</TableHead>
@@ -124,17 +134,22 @@ export function ChangeLogCard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {logs.map((log) => {
+            {!logs || logs.length === 0 ? (
+                <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center">
+                        لا توجد سجلات لعرضها.
+                    </TableCell>
+                </TableRow>
+            ) : logs.map((log) => {
               const difference = getDifference(log.oldRate, log.newRate);
               const isIncrease = difference > 0;
               return (
                 <TableRow key={log.id}>
                   <TableCell>
                     {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
-                      month: '2-digit',
-                      day: '2-digit',
                       hour: "2-digit",
                       minute: "2-digit",
+                      second: "2-digit",
                       hour12: true,
                     })}
                   </TableCell>
