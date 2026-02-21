@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -28,7 +28,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
 
   // Base payload structure. We will conditionally add image-related fields.
   const basePayload: Omit<admin.messaging.Message, "topic" | "token" | "condition"> & {
-    apns?: admin.messaging.APNSConfig
+    apns?: admin.messaging.ApnsConfig
     android?: admin.messaging.AndroidConfig
   } = {
     notification: {
@@ -47,7 +47,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     apns: {
       payload: {
         aps: {
-          sound: "default",
+          "sound": "default",
           "mutable-content": 1,
         },
       },

@@ -1,4 +1,5 @@
 "use strict";
+"use client";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -40,6 +41,7 @@ const v2_1 = require("firebase-functions/v2");
 const db = admin.database();
 const messaging = admin.messaging();
 exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secrets: [] }, async (request) => {
+    var _a;
     if (!request.auth) {
         throw new https_1.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
@@ -48,21 +50,19 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
     if (!title || !body || !type || !target) {
         throw new https_1.HttpsError("invalid-argument", "Missing required notification fields.");
     }
-    // Base payload without target-specific properties (token, topic, condition)
+    // Base payload structure. We will conditionally add image-related fields.
     const basePayload = {
         notification: {
             title,
             body,
-            imageUrl,
         },
         data: {
-            type, // Custom data for the client app to handle UI
-            "click_action": "FLUTTER_NOTIFICATION_CLICK", // Standard for Flutter
+            type,
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
         },
         android: {
             notification: {
                 sound: "default",
-                imageUrl,
             },
         },
         apns: {
@@ -72,11 +72,21 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
                     "mutable-content": 1,
                 },
             },
-            fcmOptions: {
-                imageUrl,
-            },
         },
     };
+    // Conditionally add imageUrl to the payload if it exists.
+    // This prevents sending `imageUrl: undefined` which can cause internal errors.
+    if (imageUrl) {
+        if (basePayload.notification) {
+            basePayload.notification.imageUrl = imageUrl;
+        }
+        if ((_a = basePayload.android) === null || _a === void 0 ? void 0 : _a.notification) {
+            basePayload.android.notification.imageUrl = imageUrl;
+        }
+        if (basePayload.apns) {
+            basePayload.apns.fcmOptions = { imageUrl };
+        }
+    }
     let sendPromise;
     if (target === "all") {
         const topicMessage = Object.assign(Object.assign({}, basePayload), { topic: "all_users" });
