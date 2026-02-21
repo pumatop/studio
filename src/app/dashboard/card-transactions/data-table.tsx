@@ -129,8 +129,8 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((transaction) => (
-              <TableRow key={transaction.id} className="even:bg-muted/20">
+            {filteredData.map((transaction, index) => (
+              <TableRow key={`${transaction.id}-${index}`} className="even:bg-muted/20">
                 <TableCell className="text-xs font-mono">{transaction.id}</TableCell>
                 <TableCell>{transaction.userName}</TableCell>
                 <TableCell>{transaction.cardType}</TableCell>

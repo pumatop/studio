@@ -201,8 +201,8 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((transfer) => (
-              <TableRow key={transfer.id} className={cn('even:bg-muted/20', transfer.status === 'pending' && 'bg-yellow-500/10')}>
+            {filteredData.map((transfer, index) => (
+              <TableRow key={`${transfer.id}-${index}`} className={cn('even:bg-muted/20', transfer.status === 'pending' && 'bg-yellow-500/10')}>
                 <TableCell className="text-xs font-mono">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>

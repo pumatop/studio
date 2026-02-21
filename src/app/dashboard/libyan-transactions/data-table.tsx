@@ -242,10 +242,10 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.map((transaction) => {
+            {filteredData.map((transaction, index) => {
                 const tx = transaction as AccountTransferTransaction | EgyptTransferTransaction;
               return (
-              <TableRow key={tx.id} className="even:bg-muted/20">
+              <TableRow key={`${tx.id}-${index}`} className="even:bg-muted/20">
                 <TableCell className="text-xs font-mono">{tx.id}</TableCell>
                 <TableCell>{typeMap[tx.type]}</TableCell>
                 <TableCell>

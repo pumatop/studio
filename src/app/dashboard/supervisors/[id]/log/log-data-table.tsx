@@ -171,8 +171,8 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                         لا توجد عمليات لعرضها.
                     </TableCell>
                 </TableRow>
-            ) : filteredData.map((transfer) => (
-              <TableRow key={transfer.id}>
+            ) : filteredData.map((transfer, index) => (
+              <TableRow key={`${transfer.id}-${index}`}>
                 <TableCell className="text-xs">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
