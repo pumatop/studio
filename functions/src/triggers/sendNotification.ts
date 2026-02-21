@@ -1,3 +1,4 @@
+"use client";
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -25,52 +26,49 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  // Safely build payload parts
-  const notification: admin.messaging.Notification = {title, body};
-  if (imageUrl) {
-    notification.imageUrl = imageUrl;
-  }
-
-  const androidNotification: admin.messaging.AndroidNotification = {sound: "default"};
-  if (imageUrl) {
-    androidNotification.imageUrl = imageUrl;
-  }
-
-  const apnsPayload: admin.messaging.APNSPayload = {
-    aps: {
-      "sound": "default",
-      "mutable-content": 1,
-    },
-  };
-  const fcmOptions: admin.messaging.APNSFCMOptions = {};
-  if (imageUrl) {
-    fcmOptions.imageUrl = imageUrl;
-  }
-
-  // Base message structure
-  const baseMessage = {
-    notification,
-    data: {
-      type,
-      "click_action": "FLUTTER_NOTIFICATION_CLICK",
-    },
-    android: {
-      notification: androidNotification,
-    },
-    apns: {
-      payload: apnsPayload,
-      fcmOptions: Object.keys(fcmOptions).length > 0 ? fcmOptions : undefined,
-    },
-  };
-
-
   let sendPromise;
 
   if (target === "all") {
     const topicMessage: admin.messaging.TopicMessage = {
-      ...baseMessage,
       topic: "all_users",
+      data: {
+        type,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+      },
+      notification: {
+        title,
+        body,
+      },
+      android: {
+        notification: {
+          sound: "default",
+        },
+      },
+      apns: {
+        payload: {
+          aps: {
+            sound: "default",
+          },
+        },
+      },
     };
+
+    if (imageUrl) {
+      if (topicMessage.notification) {
+        topicMessage.notification.imageUrl = imageUrl;
+      }
+      if (topicMessage.android?.notification) {
+        topicMessage.android.notification.imageUrl = imageUrl;
+      }
+      if (topicMessage.apns) {
+        if (!topicMessage.apns.payload.aps) {
+          topicMessage.apns.payload.aps = {};
+        }
+        topicMessage.apns.payload.aps["mutable-content"] = 1;
+        topicMessage.apns.fcmOptions = { imageUrl };
+      }
+    }
+
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
     sendPromise = messaging.send(topicMessage);
   } else {
@@ -80,7 +78,8 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     }
     const userData = userSnapshot.val();
     let tokens: string[] = [];
-    if (userData.fcmToken && typeof userData.fcmToken === "string") {
+
+    if (userData.fcmToken && typeof userData.fcmToken === "string" && userData.fcmToken) {
       tokens.push(userData.fcmToken);
     }
     if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
@@ -94,9 +93,45 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     }
 
     const multicastMessage: admin.messaging.MulticastMessage = {
-      ...baseMessage,
       tokens,
+      data: {
+        type,
+        "click_action": "FLUTTER_NOTIFICATION_CLICK",
+      },
+      notification: {
+        title,
+        body,
+      },
+      android: {
+        notification: {
+          sound: "default",
+        },
+      },
+      apns: {
+        payload: {
+          aps: {
+            sound: "default",
+          },
+        },
+      },
     };
+
+    if (imageUrl) {
+      if (multicastMessage.notification) {
+        multicastMessage.notification.imageUrl = imageUrl;
+      }
+      if (multicastMessage.android?.notification) {
+        multicastMessage.android.notification.imageUrl = imageUrl;
+      }
+      if (multicastMessage.apns) {
+        if (!multicastMessage.apns.payload.aps) {
+          multicastMessage.apns.payload.aps = {};
+        }
+        multicastMessage.apns.payload.aps["mutable-content"] = 1;
+        multicastMessage.apns.fcmOptions = { imageUrl };
+      }
+    }
+
     logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);
     sendPromise = messaging.sendEachForMulticast(multicastMessage);
   }
@@ -111,7 +146,6 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       target,
       createdAt: admin.database.ServerValue.TIMESTAMP,
       sentBy: adminUid,
-      read: false,
     };
 
     if (target !== "all") {
