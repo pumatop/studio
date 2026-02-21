@@ -1,3 +1,4 @@
+'use client';
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -25,19 +26,22 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  const messagePayload: admin.messaging.Message = {
+  // Base payload structure. We will conditionally add image-related fields.
+  const basePayload: Omit<admin.messaging.Message, "topic" | "token" | "condition"> & {
+    apns?: admin.messaging.APNSConfig
+    android?: admin.messaging.AndroidConfig
+  } = {
     notification: {
       title,
       body,
     },
     data: {
-      type, // Custom data for the client app to handle UI
-      "click_action": "FLUTTER_NOTIFICATION_CLICK", // Standard for Flutter
+      type,
+      "click_action": "FLUTTER_NOTIFICATION_CLICK",
     },
     android: {
       notification: {
         sound: "default",
-        imageUrl,
       },
     },
     apns: {
@@ -47,23 +51,29 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
           "mutable-content": 1,
         },
       },
-      fcm_options: {
-        image: imageUrl,
-      },
     },
   };
 
+  // Conditionally add imageUrl to the payload if it exists.
+  // This prevents sending `imageUrl: undefined` which can cause internal errors.
   if (imageUrl) {
-    if (messagePayload.notification) {
-      messagePayload.notification.imageUrl = imageUrl;
+    if (basePayload.notification) {
+      basePayload.notification.imageUrl = imageUrl;
+    }
+    if (basePayload.android?.notification) {
+      basePayload.android.notification.imageUrl = imageUrl;
+    }
+    if (basePayload.apns) {
+      basePayload.apns.fcmOptions = {imageUrl};
     }
   }
+
 
   let sendPromise;
 
   if (target === "all") {
     const topicMessage: admin.messaging.TopicMessage = {
-      ...messagePayload,
+      ...basePayload,
       topic: "all_users",
     };
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
@@ -82,7 +92,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     }
 
     const multicastMessage: admin.messaging.MulticastMessage = {
-      ...messagePayload,
+      ...basePayload,
       tokens,
     };
 

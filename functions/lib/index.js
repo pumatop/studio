@@ -48,4 +48,5 @@ __exportStar(require("./triggers/handleAutoExchangeStatus"), exports);
 __exportStar(require("./triggers/processScheduledRateChanges"), exports);
 __exportStar(require("./triggers/processTransactionBasedRateChanges"), exports);
 __exportStar(require("./triggers/manageUserSessions"), exports);
+__exportStar(require("./triggers/sendNotification"), exports);
 //# sourceMappingURL=index.js.map
