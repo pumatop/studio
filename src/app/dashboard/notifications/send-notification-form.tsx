@@ -16,7 +16,7 @@ import type { User } from '@/lib/types';
 import { useStorage, useFunctions } from '@/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { httpsCallable } from 'firebase/functions';
-import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon } from 'lucide-react';
+import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon, BellOff } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const notificationSchema = z.object({
@@ -199,14 +199,20 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
                       <span>كافة المستخدمين</span>
                     </div>
                   </SelectItem>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id}>
-                      <div className="flex items-center gap-2">
-                        <UserIcon className="h-4 w-4" />
-                        <span>{user.name || user.email || user.id}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {users.map((user) => {
+                    const canReceiveNotifications = !!user.fcmToken || (user.fcmTokens && Object.keys(user.fcmTokens).length > 0);
+                    return (
+                      <SelectItem key={user.id} value={user.id} disabled={!canReceiveNotifications}>
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <UserIcon className="h-4 w-4" />
+                            <span>{user.name || user.id}</span>
+                          </div>
+                          {!canReceiveNotifications && <BellOff className="h-4 w-4 text-muted-foreground opacity-50" />}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
               {errors.target && <p className="text-sm text-destructive">{errors.target.message}</p>}
