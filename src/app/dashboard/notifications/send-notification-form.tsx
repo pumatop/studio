@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -10,18 +10,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/lib/types';
 import { useStorage, useFunctions } from '@/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { httpsCallable } from 'firebase/functions';
-import { Loader2, Upload, Image as ImageIcon, X, CircleDollarSign } from 'lucide-react';
+import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const notificationSchema = z.object({
   title: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),
   body: z.string().min(5, "النص يجب أن يكون 5 أحرف على الأقل"),
   type: z.enum(['standard', 'popup', 'banner'], { required_error: "يجب اختيار نوع الإشعار" }),
+  target: z.string().min(3, "يجب تحديد المستلم"),
 });
 
 type NotificationFormData = z.infer<typeof notificationSchema>;
@@ -60,7 +62,7 @@ function NotificationPreview({ title, body, imagePreview }: { title: string, bod
     );
 }
 
-export function SendNotificationForm({ targetUser, onNotificationSent }: { targetUser: User | null; onNotificationSent: () => void }) {
+export function SendNotificationForm({ users, targetUser, onNotificationSent }: { users: User[], targetUser: User | null; onNotificationSent: () => void; }) {
   const { toast } = useToast();
   const storage = useStorage();
   const functions = useFunctions();
@@ -71,15 +73,24 @@ export function SendNotificationForm({ targetUser, onNotificationSent }: { targe
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, formState: { errors }, watch, setValue, reset } = useForm<NotificationFormData>({
+  const { register, handleSubmit, formState: { errors }, watch, reset, control, setValue } = useForm<NotificationFormData>({
     resolver: zodResolver(notificationSchema),
     defaultValues: {
+      title: '',
+      body: '',
       type: 'standard',
+      target: targetUser?.id || 'all',
     }
   });
+  
+  useEffect(() => {
+    // Update the form's target value if the targetUser prop changes (e.g., dialog opens for a new user)
+    setValue('target', targetUser?.id || 'all');
+  }, [targetUser, setValue]);
 
   const title = watch("title");
   const body = watch("body");
+  const target = watch("target");
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -133,11 +144,7 @@ export function SendNotificationForm({ targetUser, onNotificationSent }: { targe
       toast({ title: "جاري إرسال الإشعار..." });
       
       const sendNotification = httpsCallable(functions, 'sendNotification');
-      const payload = {
-        ...data,
-        target: targetUser ? targetUser.id : 'all',
-        imageUrl,
-      };
+      const payload = { ...data, imageUrl };
 
       await sendNotification(payload);
 
@@ -162,93 +169,118 @@ export function SendNotificationForm({ targetUser, onNotificationSent }: { targe
       setUploadProgress(null);
     }
   };
+  
+  const getTargetDisplayText = () => {
+    if (target === 'all') {
+      return "للجميع";
+    }
+    const selectedUser = users.find(u => u.id === target);
+    return selectedUser ? `إلى ${selectedUser.name || selectedUser.id}` : "";
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 lg:col-span-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 lg:col-span-3">
+
+        <Controller
+          name="target"
+          control={control}
+          render={({ field }) => (
+            <div className="space-y-2">
+              <Label>المستلم</Label>
+              <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !!targetUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="اختر المستلم..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span>كافة المستخدمين</span>
+                    </div>
+                  </SelectItem>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      <div className="flex items-center gap-2">
+                        <UserIcon className="h-4 w-4" />
+                        <span>{user.name || user.email || user.id}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.target && <p className="text-sm text-destructive">{errors.target.message}</p>}
+            </div>
+          )}
+        />
+
         <div className="space-y-2">
-            <Label htmlFor="title">عنوان الإشعار</Label>
-            <Input id="title" {...register("title")} disabled={isSubmitting} />
-            {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+          <Label htmlFor="title">عنوان الإشعار</Label>
+          <Input id="title" {...register("title")} disabled={isSubmitting} />
+          {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
         </div>
 
         <div className="space-y-2">
-            <Label htmlFor="body">نص الإشعار</Label>
-            <Textarea id="body" {...register("body")} disabled={isSubmitting} />
-            {errors.body && <p className="text-sm text-destructive">{errors.body.message}</p>}
+          <Label htmlFor="body">نص الإشعار</Label>
+          <Textarea id="body" {...register("body")} disabled={isSubmitting} />
+          {errors.body && <p className="text-sm text-destructive">{errors.body.message}</p>}
         </div>
 
-        <div className="space-y-3">
-            <Label>نوع الإشعار</Label>
-            <RadioGroup
-            onValueChange={(value) => setValue('type', value as 'standard' | 'popup' | 'banner')}
-            defaultValue="standard"
-            className="grid grid-cols-2 md:grid-cols-3 gap-4"
-            >
-            <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                <RadioGroupItem value="standard" className="sr-only" />
-                <span>عادي</span>
-            </Label>
-            <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                <RadioGroupItem value="popup" className="sr-only" />
-                <span>منبثق</span>
-            </Label>
-            <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                <RadioGroupItem value="banner" className="sr-only" />
-                <span>شريط جانبي</span>
-            </Label>
-            </RadioGroup>
-            {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
-        </div>
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => (
+            <div className="space-y-3">
+              <Label>نوع الإشعار</Label>
+              <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                  <RadioGroupItem value="standard" className="sr-only" />
+                  <span>عادي</span>
+                </Label>
+                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                  <RadioGroupItem value="popup" className="sr-only" />
+                  <span>منبثق</span>
+                </Label>
+                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
+                  <RadioGroupItem value="banner" className="sr-only" />
+                  <span>شريط جانبي</span>
+                </Label>
+              </RadioGroup>
+              {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
+            </div>
+          )}
+        />
 
         <div className="space-y-2">
-            <Label htmlFor="image">صورة الإشعار (اختياري)</Label>
-            {imagePreview ? (
+          <Label htmlFor="image">صورة الإشعار (اختياري)</Label>
+          {imagePreview ? (
             <div className="relative w-full h-48 rounded-md border overflow-hidden">
-                <Image src={imagePreview} alt="معاينة الصورة" layout="fill" objectFit="contain" />
-                <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 h-7 w-7"
-                onClick={removeImage}
-                disabled={isSubmitting}
-                >
+              <Image src={imagePreview} alt="معاينة الصورة" layout="fill" objectFit="contain" />
+              <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={removeImage} disabled={isSubmitting}>
                 <X className="h-4 w-4" />
-                </Button>
+              </Button>
             </div>
-            ) : (
-            <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
-            >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6 text-muted-foreground">
-                    <Upload className="w-8 h-8 mb-2" />
-                    <p className="mb-2 text-sm">انقر للرفع أو قم بسحب وإفلات الصورة هنا</p>
-                    <p className="text-xs">PNG, JPG, GIF up to 1MB</p>
-                </div>
+          ) : (
+            <div onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors">
+              <div className="flex flex-col items-center justify-center pt-5 pb-6 text-muted-foreground">
+                <Upload className="w-8 h-8 mb-2" />
+                <p className="mb-2 text-sm">انقر للرفع أو قم بسحب وإفلات الصورة هنا</p>
+                <p className="text-xs">PNG, JPG, GIF up to 1MB</p>
+              </div>
             </div>
-            )}
-            <Input 
-            id="image-upload" 
-            type="file" 
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleFileChange} 
-            accept="image/png, image/jpeg, image/gif"
-            disabled={isSubmitting}
-            />
-            {uploadProgress !== null && <Progress value={uploadProgress} className="w-full mt-2" />}
+          )}
+          <Input id="image-upload" type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept="image/png, image/jpeg, image/gif" disabled={isSubmitting} />
+          {uploadProgress !== null && <Progress value={uploadProgress} className="w-full mt-2" />}
         </div>
         
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            إرسال الإشعار {targetUser ? `إلى ${targetUser.name}` : "للجميع"}
+          {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          إرسال الإشعار {getTargetDisplayText()}
         </Button>
-        </form>
-        <div className="hidden lg:block lg:col-span-2">
-            <NotificationPreview title={title || ""} body={body || ""} imagePreview={imagePreview} />
-        </div>
+      </form>
+      <div className="hidden lg:block lg:col-span-2">
+        <NotificationPreview title={title || ""} body={body || ""} imagePreview={imagePreview} />
+      </div>
     </div>
   );
 }

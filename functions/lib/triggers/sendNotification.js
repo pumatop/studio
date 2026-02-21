@@ -1,5 +1,4 @@
 "use strict";
-"use client";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -41,7 +40,6 @@ const v2_1 = require("firebase-functions/v2");
 const db = admin.database();
 const messaging = admin.messaging();
 exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secrets: [] }, async (request) => {
-    var _a;
     if (!request.auth) {
         throw new https_1.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
@@ -50,19 +48,21 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
     if (!title || !body || !type || !target) {
         throw new https_1.HttpsError("invalid-argument", "Missing required notification fields.");
     }
-    // Base payload structure. We will conditionally add image-related fields.
+    // Base payload without target-specific properties (token, topic, condition)
     const basePayload = {
         notification: {
             title,
             body,
+            imageUrl,
         },
         data: {
-            type,
-            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            type, // Custom data for the client app to handle UI
+            "click_action": "FLUTTER_NOTIFICATION_CLICK", // Standard for Flutter
         },
         android: {
             notification: {
                 sound: "default",
+                imageUrl,
             },
         },
         apns: {
@@ -72,21 +72,11 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
                     "mutable-content": 1,
                 },
             },
+            fcmOptions: {
+                imageUrl,
+            },
         },
     };
-    // Conditionally add imageUrl to the payload if it exists.
-    // This prevents sending `imageUrl: undefined` which can cause internal errors.
-    if (imageUrl) {
-        if (basePayload.notification) {
-            basePayload.notification.imageUrl = imageUrl;
-        }
-        if ((_a = basePayload.android) === null || _a === void 0 ? void 0 : _a.notification) {
-            basePayload.android.notification.imageUrl = imageUrl;
-        }
-        if (basePayload.apns) {
-            basePayload.apns.fcmOptions = { imageUrl };
-        }
-    }
     let sendPromise;
     if (target === "all") {
         const topicMessage = Object.assign(Object.assign({}, basePayload), { topic: "all_users" });
@@ -100,10 +90,17 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
             v2_1.logger.error(`No FCM tokens found for user ${target}.`);
             throw new https_1.HttpsError("not-found", `No FCM tokens for user ${target}.`);
         }
-        const tokens = Object.values(tokensSnapshot.val());
+        const tokensVal = tokensSnapshot.val();
+        let tokens = [];
+        if (typeof tokensVal === "string" && tokensVal) {
+            tokens = [tokensVal];
+        }
+        else if (typeof tokensVal === "object" && tokensVal !== null) {
+            tokens = Object.values(tokensVal).filter((t) => typeof t === "string" && !!t);
+        }
         if (tokens.length === 0) {
-            v2_1.logger.error(`Token list is empty for user ${target}.`);
-            throw new https_1.HttpsError("not-found", `Token list is empty for user ${target}.`);
+            v2_1.logger.error(`Token list is empty or invalid for user ${target}.`);
+            throw new https_1.HttpsError("not-found", `No valid FCM tokens for user ${target}.`);
         }
         const multicastMessage = Object.assign(Object.assign({}, basePayload), { tokens });
         v2_1.logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);
@@ -119,8 +116,16 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
             target,
             createdAt: admin.database.ServerValue.TIMESTAMP,
             sentBy: adminUid,
+            read: false, // To track if the user has read the notification
         };
-        await db.ref("/notifications").push(notificationRecord);
+        if (target !== "all") {
+            // Save notification to the specific user's notification feed
+            await db.ref(`/users/${target}/notifications`).push(notificationRecord);
+        }
+        else {
+            // Save broadcast notifications to a general log
+            await db.ref("/notifications").push(notificationRecord);
+        }
         v2_1.logger.info("Notification sent and recorded successfully.");
         return { success: true, message: "Notification sent successfully." };
     }

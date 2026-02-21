@@ -40,6 +40,7 @@ export default function NotificationsPage() {
                     </CardHeader>
                     <CardContent>
                         <SendNotificationForm
+                            users={users || []}
                             targetUser={null} // For sending to all
                             onNotificationSent={() => {}}
                         />
@@ -96,6 +97,7 @@ export default function NotificationsPage() {
                     </DialogHeader>
                     <div className="pt-4">
                         <SendNotificationForm
+                            users={users || []}
                             targetUser={selectedUser}
                             onNotificationSent={() => setDialogOpen(false)}
                         />

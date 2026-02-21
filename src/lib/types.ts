@@ -36,7 +36,9 @@ export type User = {
   lastPasswordChange?: number;
   lastPinChange?: number;
   sessions?: { [sessionId: string]: UserSession };
+  fcmToken?: string;
   fcmTokens?: { [key: string]: string };
+  lastTokenUpdate?: number;
   transactions?: { [transactionId: string]: any };
 };
 

@@ -1,4 +1,3 @@
-"use client";
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -26,17 +25,16 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  const basePayload: Omit<admin.messaging.Message, "topic" | "token" | "condition"> & {
-    apns?: admin.messaging.ApnsConfig
-    android?: admin.messaging.AndroidConfig
-  } = {
+  // Base payload without target-specific properties (token, topic, condition)
+  // and without image, which will be added conditionally.
+  const basePayload: admin.messaging.BaseMessage = {
+    data: {
+      type, // Custom data for the client app to handle UI
+      "click_action": "FLUTTER_NOTIFICATION_CLICK", // Standard for Flutter
+    },
     notification: {
       title,
       body,
-    },
-    data: {
-      type,
-      "click_action": "FLUTTER_NOTIFICATION_CLICK",
     },
     android: {
       notification: {
@@ -46,13 +44,14 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     apns: {
       payload: {
         aps: {
-          sound: "default",
+          "sound": "default",
           "mutable-content": 1,
         },
       },
     },
   };
 
+  // Conditionally add image URL if it exists
   if (imageUrl) {
     if (basePayload.notification) {
       basePayload.notification.imageUrl = imageUrl;
@@ -75,24 +74,32 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
     sendPromise = messaging.send(topicMessage);
   } else {
-    const tokensSnapshot = await db.ref(`/users/${target}/fcmTokens`).get();
-    if (!tokensSnapshot.exists()) {
+    // Fetch the user's FCM token(s) from the database
+    const userSnapshot = await db.ref(`/users/${target}`).get();
+    if (!userSnapshot.exists()) {
+      logger.error(`No user found for id ${target}.`);
+      throw new HttpsError("not-found", `User ${target} not found.`);
+    }
+
+    const userData = userSnapshot.val();
+    const tokensVal = userData.fcmTokens || userData.fcmToken;
+
+    if (!tokensVal) {
       logger.error(`No FCM tokens found for user ${target}.`);
       throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
     }
-    
-    const tokensVal = tokensSnapshot.val();
+
     let tokens: string[] = [];
 
     if (typeof tokensVal === "string" && tokensVal) {
-        tokens = [tokensVal];
+      tokens = [tokensVal];
     } else if (typeof tokensVal === "object" && tokensVal !== null) {
-        tokens = Object.values(tokensVal).filter((t): t is string => typeof t === "string" && t);
+      tokens = Object.values(tokensVal).filter((t): t is string => typeof t === "string" && !!t);
     }
 
     if (tokens.length === 0) {
-        logger.error(`Token list is empty or invalid for user ${target}.`);
-        throw new HttpsError("not-found", `No valid FCM tokens for user ${target}.`);
+      logger.error(`Token list is empty or invalid for user ${target}.`);
+      throw new HttpsError("not-found", `No valid FCM tokens for user ${target}.`);
     }
 
     const multicastMessage: admin.messaging.MulticastMessage = {
@@ -115,9 +122,16 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       target,
       createdAt: admin.database.ServerValue.TIMESTAMP,
       sentBy: adminUid,
+      read: false, // To track if the user has read the notification
     };
 
-    await db.ref("/notifications").push(notificationRecord);
+    if (target !== "all") {
+      // Save notification to the specific user's notification feed
+      await db.ref(`/users/${target}/notifications`).push(notificationRecord);
+    } else {
+      // Save broadcast notifications to a general log
+      await db.ref("/notifications").push(notificationRecord);
+    }
 
     logger.info("Notification sent and recorded successfully.");
     return {success: true, message: "Notification sent successfully."};

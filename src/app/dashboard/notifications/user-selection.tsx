@@ -21,7 +21,7 @@ export function UserSelection({ users, onUserSelect }: { users: User[], onUserSe
         <ScrollArea className="h-96">
         <div className="space-y-2 pr-4">
             {users.map((user) => {
-            const canReceiveNotifications = user.fcmTokens && Object.keys(user.fcmTokens).length > 0;
+            const canReceiveNotifications = !!user.fcmToken || (user.fcmTokens && Object.keys(user.fcmTokens).length > 0);
             const buttonContent = (
                 <button
                     key={user.id}
