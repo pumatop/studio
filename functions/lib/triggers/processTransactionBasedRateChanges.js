@@ -43,7 +43,7 @@ const db = admin.database();
  * This function runs if 'autoConditionsActive' is true.
  */
 exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
-    ref: "/transactions/{transactionId}",
+    ref: "/users/{userId}/transactions/{transactionId}",
     region: "asia-southeast1",
 }, async (event) => {
     const transaction = event.data.val();

@@ -171,16 +171,16 @@ export default function DashboardPage() {
     const dailyCardStats = {
         count: dailyCards.length,
         revenue: dailyCards.reduce((sum, t) => {
-            const balanceChange = t.balanceBefore - t.balanceAfter;
-            const fee = balanceChange - t.amount;
+            const balanceChange = (t.balanceBefore || 0) - (t.balanceAfter || 0);
+            const fee = balanceChange - (t.amount || 0);
             return sum + (fee > 0 ? fee : 0);
         }, 0)
     };
     const monthlyCardStats = {
         count: monthlyCards.length,
         revenue: monthlyCards.reduce((sum, t) => {
-            const balanceChange = t.balanceBefore - t.balanceAfter;
-            const fee = balanceChange - t.amount;
+            const balanceChange = (t.balanceBefore || 0) - (t.balanceAfter || 0);
+            const fee = balanceChange - (t.amount || 0);
             return sum + (fee > 0 ? fee : 0);
         }, 0)
     };
@@ -193,11 +193,11 @@ export default function DashboardPage() {
     });
     const dailyInternalStats = {
         count: dailyInternal.length,
-        revenue: dailyInternal.reduce((sum, t) => sum + t.fee, 0)
+        revenue: dailyInternal.reduce((sum, t) => sum + (t.fee || 0), 0)
     };
     const monthlyInternalStats = {
         count: monthlyInternal.length,
-        revenue: monthlyInternal.reduce((sum, t) => sum + t.fee, 0)
+        revenue: monthlyInternal.reduce((sum, t) => sum + (t.fee || 0), 0)
     };
 
     const fakkaBalance = fakkaSafeData?.totalFakka || 0;
