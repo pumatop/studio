@@ -19,7 +19,7 @@ export default function UsersPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>قائمة المستخدمين</CardTitle>
         <CardDescription>

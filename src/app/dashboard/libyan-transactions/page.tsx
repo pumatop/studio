@@ -26,7 +26,7 @@ export default function LibyanTransactionsPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>المعاملات المالية (د.ل)</CardTitle>
         <CardDescription>

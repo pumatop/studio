@@ -27,7 +27,7 @@ export default function CardTransactionsPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>معاملات شراء الكروت (DC)</CardTitle>
         <CardDescription>

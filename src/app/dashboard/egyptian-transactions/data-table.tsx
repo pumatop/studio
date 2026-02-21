@@ -79,28 +79,27 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   }, [initialData, searchTerm, transferTypeFilter, statusFilter, date]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+        $(tableRef.current).DataTable().destroy();
     }
-
+    
     const timer = setTimeout(() => {
-      if (tableRef.current) {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) {
+          return;
+        }
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
-               "<'bg-transparent't>" +
-               "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" +
-               "<'flex justify-center mt-4'B>",
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'flex items-center justify-between p-4'ip>",
           buttons: [
-              { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
-              { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
-              { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
-              { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
-              { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: {
             url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
@@ -109,8 +108,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           lengthMenu: [10, 25, 50, 100],
           searching: false, // We use our custom search input
         });
-      }
-    }, 0);
+    }, 100);
 
     return () => {
         clearTimeout(timer);
@@ -144,19 +142,19 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   return (
     <div className="space-y-4">
       {/* Filter controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو الرقم..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm flex-grow bg-transparent"/>
+              className="max-w-sm flex-grow"/>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   id="date"
                   variant={'outline'}
-                  className={cn('w-full bg-transparent sm:w-[200px] justify-start text-left font-normal', !date && 'text-muted-foreground')}>
+                  className={cn('w-full sm:w-[200px] justify-start text-left font-normal', !date && 'text-muted-foreground')}>
                   <CalendarIcon className="ml-2 h-4 w-4" />
                   {date ? format(date, 'dd/MM/y', { locale: arEG }) : <span>اختر يوماً</span>}
                 </Button>
@@ -166,7 +164,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               </PopoverContent>
             </Popover>
             <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
-              <SelectTrigger className="w-full sm:w-auto md:w-[180px] bg-transparent"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-auto md:w-[180px]"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">كل الأنواع</SelectItem>
                 <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -175,7 +173,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="w-full sm:w-auto md:w-[180px] bg-transparent"><SelectValue placeholder="حالة الطلب" /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-auto md:w-[180px]"><SelectValue placeholder="حالة الطلب" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="completed">ناجح</SelectItem>
@@ -188,7 +186,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
       </div>
       
       {/* Table */}
-      <div className="glass-table">
+      <div className="rounded-lg border">
         <Table ref={tableRef} className="w-full">
           <TableHeader>
             <TableRow>
@@ -204,7 +202,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           </TableHeader>
           <TableBody>
             {filteredData.map((transfer) => (
-              <TableRow key={transfer.id} className={cn('even:bg-black/5', transfer.status === 'pending' && 'bg-yellow-500/10')}>
+              <TableRow key={transfer.id} className={cn('even:bg-muted/20', transfer.status === 'pending' && 'bg-yellow-500/10')}>
                 <TableCell className="text-xs font-mono">{transfer.id}</TableCell>
                 <TableCell>
                     <div className="font-medium">{transfer.userName}</div>
@@ -228,9 +226,9 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                   {transfer.status === 'completed' ? (
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-8 w-8 bg-transparent/20"><Eye className="h-4 w-4" /></Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8"><Eye className="h-4 w-4" /></Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-md bg-white/10 backdrop-blur-md border-white/30">
+                      <DialogContent className="max-w-md">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
                               <CircleDollarSign className="h-8 w-8 text-primary" />
@@ -238,13 +236,13 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                           </DialogTitle>
                           <DialogDescription>إيصال تحويل إلكتروني</DialogDescription>
                         </DialogHeader>
-                        <div className="p-4 border rounded-lg bg-black/10" dir="rtl">
+                        <div className="p-4 border rounded-lg bg-muted/20" dir="rtl">
                           <div className="space-y-2 text-sm mb-4">
                               <div className="flex justify-between"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><Hash size={14} />رقم العملية:</span> <span className="font-mono">{transfer.id}</span></div>
                               <div className="flex justify-between"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><CalendarDays size={14} />التاريخ:</span> <span>{new Date(transfer.timestamp).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span></div>
                               <div className="flex justify-between items-center"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><Info size={14} />الحالة:</span> <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>{statusMap[transfer.status]}</Badge></div>
                           </div>
-                          <Separator className="my-4 bg-white/20" />
+                          <Separator className="my-4" />
                           <div className="grid grid-cols-1 gap-4 my-4 text-sm">
                               <div>
                                   <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> من (المرسل)</h3>

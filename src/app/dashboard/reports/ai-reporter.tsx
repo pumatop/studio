@@ -128,7 +128,7 @@ export default function AiReporter() {
 
   return (
     <div className="container mx-auto py-4">
-      <Card className="mb-6 bg-card/50 dark:bg-card/30">
+      <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-2xl">
             <BrainCircuit className="text-primary h-8 w-8" />

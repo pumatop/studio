@@ -28,7 +28,7 @@ export default function EgyptianTransfersPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>سجل التحويلات المصرية</CardTitle>
         <CardDescription>

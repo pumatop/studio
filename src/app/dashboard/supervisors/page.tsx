@@ -20,7 +20,7 @@ export default function SupervisorsPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>قائمة المشرفين والمندوبين</CardTitle>
         <CardDescription>

@@ -183,28 +183,28 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+        $(tableRef.current).DataTable().destroy();
     }
-
+    
     const timer = setTimeout(() => {
-      if (tableRef.current) {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) {
+          return;
+        }
+
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
-               "<'bg-transparent't>" +
-               "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" +
-               "<'flex justify-center mt-4'B>",
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'flex items-center justify-between p-4'ip>",
           buttons: [
-              { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
-              { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
-              { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
-              { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
-              { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: {
             url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
@@ -213,8 +213,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
           lengthMenu: [10, 25, 50, 100],
           searching: false, // We use our custom search input
         });
-      }
-    }, 0);
+    }, 100);
 
     return () => {
       clearTimeout(timer);
@@ -297,16 +296,16 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو رقم الهاتف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs bg-transparent"
+              className="max-w-xs"
             />
             <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">كل التخصصات</SelectItem>
                     <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -315,7 +314,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">الكل</SelectItem>
                     <SelectItem value="نشط">نشط</SelectItem>
@@ -333,19 +332,19 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 setDialogOpen(open);
             }}>
                 <DialogTrigger asChild>
-                    <Button className="w-full sm:w-auto btn-glass">
+                    <Button className="w-full sm:w-auto">
                         <PlusCircle className="ml-2 h-4 w-4" />
                         إضافة مستخدم
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-white/10 backdrop-blur-md border-white/30">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader><DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle></DialogHeader>
                     <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
                 </DialogContent>
             </Dialog>
         </div>
       </div>
-      <div className="glass-table">
+      <div className="rounded-lg border">
         <Table ref={tableRef} className="w-full">
           <TableHeader>
             <TableRow>
@@ -360,7 +359,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
           </TableHeader>
           <TableBody>
             {filteredData.map((supervisor) => (
-              <TableRow key={supervisor.id} className={cn('even:bg-black/5', supervisor.status === 'غير نشط' && 'bg-red-50/50 opacity-60')}>
+              <TableRow key={supervisor.id} className={cn('even:bg-muted/20', supervisor.status === 'غير نشط' && 'bg-red-50/50 opacity-60')}>
                 <TableCell>
                     <div className="font-medium">{supervisor.name}</div>
                     <div className="text-muted-foreground text-xs">{supervisor.phone}</div>

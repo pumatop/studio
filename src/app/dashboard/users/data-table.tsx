@@ -261,11 +261,11 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     return (
         <>
             <Dialog open={open} onOpenChange={(o) => { if (!o) { setIsEditingName(false); } onOpenChange(o); }}>
-                <DialogContent className="max-w-4xl bg-white/10 backdrop-blur-md border-white/30">
+                <DialogContent className="max-w-4xl">
                     <DialogHeader>
                         {isEditingName ? (
                             <div className="flex items-center gap-2">
-                            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="تعديل اسم المستخدم" className="h-9 bg-transparent"/>
+                            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="تعديل اسم المستخدم" className="h-9"/>
                             <Button size="sm" onClick={handleNameSave}>حفظ</Button>
                             <Button size="sm" variant="ghost" onClick={handleCancelEdit}>إلغاء</Button>
                             </div>
@@ -280,7 +280,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
                         {/* Column 1: Balances & Personal Info */}
                         <div className="md:col-span-1 space-y-4">
-                            <Card className="bg-transparent">
+                            <Card>
                                 <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle></CardHeader>
                                 <CardContent className="text-sm space-y-2 pt-4">
                                     <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{(user.balanceLYD || 0).toFixed(2)} د.ل</span></div>
@@ -288,7 +288,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                     <div className="flex justify-between text-muted-foreground"><span>المصري المعلق:</span> <span className="font-semibold">{(user.balanceEgyptianPending || 0).toFixed(2)} ج.م</span></div>
                                 </CardContent>
                             </Card>
-                            <Card className="bg-transparent">
+                            <Card>
                                 <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle></CardHeader>
                                 <CardContent className="pt-4 space-y-4">
                                     <div className="space-y-2">
@@ -326,7 +326,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
 
                         {/* Column 2: History & Security */}
                         <div className="md:col-span-2 space-y-4">
-                            <Card className="bg-transparent">
+                            <Card>
                                 <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle></CardHeader>
                                 <CardContent className="text-sm space-y-2 pt-4">
                                     <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
@@ -334,7 +334,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                     <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
                                 </CardContent>
                             </Card>
-                            <Card className="bg-transparent">
+                            <Card>
                                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات والأجهزة</CardTitle><CardDescription>عرض وإدارة الجلسات النشطة للمستخدم.</CardDescription></CardHeader>
                                 <CardContent>
                                     {sessions.length > 0 ? (
@@ -343,7 +343,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                                 <TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>آخر ظهور</TableHead><TableHead>الحالة</TableHead><TableHead>IP</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
                                                 <TableBody>
                                                     {sessions.map((session) => (
-                                                        <TableRow key={session.id} className="even:bg-black/5"><TableCell><div className="font-medium">{session.activeDevice}</div><div className="text-xs text-muted-foreground">{session.phoneOS}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>{session.connectionStatus}</Badge></TableCell><TableCell className="font-mono text-xs">{session.ipAddress}</TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}><LogOut className="ml-2 h-3 w-3" />إنهاء</Button></TableCell></TableRow>
+                                                        <TableRow key={session.id} className="even:bg-muted/20"><TableCell><div className="font-medium">{session.activeDevice}</div><div className="text-xs text-muted-foreground">{session.phoneOS}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>{session.connectionStatus}</Badge></TableCell><TableCell className="font-mono text-xs">{session.ipAddress}</TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}><LogOut className="ml-2 h-3 w-3" />إنهاء</Button></TableCell></TableRow>
                                                     ))}
                                                 </TableBody>
                                             </Table>
@@ -354,8 +354,8 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                             </Card>
                             <Tabs defaultValue="libyan">
                                 <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger><TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger></TabsList>
-                                <TabsContent value="libyan"><Card className="bg-transparent"><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
-                                <TabsContent value="egyptian"><Card className="bg-transparent"><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
+                                <TabsContent value="libyan"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
+                                <TabsContent value="egyptian"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
                             </Tabs>
                         </div>
                     </div>
@@ -415,28 +415,27 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   }, [initialData, searchTerm, roleFilter, connectionStatusFilter, verificationFilter, statusFilter]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+        $(tableRef.current).DataTable().destroy();
     }
-
+    
     const timer = setTimeout(() => {
-      if (tableRef.current) {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) {
+          return;
+        }
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
-               "<'bg-transparent't>" +
-               "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" +
-               "<'flex justify-center mt-4'B>",
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'flex items-center justify-between p-4'ip>",
           buttons: [
-              { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
-              { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
-              { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
-              { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
-              { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: {
             url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
@@ -445,8 +444,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           lengthMenu: [10, 25, 50, 100],
           searching: false, // We use our custom search input
         });
-      }
-    }, 0);
+    }, 100);
 
     return () => {
       clearTimeout(timer);
@@ -520,34 +518,34 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو رقم الهاتف..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-sm bg-transparent"
+              className="w-full max-w-sm"
             />
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="النوع" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="النوع" /></SelectTrigger>
                 <SelectContent><SelectItem value="all">كل الأنواع</SelectItem><SelectItem value="user">مستخدم</SelectItem><SelectItem value="merchant">تاجر</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
             </Select>
             <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
                 <SelectContent><SelectItem value="all">كل حالات الاتصال</SelectItem><SelectItem value="متصل">متصل</SelectItem><SelectItem value="غير متصل">غير متصل</SelectItem></SelectContent>
             </Select>
             <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="التوثيق" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التوثيق" /></SelectTrigger>
                 <SelectContent><SelectItem value="all">كل حالات التوثيق</SelectItem><SelectItem value="verified">موثق</SelectItem><SelectItem value="unverified">غير موثق</SelectItem><SelectItem value="pending">قيد المراجعة</SelectItem></SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px] bg-transparent"><SelectValue placeholder="حالة الحظر" /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحظر" /></SelectTrigger>
                 <SelectContent><SelectItem value="all">الكل</SelectItem><SelectItem value="active">غير محظور</SelectItem><SelectItem value="banned">محظور</SelectItem></SelectContent>
             </Select>
             <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto"><FilterX className="ml-2 h-4 w-4" />مسح</Button>
           </div>
       </div>
-      <div className="glass-table">
+      <div className="rounded-lg border">
         <Table ref={tableRef} className="w-full">
           <TableHeader>
             <TableRow>
@@ -565,7 +563,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
             {filteredData.map((user) => {
               const latestSession = getLatestSessionInfo(user);
               return (
-                <TableRow key={user.id} className={cn('even:bg-black/5', user.status === 'banned' && 'bg-red-50/50 opacity-60')}>
+                <TableRow key={user.id} className={cn('even:bg-muted/20', user.status === 'banned' && 'bg-red-50/50 opacity-60')}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.phone}</TableCell>
                   <TableCell>{roleMap[user.role]}</TableCell>

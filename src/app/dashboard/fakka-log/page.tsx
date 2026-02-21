@@ -19,7 +19,7 @@ export default function FakkaLogPage() {
   }
 
   return (
-    <Card className="bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle>سجل الفكة</CardTitle>
         <CardDescription>
