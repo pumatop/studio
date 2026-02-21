@@ -111,6 +111,8 @@ export default function DashboardPage() {
     dailyRevenueByType,
     monthlyRevenueByType,
     supervisorStats,
+    monthlyTotalRevenueLYD,
+    monthlyTotalRevenueEGP
   } = useMemo(() => {
     const usersData = users || [];
     const transactionsData = transactions || [];
@@ -280,6 +282,10 @@ export default function DashboardPage() {
 
         return { ...supervisor, dailyTotalAmount, monthlyTotalAmount, monthlyTotalCount, monthlyStatsByType };
     });
+    
+    const monthlyTotalRevenueLYD = monthlyInternalStats.revenue + monthlyCardStats.revenue;
+    const monthlyTotalRevenueEGP = monthlyEgyptianTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0);
+
 
     return {
         totalLibyanBalance,
@@ -307,35 +313,14 @@ export default function DashboardPage() {
         dailyRevenueByType,
         monthlyRevenueByType,
         supervisorStats,
+        monthlyTotalRevenueLYD,
+        monthlyTotalRevenueEGP,
     };
 
    }, [users, transactions, supervisors, selectedMonth, todayDate, fakkaSafeData]);
 
   const isLoading = usersLoading || transactionsLoading || supervisorsLoading || fakkaLoading;
   
-  const monthlyTotalRevenueLYD = monthlyInternalStats.revenue + monthlyCardStats.revenue;
-  const monthlyTotalRevenueEGP = monthlyEgyptianTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0);
-
-  if (isLoading) {
-    return (
-        <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                <Skeleton className="h-64" />
-                <Skeleton className="h-64" />
-                <Skeleton className="h-64" />
-            </div>
-            <Skeleton className="h-96" />
-            <Skeleton className="h-64" />
-        </div>
-    )
-  }
-
   const transferSummaryContent = (
       period: 'daily' | 'monthly',
       totalActive: number, 
@@ -344,7 +329,7 @@ export default function DashboardPage() {
       statusCounts: { successful: number, pending: number, failed: number }
     ) => (
     <CardContent className="space-y-4 pt-6">
-        <div className="text-center">
+        <div className="text-center break-words">
             <p className="text-sm text-muted-foreground">الإجمالي (ناجح + معلق)</p>
             <p>
                 <FormattedAmount amount={totalActive} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
@@ -396,6 +381,26 @@ export default function DashboardPage() {
     </CardContent>
   );
 
+  if (isLoading) {
+    return (
+        <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+                <Skeleton className="h-40" />
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+                <Skeleton className="h-64" />
+            </div>
+            <Skeleton className="h-96" />
+            <Skeleton className="h-64" />
+        </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -411,7 +416,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="break-words">
                     <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
@@ -427,7 +432,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="break-words">
                     <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
@@ -460,7 +465,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="break-words">
                     <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
@@ -577,7 +582,7 @@ export default function DashboardPage() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="text-center">
+                <div className="text-center break-words">
                     <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
                     <p><FormattedAmount amount={totalRevenueEGP} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" /></p>
                 </div>
