@@ -48,7 +48,7 @@ const getSenderPhone = (transaction: Transaction): string | null => {
     return null;
 }
 
-export function LibyanTransactionsDataTable({ initialData }: { initialData: Transaction[] }) {
+export function LibyanTransactionsDataTable({ initialData, showExchangeRate = true }: { initialData: Transaction[], showExchangeRate?: boolean }) {
   const [data, setData] = useState<Transaction[]>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
   const [operationTypeFilter, setOperationTypeFilter] = useState<"all" | keyof typeof typeMap>("all");
@@ -226,8 +226,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
               <TableHead>رسوم الخدمة</TableHead>
               <TableHead>هاتف المستلم</TableHead>
               <TableHead>المبلغ المستلم</TableHead>
-              <TableHead>سعر الصرف</TableHead>
-              <TableHead>المبلغ المحول (EGP)</TableHead>
+              {showExchangeRate && <TableHead>سعر الصرف</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -246,8 +245,7 @@ export function LibyanTransactionsDataTable({ initialData }: { initialData: Tran
                 <TableCell className="text-left">{renderServiceFee(tx)}</TableCell>
                 <TableCell>{tx.type === 'account_transfer' ? tx.recipientPhone : "-"}</TableCell>
                 <TableCell className="text-left">{tx.type === 'account_transfer' ? `${tx.amount.toLocaleString("en-US")} د.ل` : tx.type === 'egypt_transfer' ? `${tx.amountEGP.toLocaleString("en-US")} ج.م` : '-'}</TableCell>
-                <TableCell>{tx.type === 'egypt_transfer' ? tx.exchangeRate : "-"}</TableCell>
-                <TableCell className="text-left">{tx.type === 'egypt_transfer' ? `${tx.amountEGP.toLocaleString("en-US")} ج.م` : "-"}</TableCell>
+                {showExchangeRate && <TableCell>{tx.type === 'egypt_transfer' ? tx.exchangeRate : "-"}</TableCell>}
               </TableRow>
             )})}
           </TableBody>

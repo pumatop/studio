@@ -65,7 +65,7 @@ export default function TransfersByPrefixPage() {
           <CardDescription>عرض لجميع المعاملات التي تبدأ بالمعرف {prefix.toUpperCase()}.</CardDescription>
         </CardHeader>
         <CardContent>
-            <LibyanTransactionsDataTable initialData={filteredTransactions || []} />
+            <LibyanTransactionsDataTable initialData={filteredTransactions || []} showExchangeRate={prefix.toLowerCase() !== 'dd'} />
         </CardContent>
      </Card>
   );
