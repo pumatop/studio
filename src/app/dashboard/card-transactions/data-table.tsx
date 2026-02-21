@@ -47,8 +47,8 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
     return initialData.filter(item =>
       (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
        item.cardType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       item.serialNumber.includes(searchTerm) ||
-       item.code.includes(searchTerm) ||
+       (item.serialNumber && item.serialNumber.includes(searchTerm)) ||
+       (item.code && item.code.includes(searchTerm)) ||
        item.id.includes(searchTerm))
     );
   }, [initialData, searchTerm]);
@@ -80,7 +80,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
     });
 
     return () => {
-      if (tableRef.current && document.body.contains(tableRef.current)) {
+      if (table && table.table().node() && document.body.contains(table.table().node())) {
         table.destroy();
       }
     };
