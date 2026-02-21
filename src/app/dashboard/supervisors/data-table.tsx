@@ -209,7 +209,9 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
     });
 
     return () => {
+      if (tableRef.current && document.body.contains(tableRef.current)) {
         table.destroy();
+      }
     };
   }, [filteredData]);
   

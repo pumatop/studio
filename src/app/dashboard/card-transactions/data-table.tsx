@@ -80,7 +80,9 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
     });
 
     return () => {
-      table.destroy();
+      if (tableRef.current && document.body.contains(tableRef.current)) {
+        table.destroy();
+      }
     };
   }, [filteredData]);
 

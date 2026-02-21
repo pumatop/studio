@@ -354,7 +354,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                             </Card>
                             <Tabs defaultValue="libyan">
                                 <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger><TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger></TabsList>
-                                <TabsContent value="libyan"><Card className="bg-transparent"><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
+                                <TabsContent value="libyan"><Card className="bg-transparent"><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
                                 <TabsContent value="egyptian"><Card className="bg-transparent"><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
                             </Tabs>
                         </div>
@@ -441,7 +441,9 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     });
 
     return () => {
-      table.destroy();
+      if (tableRef.current && document.body.contains(tableRef.current)) {
+        table.destroy();
+      }
     };
   }, [filteredData]);
   

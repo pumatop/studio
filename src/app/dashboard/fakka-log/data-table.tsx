@@ -83,7 +83,9 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
     });
 
     return () => {
-      table.destroy();
+      if (tableRef.current && document.body.contains(tableRef.current)) {
+        table.destroy();
+      }
     };
   }, [filteredData]);
   

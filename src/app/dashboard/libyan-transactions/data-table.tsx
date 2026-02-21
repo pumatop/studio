@@ -117,7 +117,9 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
     });
 
     return () => {
+      if (tableRef.current && document.body.contains(tableRef.current)) {
         table.destroy();
+      }
     };
   }, [filteredData]); // Re-initialize whenever filteredData changes
   
