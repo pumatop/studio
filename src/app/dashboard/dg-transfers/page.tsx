@@ -16,11 +16,10 @@ import {
 export default function DgTransfersPage() {
   const { data: transactions, isLoading, error } = useRtdbList<Transaction>("/transactions");
 
-  const dgTransfers = useMemo(() => {
+  const egyptianTransfers = useMemo(() => {
     if (!transactions) return [];
     return transactions.filter(
-      (t): t is EgyptTransferTransaction =>
-        t.type === "egypt_transfer" && t.id.startsWith("DG")
+      (t): t is EgyptTransferTransaction => t.type === "egypt_transfer"
     );
   }, [transactions]);
 
@@ -42,6 +41,8 @@ export default function DgTransfersPage() {
               </div>
               <div className="rounded-lg border p-4 space-y-2">
                 <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
               </div>
             </div>
         </CardContent>
@@ -58,11 +59,11 @@ export default function DgTransfersPage() {
       <CardHeader>
         <CardTitle>التحويل من دينار لجنيه (DG)</CardTitle>
         <CardDescription>
-          عرض جميع تحويلات الدينار إلى جنيه التي تبدأ بالمعرف DG.
+          عرض جميع تحويلات الدينار إلى جنيه.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <EgyptianTransfersDataTable initialData={dgTransfers} />
+        <EgyptianTransfersDataTable initialData={egyptianTransfers} />
       </CardContent>
     </Card>
   );
