@@ -234,7 +234,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                 const isSubActive = pathname.startsWith(subItem.href);
                                 return (
                                   <SidebarMenuSubItem key={subItem.href}>
-                                    <Link href={subItem.href}>
+                                    <Link href={subItem.href} asChild>
                                       <SidebarMenuSubButton isActive={isSubActive} size="md">
                                         <div className={cn("p-1.5 rounded-md", subItem.bgColor)}>
                                             <subItem.icon className={cn("h-4 w-4", subItem.iconColor)} />
