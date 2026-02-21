@@ -420,31 +420,31 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     }
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
+      $(tableRef.current).DataTable().destroy();
     }
-    
+
     const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
-        $(tableRef.current).DataTable({
-          responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'flex items-center justify-between p-4'ip>",
-          buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
-          ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
-          pageLength: 10,
-          lengthMenu: [10, 25, 50, 100],
-          searching: false, // We use our custom search input
-          pagingType: 'full_numbers',
-        });
+      if (!tableRef.current || !document.body.contains(tableRef.current)) {
+        return;
+      }
+      $(tableRef.current).DataTable({
+        responsive: true,
+        dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+        buttons: [
+          { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+          { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+          { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+          { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+          { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+        ],
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
+        },
+        pageLength: 10,
+        lengthMenu: [10, 25, 50, 100],
+        searching: false, // We use our custom search input
+        pagingType: 'full_numbers',
+      });
     }, 100);
 
     return () => {

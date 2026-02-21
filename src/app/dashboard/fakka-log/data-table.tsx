@@ -72,7 +72,7 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
 
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'flex items-center justify-between p-4'ip>",
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
