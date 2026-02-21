@@ -53,6 +53,7 @@ import {
   Sparkles,
   Shield,
   Coins,
+  Bell,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { useUser, FirebaseClientProvider } from "@/firebase";
@@ -99,6 +100,7 @@ const navGroups = [
     {
         label: "الأدوات والإعدادات",
         items: [
+            { href: "/dashboard/notifications", icon: Bell, label: "الإشعارات", description: "إرسال وإدارة الإشعارات", match: /^\/dashboard\/notifications/, bgColor: "bg-red-100 dark:bg-red-900/50", iconColor: "text-red-600 dark:text-red-400" },
             { href: "/dashboard/reports", icon: BrainCircuit, label: "تقارير AI", description: "تحليلات ذكية للبيانات", match: /^\/dashboard\/reports/, bgColor: "bg-indigo-100 dark:bg-indigo-900/50", iconColor: "text-indigo-600 dark:text-indigo-400" },
             { href: "/dashboard/audit-log", icon: History, label: "سجل التدقيق", description: "عرض جميع المعاملات", match: /^\/dashboard\/audit-log/, bgColor: "bg-cyan-100 dark:bg-cyan-900/50", iconColor: "text-cyan-600 dark:text-cyan-400" },
             { href: "/dashboard/settings", icon: Settings, label: "الإعدادات", description: "إعدادات النظام والتطبيق", match: /^\/dashboard\/settings/, bgColor: "bg-gray-200 dark:bg-gray-700/50", iconColor: "text-gray-600 dark:text-gray-400" },
@@ -118,6 +120,7 @@ const pageTitles: { [key: string]: string } = {
   "/dashboard/reports": "تقارير وتحليلات الذكاء الاصطناعي",
   "/dashboard/audit-log": "سجل التدقيق",
   "/dashboard/settings": "الإعدادات",
+  "/dashboard/notifications": "الإشعارات",
   "/dashboard/transfers/dd": "التحويل من دينار لدينار (DD)",
   "/dashboard/transfers/ec": "تحويل محفظة كاش (EC)",
   "/dashboard/transfers/ei": "تحويل انستاباي (EI)",
@@ -234,7 +237,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                 const isSubActive = pathname.startsWith(subItem.href);
                                 return (
                                   <SidebarMenuSubItem key={subItem.href}>
-                                    <Link href={subItem.href} asChild>
+                                    <Link href={subItem.href} passHref>
                                       <SidebarMenuSubButton isActive={isSubActive} size="md">
                                         <div className={cn("p-1.5 rounded-md", subItem.bgColor)}>
                                             <subItem.icon className={cn("h-4 w-4", subItem.iconColor)} />

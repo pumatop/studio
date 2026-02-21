@@ -213,6 +213,16 @@
       "huaweiAppGalleryUrl": null
     }
   },
+   "notifications": {
+    "notif_1": {
+      "title": "مرحباً بك في حولّي كاش!",
+      "body": "نحن سعداء بانضمامك. استكشف ميزات التطبيق الآن.",
+      "type": "standard",
+      "target": "all",
+      "createdAt": 1771150446096,
+      "sentBy": "lHlYeU2fvIX2WeErPOJbqgjgzY12"
+    }
+  },
   "settings": {
     "main": {
       "isMaintenance": false,

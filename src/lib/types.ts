@@ -63,7 +63,7 @@ export type RechargePurchaseTransaction = BaseTransaction & {
 export type AccountTransferTransaction = BaseTransaction & {
   type: 'account_transfer';
   amount: number;
-  fee: number;
+  fee?: number;
   recipientBalanceAfter: number;
   recipientBalanceBefore: number;
   recipientId: string;
@@ -74,7 +74,7 @@ export type AccountTransferTransaction = BaseTransaction & {
   senderId: string;
   senderName: string;
   senderPhone: string;
-  totalDeduction: number;
+  totalDeduction?: number;
 };
 
 export type EgyptTransferTransaction = BaseTransaction & {
@@ -240,6 +240,20 @@ export type ExchangeControlSettings = {
     conditions: { [key: string]: RateCondition };
     timezone: string;
 };
+
+export type NotificationType = 'standard' | 'popup' | 'banner';
+
+export type Notification = {
+  id: string;
+  title: string;
+  body: string;
+  imageUrl?: string;
+  type: NotificationType;
+  target: 'all' | string; // 'all' for everyone, or a specific userId
+  createdAt: number;
+  sentBy: string;
+};
+
 
 // Unified settings type for RTDB
 export type AllSettings = {
