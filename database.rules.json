@@ -1,17 +1,19 @@
 {
   "rules": {
     "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": false
-      },
-      ".indexOn": ["phone", "role", "status", "verification"]
-    },
-    "transactions": {
       ".read": "auth != null",
-      ".write": false,
-      ".indexOn": ["userId", "senderId", "type", "delegateId", "status", "timestamp"]
+      ".write": "auth != null",
+      ".indexOn": ["phone", "role", "status", "verification"],
+      
+      "$uid": {
+        "transactions": {
+          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+          ".indexOn": ["type", "status", "timestamp", "delegateId", "recipientId"]
+        }
+      }
     },
+    
     "supervisors": {
       ".read": "auth != null",
       ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
@@ -23,7 +25,7 @@
       ".indexOn": ["currencyPair"]
     },
     "settings": {
-      ".read": "true",
+      ".read": "auth != null",
       ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
     },
     "appVersions": {

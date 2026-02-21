@@ -126,13 +126,12 @@ const statusColors: Record<User['status'], string> = {
   "banned": "bg-red-100 text-red-800",
 };
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession, onLogoutAllSessions }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void, onLogoutAllSessions: (userId: string) => void }) {
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession, onLogoutAllSessions, allTransactions, transactionsLoading }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void, onLogoutAllSessions: (userId: string) => void, allTransactions: Transaction[], transactionsLoading: boolean }) {
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
     const [confirmation, setConfirmation] = useState<{ action: 'delete-session', sessionId: string } | { action: 'logout-all' } | null>(null);
 
-    const { data: allTransactions, isLoading: transactionsLoading } = useRtdbList(open && user ? '/transactions' : null);
     const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
 
     const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
@@ -371,7 +370,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     )
 }
 
-export function UsersDataTable({ initialData }: { initialData: User[] }) {
+export function UsersDataTable({ initialData, allTransactions, transactionsLoading }: { initialData: User[], allTransactions: Transaction[], transactionsLoading: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
@@ -419,7 +418,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     }
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
+        $(tableRef.current).DataTable().destroy();
     }
 
     const timer = setTimeout(() => {
@@ -447,7 +446,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
     }, 100);
 
     return () => {
-      clearTimeout(timer);
+        clearTimeout(timer);
       if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
         $(tableRef.current).DataTable().destroy();
       }
@@ -587,7 +586,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           </TableBody>
         </Table>
       </div>
-       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} onDeleteSession={handleDeleteSession} onLogoutAllSessions={handleLogoutAllSessions} />
+       <UserDetailsDialog user={selectedUser} open={isDetailsOpen} onOpenChange={setDetailsOpen} onUserUpdate={handleUserUpdate} onDeleteSession={handleDeleteSession} onLogoutAllSessions={handleLogoutAllSessions} allTransactions={allTransactions} transactionsLoading={transactionsLoading} />
     </div>
   );
 }

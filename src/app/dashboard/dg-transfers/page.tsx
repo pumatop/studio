@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useRtdbList } from "@/firebase";
 import { EgyptianTransfersDataTable } from "@/app/dashboard/egyptian-transactions/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Transaction, EgyptTransferTransaction } from "@/lib/types";
+import type { Transaction, EgyptTransferTransaction, User } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -14,7 +14,21 @@ import {
 } from "@/components/ui/card";
 
 export default function DgTransfersPage() {
-  const { data: transactions, isLoading, error } = useRtdbList<Transaction>("/transactions");
+  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
+
+  const { transactions, isLoading, error } = useMemo(() => {
+      if (usersLoading) return { transactions: [], isLoading: true, error: null };
+      if (usersError) return { transactions: [], isLoading: false, error: usersError };
+      if (!users) return { transactions: [], isLoading: false, error: null };
+
+      const allTransactions = users.flatMap(user => 
+          user.transactions 
+              ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+              : []
+      ) as Transaction[];
+      
+      return { transactions: allTransactions, isLoading: false, error: null };
+  }, [users, usersLoading, usersError]);
 
   const egyptianTransfers = useMemo(() => {
     if (!transactions) return [];

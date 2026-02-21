@@ -73,10 +73,19 @@ const FormattedAmount = ({
 
 
 export default function DashboardPage() {
-  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
-  const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>("/transactions");
+  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
   const { data: fakkaSafeData, isLoading: fakkaLoading } = useRtdbObject<{totalFakka: number}>("/fakkaSafe");
+
+  const transactions = useMemo(() => {
+    if (!users) return [];
+    return users.flatMap(user => 
+        user.transactions 
+            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+            : []
+    ) as Transaction[];
+  }, [users]);
+  const transactionsLoading = usersLoading;
 
   const mostRecentTimestamp = useMemo(() => {
     if (!transactions || transactions.length === 0) return Date.now();

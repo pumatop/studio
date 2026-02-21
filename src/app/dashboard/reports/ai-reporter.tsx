@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -107,9 +107,18 @@ export default function AiReporter() {
   const [result, setResult] = useState<GenerateDataInsightsOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
   const { data: users, isLoading: usersLoading } = useRtdbList<User>('/users');
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>('/supervisors');
+
+  const transactions = useMemo(() => {
+    if (!users) return [];
+    return users.flatMap(user => 
+        user.transactions 
+            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+            : []
+    ) as Transaction[];
+  }, [users]);
+  const transactionsLoading = usersLoading;
 
   const handleGenerate = async () => {
     setLoading(true);

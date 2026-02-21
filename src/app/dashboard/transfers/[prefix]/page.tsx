@@ -1,7 +1,7 @@
 "use client";
 import { useRtdbList } from "@/firebase";
 import { LibyanTransactionsDataTable } from "@/app/dashboard/libyan-transactions/data-table";
-import type { Transaction } from "@/lib/types";
+import type { Transaction, User } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 import { useParams } from 'next/navigation';
@@ -19,7 +19,22 @@ const prefixToTitle: Record<string, string> = {
 export default function TransfersByPrefixPage() {
   const params = useParams();
   const prefix = typeof params.prefix === 'string' ? params.prefix : '';
-  const { data: transactions, isLoading, error } = useRtdbList<Transaction>("/transactions");
+  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
+
+  const { transactions, isLoading, error } = useMemo(() => {
+      if (usersLoading) return { transactions: [], isLoading: true, error: null };
+      if (usersError) return { transactions: [], isLoading: false, error: usersError };
+      if (!users) return { transactions: [], isLoading: false, error: null };
+
+      const allTransactions = users.flatMap(user => 
+          user.transactions 
+              ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+              : []
+      ) as Transaction[];
+      
+      return { transactions: allTransactions, isLoading: false, error: null };
+  }, [users, usersLoading, usersError]);
+
 
   const filteredTransactions = useMemo(() => {
     if (!transactions || !prefix) return [];

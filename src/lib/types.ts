@@ -36,6 +36,7 @@ export type User = {
   lastPasswordChange?: number;
   lastPinChange?: number;
   sessions?: { [sessionId: string]: UserSession };
+  transactions?: { [transactionId: string]: any };
 };
 
 

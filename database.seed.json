@@ -40,7 +40,64 @@
       "ipAddress": "197.45.123.98",
       "idImageUrl": "id-card-placeholder",
       "lastPasswordChange": 1770150446096,
-      "lastPinChange": 1770150446096
+      "lastPinChange": 1770150446096,
+      "transactions": {
+        "DC13101032": {
+          "amount": 5,
+          "balanceAfter": 998914,
+          "balanceBefore": 998919,
+          "cardType": "LIB",
+          "status": "completed",
+          "timestamp": 1771161010442,
+          "type": "recharge_purchase",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584",
+          "serialNumber": "SN-4815162342",
+          "code": "1234-5678-9012-3456"
+        },
+        "DD49588767": {
+          "amount": 10,
+          "fee": 1,
+          "recipientBalanceAfter": 2513.83,
+          "recipientBalanceBefore": 2503.83,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "senderBalanceAfter": 998919,
+          "senderBalanceBefore": 998930,
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771149588883,
+          "totalDeduction": 11,
+          "type": "account_transfer"
+        },
+        "DG9264951": {
+          "amountEGP": 415,
+          "amountLYD": 50,
+          "balanceEGPAfter": 49666.56,
+          "balanceEGPBefore": 49251.56,
+          "balanceLYDAfter": 998941,
+          "balanceLYDBefore": 998991,
+          "exchangeRate": 8.3,
+          "status": "completed",
+          "timestamp": 1771149265067,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584",
+          "recipientName": "علي أحمد",
+          "recipientNumber": "01098765432",
+          "transferType": "محفظة كاش",
+          "serviceFee": 5,
+          "delegateId": "sup_1",
+          "delegateName": "مندوب 1",
+          "executionDuration": "5 دقائق",
+          "receiptImageUrl": "https://example.com/receipt.jpg"
+        }
+      }
     },
     "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2": {
       "balanceEGP": 57713.87,
@@ -61,7 +118,24 @@
       "ipAddress": "156.204.110.33",
       "idImageUrl": "id-card-placeholder",
       "lastPasswordChange": 1770150446096,
-      "lastPinChange": 1770150446096
+      "lastPinChange": 1770150446096,
+      "transactions": {
+        "DH1234567": {
+          "amountEGP": 1000,
+          "amountLYD": 104,
+          "exchangeRate": 9.6,
+          "status": "pending",
+          "timestamp": 1771169265067,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506",
+          "recipientName": "محمد حسن",
+          "recipientNumber": "01123456789",
+          "transferType": "انستاباي",
+          "serviceFee": 10
+        }
+      }
     },
     "user_3_pending": {
       "balanceEGP": 100,
@@ -83,78 +157,6 @@
       "idImageUrl": "id-card-placeholder",
       "lastPasswordChange": 1770250446096,
       "lastPinChange": 1770250446096
-    }
-  },
-  "transactions": {
-    "DC13101032": {
-      "amount": 5,
-      "balanceAfter": 998914,
-      "balanceBefore": 998919,
-      "cardType": "LIB",
-      "status": "completed",
-      "timestamp": 1771161010442,
-      "type": "recharge_purchase",
-      "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-      "userName": "مبارك ابراهيم ابوعيشه",
-      "userPhone": "+201030926584",
-      "serialNumber": "SN-4815162342",
-      "code": "1234-5678-9012-3456"
-    },
-    "DD49588767": {
-      "amount": 10,
-      "fee": 1,
-      "recipientBalanceAfter": 2513.83,
-      "recipientBalanceBefore": 2503.83,
-      "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
-      "recipientName": "حساب تحريبي تجربي",
-      "recipientPhone": "+201200632506",
-      "senderBalanceAfter": 998919,
-      "senderBalanceBefore": 998930,
-      "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-      "senderName": "مبارك ابراهيم ابوعيشه",
-      "senderPhone": "+201030926584",
-      "status": "completed",
-      "timestamp": 1771149588883,
-      "totalDeduction": 11,
-      "type": "account_transfer"
-    },
-    "DG9264951": {
-      "amountEGP": 415,
-      "amountLYD": 50,
-      "balanceEGPAfter": 49666.56,
-      "balanceEGPBefore": 49251.56,
-      "balanceLYDAfter": 998941,
-      "balanceLYDBefore": 998991,
-      "exchangeRate": 8.3,
-      "status": "completed",
-      "timestamp": 1771149265067,
-      "type": "egypt_transfer",
-      "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-      "userName": "مبارك ابراهيم ابوعيشه",
-      "userPhone": "+201030926584",
-      "recipientName": "علي أحمد",
-      "recipientNumber": "01098765432",
-      "transferType": "محفظة كاش",
-      "serviceFee": 5,
-      "delegateId": "sup_1",
-      "delegateName": "مندوب 1",
-      "executionDuration": "5 دقائق",
-      "receiptImageUrl": "https://example.com/receipt.jpg"
-    },
-    "DH1234567": {
-      "amountEGP": 1000,
-      "amountLYD": 104,
-      "exchangeRate": 9.6,
-      "status": "pending",
-      "timestamp": 1771169265067,
-      "type": "egypt_transfer",
-      "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
-      "userName": "حساب تحريبي تجربي",
-      "userPhone": "+201200632506",
-      "recipientName": "محمد حسن",
-      "recipientNumber": "01123456789",
-      "transferType": "انستاباي",
-      "serviceFee": 10
     }
   },
   "supervisors": {
@@ -273,6 +275,11 @@
         "cond_1": { "type": "amount", "value": 500000, "targetRate": 9.70, "createdBy": "Admin" }
       },
       "timezone": "Africa/Cairo"
+    }
+  },
+  "dailyAggregates": {
+    "2026-02-03": {
+        "totalEgpAmount": 415
     }
   }
 }

@@ -1,8 +1,9 @@
 'use client';
 import { useRtdbList } from "@/firebase";
 import { UsersDataTable } from "./data-table";
-import type { User } from "@/lib/types";
+import type { User, Transaction } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -13,6 +14,15 @@ import {
 
 export default function UsersPage() {
   const { data: users, isLoading, error } = useRtdbList<User>("/users");
+
+  const allTransactions = useMemo(() => {
+    if (!users) return [];
+    return users.flatMap(user => 
+        user.transactions 
+            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+            : []
+    ) as Transaction[];
+  }, [users]);
 
   if (error) {
     return <div className="text-red-500">Error loading users: {error.message}</div>;
@@ -46,7 +56,7 @@ export default function UsersPage() {
             </div>
           </div>
         ) : (
-          <UsersDataTable initialData={users || []} />
+          <UsersDataTable initialData={users || []} allTransactions={allTransactions} transactionsLoading={isLoading} />
         )}
       </CardContent>
     </Card>

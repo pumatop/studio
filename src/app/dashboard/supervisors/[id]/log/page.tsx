@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import type { Supervisor, Transaction, EgyptTransferTransaction } from "@/lib/types";
+import type { Supervisor, Transaction, EgyptTransferTransaction, User } from "@/lib/types";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function SupervisorLogPage({ params }: { params: { id: string } }) {
   const { data: supervisor, isLoading: supervisorLoading } = useRtdbObject<Supervisor>(`/supervisors/${params.id}`);
-  const { data: transactions, isLoading: transactionsLoading } = useRtdbList<Transaction>('/transactions');
+  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
+
+  const transactions = useMemo(() => {
+    if (!users) return [];
+    return users.flatMap(user => 
+        user.transactions 
+            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+            : []
+    ) as Transaction[];
+  }, [users]);
+  const transactionsLoading = usersLoading;
 
   const isLoading = supervisorLoading || transactionsLoading;
 

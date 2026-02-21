@@ -16,7 +16,7 @@ interface Condition {
  */
 export const processTransactionBasedRateChanges = onValueCreated(
   {
-    ref: "/transactions/{transactionId}",
+    ref: "/users/{userId}/transactions/{transactionId}",
     region: "asia-southeast1",
   },
   async (event) => {
