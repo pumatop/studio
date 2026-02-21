@@ -332,10 +332,10 @@ export default function DashboardPage() {
       statusCounts: { successful: number, pending: number, failed: number }
     ) => (
     <CardContent className="space-y-4 pt-6 flex-grow flex flex-col justify-center">
-        <div className="text-center break-words">
+        <div className="text-center">
             <p className="text-sm text-muted-foreground">الإجمالي (ناجح + معلق)</p>
             <p>
-                <FormattedAmount amount={totalActive} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" />
+                <FormattedAmount amount={totalActive} currency="ج.م" integerClass="text-xl md:text-2xl font-bold" fractionClass="text-md md:text-lg" currencyClass="text-sm md:text-base font-medium" />
             </p>
         </div>
         <Separator />
@@ -423,8 +423,8 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words flex-grow flex items-center">
-                    <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
+                <CardContent className="flex-grow flex items-center">
+                    <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
             </Card>
             <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
@@ -439,8 +439,8 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words flex-grow flex items-center">
-                    <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
+                <CardContent className="flex-grow flex items-center">
+                    <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
             </Card>
             <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
@@ -472,8 +472,8 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words flex-grow flex items-center">
-                    <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
+                <CardContent className="flex-grow flex items-center">
+                    <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
             </Card>
         </div>
@@ -492,8 +492,8 @@ export default function DashboardPage() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                 <div className="text-center break-words">
-                    <FormattedAmount amount={monthlyTotalRevenueLYD} currency="د.ل" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base" />
+                 <div className="text-center">
+                    <FormattedAmount amount={monthlyTotalRevenueLYD} currency="د.ل" integerClass="text-2xl xl:text-3xl font-bold" fractionClass="text-lg xl:text-xl" currencyClass="text-sm xl:text-base" />
                 </div>
                 <Separator />
                 <div className="space-y-1 text-sm text-muted-foreground">
@@ -610,8 +610,8 @@ export default function DashboardPage() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                <div className="text-center break-words">
-                    <FormattedAmount amount={monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base" />
+                <div className="text-center">
+                    <FormattedAmount amount={monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-2xl xl:text-3xl font-bold" fractionClass="text-lg xl:text-xl" currencyClass="text-sm xl:text-base" />
                 </div>
                 <Separator />
                 <div>
