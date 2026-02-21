@@ -77,3 +77,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Custom styles for DataTables pagination to match shadcn/ui buttons */
+  .dataTables_paginate .paginate_button {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+    @apply h-9 px-3;
+    @apply mx-0.5;
+  }
+
+  .dataTables_paginate .paginate_button.current,
+  .dataTables_paginate .paginate_button.current:hover {
+    @apply bg-primary text-primary-foreground border-primary;
+    @apply cursor-default;
+  }
+
+  .dataTables_paginate .paginate_button.disabled,
+  .dataTables_paginate .paginate_button.disabled:hover {
+    @apply bg-background opacity-50 cursor-not-allowed;
+  }
+}

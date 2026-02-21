@@ -443,6 +443,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           pageLength: 10,
           lengthMenu: [10, 25, 50, 100],
           searching: false, // We use our custom search input
+          pagingType: 'full_numbers',
         });
     }, 100);
 

@@ -83,6 +83,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
           searching: false, // Use custom search
           pageLength: 10,
           lengthMenu: [10, 25, 50, 100],
+          pagingType: 'full_numbers',
         });
     }, 100);
 
