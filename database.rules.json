@@ -10,6 +10,11 @@
           ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
           ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
           ".indexOn": ["type", "status", "timestamp", "delegateId", "recipientId"]
+        },
+        "notifications": {
+            ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
+            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
+            ".indexOn": ["createdAt"]
         }
       }
     },
