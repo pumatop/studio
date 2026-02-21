@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
   Table,
@@ -34,6 +34,16 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
+import 'pdfmake';
+
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
   "completed": "bg-green-100 text-green-800",
   "failed": "bg-red-100 text-red-800",
@@ -52,6 +62,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "failed">("all");
   const { toast } = useToast();
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const receiptPlaceholder = PlaceHolderImages.find(p => p.id === 'receipt-placeholder');
 
@@ -70,6 +81,49 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
     setSearchTerm("");
     setStatusFilter("all");
   };
+
+  useEffect(() => {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
+      return;
+    }
+
+    if ($.fn.DataTable.isDataTable(tableRef.current)) {
+      $(tableRef.current).DataTable().destroy();
+    }
+
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) {
+          return;
+        }
+
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+          ],
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
+          },
+          pageLength: 10,
+          lengthMenu: [10, 25, 50, 100],
+          searching: false, // We use our custom search input
+          pagingType: 'full_numbers',
+        });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+    };
+  }, [filteredData]);
+
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
       if (format === 'csv') {
@@ -132,7 +186,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
         </div>
       </div>
       <div className="rounded-lg border">
-        <Table>
+        <Table ref={tableRef}>
           <TableHeader>
             <TableRow>
               <TableHead>رقم العملية</TableHead>
