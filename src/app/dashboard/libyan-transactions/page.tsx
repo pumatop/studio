@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useRtdbList } from "@/firebase";
 import { LibyanTransactionsDataTable } from "./data-table";
 import type { Transaction } from "@/lib/types";
@@ -21,41 +21,12 @@ export default function LibyanTransactionsPage() {
     return transactions.filter(t => t.type !== 'recharge_purchase');
   }, [transactions]);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-8 w-1/2" />
-          <Skeleton className="h-5 w-3/4" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <Skeleton className="h-10 w-full max-w-sm" />
-              <Skeleton className="h-10 w-[260px]" />
-              <Skeleton className="h-10 w-[180px]" />
-              <Skeleton className="h-10 w-[150px]" />
-              <Skeleton className="h-10 w-[120px]" />
-            </div>
-            <div className="rounded-lg border p-4 space-y-2">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   if (error) {
     return <div className="text-red-500">Error loading transactions: {error.message}</div>;
   }
 
   return (
-    <Card>
+    <Card className="bg-transparent">
       <CardHeader>
         <CardTitle>المعاملات المالية (د.ل)</CardTitle>
         <CardDescription>
@@ -63,7 +34,26 @@ export default function LibyanTransactionsPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LibyanTransactionsDataTable initialData={financialTransactions || []} />
+        {isLoading && (!financialTransactions || financialTransactions.length === 0) ? (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <Skeleton className="h-10 w-full max-w-sm" />
+                <Skeleton className="h-10 w-[260px]" />
+                <Skeleton className="h-10 w-[180px]" />
+                <Skeleton className="h-10 w-[150px]" />
+                <Skeleton className="h-10 w-[120px]" />
+              </div>
+              <div className="rounded-lg border p-4 space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
+            </div>
+        ) : (
+          <LibyanTransactionsDataTable initialData={financialTransactions || []} />
+        )}
       </CardContent>
     </Card>
   );

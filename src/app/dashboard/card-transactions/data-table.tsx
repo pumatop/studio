@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import {
   Table,
   TableHeader,
@@ -8,20 +8,24 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import type { RechargePurchaseTransaction } from "@/lib/types";
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import type { RechargePurchaseTransaction } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { FilterX } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { cn, exportToCsv } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { FilterX, Calendar as CalendarIcon, FileDown, Printer } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { arEG } from "date-fns/locale";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
+import 'pdfmake';
 
 const statusColors: Record<RechargePurchaseTransaction['status'], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -36,129 +40,72 @@ const statusMap: Record<RechargePurchaseTransaction['status'], string> = {
 }
 
 export function CardTransactionsDataTable({ initialData }: { initialData: RechargePurchaseTransaction[] }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [date, setDate] = useState<Date | undefined>();
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const filteredData = useMemo(() => {
-    return initialData.filter(
-      (item) => {
-        const itemDate = new Date(item.timestamp);
-        if (date) {
-            const startOfDay = new Date(date);
-            startOfDay.setHours(0, 0, 0, 0);
-            const endOfDay = new Date(date);
-            endOfDay.setHours(23, 59, 59, 999);
-            if (itemDate < startOfDay || itemDate > endOfDay) {
-                return false;
-            }
-        }
-        
-        return (searchTerm === "" ||
-          item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.userPhone.includes(searchTerm)) &&
-        (statusFilter === "all" || item.status === statusFilter);
-      }
+    return initialData.filter(item =>
+      (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       item.cardType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       item.serialNumber.includes(searchTerm) ||
+       item.code.includes(searchTerm) ||
+       item.id.includes(searchTerm))
     );
-  }, [initialData, searchTerm, statusFilter, date]);
-  
-  const handleClearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
-    setDate(undefined);
-  };
-  
-  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      if (format === 'csv') {
-        exportToCsv('card-transactions.csv', filteredData);
-      } else {
-        toast({
-            title: "خاصية قيد التطوير",
-            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
-        });
-      }
-  };
+  }, [initialData, searchTerm]);
 
-  const handlePrint = () => {
-      window.print();
+  useEffect(() => {
+    if (!tableRef.current) {
+      return;
+    }
+    const table = $(tableRef.current).DataTable({
+      destroy: true,
+      responsive: true,
+      dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
+           "<'bg-transparent't>" +
+           "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" + 
+           "<'flex justify-center mt-4'B>",
+      buttons: [
+          { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
+          { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
+          { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
+          { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
+          { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
+      ],
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
+      },
+      searching: false, // Use custom search
+      pageLength: 10,
+      lengthMenu: [10, 25, 50, 100],
+    });
+
+    return () => {
+      table.destroy();
+    };
+  }, [filteredData]);
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
         <div className="flex flex-wrap items-center gap-2 flex-grow">
           <Input
-            placeholder="ابحث برقم المعاملة، الاسم أو الهاتف..."
+            placeholder="ابحث..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm"
+            className="w-full max-w-sm bg-transparent"
           />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant={"outline"}
-                className={cn(
-                  "w-full sm:w-[200px] justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="ml-2 h-4 w-4" />
-                {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                locale={arEG}
-                formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
-              />
-            </PopoverContent>
-          </Popover>
-
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-auto md:w-[150px]">
-              <SelectValue placeholder="الحالة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">كل الحالات</SelectItem>
-              <SelectItem value="completed">ناجحة</SelectItem>
-              <SelectItem value="failed">مرفوضة</SelectItem>
-              <SelectItem value="pending">قيد الانتظار</SelectItem>
-            </SelectContent>
-          </Select>
           <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
             <FilterX className="ml-2 h-4 w-4" />
             مسح
           </Button>
         </div>
-        <div className="flex items-center gap-2 self-end">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                        <FileDown className="ml-2 h-4 w-4" />
-                        تصدير
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button variant="outline" onClick={handlePrint}>
-                <Printer className="ml-2 h-4 w-4" />
-                طباعة
-            </Button>
-        </div>
       </div>
-      <div className="rounded-lg border">
-        <Table>
+      <div className="glass-table">
+        <Table ref={tableRef} className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead>رقم المعاملة</TableHead>
@@ -173,20 +120,21 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
           </TableHeader>
           <TableBody>
             {filteredData.map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell className="text-xs">{transaction.id}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{transaction.userName}</div>
-                  <div className="text-muted-foreground text-xs">{transaction.userPhone}</div>
-                </TableCell>
+              <TableRow key={transaction.id} className="even:bg-black/5">
+                <TableCell className="text-xs font-mono">{transaction.id}</TableCell>
+                <TableCell>{transaction.userName}</TableCell>
                 <TableCell>{transaction.cardType}</TableCell>
-                <TableCell className="text-left font-semibold">{transaction.amount.toLocaleString("en-US")} د.ل</TableCell>
-                <TableCell className="font-mono text-xs">{transaction.serialNumber || '-'}</TableCell>
-                <TableCell className="font-mono text-xs">{transaction.code || '-'}</TableCell>
+                <TableCell className="font-semibold">{transaction.amount.toLocaleString('en-US')} د.ل</TableCell>
+                <TableCell className="font-mono">{transaction.serialNumber}</TableCell>
+                <TableCell className="font-mono">{transaction.code}</TableCell>
                 <TableCell>
-                  <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>{statusMap[transaction.status]}</Badge>
+                  <Badge className={cn(statusColors[transaction.status], `hover:${statusColors[transaction.status]}`)}>
+                    {statusMap[transaction.status]}
+                  </Badge>
                 </TableCell>
-                <TableCell className="text-xs">{new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
+                <TableCell className="text-xs">
+                  {new Date(transaction.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

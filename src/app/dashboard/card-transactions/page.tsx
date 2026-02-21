@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useRtdbList } from "@/firebase";
 import { CardTransactionsDataTable } from "./data-table";
 import type { Transaction, RechargePurchaseTransaction } from "@/lib/types";
@@ -22,14 +22,20 @@ export default function CardTransactionsPage() {
     );
   }, [transactions]);
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-8 w-1/2" />
-          <Skeleton className="h-5 w-3/4" />
-        </CardHeader>
-        <CardContent>
+  if (error) {
+    return <div className="text-red-500">Error loading transactions: {error.message}</div>;
+  }
+
+  return (
+    <Card className="bg-transparent">
+      <CardHeader>
+        <CardTitle>معاملات شراء الكروت (DC)</CardTitle>
+        <CardDescription>
+          عرض لجميع معاملات شراء الكروت المسجلة في النظام.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading && (!cardTransactions || cardTransactions.length === 0) ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <Skeleton className="h-10 w-full max-w-sm" />
@@ -45,25 +51,9 @@ export default function CardTransactionsPage() {
                 <Skeleton className="h-12 w-full" />
               </div>
             </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return <div className="text-red-500">Error loading transactions: {error.message}</div>;
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>معاملات شراء الكروت (DC)</CardTitle>
-        <CardDescription>
-          عرض لجميع معاملات شراء الكروت المسجلة في النظام.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <CardTransactionsDataTable initialData={cardTransactions || []} />
+        ) : (
+          <CardTransactionsDataTable initialData={cardTransactions || []} />
+        )}
       </CardContent>
     </Card>
   );
