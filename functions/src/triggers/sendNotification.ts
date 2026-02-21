@@ -25,40 +25,50 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  const basePayload = {
-    notification: {
-      title,
-      body,
-      imageUrl,
+  // Safely build payload parts
+  const notification: admin.messaging.Notification = {title, body};
+  if (imageUrl) {
+    notification.imageUrl = imageUrl;
+  }
+
+  const androidNotification: admin.messaging.AndroidNotification = {sound: "default"};
+  if (imageUrl) {
+    androidNotification.imageUrl = imageUrl;
+  }
+
+  const apnsPayload: admin.messaging.APNSPayload = {
+    aps: {
+      "sound": "default",
+      "mutable-content": 1,
     },
+  };
+  const fcmOptions: admin.messaging.APNSFCMOptions = {};
+  if (imageUrl) {
+    fcmOptions.imageUrl = imageUrl;
+  }
+
+  // Base message structure
+  const baseMessage = {
+    notification,
     data: {
       type,
       "click_action": "FLUTTER_NOTIFICATION_CLICK",
     },
     android: {
-      notification: {
-        sound: "default",
-        imageUrl,
-      },
+      notification: androidNotification,
     },
     apns: {
-      payload: {
-        aps: {
-          "sound": "default",
-          "mutable-content": 1,
-        },
-      },
-      fcmOptions: {
-        imageUrl,
-      },
+      payload: apnsPayload,
+      fcmOptions: Object.keys(fcmOptions).length > 0 ? fcmOptions : undefined,
     },
   };
+
 
   let sendPromise;
 
   if (target === "all") {
     const topicMessage: admin.messaging.TopicMessage = {
-      ...basePayload,
+      ...baseMessage,
       topic: "all_users",
     };
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
@@ -84,7 +94,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     }
 
     const multicastMessage: admin.messaging.MulticastMessage = {
-      ...basePayload,
+      ...baseMessage,
       tokens,
     };
     logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);

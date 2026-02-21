@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { User, Notification } from "@/lib/types";
 import { useRtdbList } from "@/firebase";
 import { SendNotificationForm } from "./send-notification-form";
@@ -16,7 +16,29 @@ export default function NotificationsPage() {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
     const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
-    const { data: notifications, isLoading: notificationsLoading } = useRtdbList<Notification>("/notifications");
+    const { data: globalNotifications, isLoading: notificationsLoading } = useRtdbList<Notification>("/notifications");
+
+    const allNotifications = useMemo(() => {
+        const combinedNotifs: Notification[] = [];
+
+        if (globalNotifications) {
+            combinedNotifs.push(...globalNotifications);
+        }
+
+        if (users) {
+            users.forEach(user => {
+                if (user.notifications) {
+                    const userNotifications = Object.entries(user.notifications).map(([id, notif]) => ({
+                        ...(notif as object),
+                        id,
+                    })) as Notification[];
+                    combinedNotifs.push(...userNotifications);
+                }
+            });
+        }
+        return combinedNotifs;
+    }, [users, globalNotifications]);
+
 
     const handleUserSelect = (user: User) => {
         setSelectedUser(user);
@@ -53,10 +75,10 @@ export default function NotificationsPage() {
                         <CardDescription>عرض لجميع الإشعارات التي تم إرسالها من خلال النظام.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {isLoading && !notifications ? (
+                        {isLoading && allNotifications.length === 0 ? (
                              <Skeleton className="h-48 w-full" />
                         ) : (
-                             <NotificationsHistoryTable notifications={notifications || []} users={users || []} />
+                             <NotificationsHistoryTable notifications={allNotifications} users={users || []} />
                         )}
                     </CardContent>
                 </Card>
