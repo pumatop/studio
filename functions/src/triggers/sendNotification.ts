@@ -1,4 +1,4 @@
-'use server';
+"use server";
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -81,15 +81,18 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     const userData = userSnapshot.val();
     let tokens: string[] = [];
 
+    // Check for single token first
     if (userData.fcmToken && typeof userData.fcmToken === "string") {
       tokens.push(userData.fcmToken);
     }
-
+    
+    // Then check for multiple tokens
     if (userData.fcmTokens && typeof userData.fcmTokens === "object" && userData.fcmTokens !== null) {
       const tokenValues = Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t);
       tokens.push(...tokenValues);
     }
-
+    
+    // Remove duplicates
     tokens = [...new Set(tokens)];
 
     if (tokens.length === 0) {
