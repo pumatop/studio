@@ -20,7 +20,9 @@ import {
   PiggyBank,
   Activity,
   Banknote,
-  Users2
+  Users2,
+  Wallet,
+  Truck
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -539,8 +541,8 @@ export default function DashboardPage() {
                         <CardTitle>التحويل الداخلي (DD)</CardTitle>
                         <CardDescription>العمليات ورسومها بالدينار</CardDescription>
                     </div>
-                    <div className="p-3 bg-teal-100 dark:bg-teal-500/20 rounded-lg">
-                        <Landmark className="h-7 w-7 text-teal-600 dark:text-teal-400" />
+                    <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-lg">
+                        <Wallet className="h-7 w-7 text-green-600 dark:text-green-400" />
                     </div>
                 </div>
             </CardHeader>
@@ -653,6 +655,102 @@ export default function DashboardPage() {
                 </TabsContent>
             </Tabs>
         </Card>
+      </div>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold tracking-tight">تفاصيل التحويلات المصرية الناجحة</h2>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <CardTitle>محفظة كاش (EC)</CardTitle>
+                            <CardDescription>التحويلات الناجحة</CardDescription>
+                        </div>
+                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+                            <Landmark className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['محفظة كاش']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['محفظة كاش']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['محفظة كاش']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['محفظة كاش']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <CardTitle>انستاباي (EI)</CardTitle>
+                            <CardDescription>التحويلات الناجحة</CardDescription>
+                        </div>
+                        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
+                            <Banknote className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['انستاباي']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['انستاباي']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['انستاباي']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['انستاباي']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <CardTitle>وصلي للبيت (EW)</CardTitle>
+                            <CardDescription>التحويلات الناجحة</CardDescription>
+                        </div>
+                        <div className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg">
+                            <Truck className="h-7 w-7 text-rose-600 dark:text-rose-400" />
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['وصلني البيت']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['وصلني البيت']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['وصلني البيت']?.count || 0}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['وصلني البيت']?.amount || 0} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
       </div>
 
       <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
