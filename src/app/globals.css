@@ -81,20 +81,44 @@
 @layer components {
   /* Custom styles for DataTables pagination to match shadcn/ui buttons */
   .dataTables_paginate .paginate_button {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors;
-    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
-    @apply h-9 px-3;
-    @apply mx-0.5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem; /* rounded-md */
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem;
+    font-weight: 500; /* font-medium */
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    border: 1px solid hsl(var(--input));
+    background-color: hsl(var(--background));
+    height: 2.25rem; /* h-9 */
+    padding-left: 0.75rem; /* px-3 */
+    padding-right: 0.75rem; /* px-3 */
+    margin: 0 4px;
+    cursor: pointer;
+  }
+
+  .dataTables_paginate .paginate_button:hover {
+      background-color: hsl(var(--accent));
+      color: hsl(var(--accent-foreground));
   }
 
   .dataTables_paginate .paginate_button.current,
   .dataTables_paginate .paginate_button.current:hover {
-    @apply bg-primary text-primary-foreground border-primary;
-    @apply cursor-default;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-color: hsl(var(--primary));
+    cursor: default;
   }
 
   .dataTables_paginate .paginate_button.disabled,
   .dataTables_paginate .paginate_button.disabled:hover {
-    @apply bg-background opacity-50 cursor-not-allowed;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: hsl(var(--input));
   }
 }
