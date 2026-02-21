@@ -91,7 +91,7 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
   }, [initialData, searchTerm, operationTypeFilter, statusFilter, date]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
     const table = $(tableRef.current).DataTable({

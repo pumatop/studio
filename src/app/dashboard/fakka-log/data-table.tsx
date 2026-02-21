@@ -57,7 +57,7 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
   }, [initialData, searchTerm, date]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
     const table = $(tableRef.current).DataTable({

@@ -79,7 +79,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   }, [initialData, searchTerm, transferTypeFilter, statusFilter, date]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
     const table = $(tableRef.current).DataTable({

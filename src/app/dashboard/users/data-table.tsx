@@ -415,7 +415,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
   }, [initialData, searchTerm, roleFilter, connectionStatusFilter, verificationFilter, statusFilter]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
     const table = $(tableRef.current).DataTable({

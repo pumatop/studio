@@ -54,7 +54,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
   }, [initialData, searchTerm]);
 
   useEffect(() => {
-    if (!tableRef.current) {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) {
       return;
     }
     const table = $(tableRef.current).DataTable({
