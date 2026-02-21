@@ -1,46 +1,48 @@
 {
-    "rules": {
-        "users": {
-            ".read": "auth != null",
-            ".write": "auth != null",
-            ".indexOn": ["phone", "role", "status", "verification"]
-        },
-        "transactions": {
-            ".read": "auth != null",
-            ".write": "auth != null",
-            ".indexOn": ["userId", "senderId", "type", "delegateId", "status", "timestamp"]
-        },
-        "supervisors": {
-            ".read": "auth != null",
-            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-            ".indexOn": ["status", "connectionStatus"]
-        },
-        "exchangeRates": {
-            ".read": "auth != null",
-            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-            ".indexOn": ["currencyPair"]
-        },
-        "settings": {
-            ".read": "auth != null",
-            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
-        },
-        "appVersions": {
-            ".read": "auth != null",
-            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
-        },
-        "exchangeRateLogs": {
-            ".read": "auth != null",
-            ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-            ".indexOn": ["date"]
-        },
-        "fakkaSafe": {
-            ".read": "auth != null",
-            ".write": false
-        },
-        "dailyAggregates": {
-            ".read": "auth != null",
-            ".write": false,
-            ".indexOn": ["totalEgpAmount"]
-        }
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": false
+      },
+      ".indexOn": ["phone", "role", "status", "verification"]
+    },
+    "transactions": {
+      ".read": "auth != null",
+      ".write": false,
+      ".indexOn": ["userId", "senderId", "type", "delegateId", "status", "timestamp"]
+    },
+    "supervisors": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".indexOn": ["status", "connectionStatus"]
+    },
+    "exchangeRates": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".indexOn": ["currencyPair"]
+    },
+    "settings": {
+      ".read": "true",
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
+    },
+    "appVersions": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
+    },
+    "exchangeRateLogs": {
+      ".read": "auth != null",
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
+      ".indexOn": ["date"]
+    },
+    "fakkaSafe": {
+      ".read": "auth != null",
+      ".write": false
+    },
+    "dailyAggregates": {
+      ".read": "auth != null",
+      ".write": false,
+      ".indexOn": ["totalEgpAmount"]
     }
+  }
 }
