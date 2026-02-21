@@ -183,34 +183,43 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
   useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
+    if (!tableRef.current) {
       return;
     }
-    const table = $(tableRef.current).DataTable({
-      responsive: true,
-      dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
-           "<'bg-transparent't>" +
-           "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" + 
-           "<'flex justify-center mt-4'B>",
-      buttons: [
-          { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
-          { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
-          { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
-          { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
-          { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
-      ],
-      language: {
-        url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-      },
-      pageLength: 10,
-      lengthMenu: [10, 25, 50, 100],
-      searching: false, // We use our custom search input
-    });
+
+    if ($.fn.DataTable.isDataTable(tableRef.current)) {
+      $(tableRef.current).DataTable().destroy();
+    }
+
+    const timer = setTimeout(() => {
+      if (tableRef.current) {
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
+               "<'bg-transparent't>" +
+               "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'i><'w-full sm:w-1/2'p>>" +
+               "<'flex justify-center mt-4'B>",
+          buttons: [
+              { extend: 'copy', text: '<i class=\'fas fa-copy\'></i> نسخ', className: 'btn-glass' },
+              { extend: 'csv', text: '<i class=\'fas fa-file-csv\'></i> CSV', className: 'btn-glass' },
+              { extend: 'excel', text: '<i class=\'fas fa-file-excel\'></i> Excel', className: 'btn-glass' },
+              { extend: 'pdf', text: '<i class=\'fas fa-file-pdf\'></i> PDF', className: 'btn-glass' },
+              { extend: 'print', text: '<i class=\'fas fa-print\'></i> طباعة', className: 'btn-glass' }
+          ],
+          language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
+          },
+          pageLength: 10,
+          lengthMenu: [10, 25, 50, 100],
+          searching: false, // We use our custom search input
+        });
+      }
+    }, 0);
 
     return () => {
-      const tableElement = tableRef.current;
-      if (tableElement && $.fn.DataTable.isDataTable(tableElement)) {
-        $(tableElement).DataTable().destroy();
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
       }
     };
   }, [filteredData]);
