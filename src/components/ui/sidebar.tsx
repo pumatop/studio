@@ -715,8 +715,9 @@ const SidebarMenuSubButton = React.forwardRef<
     size?: "sm" | "md"
     isActive?: boolean
   }
->(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a"
+>(({ asChild: localAsChild = false, size = "md", isActive, className, ...props }, ref) => {
+  const Comp = localAsChild ? Slot : "a"
+  const { asChild, ...restProps } = props;
 
   return (
     <Comp
@@ -732,7 +733,7 @@ const SidebarMenuSubButton = React.forwardRef<
         "group-data-[collapsible=icon]:hidden",
         className
       )}
-      {...props}
+      {...restProps}
     />
   )
 })

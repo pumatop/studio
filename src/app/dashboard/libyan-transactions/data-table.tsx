@@ -140,22 +140,22 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
   const renderSentAmount = (transaction: Transaction) => {
     switch (transaction.type) {
         case 'account_transfer':
-            return transaction.totalDeduction.toLocaleString('en-US') + ' د.ل';
+            return (transaction.totalDeduction || 0).toLocaleString('en-US') + ' د.ل';
         case 'egypt_transfer':
-            return transaction.amountLYD.toLocaleString('en-US') + ' د.ل';
+            return (transaction.amountLYD || 0).toLocaleString('en-US') + ' د.ل';
         case 'recharge_purchase':
-             return transaction.amount.toLocaleString('en-US') + ' د.ل';
+             return (transaction.amount || 0).toLocaleString('en-US') + ' د.ل';
         default:
             return '-';
     }
   }
 
   const renderServiceFee = (transaction: Transaction) => {
-    if ('fee' in transaction && transaction.fee) {
+    if ('fee' in transaction && typeof transaction.fee === 'number') {
         return transaction.fee.toLocaleString('en-US') + ' د.ل';
     }
      if (transaction.type === 'recharge_purchase') {
-        const fee = transaction.balanceBefore - transaction.balanceAfter - transaction.amount;
+        const fee = (transaction.balanceBefore || 0) - (transaction.balanceAfter || 0) - (transaction.amount || 0);
         return fee > 0 ? fee.toLocaleString('en-US') + ' د.ل' : '-';
     }
     return '-';
@@ -256,8 +256,8 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
                 <TableCell>{renderSentAmount(tx)}</TableCell>
                 <TableCell>{renderServiceFee(tx)}</TableCell>
                 <TableCell>{tx.type === 'account_transfer' ? tx.recipientPhone : '-'}</TableCell>
-                <TableCell>{tx.type === 'account_transfer' ? `${tx.amount.toLocaleString('en-US')} د.ل` : tx.type === 'egypt_transfer' ? `${tx.amountEGP.toLocaleString('en-US')} ج.م` : '-'}</TableCell>
-                {showExchangeRate && <TableHead>{tx.type === 'egypt_transfer' ? tx.exchangeRate : '-'}</TableHead>}
+                <TableCell>{tx.type === 'account_transfer' ? `${(tx.amount || 0).toLocaleString('en-US')} د.ل` : tx.type === 'egypt_transfer' ? `${(tx.amountEGP || 0).toLocaleString('en-US')} ج.م` : '-'}</TableCell>
+                {showExchangeRate && <TableHead>{tx.type === 'egypt_transfer' ? tx.exchangeRate || '-' : '-'}</TableHead>}
               </TableRow>
             )})}
           </TableBody>
