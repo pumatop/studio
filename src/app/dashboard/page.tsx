@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -328,7 +329,7 @@ export default function DashboardPage() {
       pendingStats: Record<string, {count: number, amount: number}>,
       statusCounts: { successful: number, pending: number, failed: number }
     ) => (
-    <CardContent className="space-y-4 pt-6">
+    <CardContent className="space-y-4 pt-6 flex-grow flex flex-col justify-center">
         <div className="text-center break-words">
             <p className="text-sm text-muted-foreground">الإجمالي (ناجح + معلق)</p>
             <p>
@@ -390,12 +391,16 @@ export default function DashboardPage() {
                 <Skeleton className="h-40" />
                 <Skeleton className="h-40" />
             </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-64" />
                 <Skeleton className="h-64" />
                 <Skeleton className="h-64" />
                 <Skeleton className="h-64" />
             </div>
-            <Skeleton className="h-96" />
+            <div className="grid gap-6 lg:grid-cols-3">
+                <Skeleton className="h-96 lg:col-span-2" />
+                <Skeleton className="h-96" />
+            </div>
             <Skeleton className="h-64" />
         </div>
     )
@@ -404,7 +409,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -416,11 +421,11 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words">
+                <CardContent className="break-words flex-grow flex items-center">
                     <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -432,11 +437,11 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words">
+                <CardContent className="break-words flex-grow flex items-center">
                     <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -448,12 +453,12 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex items-baseline gap-4">
+                <CardContent className="flex flex-grow items-center justify-center gap-4">
                     <div className="text-4xl font-bold">{totalUsers}</div>
                     <div className="text-lg text-yellow-600 dark:text-yellow-400">({pendingVerificationUsers} معلق)</div>
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -465,14 +470,37 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="break-words">
+                <CardContent className="break-words flex-grow flex items-center">
                     <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-4xl font-bold" fractionClass="text-2xl" currencyClass="text-lg" />
                 </CardContent>
             </Card>
         </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <CardHeader>
+                <div className="flex items-start justify-between">
+                    <div>
+                        <CardTitle className="text-base">إيرادات الشهر (د.ل)</CardTitle>
+                        <CardDescription>الرسوم من (DD) و (DC)</CardDescription>
+                    </div>
+                     <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-lg">
+                        <DollarSign className="h-7 w-7 text-green-600 dark:text-green-400" />
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                 <div className="text-center break-words">
+                    <FormattedAmount amount={monthlyTotalRevenueLYD} currency="د.ل" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base" />
+                </div>
+                <Separator />
+                <div className="space-y-1 text-sm text-muted-foreground">
+                    <p className="flex justify-between"><span>التحويل الداخلي (DD):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyInternalStats.revenue} currency="د.ل" /></span></p>
+                    <p className="flex justify-between"><span>شراء الكروت (DC):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyCardStats.revenue} currency="د.ل" /></span></p>
+                </div>
+            </CardContent>
+        </Card>
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -484,7 +512,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
                 <div>
                 <h4 className="text-sm font-semibold mb-2">اليوم</h4>
                 <div className="space-y-1 text-sm text-muted-foreground">
@@ -504,20 +532,19 @@ export default function DashboardPage() {
                 </div>
             </CardContent>
         </Card>
-        
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
-                        <CardTitle>إيرادات التحويل الداخلي (د.ل)</CardTitle>
-                        <CardDescription>الرسوم من عمليات (DD)</CardDescription>
+                        <CardTitle>التحويل الداخلي (DD)</CardTitle>
+                        <CardDescription>العمليات ورسومها بالدينار</CardDescription>
                     </div>
                     <div className="p-3 bg-teal-100 dark:bg-teal-500/20 rounded-lg">
                         <Landmark className="h-7 w-7 text-teal-600 dark:text-teal-400" />
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
                 <div>
                 <h4 className="text-sm font-semibold mb-2">اليوم</h4>
                 <div className="space-y-1 text-sm text-muted-foreground">
@@ -535,20 +562,19 @@ export default function DashboardPage() {
                 </div>
             </CardContent>
         </Card>
-
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
-                        <CardTitle>إيرادات الكروت (د.ل)</CardTitle>
-                        <CardDescription>الرسوم من عمليات (DC)</CardDescription>
+                        <CardTitle>شراء الكروت (DC)</CardTitle>
+                        <CardDescription>العمليات ورسومها بالدينار</CardDescription>
                     </div>
                     <div className="p-3 bg-sky-100 dark:bg-sky-500/20 rounded-lg">
                         <CreditCard className="h-7 w-7 text-sky-600 dark:text-sky-400" />
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
                 <div>
                 <h4 className="text-sm font-semibold mb-2">اليوم</h4>
                 <div className="space-y-1 text-sm text-muted-foreground">
@@ -569,22 +595,21 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
-                        <CardTitle>إيرادات التحويلات المصرية</CardTitle>
-                        <CardDescription>إجمالي رسوم التحويلات الناجحة</CardDescription>
+                        <CardTitle>إيرادات الشهر (ج.م)</CardTitle>
+                        <CardDescription>إجمالي رسوم التحويلات المصرية</CardDescription>
                     </div>
                     <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg">
                         <Banknote className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
                 <div className="text-center break-words">
-                    <p className="text-sm text-muted-foreground">إجمالي الإيرادات</p>
-                    <p><FormattedAmount amount={totalRevenueEGP} currency="ج.م" integerClass="text-2xl font-bold" fractionClass="text-lg" currencyClass="text-base font-medium" /></p>
+                    <FormattedAmount amount={monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-3xl font-bold" fractionClass="text-xl" currencyClass="text-base" />
                 </div>
                 <Separator />
                 <div>
@@ -604,10 +629,10 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </CardContent>
-          </Card>
+        </Card>
 
-        <Card className="lg:col-span-2 bg-card/50 dark:bg-card/30 backdrop-blur-xl">
-            <Tabs defaultValue="today" dir="rtl">
+        <Card className="lg:col-span-2 bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <Tabs defaultValue="today" dir="rtl" className="flex flex-col flex-grow">
                 <CardHeader>
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -620,17 +645,17 @@ export default function DashboardPage() {
                         </TabsList>
                     </div>
                 </CardHeader>
-                <TabsContent value="today">
+                <TabsContent value="today" className="flex-grow">
                     {transferSummaryContent('daily', dailyTotalActiveTransfersEGP, dailySuccessfulStatsByType, dailyPendingStatsByType, dailyEgyptianTransferStatus)}
                 </TabsContent>
-                <TabsContent value="month">
+                <TabsContent value="month" className="flex-grow">
                     {transferSummaryContent('monthly', monthlyTotalActiveTransfersEGP, monthlySuccessfulStatsByType, monthlyPendingStatsByType, monthlyEgyptianTransferStatus)}
                 </TabsContent>
             </Tabs>
         </Card>
       </div>
 
-      <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl">
+      <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
         <CardHeader>
           <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
             <span>ملخص أداء المندوبين لشهر</span>
@@ -651,7 +676,7 @@ export default function DashboardPage() {
             ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="overflow-x-auto flex-grow">
           <Table>
             <TableHeader>
               <TableRow>
