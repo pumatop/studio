@@ -91,7 +91,6 @@ import 'datatables.net-buttons/js/buttons.colVis.js';
 import 'datatables.net-buttons/js/buttons.html5.js';
 import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
-import 'pdfmake';
 
 // Maps for UI display
 const verificationMap: Record<User["verification"], string> = {
@@ -434,7 +433,7 @@ export function UsersDataTable({ initialData }: { initialData: User[] }) {
           { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
           { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
           { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-          { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+          { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
           { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
         ],
         language: {

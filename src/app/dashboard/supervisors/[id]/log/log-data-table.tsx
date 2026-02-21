@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Eye, FilterX, FileDown, Printer } from "lucide-react";
+import { Eye, FilterX } from "lucide-react";
 import type { EgyptTransferTransaction } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -29,9 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, exportToCsv } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
 // Datatables imports
@@ -42,7 +41,6 @@ import 'datatables.net-buttons/js/buttons.colVis.js';
 import 'datatables.net-buttons/js/buttons.html5.js';
 import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
-import 'pdfmake';
 
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
   "completed": "bg-green-100 text-green-800",
@@ -103,7 +101,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'pdf', text: 'PDF', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: {
@@ -123,22 +121,6 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
       }
     };
   }, [filteredData]);
-
-
-  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      if (format === 'csv') {
-        exportToCsv('supervisor-log.csv', filteredData);
-      } else {
-        toast({
-            title: "خاصية قيد التطوير",
-            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
-        });
-      }
-  };
-
-  const handlePrint = () => {
-      window.print();
-  };
 
   return (
     <div className="space-y-4">
@@ -164,25 +146,6 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
             <FilterX className="ml-2 h-4 w-4" />
             مسح الفلاتر
           </Button>
-        </div>
-         <div className="flex items-center gap-2 self-end">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                        <FileDown className="ml-2 h-4 w-4" />
-                        تصدير
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button variant="outline" onClick={handlePrint}>
-                <Printer className="ml-2 h-4 w-4" />
-                طباعة
-            </Button>
         </div>
       </div>
       <div className="rounded-lg border">
