@@ -61,7 +61,6 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
       return;
     }
     const table = $(tableRef.current).DataTable({
-      destroy: true,
       responsive: true,
       dom: "<'flex flex-col sm:flex-row'<'w-full sm:w-1/2'l><'w-full sm:w-1/2'f>>" +
            "<'bg-transparent't>" +
@@ -83,8 +82,9 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
     });
 
     return () => {
-      if (table && table.table().node() && document.body.contains(table.table().node())) {
-        table.destroy();
+      const tableElement = tableRef.current;
+      if (tableElement && $.fn.DataTable.isDataTable(tableElement)) {
+        $(tableElement).DataTable().destroy();
       }
     };
   }, [filteredData]);
