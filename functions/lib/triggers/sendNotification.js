@@ -48,7 +48,6 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
     if (!title || !body || !type || !target) {
         throw new https_1.HttpsError("invalid-argument", "Missing required notification fields.");
     }
-    // Base payload without target-specific properties (token, topic, condition)
     const basePayload = {
         notification: {
             title,
@@ -56,8 +55,8 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
             imageUrl,
         },
         data: {
-            type, // Custom data for the client app to handle UI
-            "click_action": "FLUTTER_NOTIFICATION_CLICK", // Standard for Flutter
+            type,
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
         },
         android: {
             notification: {
@@ -84,23 +83,22 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
         sendPromise = messaging.send(topicMessage);
     }
     else {
-        // Fetch the user's FCM token(s) from the database
-        const tokensSnapshot = await db.ref(`/users/${target}/fcmTokens`).get();
-        if (!tokensSnapshot.exists()) {
-            v2_1.logger.error(`No FCM tokens found for user ${target}.`);
-            throw new https_1.HttpsError("not-found", `No FCM tokens for user ${target}.`);
+        const userSnapshot = await db.ref(`/users/${target}`).get();
+        if (!userSnapshot.exists()) {
+            throw new https_1.HttpsError("not-found", `User ${target} not found.`);
         }
-        const tokensVal = tokensSnapshot.val();
+        const userData = userSnapshot.val();
         let tokens = [];
-        if (typeof tokensVal === "string" && tokensVal) {
-            tokens = [tokensVal];
+        if (userData.fcmToken && typeof userData.fcmToken === "string") {
+            tokens.push(userData.fcmToken);
         }
-        else if (typeof tokensVal === "object" && tokensVal !== null) {
-            tokens = Object.values(tokensVal).filter((t) => typeof t === "string" && !!t);
+        if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
+            tokens.push(...Object.values(userData.fcmTokens).filter((t) => typeof t === "string" && !!t));
         }
+        tokens = [...new Set(tokens)]; // Deduplicate
         if (tokens.length === 0) {
-            v2_1.logger.error(`Token list is empty or invalid for user ${target}.`);
-            throw new https_1.HttpsError("not-found", `No valid FCM tokens for user ${target}.`);
+            v2_1.logger.error(`No valid FCM tokens for user ${target}.`);
+            throw new https_1.HttpsError("not-found", `No FCM tokens for user ${target}.`);
         }
         const multicastMessage = Object.assign(Object.assign({}, basePayload), { tokens });
         v2_1.logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);
@@ -116,14 +114,12 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
             target,
             createdAt: admin.database.ServerValue.TIMESTAMP,
             sentBy: adminUid,
-            read: false, // To track if the user has read the notification
+            read: false,
         };
         if (target !== "all") {
-            // Save notification to the specific user's notification feed
             await db.ref(`/users/${target}/notifications`).push(notificationRecord);
         }
         else {
-            // Save broadcast notifications to a general log
             await db.ref("/notifications").push(notificationRecord);
         }
         v2_1.logger.info("Notification sent and recorded successfully.");

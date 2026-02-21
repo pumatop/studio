@@ -16,7 +16,7 @@ import type { User } from '@/lib/types';
 import { useStorage, useFunctions } from '@/firebase';
 import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { httpsCallable } from 'firebase/functions';
-import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon, BellOff } from 'lucide-react';
+import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon, BellOff, Info, MessageSquare } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 const notificationSchema = z.object({
@@ -28,33 +28,91 @@ const notificationSchema = z.object({
 
 type NotificationFormData = z.infer<typeof notificationSchema>;
 
-function NotificationPreview({ title, body, imagePreview }: { title: string, body: string, imagePreview: string | null }) {
+function NotificationPreview({ title, body, imagePreview, type }: { title: string, body: string, imagePreview: string | null, type: 'standard' | 'popup' | 'banner' }) {
+    
+    const notificationContentStandard = (
+        <div className="flex items-start gap-3">
+            <div className="p-1 mt-1 bg-gradient-to-br from-primary/80 to-primary rounded-lg text-primary-foreground">
+                <CircleDollarSign size={16} />
+            </div>
+            <div className="flex-1">
+                <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-gray-800 dark:text-gray-200">حولّي كاش</span>
+                    <span className="text-gray-500 dark:text-gray-400">الآن</span>
+                </div>
+                <p className="font-semibold text-sm mt-1 text-gray-900 dark:text-gray-100 break-words">{title || 'عنوان الإشعار'}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300 break-words">{body || 'نص الإشعار يظهر هنا...'}</p>
+            </div>
+        </div>
+    );
+    
+    const notificationContentBanner = (
+        <div className="flex items-start gap-2">
+            <div className="p-1.5 mt-1 bg-primary/10 rounded-lg text-primary">
+                <Info size={16} />
+            </div>
+            <div className="flex-1">
+                <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 break-words">{title || 'عنوان الإشعار'}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300 break-words">{body || 'نص الإشعار يظهر هنا...'}</p>
+            </div>
+        </div>
+    );
+
     return (
         <div className="sticky top-28">
             <h3 className="text-lg font-semibold mb-4 text-center">معاينة الإشعار</h3>
             <div className="w-80 h-[600px] mx-auto bg-gray-800 rounded-[40px] border-[14px] border-gray-800 shadow-xl overflow-hidden">
-                <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800')" }}>
-                    <div className="w-full h-full bg-black/30 backdrop-blur-sm p-4">
-                        <div className="mt-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-3 shadow-md animate-in fade-in-50">
-                            <div className="flex items-start gap-3">
-                                <div className="p-1 mt-1 bg-gradient-to-br from-primary/80 to-primary rounded-lg text-primary-foreground">
-                                    <CircleDollarSign size={16} />
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="font-bold text-gray-800 dark:text-gray-200">حولّي كاش</span>
-                                        <span className="text-gray-500 dark:text-gray-400">الآن</span>
+                <div className="relative w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800')" }}>
+                    <div className="w-full h-full bg-black/30 backdrop-blur-sm p-4 flex flex-col">
+                        
+                        {/* Standard Notification */}
+                        {type === 'standard' && (
+                            <div className="mt-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-3 shadow-md animate-in fade-in-50">
+                                {notificationContentStandard}
+                                {imagePreview && (
+                                    <div className="mt-2 aspect-video rounded-lg overflow-hidden relative">
+                                        <Image src={imagePreview} layout="fill" objectFit="cover" alt="معاينة الصورة" />
                                     </div>
-                                    <p className="font-semibold text-sm mt-1 text-gray-900 dark:text-gray-100 break-words">{title || 'عنوان الإشعار'}</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-300 break-words">{body || 'نص الإشعار يظهر هنا...'}</p>
+                                )}
+                            </div>
+                        )}
+                        
+                        {/* Banner Notification */}
+                        {type === 'banner' && (
+                             <div className="absolute top-12 left-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg p-3 shadow-lg animate-in slide-in-from-top-10">
+                                {notificationContentBanner}
+                            </div>
+                        )}
+
+                        {/* App content placeholder */}
+                        <div className="flex-grow flex items-center justify-center">
+                           <div className="text-center text-white/50">
+                                {/* Can add some fake UI here if needed */}
+                           </div>
+                        </div>
+
+                         {/* Popup Notification */}
+                        {type === 'popup' && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 animate-in fade-in-50">
+                                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-2xl w-full max-w-xs space-y-4">
+                                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                                        <MessageSquare className="h-6 w-6 text-primary" />
+                                     </div>
+                                    <div className="space-y-1 text-center">
+                                       <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">{title || 'عنوان الإشعار'}</h3>
+                                       <p className="text-sm text-gray-600 dark:text-gray-300">{body || 'نص الإشعار يظهر هنا...'}</p>
+                                    </div>
+                                     {imagePreview && (
+                                        <div className="aspect-video rounded-lg overflow-hidden relative">
+                                            <Image src={imagePreview} layout="fill" objectFit="cover" alt="معاينة الصورة" />
+                                        </div>
+                                    )}
+                                    <div className="flex gap-2 pt-2">
+                                        <button className="flex-1 bg-gray-200/80 dark:bg-gray-700/80 text-gray-800 dark:text-gray-200 py-2 rounded-lg text-sm font-semibold">إغلاق</button>
+                                    </div>
                                 </div>
                             </div>
-                            {imagePreview && (
-                                <div className="mt-2 aspect-video rounded-lg overflow-hidden relative">
-                                    <Image src={imagePreview} layout="fill" objectFit="cover" alt="معاينة الصورة" />
-                                </div>
-                            )}
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -91,6 +149,7 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
   const title = watch("title");
   const body = watch("body");
   const target = watch("target");
+  const type = watch("type");
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -285,7 +344,7 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
         </Button>
       </form>
       <div className="hidden lg:block lg:col-span-2">
-        <NotificationPreview title={title || ""} body={body || ""} imagePreview={imagePreview} />
+        <NotificationPreview title={title || ""} body={body || ""} imagePreview={imagePreview} type={type} />
       </div>
     </div>
   );

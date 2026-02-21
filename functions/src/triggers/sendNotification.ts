@@ -1,4 +1,3 @@
-"use server";
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -26,18 +25,20 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  const basePayload: admin.messaging.BaseMessage = {
+  const basePayload = {
+    notification: {
+      title,
+      body,
+      imageUrl,
+    },
     data: {
       type,
       "click_action": "FLUTTER_NOTIFICATION_CLICK",
     },
-    notification: {
-      title,
-      body,
-    },
     android: {
       notification: {
         sound: "default",
+        imageUrl,
       },
     },
     apns: {
@@ -47,20 +48,11 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
           "mutable-content": 1,
         },
       },
+      fcmOptions: {
+        imageUrl,
+      },
     },
   };
-
-  if (imageUrl) {
-    if (basePayload.notification) {
-      basePayload.notification.imageUrl = imageUrl;
-    }
-    if (basePayload.android?.notification) {
-      basePayload.android.notification.imageUrl = imageUrl;
-    }
-    if (basePayload.apns) {
-      basePayload.apns.fcmOptions = {imageUrl};
-    }
-  }
 
   let sendPromise;
 
@@ -74,29 +66,20 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
   } else {
     const userSnapshot = await db.ref(`/users/${target}`).get();
     if (!userSnapshot.exists()) {
-      logger.error(`No user found for id ${target}.`);
       throw new HttpsError("not-found", `User ${target} not found.`);
     }
-
     const userData = userSnapshot.val();
     let tokens: string[] = [];
-
-    // Check for single token first
     if (userData.fcmToken && typeof userData.fcmToken === "string") {
       tokens.push(userData.fcmToken);
     }
-    
-    // Then check for multiple tokens
-    if (userData.fcmTokens && typeof userData.fcmTokens === "object" && userData.fcmTokens !== null) {
-      const tokenValues = Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t);
-      tokens.push(...tokenValues);
+    if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
+      tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
     }
-    
-    // Remove duplicates
-    tokens = [...new Set(tokens)];
+    tokens = [...new Set(tokens)]; // Deduplicate
 
     if (tokens.length === 0) {
-      logger.error(`No valid FCM tokens found for user ${target}. Checked fcmToken and fcmTokens.`);
+      logger.error(`No valid FCM tokens for user ${target}.`);
       throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
     }
 
@@ -104,14 +87,12 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       ...basePayload,
       tokens,
     };
-
     logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);
     sendPromise = messaging.sendEachForMulticast(multicastMessage);
   }
 
   try {
     await sendPromise;
-
     const notificationRecord = {
       title,
       body,
