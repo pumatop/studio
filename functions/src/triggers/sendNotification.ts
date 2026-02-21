@@ -26,7 +26,6 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     throw new HttpsError("invalid-argument", "Missing required notification fields.");
   }
 
-  // Base payload structure. We will conditionally add image-related fields.
   const basePayload: Omit<admin.messaging.Message, "topic" | "token" | "condition"> & {
     apns?: admin.messaging.ApnsConfig
     android?: admin.messaging.AndroidConfig
@@ -47,15 +46,13 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     apns: {
       payload: {
         aps: {
-          "sound": "default",
+          sound: "default",
           "mutable-content": 1,
         },
       },
     },
   };
 
-  // Conditionally add imageUrl to the payload if it exists.
-  // This prevents sending `imageUrl: undefined` which can cause internal errors.
   if (imageUrl) {
     if (basePayload.notification) {
       basePayload.notification.imageUrl = imageUrl;
@@ -68,7 +65,6 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     }
   }
 
-
   let sendPromise;
 
   if (target === "all") {
@@ -79,16 +75,24 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
     sendPromise = messaging.send(topicMessage);
   } else {
-    // Fetch the user's FCM token(s) from the database
     const tokensSnapshot = await db.ref(`/users/${target}/fcmTokens`).get();
     if (!tokensSnapshot.exists()) {
       logger.error(`No FCM tokens found for user ${target}.`);
       throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
     }
-    const tokens = Object.values(tokensSnapshot.val()) as string[];
+    
+    const tokensVal = tokensSnapshot.val();
+    let tokens: string[] = [];
+
+    if (typeof tokensVal === "string" && tokensVal) {
+        tokens = [tokensVal];
+    } else if (typeof tokensVal === "object" && tokensVal !== null) {
+        tokens = Object.values(tokensVal).filter((t): t is string => typeof t === "string" && t);
+    }
+
     if (tokens.length === 0) {
-      logger.error(`Token list is empty for user ${target}.`);
-      throw new HttpsError("not-found", `Token list is empty for user ${target}.`);
+        logger.error(`Token list is empty or invalid for user ${target}.`);
+        throw new HttpsError("not-found", `No valid FCM tokens for user ${target}.`);
     }
 
     const multicastMessage: admin.messaging.MulticastMessage = {

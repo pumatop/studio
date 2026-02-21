@@ -87,7 +87,7 @@ export default function NotificationsPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-4xl">
                     <DialogHeader>
                         <DialogTitle>إرسال إشعار إلى: {selectedUser?.name}</DialogTitle>
                         <DialogDescription>
