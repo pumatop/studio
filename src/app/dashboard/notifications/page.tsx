@@ -18,6 +18,11 @@ export default function NotificationsPage() {
     const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
     const { data: globalNotifications, isLoading: notificationsLoading } = useRtdbList<Notification>("/notifications");
 
+    const subscribedUsers = useMemo(() => {
+        if (!users) return [];
+        return users.filter(user => user.notificationSettings?.isSubscribed === true);
+    }, [users]);
+
     const allNotifications = useMemo(() => {
         const combinedNotifs: Notification[] = [];
 
@@ -103,7 +108,7 @@ export default function NotificationsPage() {
                                 <Skeleton className="h-16 w-full" />
                             </div>
                          ) : (
-                            <UserSelection users={users || []} onUserSelect={handleUserSelect} />
+                            <UserSelection users={subscribedUsers} onUserSelect={handleUserSelect} />
                          )}
                     </CardContent>
                 </Card>

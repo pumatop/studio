@@ -1,130 +1,101 @@
-"use client";
-
-import React, { useMemo, useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+'use client';
+import { useState, useMemo } from 'react';
 import {
   Table,
-  TableHeader,
   TableBody,
-  TableRow,
-  TableHead,
   TableCell,
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import type { Notification, User } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { FilterX, Eye } from 'lucide-react';
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import Image from "next/image";
 
-// Datatables imports
-import $ from 'jquery';
-import 'datatables.net-responsive-dt';
-import 'datatables.net-buttons-dt';
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'jszip';
-
-const typeMap = {
-  standard: "عادي",
-  popup: "منبثق",
-  banner: "شريط جانبي",
-};
-
-export function NotificationsHistoryTable({ notifications, users }: { notifications: Notification[], users: User[] }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const tableRef = useRef<HTMLTableElement>(null);
+const typeMap: { [key: string]: string } = {
+    standard: "قياسي",
+    popup: "منبثق",
+    banner: "بانر",
+  };
   
+
+export function NotificationsHistoryTable({ notifications, users, supervisors }: any) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+
+  const targetMap = useMemo(() => {
+    const map = new Map();
+    (users || []).forEach((user: any) => map.set(user.id, user.name));
+    (supervisors || []).forEach((supervisor: any) => map.set(supervisor.id, supervisor.name));
+    return map;
+  }, [users, supervisors]);
+
   const enrichedNotifications = useMemo(() => {
-    return notifications.map(notif => {
-      if (notif.target !== 'all') {
-        const user = users.find(u => u.id === notif.target);
-        return { ...notif, targetName: user?.name || notif.target };
-      }
-      return { ...notif, targetName: 'جميع المستخدمين' };
-    }).sort((a, b) => b.createdAt - a.createdAt);
-  }, [notifications, users]);
+    return notifications.map((notification: any) => ({
+      ...notification,
+      targetName: notification.target === 'all' 
+        ? 'الكل' 
+        : targetMap.get(notification.target) || notification.target,
+    }));
+  }, [notifications, targetMap]);
 
   const filteredData = useMemo(() => {
-    return enrichedNotifications.filter(item =>
-      (item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       item.body.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       item.targetName.toLowerCase().includes(searchTerm.toLowerCase()))
+    return enrichedNotifications.filter((notification: any) => {
+      const searchTermLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        notification.title.toLowerCase().includes(searchTermLower) ||
+        notification.body.toLowerCase().includes(searchTermLower) ||
+        notification.targetName.toLowerCase().includes(searchTermLower);
+      
+      const matchesType = typeFilter === 'all' || notification.type === typeFilter;
+
+      return matchesSearch && matchesType;
+    });
+  }, [enrichedNotifications, searchTerm, typeFilter]);
+
+
+
+  if (filteredData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center text-center p-8 border rounded-lg shadow-sm bg-background">
+        <div className="mb-4 text-6xl">🤷‍♂️</div>
+        <h3 className="text-xl font-semibold mb-2">لا توجد بيانات متاحة</h3>
+        <p className="text-muted-foreground">حاول تغيير مرشحات البحث الخاصة بك.</p>
+      </div>
     );
-  }, [enrichedNotifications, searchTerm]);
-
-  useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
-      return;
-    }
-
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-    }
-    
-    const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
-
-        $(tableRef.current).DataTable({
-          responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
-          buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
-          ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
-          searching: false,
-          pageLength: 5,
-          lengthMenu: [5, 10, 25, 50],
-          pagingType: 'full_numbers',
-          order: [[3, 'desc']]
-        });
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-    };
-  }, [filteredData]);
-
-  const handleClearFilters = () => {
-    setSearchTerm('');
-  };
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-2 flex-grow">
-          <Input
-            placeholder="ابحث بالعنوان، المحتوى أو المستلم..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm"
-          />
-          <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-            <FilterX className="ml-2 h-4 w-4" />
-            مسح
-          </Button>
-        </div>
+    <div className="border rounded-lg shadow-sm bg-card text-card-foreground">
+      <div className="p-4 flex items-center justify-between gap-4">
+        <Input
+          placeholder="ابحث..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-sm"
+        />
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="فلترة حسب النوع" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">كل الأنواع</SelectItem>
+            <SelectItem value="standard">قياسي</SelectItem>
+            <SelectItem value="popup">منبثق</SelectItem>
+            <SelectItem value="banner">بانر</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      <div className="rounded-lg border">
-        <Table ref={tableRef} className="w-full">
+      <div className="overflow-x-auto relative">
+        <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>العنوان</TableHead>
-              <TableHead>المستلم</TableHead>
+              <TableHead>الإشعار</TableHead>
+              <TableHead>المرسل إليه</TableHead>
               <TableHead>النوع</TableHead>
-              <TableHead>وقت الإرسال</TableHead>
-              <TableHead>الصورة</TableHead>
+              <TableHead>التاريخ</TableHead>
+              <TableHead>صورة</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

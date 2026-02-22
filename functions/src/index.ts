@@ -14,3 +14,4 @@ export * from "./triggers/processScheduledRateChanges";
 export * from "./triggers/processTransactionBasedRateChanges";
 export * from "./triggers/manageUserSessions";
 export * from "./triggers/sendNotification";
+export * from "./triggers/updateOneSignalPlayerId";

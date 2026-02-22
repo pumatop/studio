@@ -49,4 +49,5 @@ __exportStar(require("./triggers/processScheduledRateChanges"), exports);
 __exportStar(require("./triggers/processTransactionBasedRateChanges"), exports);
 __exportStar(require("./triggers/manageUserSessions"), exports);
 __exportStar(require("./triggers/sendNotification"), exports);
+__exportStar(require("./triggers/updateOneSignalPlayerId"), exports);
 //# sourceMappingURL=index.js.map

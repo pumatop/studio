@@ -1,10 +1,11 @@
-"use client";
+
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
+import * as OneSignal from "onesignal-node";
 
+// Initialize the Firebase Admin SDK
 const db = admin.database();
-const messaging = admin.messaging();
 
 interface NotificationPayload {
   title: string;
@@ -14,136 +15,59 @@ interface NotificationPayload {
   target: "all" | string; // userId or 'all'
 }
 
-export const sendNotification = onCall({region: "asia-southeast1", secrets: []}, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "The function must be called while authenticated.");
-  }
+// Define a type for the OneSignal filter
+interface OneSignalFilter {
+    field: "tag";
+    key: string;
+    relation: "=";
+    value: string;
+}
 
-  const adminUid = request.auth.uid;
-  const {title, body, imageUrl, type, target} = request.data as NotificationPayload;
-
-  if (!title || !body || !type || !target) {
-    throw new HttpsError("invalid-argument", "Missing required notification fields.");
-  }
-
-  let sendPromise;
-
-  if (target === "all") {
-    // Construct the base message for a topic
-    const topicMessage: admin.messaging.TopicMessage = {
-      topic: "all_users",
-      data: {
-        type,
-        "click_action": "FLUTTER_NOTIFICATION_CLICK",
-      },
-      notification: {
-        title,
-        body,
-      },
-      android: {
-        notification: {
-          sound: "default",
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: "default",
-          },
-        },
-      },
+// Define a custom interface for the OneSignal notification object
+interface MyOneSignalNotification {
+    contents: {
+        en: string;
     };
-
-    // Conditionally add image URL
-    if (imageUrl) {
-      if (topicMessage.notification) {
-        topicMessage.notification.imageUrl = imageUrl;
-      }
-      if (topicMessage.android?.notification) {
-        topicMessage.android.notification.imageUrl = imageUrl;
-      }
-      if (topicMessage.apns) {
-        topicMessage.apns.fcmOptions = {imageUrl};
-        if (topicMessage.apns.payload.aps) {
-          topicMessage.apns.payload.aps["mutable-content"] = 1;
-        }
-      }
-    }
-
-
-    logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
-    sendPromise = messaging.send(topicMessage);
-  } else {
-    const userSnapshot = await db.ref(`/users/${target}`).get();
-    if (!userSnapshot.exists()) {
-      throw new HttpsError("not-found", `User ${target} not found.`);
-    }
-    const userData = userSnapshot.val();
-    const tokens: string[] = [];
-
-    // Comprehensive token gathering
-    if (userData.fcmToken && typeof userData.fcmToken === "string" && userData.fcmToken) {
-      tokens.push(userData.fcmToken);
-    }
-    if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
-      tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
-    }
-
-    const uniqueTokens = [...new Set(tokens)];
-
-    if (uniqueTokens.length === 0) {
-      logger.error(`No valid FCM tokens for user ${target}.`);
-      throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
-    }
-
-    // Construct the base message for multicast
-    const multicastMessage: admin.messaging.MulticastMessage = {
-      tokens: uniqueTokens,
-      data: {
-        type,
-        "click_action": "FLUTTER_NOTIFICATION_CLICK",
-      },
-      notification: {
-        title,
-        body,
-      },
-      android: {
-        notification: {
-          sound: "default",
-        },
-      },
-      apns: {
-        payload: {
-          aps: {
-            sound: "default",
-          },
-        },
-      },
+    headings: {
+        en: string;
     };
+    big_picture?: string;
+    included_segments?: string[];
+    filters?: OneSignalFilter[];
+}
 
-    // Conditionally add image URL
-    if (imageUrl) {
-      if (multicastMessage.notification) {
-        multicastMessage.notification.imageUrl = imageUrl;
-      }
-      if (multicastMessage.android?.notification) {
-        multicastMessage.android.notification.imageUrl = imageUrl;
-      }
-      if (multicastMessage.apns) {
-        multicastMessage.apns.fcmOptions = {imageUrl};
-        if (multicastMessage.apns.payload.aps) {
-          multicastMessage.apns.payload.aps["mutable-content"] = 1;
-        }
-      }
+export const sendNotification = onCall(
+  {region: "asia-southeast1", secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"]},
+  async (request) => {
+    // OneSignal Client Initialization
+    const oneSignalClient = new OneSignal.Client(
+      process.env.ONE_SIGNAL_APP_ID!,
+      process.env.ONE_SIGNAL_API_KEY!
+    );
+
+    if (!request.auth) {
+      throw new HttpsError(
+        "unauthenticated",
+        "The function must be called while authenticated.",
+      );
     }
 
+    const adminUid = request.auth.uid;
+    const {
+      title,
+      body,
+      imageUrl,
+      type,
+      target,
+    } = request.data as NotificationPayload;
 
-    logger.info(`Sending multicast notification to user ${target} (${uniqueTokens.length} tokens) by admin ${adminUid}`);
-    sendPromise = messaging.sendEachForMulticast(multicastMessage);
-  }
+    if (!title || !body || !type || !target) {
+      throw new HttpsError(
+        "invalid-argument",
+        "Missing required notification fields.",
+      );
+    }
 
-  try {
-    await sendPromise;
     const notificationRecord = {
       title,
       body,
@@ -154,16 +78,77 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       sentBy: adminUid,
     };
 
-    if (target !== "all") {
-      await db.ref(`/users/${target}/notifications`).push(notificationRecord);
-    } else {
-      await db.ref("/notifications").push(notificationRecord);
+    // OneSignal notification object
+    const oneSignalNotification: MyOneSignalNotification = {
+      contents: {
+        en: body,
+      },
+      headings: {
+        en: title,
+      },
+    };
+
+    if (imageUrl) {
+      oneSignalNotification.big_picture = imageUrl;
     }
 
-    logger.info("Notification sent and recorded successfully.");
-    return {success: true, message: "Notification sent successfully."};
-  } catch (error) {
-    logger.error("Error sending notification:", error);
-    throw new HttpsError("internal", "Failed to send notification.", error);
-  }
-});
+
+    try {
+      if (target === "all") {
+        // 1. Send to all users via OneSignal using the "All" segment
+        oneSignalNotification.included_segments = ["All"];
+        await oneSignalClient.createNotification(oneSignalNotification);
+
+        // 2. Log to RTDB for history
+        await db.ref("/notifications").push(notificationRecord);
+        logger.info(`Notification for 'all' sent by admin ${adminUid}`);
+        return {
+          success: true,
+          message: "Notification sent to all users successfully.",
+        };
+      } else {
+        // --- New logic for sending to a specific user via tags ---
+
+        // 1. Get user's notification settings
+        const settingsSnapshot = await db.ref(`/users/${target}/notificationSettings`).get();
+        if (!settingsSnapshot.exists()) {
+          throw new HttpsError("not-found", `Notification settings for user ${target} not found.`);
+        }
+
+        const settings = settingsSnapshot.val();
+
+        // 2. Check if the user is subscribed
+        if (!settings.isSubscribed) {
+          logger.warn(`User ${target} is not subscribed to notifications.`);
+          // Return a success message but don't send the notification
+          return {
+            success: true, // It's not a server failure
+            message: `User ${target} is not subscribed to notifications.`,
+          };
+        }
+
+        // 3. Send to specific user via OneSignal Tags
+        oneSignalNotification.filters = [
+          {field: "tag", key: "user_id", relation: "=", value: target},
+        ];
+        await oneSignalClient.createNotification(oneSignalNotification);
+
+        // 4. Log to RTDB for history
+        await db.ref(`/users/${target}/notifications`).push(notificationRecord);
+        logger.info(
+          `Notification for user ${target} sent by admin ${adminUid} via tags`,
+        );
+        return {
+          success: true,
+          message: "Notification for user sent successfully via tags.",
+        };
+      }
+    } catch (error) {
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+      logger.error("Error sending notification:", error);
+      throw new HttpsError("internal", "Failed to send notification.", error);
+    }
+  },
+);

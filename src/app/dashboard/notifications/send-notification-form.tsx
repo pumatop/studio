@@ -1,351 +1,178 @@
+
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
+import type { User } from '@/lib/types';
 import { useForm, Controller } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { User } from '@/lib/types';
-import { useStorage, useFunctions } from '@/firebase';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { functions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { Loader2, Upload, X, CircleDollarSign, Users, User as UserIcon, BellOff, Info, MessageSquare } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Loader2, BellOff } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { NotificationPreview } from './notification-preview';
 
-const notificationSchema = z.object({
-  title: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),
-  body: z.string().min(5, "النص يجب أن يكون 5 أحرف على الأقل"),
-  type: z.enum(['standard', 'popup', 'banner'], { required_error: "يجب اختيار نوع الإشعار" }),
-  target: z.string().min(3, "يجب تحديد المستلم"),
+const formSchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  body: z.string().min(1, "محتوى الإشعار مطلوب"),
+  imageUrl: z.string().url("يجب أن يكون رابط الصورة صحيحاً").optional().or(z.literal('')),
+  type: z.enum(['standard', 'popup', 'banner'], { required_error: "نوع الإشعار مطلوب" }),
+  target: z.string().min(1, "يجب تحديد المستلم"),
 });
 
-type NotificationFormData = z.infer<typeof notificationSchema>;
-
-function NotificationPreview({ title, body, imagePreview, type }: { title: string, body: string, imagePreview: string | null, type: 'standard' | 'popup' | 'banner' }) {
-    
-    const notificationContentStandard = (
-        <div className="flex items-start gap-3">
-            <div className="p-1 mt-1 bg-gradient-to-br from-primary/80 to-primary rounded-lg text-primary-foreground">
-                <CircleDollarSign size={16} />
-            </div>
-            <div className="flex-1">
-                <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-gray-800 dark:text-gray-200">حولّي كاش</span>
-                    <span className="text-gray-500 dark:text-gray-400">الآن</span>
-                </div>
-                <p className="font-semibold text-sm mt-1 text-gray-900 dark:text-gray-100 break-words">{title || 'عنوان الإشعار'}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-300 break-words">{body || 'نص الإشعار يظهر هنا...'}</p>
-            </div>
-        </div>
-    );
-    
-    const notificationContentBanner = (
-        <div className="flex items-start gap-2">
-            <div className="p-1.5 mt-1 bg-primary/10 rounded-lg text-primary">
-                <Info size={16} />
-            </div>
-            <div className="flex-1">
-                <p className="font-semibold text-sm text-gray-900 dark:text-gray-100 break-words">{title || 'عنوان الإشعار'}</p>
-                <p className="text-xs text-gray-600 dark:text-gray-300 break-words">{body || 'نص الإشعار يظهر هنا...'}</p>
-            </div>
-        </div>
-    );
-
-    return (
-        <div className="sticky top-28">
-            <h3 className="text-lg font-semibold mb-4 text-center">معاينة الإشعار</h3>
-            <div className="w-80 h-[600px] mx-auto bg-gray-800 rounded-[40px] border-[14px] border-gray-800 shadow-xl overflow-hidden">
-                <div className="relative w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800')" }}>
-                    <div className="w-full h-full bg-black/30 backdrop-blur-sm p-4 flex flex-col">
-                        
-                        {/* Standard Notification */}
-                        {type === 'standard' && (
-                            <div className="mt-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-3 shadow-md animate-in fade-in-50">
-                                {notificationContentStandard}
-                                {imagePreview && (
-                                    <div className="mt-2 aspect-video rounded-lg overflow-hidden relative">
-                                        <Image src={imagePreview} layout="fill" objectFit="cover" alt="معاينة الصورة" />
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        
-                        {/* Banner Notification */}
-                        {type === 'banner' && (
-                             <div className="absolute top-12 left-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-lg p-3 shadow-lg animate-in slide-in-from-top-10">
-                                {notificationContentBanner}
-                            </div>
-                        )}
-
-                        {/* App content placeholder */}
-                        <div className="flex-grow flex items-center justify-center">
-                           <div className="text-center text-white/50">
-                                {/* Can add some fake UI here if needed */}
-                           </div>
-                        </div>
-
-                         {/* Popup Notification */}
-                        {type === 'popup' && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 animate-in fade-in-50">
-                                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-2xl w-full max-w-xs space-y-4">
-                                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                                        <MessageSquare className="h-6 w-6 text-primary" />
-                                     </div>
-                                    <div className="space-y-1 text-center">
-                                       <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100">{title || 'عنوان الإشعار'}</h3>
-                                       <p className="text-sm text-gray-600 dark:text-gray-300">{body || 'نص الإشعار يظهر هنا...'}</p>
-                                    </div>
-                                     {imagePreview && (
-                                        <div className="aspect-video rounded-lg overflow-hidden relative">
-                                            <Image src={imagePreview} layout="fill" objectFit="cover" alt="معاينة الصورة" />
-                                        </div>
-                                    )}
-                                    <div className="flex gap-2 pt-2">
-                                        <button className="flex-1 bg-gray-200/80 dark:bg-gray-700/80 text-gray-800 dark:text-gray-200 py-2 rounded-lg text-sm font-semibold">إغلاق</button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+interface SendNotificationFormProps {
+  users: User[];
+  targetUser: User | null;
+  onNotificationSent: () => void;
 }
 
-export function SendNotificationForm({ users, targetUser, onNotificationSent }: { users: User[], targetUser: User | null; onNotificationSent: () => void; }) {
+export function SendNotificationForm({ users, targetUser, onNotificationSent }: SendNotificationFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const storage = useStorage();
-  const functions = useFunctions();
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const { register, handleSubmit, formState: { errors }, watch, reset, control, setValue } = useForm<NotificationFormData>({
-    resolver: zodResolver(notificationSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
       body: '',
+      imageUrl: '',
       type: 'standard',
-      target: targetUser?.id || 'all',
-    }
+      target: targetUser ? targetUser.id : 'all',
+    },
   });
-  
-  useEffect(() => {
-    // Update the form's target value if the targetUser prop changes (e.g., dialog opens for a new user)
-    setValue('target', targetUser?.id || 'all');
-  }, [targetUser, setValue]);
 
-  const title = watch("title");
-  const body = watch("body");
-  const target = watch("target");
-  const type = watch("type");
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const watchAllFields = form.watch();
 
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
-  };
-
-  const onSubmit = async (data: NotificationFormData) => {
-    setIsSubmitting(true);
-    let imageUrl: string | undefined = undefined;
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
     try {
-      if (imageFile) {
-        toast({ title: "جاري رفع الصورة..." });
-        const fileRef = storageRef(storage, `notification_images/${Date.now()}_${imageFile.name}`);
-        const uploadTask = uploadBytesResumable(fileRef, imageFile);
-
-        await new Promise<void>((resolve, reject) => {
-          uploadTask.on('state_changed',
-            (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setUploadProgress(progress);
-            },
-            (error) => {
-              console.error("Upload failed:", error);
-              reject(error);
-            },
-            async () => {
-              imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              setUploadProgress(null);
-              resolve();
-            }
-          );
-        });
-      }
-
-      toast({ title: "جاري إرسال الإشعار..." });
-      
       const sendNotification = httpsCallable(functions, 'sendNotification');
-      const payload = { ...data, imageUrl };
-
-      await sendNotification(payload);
+      await sendNotification(values);
 
       toast({
-        title: "تم إرسال الإشعار بنجاح!",
-        description: `تم إرسال "${data.title}" بنجاح.`,
+        title: "نجاح!",
+        description: "تم إرسال الإشعار بنجاح.",
       });
-      
-      reset();
-      removeImage();
-      onNotificationSent();
-
+      if(targetUser) { 
+        onNotificationSent();
+      }
+      form.reset({ title: '', body: '', imageUrl: '', type: 'standard', target: 'all' });
     } catch (error: any) {
-      console.error("Error sending notification:", error);
+        console.error("Error sending notification: ", error);
       toast({
-        title: "فشل إرسال الإشعار",
-        description: error.message || "حدث خطأ غير متوقع.",
+        title: "خطأ",
+        description: error.message || "فشل إرسال الإشعار. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
-      setUploadProgress(null);
+      setIsLoading(false);
     }
-  };
-  
-  const getTargetDisplayText = () => {
-    if (target === 'all') {
-      return "للجميع";
-    }
-    const selectedUser = users.find(u => u.id === target);
-    return selectedUser ? `إلى ${selectedUser.name || selectedUser.id}` : "";
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 lg:col-span-3">
-
-        <Controller
-          name="target"
-          control={control}
-          render={({ field }) => (
-            <div className="space-y-2">
-              <Label>المستلم</Label>
-              <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting || !!targetUser}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر المستلم..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>كافة المستخدمين</span>
-                    </div>
-                  </SelectItem>
-                  {users.map((user) => {
-                    const canReceiveNotifications = !!user.fcmToken || (user.fcmTokens && Object.keys(user.fcmTokens).length > 0);
-                    return (
-                      <SelectItem key={user.id} value={user.id} disabled={!canReceiveNotifications}>
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <UserIcon className="h-4 w-4" />
-                            <span>{user.name || user.id}</span>
-                          </div>
-                          {!canReceiveNotifications && <BellOff className="h-4 w-4 text-muted-foreground opacity-50" />}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        <Card className="col-span-1">
+            <CardHeader>
+                <CardTitle>محتويات الإشعار</CardTitle>
+                <CardDescription>املأ تفاصيل الإشعار الذي تود إرساله.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    {!targetUser && (
+                        <div className="space-y-2">
+                            <label htmlFor="target" className="font-semibold text-sm">المستلم</label>
+                            <Controller
+                                control={form.control}
+                                name="target"
+                                render={({ field }) => (
+                                    <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
+                                        <SelectTrigger id="target">
+                                            <SelectValue placeholder="اختر المستلم" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">كافة المستخدمين</SelectItem>
+                                            {users.map(user => (
+                                                <SelectItem key={user.id} value={user.id} disabled={!user.fcmTokens && !user.fcmToken}>
+                                                  <div className="flex items-center gap-2">
+                                                    {!user.fcmTokens && !user.fcmToken && <BellOff className="h-4 w-4 text-muted-foreground" />}
+                                                    <span>{user.name}</span>
+                                                  </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                             {form.formState.errors.target && <p className="text-sm text-red-500">{form.formState.errors.target.message}</p>}
                         </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              {errors.target && <p className="text-sm text-destructive">{errors.target.message}</p>}
-            </div>
-          )}
-        />
+                    )}
 
-        <div className="space-y-2">
-          <Label htmlFor="title">عنوان الإشعار</Label>
-          <Input id="title" {...register("title")} disabled={isSubmitting} />
-          {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
-        </div>
+                    <div className="space-y-2">
+                        <label htmlFor="title" className="font-semibold text-sm">العنوان</label>
+                        <Input id="title" {...form.register('title')} placeholder="عنوان الإشعار" disabled={isLoading} />
+                        {form.formState.errors.title && <p className="text-sm text-red-500">{form.formState.errors.title.message}</p>}
+                    </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="body">نص الإشعار</Label>
-          <Textarea id="body" {...register("body")} disabled={isSubmitting} />
-          {errors.body && <p className="text-sm text-destructive">{errors.body.message}</p>}
-        </div>
+                    <div className="space-y-2">
+                        <label htmlFor="body" className="font-semibold text-sm">المحتوى</label>
+                        <Textarea id="body" {...form.register('body')} placeholder="محتوى رسالة الإشعار" disabled={isLoading}/>
+                        {form.formState.errors.body && <p className="text-sm text-red-500">{form.formState.errors.body.message}</p>}
+                    </div>
 
-        <Controller
-          name="type"
-          control={control}
-          render={({ field }) => (
-            <div className="space-y-3">
-              <Label>نوع الإشعار</Label>
-              <RadioGroup onValueChange={field.onChange} value={field.value} className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                  <RadioGroupItem value="standard" className="sr-only" />
-                  <span>عادي</span>
-                </Label>
-                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                  <RadioGroupItem value="popup" className="sr-only" />
-                  <span>منبثق</span>
-                </Label>
-                <Label className="flex items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer">
-                  <RadioGroupItem value="banner" className="sr-only" />
-                  <span>شريط جانبي</span>
-                </Label>
-              </RadioGroup>
-              {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
-            </div>
-          )}
-        />
+                    <div className="space-y-2">
+                        <label htmlFor="imageUrl" className="font-semibold text-sm">رابط الصورة (اختياري)</label>
+                        <Input id="imageUrl" {...form.register('imageUrl')} placeholder="https://example.com/image.png" disabled={isLoading}/>
+                        {form.formState.errors.imageUrl && <p className="text-sm text-red-500">{form.formState.errors.imageUrl.message}</p>}
+                    </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="image">صورة الإشعار (اختياري)</Label>
-          {imagePreview ? (
-            <div className="relative w-full h-48 rounded-md border overflow-hidden">
-              <Image src={imagePreview} alt="معاينة الصورة" layout="fill" objectFit="contain" />
-              <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={removeImage} disabled={isSubmitting}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-md cursor-pointer hover:bg-muted/50 transition-colors">
-              <div className="flex flex-col items-center justify-center pt-5 pb-6 text-muted-foreground">
-                <Upload className="w-8 h-8 mb-2" />
-                <p className="mb-2 text-sm">انقر للرفع أو قم بسحب وإفلات الصورة هنا</p>
-                <p className="text-xs">PNG, JPG, GIF up to 1MB</p>
-              </div>
-            </div>
-          )}
-          <Input id="image-upload" type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept="image/png, image/jpeg, image/gif" disabled={isSubmitting} />
-          {uploadProgress !== null && <Progress value={uploadProgress} className="w-full mt-2" />}
-        </div>
-        
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          إرسال الإشعار {getTargetDisplayText()}
-        </Button>
-      </form>
-      <div className="hidden lg:block lg:col-span-2">
-        <NotificationPreview title={title || ""} body={body || ""} imagePreview={imagePreview} type={type} />
-      </div>
+                     <div className="space-y-2">
+                        <label htmlFor="type" className="font-semibold text-sm">نوع الإشعار</label>
+                        <Controller
+                            control={form.control}
+                            name="type"
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
+                                    <SelectTrigger id="type">
+                                        <SelectValue placeholder="اختر نوع الإشعار" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="standard">عادي</SelectItem>
+                                        <SelectItem value="popup">نافذة منبثقة</SelectItem>
+                                        <SelectItem value="banner">شريط إعلاني</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                        {form.formState.errors.type && <p className="text-sm text-red-500">{form.formState.errors.type.message}</p>}
+                    </div>
+
+                    <Button type="submit" disabled={isLoading} className="w-full">
+                        {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                        {isLoading ? 'جارٍ الإرسال...' : 'إرسال الإشعار'}
+                    </Button>
+                </form>
+            </CardContent>
+        </Card>
+
+        <Card className="col-span-1 sticky top-24">
+            <CardHeader>
+                <CardTitle>معاينة الإشعار</CardTitle>
+                 <CardDescription>شاهد كيف سيبدو إشعارك على الأجهزة المختلفة.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <NotificationPreview
+                    title={watchAllFields.title}
+                    body={watchAllFields.body}
+                    imageUrl={watchAllFields.imageUrl}
+                    type={watchAllFields.type}
+                />
+            </CardContent>
+        </Card>
     </div>
   );
 }
