@@ -29,6 +29,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
   let sendPromise;
 
   if (target === "all") {
+    // Construct the base message for a topic
     const topicMessage: admin.messaging.TopicMessage = {
       topic: "all_users",
       data: {
@@ -53,6 +54,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       },
     };
 
+    // Conditionally add image URL
     if (imageUrl) {
       if (topicMessage.notification) {
         topicMessage.notification.imageUrl = imageUrl;
@@ -61,13 +63,13 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
         topicMessage.android.notification.imageUrl = imageUrl;
       }
       if (topicMessage.apns) {
-        if (!topicMessage.apns.payload.aps) {
-          topicMessage.apns.payload.aps = {};
+        topicMessage.apns.fcmOptions = {imageUrl};
+        if (topicMessage.apns.payload.aps) {
+          topicMessage.apns.payload.aps["mutable-content"] = 1;
         }
-        topicMessage.apns.payload.aps["mutable-content"] = 1;
-        topicMessage.apns.fcmOptions = { imageUrl };
       }
     }
+
 
     logger.info(`Sending topic notification to "all_users" by admin ${adminUid}`);
     sendPromise = messaging.send(topicMessage);
@@ -77,23 +79,26 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       throw new HttpsError("not-found", `User ${target} not found.`);
     }
     const userData = userSnapshot.val();
-    let tokens: string[] = [];
+    const tokens: string[] = [];
 
+    // Comprehensive token gathering
     if (userData.fcmToken && typeof userData.fcmToken === "string" && userData.fcmToken) {
-      tokens.push(userData.fcmToken);
+        tokens.push(userData.fcmToken);
     }
     if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
-      tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
+        tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
     }
-    tokens = [...new Set(tokens)]; // Deduplicate
 
-    if (tokens.length === 0) {
+    const uniqueTokens = [...new Set(tokens)];
+
+    if (uniqueTokens.length === 0) {
       logger.error(`No valid FCM tokens for user ${target}.`);
       throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
     }
-
+    
+    // Construct the base message for multicast
     const multicastMessage: admin.messaging.MulticastMessage = {
-      tokens,
+      tokens: uniqueTokens,
       data: {
         type,
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
@@ -115,24 +120,25 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
         },
       },
     };
-
+    
+    // Conditionally add image URL
     if (imageUrl) {
-      if (multicastMessage.notification) {
+       if (multicastMessage.notification) {
         multicastMessage.notification.imageUrl = imageUrl;
       }
       if (multicastMessage.android?.notification) {
         multicastMessage.android.notification.imageUrl = imageUrl;
       }
       if (multicastMessage.apns) {
-        if (!multicastMessage.apns.payload.aps) {
-          multicastMessage.apns.payload.aps = {};
+        multicastMessage.apns.fcmOptions = {imageUrl};
+        if (multicastMessage.apns.payload.aps) {
+          multicastMessage.apns.payload.aps["mutable-content"] = 1;
         }
-        multicastMessage.apns.payload.aps["mutable-content"] = 1;
-        multicastMessage.apns.fcmOptions = { imageUrl };
       }
     }
 
-    logger.info(`Sending multicast notification to user ${target} (${tokens.length} tokens) by admin ${adminUid}`);
+
+    logger.info(`Sending multicast notification to user ${target} (${uniqueTokens.length} tokens) by admin ${adminUid}`);
     sendPromise = messaging.sendEachForMulticast(multicastMessage);
   }
 
