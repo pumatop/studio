@@ -1,0 +1,58 @@
+"use client";
+
+import React from 'react';
+import { useFormContext } from 'react-hook-form';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const notificationTypes = [
+  {
+    id: 'standard',
+    name: 'عادي',
+    description: 'إشعار قياسي يظهر في مركز الإشعارات.',
+  },
+  {
+    id: 'popup',
+    name: 'نافذة منبثقة',
+    description: 'يظهر كرسالة منبثقة مباشرة على الشاشة.',
+  },
+  {
+    id: 'banner',
+    name: 'شريط إعلاني',
+    description: 'شريط يظهر في أعلى أو أسفل التطبيق.',
+  },
+];
+
+export function NotificationTypeSelector() {
+  const { setValue, watch } = useFormContext();
+  const selectedType = watch('type');
+
+  return (
+    <div className="space-y-4">
+        <label className="font-semibold text-sm">نوع الإشعار</label>
+        <div className="grid grid-cols-1 gap-4">
+            {notificationTypes.map((type) => (
+                 <Card
+                    key={type.id}
+                    onClick={() => setValue('type', type.id, { shouldValidate: true })}
+                    className={cn(
+                        "cursor-pointer transition-all relative",
+                        selectedType === type.id ? 'border-primary ring-2 ring-primary' : 'hover:border-gray-400 dark:hover:border-gray-600'
+                    )}
+                 >
+                     <CardContent className="p-4">
+                        <h3 className="font-semibold">{type.name}</h3>
+                        <p className="text-sm text-muted-foreground">{type.description}</p>
+                         {selectedType === type.id && (
+                            <div className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1">
+                                <CheckCircle className="h-4 w-4" />
+                            </div>
+                        )}
+                     </CardContent>
+                 </Card>
+            ))}
+        </div>
+    </div>
+  );
+}
