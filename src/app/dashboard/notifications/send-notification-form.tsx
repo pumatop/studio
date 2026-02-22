@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import type { User } from '@/lib/types';
+import type { User, NotificationType } from '@/lib/types';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { functions } from '@/firebase';
+import { useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { Loader2, BellOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,6 +34,7 @@ interface SendNotificationFormProps {
 export function SendNotificationForm({ users, targetUser, onNotificationSent }: SendNotificationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const functions = useFunctions();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -99,7 +100,7 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
                                             {users.map(user => (
                                                 <SelectItem key={user.id} value={user.id} disabled={!user.fcmTokens && !user.fcmToken}>
                                                   <div className="flex items-center gap-2">
-                                                    {!user.fcmTokens && !user.fcmToken && <BellOff className="h-4 w-4 text-muted-foreground" />}
+                                                    {(!user.fcmTokens && !user.fcmToken) && <BellOff className="h-4 w-4 text-muted-foreground" />}
                                                     <span>{user.name}</span>
                                                   </div>
                                                 </SelectItem>
