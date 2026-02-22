@@ -83,10 +83,10 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
 
     // Comprehensive token gathering
     if (userData.fcmToken && typeof userData.fcmToken === "string" && userData.fcmToken) {
-        tokens.push(userData.fcmToken);
+      tokens.push(userData.fcmToken);
     }
     if (userData.fcmTokens && typeof userData.fcmTokens === "object") {
-        tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
+      tokens.push(...Object.values(userData.fcmTokens).filter((t): t is string => typeof t === "string" && !!t));
     }
 
     const uniqueTokens = [...new Set(tokens)];
@@ -95,7 +95,7 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
       logger.error(`No valid FCM tokens for user ${target}.`);
       throw new HttpsError("not-found", `No FCM tokens for user ${target}.`);
     }
-    
+
     // Construct the base message for multicast
     const multicastMessage: admin.messaging.MulticastMessage = {
       tokens: uniqueTokens,
@@ -120,10 +120,10 @@ export const sendNotification = onCall({region: "asia-southeast1", secrets: []},
         },
       },
     };
-    
+
     // Conditionally add image URL
     if (imageUrl) {
-       if (multicastMessage.notification) {
+      if (multicastMessage.notification) {
         multicastMessage.notification.imageUrl = imageUrl;
       }
       if (multicastMessage.android?.notification) {
