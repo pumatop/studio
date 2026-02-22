@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { storage } from '@/firebase';
+import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 
 export function ImageUploader() {
     const { setValue, watch } = useFormContext();
+    const storage = useStorage();
     const imageUrl = watch('imageUrl');
     const [isUploading, setIsUploading] = useState(false);
     const { toast } = useToast();
