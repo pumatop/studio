@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { storage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';

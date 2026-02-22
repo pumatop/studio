@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
-import { functions } from '@/firebase';
+import { useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { NotificationPreview } from './notification-preview';
 import { ImageUploader } from './image-uploader';
 import { NotificationTypeSelector } from './notification-type-selector';
+import type { User } from '@/lib/types';
 
 const formSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
@@ -32,6 +33,7 @@ interface SendNotificationFormProps {
 export function SendNotificationForm({ targetUser, onNotificationSent }: SendNotificationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const functions = useFunctions();
 
   const methods = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
