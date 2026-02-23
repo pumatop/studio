@@ -27,12 +27,11 @@ const formSchema = z.object({
 });
 
 interface SendNotificationFormProps {
-  users: User[];
   targetUser: User | null;
   onNotificationSent: () => void;
 }
 
-export function SendNotificationForm({ users, targetUser, onNotificationSent }: SendNotificationFormProps) {
+export function SendNotificationForm({ targetUser, onNotificationSent }: SendNotificationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const functions = useFunctions();
@@ -78,40 +77,12 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
     <FormProvider {...methods}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <Card className="col-span-1">
-                <CardHeader>
-                    <CardTitle>إنشاء إشعار</CardTitle>
-                    <CardDescription>{targetUser ? `إرسال إشعار إلى ${targetUser.name}` : 'املأ التفاصيل أدناه لإرسال إشعار جديد.'}</CardDescription>
+                 <CardHeader>
+                    <CardTitle>محتوى الإشعار</CardTitle>
+                    <CardDescription>{targetUser ? `إرسال إشعار إلى ${targetUser.name}` : 'سيتم إرسال هذا الإشعار لجميع المستخدمين.'}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
-                        {!targetUser && (
-                           <div className="space-y-2">
-                                <label htmlFor="target" className="font-semibold text-sm">إرسال إلى</label>
-                                <Select
-                                    onValueChange={(value) => methods.setValue('target', value)}
-                                    defaultValue={methods.getValues('target')}
-                                >
-                                    <SelectTrigger id="target">
-                                        <SelectValue placeholder="اختر المستلم..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">كافة المستخدمين</SelectItem>
-                                        {users.map(user => {
-                                            const hasToken = user.fcmToken || user.fcmTokens;
-                                            return (
-                                                <SelectItem key={user.id} value={user.id} disabled={!hasToken}>
-                                                    <div className="flex items-center justify-between w-full">
-                                                        <span>{user.name}</span>
-                                                        {!hasToken && <BellOff className="h-4 w-4 text-muted-foreground mr-2" />}
-                                                    </div>
-                                                </SelectItem>
-                                            );
-                                        })}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-                        
                         <div className="space-y-2">
                             <label htmlFor="title" className="font-semibold text-sm">العنوان</label>
                             <Input id="title" {...methods.register('title')} placeholder="عنوان الإشعار" />
@@ -132,7 +103,7 @@ export function SendNotificationForm({ users, targetUser, onNotificationSent }: 
 
                         <Button type="submit" disabled={isLoading} className="w-full">
                             {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                            {isLoading ? 'جارٍ الإرسال...' : (targetUser ? `إرسال إلى ${targetUser.name}` : 'إرسال الإشعار')}
+                            {isLoading ? 'جارٍ الإرسال...' : (targetUser ? `إرسال إلى ${targetUser.name}` : 'إرسال الإشعار للجميع')}
                         </Button>
                     </form>
                 </CardContent>

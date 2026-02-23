@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { User, Notification } from "@/lib/types";
-import { useRtdbList } from "@/firebase";
+import { useRtdbList, useFunctions } from "@/firebase";
 import { SendNotificationForm } from "./send-notification-form";
 import { NotificationsHistoryTable } from "./notifications-history-table";
 import { UserSelection } from "./user-selection";
@@ -17,6 +17,7 @@ export default function NotificationsPage() {
 
     const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
     const { data: globalNotifications, isLoading: notificationsLoading } = useRtdbList<Notification>("/notifications");
+    const functions = useFunctions();
 
     const subscribedUsers = useMemo(() => {
         if (!users) return [];
@@ -41,7 +42,7 @@ export default function NotificationsPage() {
                 }
             });
         }
-        return combinedNotifs;
+        return combinedNotifs.sort((a, b) => b.createdAt - a.createdAt);
     }, [users, globalNotifications]);
 
 
@@ -59,15 +60,14 @@ export default function NotificationsPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                            <Mail className="h-6 w-6 text-primary" />
-                           إرسال إشعار
+                           إرسال إشعار عام
                         </CardTitle>
                         <CardDescription>
-                            قم بإنشاء وإرسال إشعار لجميع المستخدمين أو افتح القائمة أدناه لاختيار مستخدم محدد.
+                            سيتم إرسال هذا الإشعار إلى جميع المستخدمين. لإرسال إشعار مخصص، اختر مستخدماً من القائمة الجانبية.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <SendNotificationForm
-                            users={users || []}
                             targetUser={null} // For sending to all
                             onNotificationSent={() => {}}
                         />
@@ -108,7 +108,7 @@ export default function NotificationsPage() {
                                 <Skeleton className="h-16 w-full" />
                             </div>
                          ) : (
-                            <UserSelection users={subscribedUsers} onUserSelect={handleUserSelect} />
+                            <UserSelection users={users || []} onUserSelect={handleUserSelect} />
                          )}
                     </CardContent>
                 </Card>
@@ -124,7 +124,6 @@ export default function NotificationsPage() {
                     </DialogHeader>
                     <div className="pt-4">
                         <SendNotificationForm
-                            users={users || []}
                             targetUser={selectedUser}
                             onNotificationSent={() => setDialogOpen(false)}
                         />
