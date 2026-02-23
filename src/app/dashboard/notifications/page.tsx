@@ -12,7 +12,6 @@ import { SendNotificationForm } from "./send-notification-form";
 import { NotificationsHistoryTable } from "./notifications-history-table";
 import { UserSelection } from "./user-selection";
 import { NotificationPreview } from './notification-preview';
-import { NotificationTypeSelector } from './notification-type-selector';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -171,8 +170,8 @@ export default function NotificationsPage() {
                 <div className="lg:col-span-2">
                      <Card className="sticky top-24">
                         <CardHeader>
-                            <CardTitle>معاينة حية</CardTitle>
-                            <CardDescription>شاهد كيف سيبدو إشعارك على الأجهزة المختلفة.</CardDescription>
+                            <CardTitle>المعاينة والإعدادات</CardTitle>
+                            <CardDescription>شاهد كيف سيبدو إشعارك واختر نوعه أدناه.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <NotificationPreview
@@ -183,11 +182,6 @@ export default function NotificationsPage() {
                             />
                         </CardContent>
                     </Card>
-                </div>
-
-                {/* Full Width Bottom Row: Type Selector */}
-                <div className="lg:col-span-4">
-                    <NotificationTypeSelector />
                 </div>
 
                 {/* Full Width Submit and History */}
@@ -225,7 +219,6 @@ export default function NotificationsPage() {
                         {/* Form part */}
                         <div className="space-y-6">
                             <SendNotificationForm />
-                            <NotificationTypeSelector />
                             <Button onClick={methods.handleSubmit(onSubmit)} disabled={isSubmitting} className="w-full">
                                 {isSubmitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                                 {isSubmitting ? 'جارٍ الإرسال...' : `إرسال إلى ${selectedUser?.name}`}
@@ -235,7 +228,7 @@ export default function NotificationsPage() {
                         <div>
                              <Card className="sticky top-10">
                                 <CardHeader>
-                                    <CardTitle>معاينة حية</CardTitle>
+                                    <CardTitle>المعاينة والإعدادات</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <NotificationPreview

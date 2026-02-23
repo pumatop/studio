@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -109,13 +108,13 @@ export function NotificationTypeSelector() {
   const selectedType = watch('type');
 
   return (
-     <Card>
-        <CardHeader>
-            <CardTitle>اختر نوع الإشعار</CardTitle>
-            <CardDescription>سيؤثر اختيارك على كيفية ظهور الإشعار للمستخدمين.</CardDescription>
+     <div>
+        <div className="mb-4">
+            <h3 className="text-base font-semibold">اختر نوع الإشعار</h3>
+            <p className="text-sm text-muted-foreground">سيؤثر اختيارك على كيفية ظهور الإشعار للمستخدمين.</p>
              {errors.type && <p className="text-sm text-red-500 pt-2">{errors.type.message as string}</p>}
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div>
              {notificationTypeGroups.map(group => (
                 <div key={group.groupName} className="mb-6 last:mb-0">
                      <h3 className="text-base font-semibold text-muted-foreground mb-3">{group.groupName}</h3>
@@ -144,7 +143,7 @@ export function NotificationTypeSelector() {
                      </div>
                 </div>
             ))}
-        </CardContent>
-     </Card>
+        </div>
+     </div>
   );
 }

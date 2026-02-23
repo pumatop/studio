@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { NotificationTypeSelector } from './notification-type-selector';
 
 type NotificationType = 'standard' | 'popup' | 'banner' | 'banner-ad' | 'popup-ad' | 'image-only';
 
@@ -60,7 +61,7 @@ const PopupAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
     </div>
 );
 
-const ImageOnlyAd = ({ imageUrl }: NotificationPreviewProps) => (
+const ImageOnlyAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
     <div className="absolute inset-0 bg-black flex items-center justify-center z-20 p-2">
          {imageUrl ? 
             <img src={imageUrl} alt="Full screen ad" className="w-full h-full object-contain rounded-lg" /> 
@@ -127,6 +128,9 @@ export function NotificationPreview({ title, body, imageUrl, type }: Notificatio
                 {renderPreview()}
              </div>
         )}
+      </div>
+      <div className="mt-8">
+        <NotificationTypeSelector />
       </div>
     </div>
   );
