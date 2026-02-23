@@ -257,116 +257,114 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
     }
 
     return (
-        <>
-            <Dialog open={open} onOpenChange={(o) => { if (!o) { setIsEditingName(false); } onOpenChange(o); }}>
-                <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                        {isEditingName ? (
-                            <div className="flex items-center gap-2">
-                            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="تعديل اسم المستخدم" className="h-9"/>
-                            <Button size="sm" onClick={handleNameSave}>حفظ</Button>
-                            <Button size="sm" variant="ghost" onClick={handleCancelEdit}>إلغاء</Button>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <DialogTitle>{user.name}</DialogTitle>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditingName(true)}><Pencil className="h-4 w-4" /><span className="sr-only">تعديل الاسم</span></Button>
-                            </div>
-                        )}
-                        <DialogDescription>تفاصيل المستخدم الكاملة ({user.phone})</DialogDescription>
-                    </DialogHeader>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4 max-h-[70vh] overflow-y-auto">
-                        {/* Column 1: Balances & Personal Info */}
-                        <div className="md:col-span-1 space-y-4">
-                            <Card>
-                                <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle></CardHeader>
-                                <CardContent className="text-sm space-y-2 pt-4">
-                                    <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{(user.balanceLYD || 0).toFixed(2)} د.ل</span></div>
-                                    <div className="flex justify-between"><span>الرصيد المصري:</span> <span className="font-semibold">{(user.balanceEGP || 0).toFixed(2)} ج.م</span></div>
-                                    <div className="flex justify-between text-muted-foreground"><span>المصري المعلق:</span> <span className="font-semibold">{(user.balanceEgyptianPending || 0).toFixed(2)} ج.م</span></div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle></CardHeader>
-                                <CardContent className="pt-4 space-y-4">
-                                    <div className="space-y-2">
-                                        <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الأمامية)</h4>
-                                        {frontImageUrl ? (
-                                            <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
-                                        ) : (
-                                            <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الخلفية)</h4>
-                                        {backImageUrl ? (
-                                            <a href={backImageUrl} target="_blank" rel="noopener noreferrer"><Image src={backImageUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
-                                        ) : (
-                                            <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
-                                        )}
-                                    </div>
-                                    <div className="space-y-2">
-                                        <h4 className="text-sm font-medium text-muted-foreground">مستند إضافي</h4>
-                                        {otherImageUrl ? (
-                                            <a href={otherImageUrl} target="_blank" rel="noopener noreferrer"><Image src={otherImageUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
-                                        ) : (
-                                            <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفر</p></div>
-                                        )}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2 pt-2">
-                                        <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
-                                        <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
-                                        <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'merchant' : 'user')}><UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'تاجر' : 'مستخدم'}</Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
+        <Dialog open={open} onOpenChange={(o) => { if (!o) { setIsEditingName(false); } onOpenChange(o); }}>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    {isEditingName ? (
+                        <div className="flex items-center gap-2">
+                        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="تعديل اسم المستخدم" className="h-9"/>
+                        <Button size="sm" onClick={handleNameSave}>حفظ</Button>
+                        <Button size="sm" variant="ghost" onClick={handleCancelEdit}>إلغاء</Button>
                         </div>
-
-                        {/* Column 2: History & Security */}
-                        <div className="md:col-span-2 space-y-4">
-                            <Card>
-                                <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle></CardHeader>
-                                <CardContent className="text-sm space-y-2 pt-4">
-                                    <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
-                                    <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
-                                    <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات والأجهزة</CardTitle><CardDescription>عرض وإدارة الجلسات النشطة للمستخدم.</CardDescription></CardHeader>
-                                <CardContent>
-                                    {sessions.length > 0 ? (
-                                        <div className="overflow-x-auto">
-                                            <Table>
-                                                <TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>آخر ظهور</TableHead><TableHead>الحالة</TableHead><TableHead>IP</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
-                                                <TableBody>
-                                                    {sessions.map((session) => (
-                                                        <TableRow key={session.id} className="even:bg-muted/20"><TableCell><div className="font-medium">{session.activeDevice}</div><div className="text-xs text-muted-foreground">{session.phoneOS}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>{session.connectionStatus}</Badge></TableCell><TableCell className="font-mono text-xs">{session.ipAddress}</TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}><LogOut className="ml-2 h-3 w-3" />إنهاء</Button></TableCell></TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
-                                    ) : (<p className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات لعرضها.</p>)}
-                                </CardContent>
-                                <CardFooter><Button variant="destructive" className="w-full" onClick={() => setConfirmation({ action: 'logout-all' })}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button></CardFooter>
-                            </Card>
-                            <Tabs defaultValue="libyan">
-                                <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger><TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger></TabsList>
-                                <TabsContent value="libyan"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
-                                <TabsContent value="egyptian"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
-                            </Tabs>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <DialogTitle>{user.name}</DialogTitle>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsEditingName(true)}><Pencil className="h-4 w-4" /><span className="sr-only">تعديل الاسم</span></Button>
                         </div>
+                    )}
+                    <DialogDescription>تفاصيل المستخدم الكاملة ({user.phone})</DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+                    {/* Column 1: Balances & Personal Info */}
+                    <div className="md:col-span-1 space-y-4">
+                        <Card>
+                            <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle></CardHeader>
+                            <CardContent className="text-sm space-y-2 pt-4">
+                                <div className="flex justify-between"><span>الرصيد الليبي:</span> <span className="font-semibold">{(user.balanceLYD || 0).toFixed(2)} د.ل</span></div>
+                                <div className="flex justify-between"><span>الرصيد المصري:</span> <span className="font-semibold">{(user.balanceEGP || 0).toFixed(2)} ج.م</span></div>
+                                <div className="flex justify-between text-muted-foreground"><span>المصري المعلق:</span> <span className="font-semibold">{(user.balanceEgyptianPending || 0).toFixed(2)} ج.م</span></div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><FileText /> التوثيق</CardTitle></CardHeader>
+                            <CardContent className="pt-4 space-y-4">
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الأمامية)</h4>
+                                    {frontImageUrl ? (
+                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الخلفية)</h4>
+                                    {backImageUrl ? (
+                                        <a href={backImageUrl} target="_blank" rel="noopener noreferrer"><Image src={backImageUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground">مستند إضافي</h4>
+                                    {otherImageUrl ? (
+                                        <a href={otherImageUrl} target="_blank" rel="noopener noreferrer"><Image src={otherImageUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
+                                    ) : (
+                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفر</p></div>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 pt-2">
+                                    <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
+                                    <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'merchant' : 'user')}><UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'تاجر' : 'مستخدم'}</Button>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
-                </DialogContent>
-            </Dialog>
 
-            <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => { if (confirmation?.action === 'delete-session' && confirmation.sessionId) { handleLogoutSession(confirmation.sessionId); } else if (confirmation?.action === 'logout-all') { handleLogoutAll(); } setConfirmation(null); }}>نعم، متابعة</AlertDialogAction></AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        </>
+                    {/* Column 2: History & Security */}
+                    <div className="md:col-span-2 space-y-4">
+                        <Card>
+                            <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle></CardHeader>
+                            <CardContent className="text-sm space-y-2 pt-4">
+                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
+                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
+                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات والأجهزة</CardTitle><CardDescription>عرض وإدارة الجلسات النشطة للمستخدم.</CardDescription></CardHeader>
+                            <CardContent>
+                                {sessions.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <Table>
+                                            <TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>آخر ظهور</TableHead><TableHead>الحالة</TableHead><TableHead>IP</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
+                                            <TableBody>
+                                                {sessions.map((session) => (
+                                                    <TableRow key={session.id} className="even:bg-muted/20"><TableCell><div className="font-medium">{session.activeDevice}</div><div className="text-xs text-muted-foreground">{session.phoneOS}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>{session.connectionStatus}</Badge></TableCell><TableCell className="font-mono text-xs">{session.ipAddress}</TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}><LogOut className="ml-2 h-3 w-3" />إنهاء</Button></TableCell></TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                ) : (<p className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات لعرضها.</p>)}
+                            </CardContent>
+                            <CardFooter><Button variant="destructive" className="w-full" onClick={() => setConfirmation({ action: 'logout-all' })}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button></CardFooter>
+                        </Card>
+                        <Tabs defaultValue="libyan">
+                            <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger><TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger></TabsList>
+                            <TabsContent value="libyan"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
+                            <TabsContent value="egyptian"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
+                        </Tabs>
+                    </div>
+                </div>
+
+                <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => { if (confirmation?.action === 'delete-session' && confirmation.sessionId) { handleLogoutSession(confirmation.sessionId); } else if (confirmation?.action === 'logout-all') { handleLogoutAll(); } setConfirmation(null); }}>نعم، متابعة</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DialogContent>
+        </Dialog>
     )
 }
 
