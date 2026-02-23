@@ -10,27 +10,29 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
 import { useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, BellOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { NotificationPreview } from './notification-preview';
 import { ImageUploader } from './image-uploader';
 import { NotificationTypeSelector } from './notification-type-selector';
 import type { User } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   body: z.string().min(1, "محتوى الإشعار مطلوب"),
   imageUrl: z.string().url("رابط الصورة غير صحيح").optional().or(z.literal('')),
-  type: z.enum(['standard', 'popup', 'banner'], { required_error: "نوع الإشعار مطلوب" }),
+  type: z.enum(['standard', 'popup', 'banner', 'banner-ad', 'popup-ad', 'image-only'], { required_error: "نوع الإشعار مطلوب" }),
   target: z.string().min(1, "يجب تحديد المستلم"),
 });
 
 interface SendNotificationFormProps {
+  users: User[];
   targetUser: User | null;
   onNotificationSent: () => void;
 }
 
-export function SendNotificationForm({ targetUser, onNotificationSent }: SendNotificationFormProps) {
+export function SendNotificationForm({ users, targetUser, onNotificationSent }: SendNotificationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const functions = useFunctions();
@@ -78,11 +80,37 @@ export function SendNotificationForm({ targetUser, onNotificationSent }: SendNot
             <Card className="col-span-1">
                 <CardHeader>
                     <CardTitle>إنشاء إشعار</CardTitle>
-                    <CardDescription>املأ التفاصيل أدناه لإرسال إشعار جديد.</CardDescription>
+                    <CardDescription>{targetUser ? `إرسال إشعار إلى ${targetUser.name}` : 'املأ التفاصيل أدناه لإرسال إشعار جديد.'}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
-                        {/* We don't need target selection in this specific component anymore */}
+                        {!targetUser && (
+                           <div className="space-y-2">
+                                <label htmlFor="target" className="font-semibold text-sm">إرسال إلى</label>
+                                <Select
+                                    onValueChange={(value) => methods.setValue('target', value)}
+                                    defaultValue={methods.getValues('target')}
+                                >
+                                    <SelectTrigger id="target">
+                                        <SelectValue placeholder="اختر المستلم..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">كافة المستخدمين</SelectItem>
+                                        {users.map(user => {
+                                            const hasToken = user.fcmToken || user.fcmTokens;
+                                            return (
+                                                <SelectItem key={user.id} value={user.id} disabled={!hasToken}>
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <span>{user.name}</span>
+                                                        {!hasToken && <BellOff className="h-4 w-4 text-muted-foreground mr-2" />}
+                                                    </div>
+                                                </SelectItem>
+                                            );
+                                        })}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                         
                         <div className="space-y-2">
                             <label htmlFor="title" className="font-semibold text-sm">العنوان</label>
@@ -104,7 +132,7 @@ export function SendNotificationForm({ targetUser, onNotificationSent }: SendNot
 
                         <Button type="submit" disabled={isLoading} className="w-full">
                             {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                            {isLoading ? 'جارٍ الإرسال...' : (targetUser ? `إرسال إلى ${targetUser.name}` : 'إرسال إلى الجميع')}
+                            {isLoading ? 'جارٍ الإرسال...' : (targetUser ? `إرسال إلى ${targetUser.name}` : 'إرسال الإشعار')}
                         </Button>
                     </form>
                 </CardContent>
