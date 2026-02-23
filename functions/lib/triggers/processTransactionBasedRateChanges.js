@@ -66,31 +66,6 @@ exports.processTransactionBasedRateChanges = (0, database_1.onValueCreated)({
         v2_1.logger.error("Failed to commit transaction to update daily aggregate.");
         return;
     }
-    // START FAKKA LOGIC
-    try {
-        const preciseAmount = transaction.amountLYD * transaction.exchangeRate;
-        const fakka = preciseAmount - transaction.amountEGP;
-        if (fakka > 0.001) {
-            // Use a small threshold to avoid floating point inaccuracies
-            v2_1.logger.info(`Fakka detected for transaction ${event.params.transactionId}. Amount: ${fakka}`);
-            const fakkaLogRef = db.ref("/fakkaSafe/logs").push();
-            await fakkaLogRef.set({
-                transactionId: event.params.transactionId,
-                amount: fakka,
-                timestamp: transaction.timestamp,
-                userName: transaction.userName,
-                userPhone: transaction.userPhone,
-            });
-            const totalFakkaRef = db.ref("/fakkaSafe/totalFakka");
-            await totalFakkaRef.transaction((currentTotal) => {
-                return (currentTotal || 0) + fakka;
-            });
-        }
-    }
-    catch (fakkaError) {
-        v2_1.logger.error("Error processing fakka logic:", fakkaError);
-    }
-    // END FAKKA LOGIC
     // Now, check for rate change conditions
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
