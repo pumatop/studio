@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Smartphone, Monitor, AlertCircle, ShoppingCart } from 'lucide-react';
+import { Smartphone, Monitor, AlertCircle, ShoppingCart, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
