@@ -110,7 +110,7 @@ export function ExchangeRateChartCard({
                 return (
                   <div className="flex flex-col">
                     <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit'})}</span>
-                    <span className="font-bold">{`${chartConfig.rate.label}: ${value}`}</span>
+                    <span className="font-bold">{`${chartConfig.rate.label}: ${Number(value).toFixed(2)}`}</span>
                   </div>
                 )
               }} />}

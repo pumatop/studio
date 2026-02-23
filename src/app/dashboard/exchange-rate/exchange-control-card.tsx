@@ -137,7 +137,7 @@ export function ExchangeControlCard() {
       if (previousRateRef.current !== undefined && previousRateRef.current !== settings.currentRate) {
         toast({
             title: <div className="flex items-center gap-2"><Info /> <span>تم تحديث السعر تلقائياً</span></div>,
-            description: `السعر الجديد هو: ${settings.currentRate.toFixed(3)}`,
+            description: `السعر الجديد هو: ${settings.currentRate.toFixed(2)}`,
         });
       }
       setLocalSettings(settings);
@@ -301,7 +301,7 @@ export function ExchangeControlCard() {
               value={localSettings.currentRate || 0}
               onChange={(e) => handleSettingChange('currentRate', parseFloat(e.target.value))}
               className="text-lg font-bold pl-16 text-left"
-              step="0.001"
+              step="0.01"
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
               ج.م

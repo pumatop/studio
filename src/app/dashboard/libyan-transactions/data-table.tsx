@@ -257,7 +257,7 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
                 <TableCell>{renderServiceFee(tx)}</TableCell>
                 <TableCell>{tx.type === 'account_transfer' ? tx.recipientPhone : '-'}</TableCell>
                 <TableCell>{tx.type === 'account_transfer' ? `${(tx.amount || 0).toLocaleString('en-US')} د.ل` : tx.type === 'egypt_transfer' ? `${(tx.amountEGP || 0).toLocaleString('en-US')} ج.م` : '-'}</TableCell>
-                {showExchangeRate && <TableHead>{tx.type === 'egypt_transfer' ? tx.exchangeRate || '-' : '-'}</TableHead>}
+                {showExchangeRate && <TableHead>{tx.type === 'egypt_transfer' ? tx.exchangeRate?.toFixed(2) || '-' : '-'}</TableHead>}
               </TableRow>
             )})}
           </TableBody>

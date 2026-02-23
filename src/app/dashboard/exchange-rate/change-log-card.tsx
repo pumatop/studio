@@ -155,8 +155,8 @@ export function ChangeLogCard({
                   </TableCell>
                   <TableCell className="font-medium">{log.currencyPair}</TableCell>
                   <TableCell className="font-medium">{log.modifiedBy}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(3)}</TableCell>
-                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(3)}</TableCell>
+                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(2)}</TableCell>
+                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
@@ -171,7 +171,7 @@ export function ChangeLogCard({
                       ) : (
                         <ArrowDown className="h-3 w-3" />
                       )}
-                      <span>{difference.toFixed(3)}</span>
+                      <span>{difference.toFixed(2)}</span>
                     </Badge>
                   </TableCell>
                 </TableRow>
