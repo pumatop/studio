@@ -5,17 +5,18 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { User, Notification } from "@/lib/types";
-import { useRtdbList, useFunctions } from "@/firebase";
+import { useUser, useRtdbList, useRtdbObject, useDatabase, updateRtdb, useFunctions } from "@/firebase";
 import { httpsCallable } from 'firebase/functions';
 import { useToast } from "@/hooks/use-toast";
 import { SendNotificationForm } from "./send-notification-form";
 import { NotificationsHistoryTable } from "./notifications-history-table";
 import { UserSelection } from "./user-selection";
 import { NotificationPreview } from './notification-preview';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Mail, Users, Loader2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Mail, Users, Loader2, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Define schema here as it's now shared
@@ -31,11 +32,17 @@ export default function NotificationsPage() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
+    const [isDeletingAll, setIsDeletingAll] = useState(false);
     const { toast } = useToast();
     const functions = useFunctions();
+    const { database } = useDatabase();
 
     const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
     const { data: globalNotifications, isLoading: notificationsLoading } = useRtdbList<Notification>("/notifications");
+
+    const { user: authUser } = useUser();
+    const { data: currentUser } = useRtdbObject<User>(authUser ? `/users/${authUser.uid}` : null);
 
     const methods = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -102,7 +109,42 @@ export default function NotificationsPage() {
         });
     }
 
+    const handleDeleteAllNotifications = async () => {
+        setIsDeletingAll(true);
+        try {
+            const updates: Record<string, null> = {};
+            
+            updates['/notifications'] = null;
+
+            if (users) {
+                users.forEach(user => {
+                    updates[`/users/${user.id}/notifications`] = null;
+                });
+            }
+
+            await updateRtdb(database, '/', updates);
+
+            toast({
+                title: "نجاح!",
+                description: "تم حذف جميع الإشعارات بنجاح.",
+                variant: "destructive"
+            });
+
+        } catch (error: any) {
+            console.error("Error deleting all notifications: ", error);
+            toast({
+                title: "خطأ",
+                description: error.message || "فشل حذف جميع الإشعارات.",
+                variant: "destructive",
+            });
+        } finally {
+            setIsDeletingAll(false);
+            setDeleteAllDialogOpen(false);
+        }
+    };
+
     const isLoadingData = usersLoading || notificationsLoading;
+    const canDeleteAll = currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin');
 
     const allNotifications = useMemo(() => {
         const combinedNotifs: Notification[] = [];
@@ -125,9 +167,9 @@ export default function NotificationsPage() {
 
     return (
         <FormProvider {...methods}>
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-                {/* Column 1 & 2: Form & User Selection */}
-                <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                {/* Column 1: Form & User Selection */}
+                <div className="space-y-6">
                      <Card>
                          <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -166,8 +208,8 @@ export default function NotificationsPage() {
                     </Card>
                 </div>
 
-                {/* Column 3: Preview */}
-                <div className="lg:col-span-2">
+                {/* Column 2: Preview */}
+                <div className="lg:col-span-1">
                      <Card className="sticky top-24">
                         <CardHeader>
                             <CardTitle>المعاينة والإعدادات</CardTitle>
@@ -183,27 +225,42 @@ export default function NotificationsPage() {
                         </CardContent>
                     </Card>
                 </div>
-
-                {/* Full Width Submit and History */}
-                 <div className="lg:col-span-4 space-y-6">
-                    <Button onClick={methods.handleSubmit(onSubmit)} disabled={isSubmitting} size="lg" className="w-full">
-                        {isSubmitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+            </div>
+            
+             {/* Full Width Submit and History */}
+             <div className="mt-6 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Button onClick={methods.handleSubmit(onSubmit)} disabled={isSubmitting || (canDeleteAll && isDeletingAll)} size="lg" className="w-full">
+                        {isSubmitting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Mail className="ml-2 h-4 w-4" />}
                         {isSubmitting ? 'جارٍ الإرسال...' : 'إرسال الإشعار للجميع'}
                     </Button>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>سجل الإشعارات المرسلة</CardTitle>
-                            <CardDescription>عرض لجميع الإشعارات التي تم إرسالها من خلال النظام.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {isLoadingData && allNotifications.length === 0 ? (
-                                 <Skeleton className="h-48 w-full" />
-                            ) : (
-                                 <NotificationsHistoryTable notifications={allNotifications} users={users || []} />
-                            )}
-                        </CardContent>
-                    </Card>
+                    {canDeleteAll && (
+                        <Button
+                            variant="destructive"
+                            onClick={() => setDeleteAllDialogOpen(true)}
+                            size="lg"
+                            className="w-full"
+                            disabled={isSubmitting || isDeletingAll}
+                        >
+                            {isDeletingAll ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Trash2 className="ml-2 h-4 w-4" />}
+                            {isDeletingAll ? 'جاري الحذف...' : 'حذف جميع الإشعارات'}
+                        </Button>
+                    )}
                 </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>سجل الإشعارات المرسلة</CardTitle>
+                        <CardDescription>عرض لجميع الإشعارات التي تم إرسالها من خلال النظام.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoadingData && allNotifications.length === 0 ? (
+                             <Skeleton className="h-48 w-full" />
+                        ) : (
+                             <NotificationsHistoryTable notifications={allNotifications} users={users || []} />
+                        )}
+                    </CardContent>
+                </Card>
             </div>
             
              {/* Dialog for specific user */}
@@ -243,6 +300,28 @@ export default function NotificationsPage() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+             <AlertDialog open={isDeleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>هل أنت متأكد تماماً؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            هذا الإجراء سيقوم بحذف **جميع** الإشعارات المرسلة بشكل نهائي من النظام، سواء كانت عامة أو خاصة. لا يمكن التراجع عن هذا الإجراء.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteAllNotifications}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                            disabled={isDeletingAll}
+                        >
+                            {isDeletingAll ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : null}
+                            {isDeletingAll ? 'جاري الحذف...' : 'نعم، حذف الكل'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </FormProvider>
     );
 }

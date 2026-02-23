@@ -15,7 +15,7 @@ export const GenerateDataInsightsInputSchema = z.object({
     totalInternalTransferVolume: z.number(),
   }),
   transactionsByType: z.record(z.number()).describe("Count of transactions for each type (e.g., egypt_transfer, account_transfer)"),
-  usersByRole: z.record(z.number()).describe("Count of users for each role (e.g., user, admin, merchant)"),
+  usersByRole: z.record(z.number()).describe("Count of users for each role (e.g., user, admin, merchant, superadmin)"),
   usersByVerification: z.record(z.number()).describe("Count of users for each verification status (e.g., verified, pending)"),
   recentTransactions: z.array(z.any()).describe("A sample of the 10 most recent transactions"),
 });

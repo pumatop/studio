@@ -18,7 +18,7 @@ export type User = {
   name: string;
   phone: string;
   pin: string;
-  role: 'admin' | 'user' | 'merchant';
+  role: 'admin' | 'user' | 'merchant' | 'superadmin';
   status: 'active' | 'banned';
   verification: 'verified' | 'unverified' | 'pending';
   

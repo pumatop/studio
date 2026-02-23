@@ -103,6 +103,7 @@ const roleMap: Record<User['role'], string> = {
     "user": "مستخدم",
     "merchant": "تاجر",
     "admin": "Admin",
+    "superadmin": "Super Admin",
 };
 
 const statusMap: Record<User['status'], string> = {
@@ -274,6 +275,12 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                     )}
                     <DialogDescription>تفاصيل المستخدم الكاملة ({user.phone})</DialogDescription>
                 </DialogHeader>
+                 <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogFooter><AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => { if (confirmation?.action === 'delete-session' && confirmation.sessionId) { handleLogoutSession(confirmation.sessionId); } else if (confirmation?.action === 'logout-all') { handleLogoutAll(); } setConfirmation(null); }}>نعم، متابعة</AlertDialogAction></AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
                     {/* Column 1: Balances & Personal Info */}
                     <div className="md:col-span-1 space-y-4">
@@ -357,12 +364,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                     </div>
                 </div>
 
-                <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => { if (confirmation?.action === 'delete-session' && confirmation.sessionId) { handleLogoutSession(confirmation.sessionId); } else if (confirmation?.action === 'logout-all') { handleLogoutAll(); } setConfirmation(null); }}>نعم، متابعة</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+               
             </DialogContent>
         </Dialog>
     )
@@ -525,7 +527,13 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
             />
             <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="النوع" /></SelectTrigger>
-                <SelectContent><SelectItem value="all">كل الأنواع</SelectItem><SelectItem value="user">مستخدم</SelectItem><SelectItem value="merchant">تاجر</SelectItem><SelectItem value="admin">Admin</SelectItem></SelectContent>
+                <SelectContent>
+                    <SelectItem value="all">كل الأنواع</SelectItem>
+                    <SelectItem value="user">مستخدم</SelectItem>
+                    <SelectItem value="merchant">تاجر</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="superadmin">Super Admin</SelectItem>
+                </SelectContent>
             </Select>
             <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
                 <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
