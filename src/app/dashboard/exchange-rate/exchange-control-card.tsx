@@ -126,7 +126,7 @@ export function ExchangeControlCard() {
   const { user } = useUser();
   const { toast } = useToast();
 
-  const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings>>({});
+  const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings & { currentRate: number | '' }>>({});
   const [isFormOpen, setFormOpen] = useState(false);
   const [serverTime, setServerTime] = useState(new Date());
   const [isSaving, setIsSaving] = useState(false);
@@ -185,6 +185,10 @@ export function ExchangeControlCard() {
   }
 
   const handleSave = async () => {
+    if (localSettings.currentRate === '' || localSettings.currentRate === null || typeof localSettings.currentRate === 'undefined') {
+        toast({ title: "خطأ", description: "الرجاء إدخال سعر صرف صحيح.", variant: "destructive" });
+        return;
+    }
     setIsSaving(true);
     try {
         // Check if the current rate has been changed manually
@@ -298,8 +302,8 @@ export function ExchangeControlCard() {
             <Input
               id="current-rate"
               type="number"
-              value={localSettings.currentRate || 0}
-              onChange={(e) => handleSettingChange('currentRate', parseFloat(e.target.value))}
+              value={localSettings.currentRate ?? ''}
+              onChange={(e) => handleSettingChange('currentRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
               className="text-lg font-bold pl-16 text-left"
               step="0.01"
             />
@@ -381,7 +385,7 @@ export function ExchangeControlCard() {
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
                                     <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
                                     {condition.type === 'amount' && ` جنيه مصري،`}
-                                    غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate}</span>
+                                    غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate.toFixed(2)}</span>
                                 </p>
                                 <p className="text-xs text-muted-foreground">أضافها: {condition.createdBy}</p>
                             </div>
