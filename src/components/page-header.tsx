@@ -86,7 +86,7 @@ export function PageHeader({ title }: { title: string }) {
                   <Separator orientation="vertical" className="h-4 bg-border/70" />
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-muted-foreground">السعر:</span>
-                    <span className="font-bold text-primary">{settings?.currentRate?.toFixed(3)}</span>
+                    <span className="font-bold text-primary">{settings?.currentRate?.toFixed(2)}</span>
                   </div>
                 </>
               )}
