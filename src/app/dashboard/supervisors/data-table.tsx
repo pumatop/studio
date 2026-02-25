@@ -39,7 +39,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRtdbList, useDatabase, setRtdb, updateRtdb, removeRtdb } from '@/firebase';
+import { useRtdbList, useDatabase, setRtdb, updateRtdb, removeRtdb, useAuth } from '@/firebase';
+import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Datatables imports
@@ -160,6 +161,7 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
 export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[] }) {
   const { data: supervisors, isLoading } = useRtdbList<Supervisor>('/supervisors');
   const { database } = useDatabase();
+  const auth = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -228,23 +230,62 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
     try {
         if (editingSupervisor) {
             const path = `/supervisors/${editingSupervisor.id}`;
-            await updateRtdb(database, path, supervisorData);
+            const dataToUpdate = { ...supervisorData };
+
+            if (supervisorData.password) {
+                toast({ title: 'ملاحظة', description: 'تحديث كلمة المرور من هنا غير مدعوم. يمكن للمشرف تغييرها بنفسه.', variant: 'default' });
+            }
+            delete dataToUpdate.password;
+            
+            await updateRtdb(database, path, dataToUpdate);
             toast({ title: 'تم تحديث البيانات بنجاح' });
         } else {
-            const newId = `sup_${Date.now()}`;
-            const path = `/supervisors/${newId}`;
-            const newSupervisorData = {
-                ...supervisorData,
+            // Creating a new supervisor
+            if (!supervisorData.phone || !supervisorData.password) {
+                throw new Error("رقم الهاتف وكلمة المرور مطلوبان لإنشاء مشرف جديد.");
+            }
+            const email = `${supervisorData.phone.replace(/\s+/g, '')}@hawelly.app`;
+
+            // 1. Create user in Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, email, supervisorData.password);
+            const newUserId = userCredential.user.uid;
+
+            // 2. Save supervisor data to RTDB using the new UID as the key.
+            const path = `/supervisors/${newUserId}`;
+            
+            const newSupervisorData: Omit<Supervisor, 'id' | 'password'> = {
+                name: supervisorData.name || '',
+                phone: supervisorData.phone || '',
+                canEditExchangeRate: supervisorData.canEditExchangeRate || false,
+                specialization: supervisorData.specialization || [],
+                status: supervisorData.status || 'نشط',
                 connectionStatus: 'غير متصل',
                 lastSeen: new Date().toISOString(),
             };
+
             await setRtdb(database, path, newSupervisorData);
-            toast({ title: 'تمت إضافة مستخدم بنجاح' });
+            toast({ title: 'تمت إضافة المشرف بنجاح' });
         }
         setDialogOpen(false);
         setEditingSupervisor(undefined);
     } catch(error: any) {
-        toast({ title: 'حدث خطأ', description: error.message, variant: 'destructive' });
+        let errorMessage = error.message;
+        if (error.code) {
+            switch(error.code) {
+                case 'auth/email-already-in-use':
+                    errorMessage = 'رقم الهاتف هذا مستخدم بالفعل لمشرف آخر.';
+                    break;
+                case 'auth/weak-password':
+                    errorMessage = 'كلمة المرور ضعيفة جدًا. يجب أن تكون 6 أحرف على الأقل.';
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = 'رقم الهاتف غير صالح لإنشاء حساب.';
+                    break;
+                default:
+                    errorMessage = `خطأ في المصادقة: ${error.code}`;
+            }
+        }
+        toast({ title: 'حدث خطأ', description: errorMessage, variant: 'destructive' });
     } finally {
         setIsSaving(false);
     }
