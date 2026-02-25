@@ -302,10 +302,10 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`هل أنت متأكد من حذف المشرف \'${name}\' بشكل نهائي؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
+    if (!window.confirm(`هل أنت متأكد من حذف المشرف '${name}' بشكل نهائي؟ هذا الإجراء سيحذف بياناته من قاعدة البيانات فقط ولن يحذف حسابه من نظام المصادقة.`)) return;
       try {
           await removeRtdb(database, `/supervisors/${id}`);
-          toast({ title: 'تم حذف المشرف بنجاح', variant: 'destructive' });
+          toast({ title: 'تم حذف بيانات المشرف بنجاح', description: 'تنبيه: لم يتم حذف حساب الدخول الخاص به. يرجى حذفه يدوياً من صفحة Authentication.', variant: 'default' });
       } catch (error: any) {
           toast({ title: 'حدث خطأ', description: error.message, variant: 'destructive' });
       }
