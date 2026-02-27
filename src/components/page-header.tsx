@@ -34,9 +34,10 @@ export function PageHeader({ title }: { title: string }) {
   ) as ImagePlaceholder;
 
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
-  const [serverTime, setServerTime] = useState(new Date());
+  const [serverTime, setServerTime] = useState<Date | null>(null);
 
   useEffect(() => {
+    setServerTime(new Date());
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
@@ -96,12 +97,12 @@ export function PageHeader({ title }: { title: string }) {
           <div className="flex items-center gap-1.5" title="وقت السيرفر">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="font-mono text-xs font-medium text-foreground">
-              {serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
+              {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
                 hour: 'numeric',
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: true,
-              })}
+              }) : '--:--:--'}
             </span>
           </div>
         </div>

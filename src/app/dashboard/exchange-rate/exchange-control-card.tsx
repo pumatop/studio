@@ -128,7 +128,7 @@ export function ExchangeControlCard() {
 
   const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings & { currentRate: number | '' }>>({});
   const [isFormOpen, setFormOpen] = useState(false);
-  const [serverTime, setServerTime] = useState(new Date());
+  const [serverTime, setServerTime] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const previousRateRef = useRef<number | undefined>();
   
@@ -146,6 +146,7 @@ export function ExchangeControlCard() {
   }, [settings, toast]);
 
   useEffect(() => {
+    setServerTime(new Date());
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
@@ -290,12 +291,12 @@ export function ExchangeControlCard() {
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
             <span className="text-sm text-primary font-bold">
-              {serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
+              {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
                 hour: 'numeric',
                 minute: '2-digit',
                 second: '2-digit',
                 hour12: true,
-              })}
+              }) : '--:--:--'}
             </span>
           </div>
           <div className="relative">
