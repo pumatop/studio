@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -22,16 +21,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import {
   Card,
   CardContent,
   CardHeader,
@@ -53,11 +42,7 @@ import {
   Eye,
   Wallet,
   FileText,
-  CheckCircle,
-  XCircle,
-  UserCog,
   Smartphone,
-  FilterX,
   Pencil,
   MoreHorizontal,
 } from 'lucide-react';
@@ -88,12 +73,6 @@ const EgyptianTransfersDataTable = dynamic(
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
 );
 
-const verificationMap: Record<User["verification"], string> = {
-  "verified": "موثق",
-  "unverified": "غير موثق",
-  "pending": "قيد المراجعة",
-};
-
 const roleMap: Record<User['role'], string> = {
     "user": "مستخدم",
     "merchant": "تاجر",
@@ -106,12 +85,6 @@ const statusMap: Record<User['status'], string> = {
     "banned": "محظور",
 };
 
-const verificationStatusColors: Record<User["verification"], string> = {
-  "verified": "bg-green-100 text-green-800",
-  "unverified": "bg-red-100 text-red-800",
-  "pending": "bg-yellow-100 text-yellow-800",
-};
-
 const connectionStatusColors: Record<UserSession["connectionStatus"], string> = {
   "متصل": "bg-green-100 text-green-800",
   "غير متصل": "bg-stone-100 text-stone-800",
@@ -122,13 +95,11 @@ const statusColors: Record<User['status'], string> = {
   "banned": "bg-red-100 text-red-800",
 };
 
-function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession, onLogoutAllSessions, allTransactions }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void, onLogoutAllSessions: (userId: string) => void, allTransactions: Transaction[] }) {
+function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSession, allTransactions }: { user: User | null, open: boolean, onOpenChange: (open: boolean) => void, onUserUpdate: (userId: string, updates: Partial<User>) => void, onDeleteSession: (userId: string, sessionId: string) => void, onLogoutAllSessions: (userId: string) => void, allTransactions: Transaction[] }) {
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user?.name || "");
-    const [confirmation, setConfirmation] = useState<{ action: 'delete-session', sessionId: string } | { action: 'logout-all' } | null>(null);
 
-    const dateTimeFormat: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true };
     const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
 
     const getImageUrl = (urlOrPlaceholder: string | null | undefined): string | null => {
@@ -220,7 +191,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
-  const { toast } = useToast();
   const { database } = useDatabase();
   const functions = useFunctions();
   const tableRef = useRef<HTMLTableElement>(null);
@@ -232,26 +202,41 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter]);
 
   useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
-    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
-    const timer = setTimeout(() => {
-      $(tableRef.current!).DataTable({
-        responsive: true,
-        dom: "Bfrtip",
-        buttons: ['copy', 'excel', 'print'],
-        language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
-        pageLength: 10,
-        searching: false,
-      });
-    }, 100);
-    return () => { clearTimeout(timer); if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy(); };
+    import('jquery').then(($) => {
+        if (!tableRef.current) return;
+        // @ts-ignore
+        if ($.default.fn.DataTable.isDataTable(tableRef.current)) {
+            // @ts-ignore
+            $(tableRef.current).DataTable().destroy();
+        }
+        
+        const timer = setTimeout(() => {
+          // @ts-ignore
+          $(tableRef.current!).DataTable({
+            responsive: true,
+            dom: "Bfrtip",
+            buttons: ['copy', 'excel', 'print'],
+            language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+            pageLength: 10,
+            searching: false,
+          });
+        }, 100);
+        return () => { clearTimeout(timer); };
+    });
   }, [filteredData]);
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-        <Input placeholder="بحث..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-sm" />
-        <Select value={roleFilter} onValueChange={setRoleFilter}><SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">الكل</SelectItem><SelectItem value="user">مستخدم</SelectItem><SelectItem value="merchant">تاجر</SelectItem></SelectContent></Select>
+        <Input placeholder="بحث بالاسم أو الهاتف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-sm" />
+        <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[150px]"><SelectValue placeholder="النوع" /></SelectTrigger>
+            <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="user">مستخدم</SelectItem>
+                <SelectItem value="merchant">تاجر</SelectItem>
+            </SelectContent>
+        </Select>
       </div>
       <div className="rounded-lg border">
         <Table ref={tableRef}>
@@ -260,7 +245,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
             <TableRow key={u.id} className={cn(u.status === 'banned' && 'bg-red-50/50')}>
               <TableCell>{u.name}</TableCell><TableCell>{u.phone}</TableCell><TableCell>{roleMap[u.role]}</TableCell>
               <TableCell><Badge className={statusColors[u.status]}>{statusMap[u.status]}</Badge></TableCell>
-              <TableCell className="text-left"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent><DropdownMenuItem onClick={() => { setSelectedUser(u); setDetailsOpen(true); }}><Eye className="ml-2" /> تفاصيل</DropdownMenuItem><DropdownMenuItem className="text-destructive" onClick={() => updateRtdb(database, `/users/${u.id}`, { status: u.status === 'active' ? 'banned' : 'active' })}>حظر/فك</DropdownMenuItem></DropdownMenuContent></DropdownMenu></TableCell>
+              <TableCell className="text-left"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent><DropdownMenuItem onClick={() => { setSelectedUser(u); setDetailsOpen(true); }}><Eye className="ml-2 h-4 w-4" /> تفاصيل</DropdownMenuItem><DropdownMenuItem className="text-destructive" onClick={() => updateRtdb(database, `/users/${u.id}`, { status: u.status === 'active' ? 'banned' : 'active' })}>حظر/فك</DropdownMenuItem></DropdownMenuContent></DropdownMenu></TableCell>
             </TableRow>
           ))}</TableBody>
         </Table>

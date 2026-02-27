@@ -12,6 +12,7 @@
     "node": "22"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "predeploy": "npm run build"
   }
 }
