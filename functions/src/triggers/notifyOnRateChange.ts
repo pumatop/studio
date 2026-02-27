@@ -31,7 +31,7 @@ export const notifyOnRateChange = onValueWritten(
     }
 
     const title = "تحديث سعر الصرف";
-    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${newRate.toFixed(2)}`;
+    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${Number(newRate).toFixed(2)}`;
 
     const appId = process.env.ONE_SIGNAL_APP_ID;
     const apiKey = process.env.ONE_SIGNAL_API_KEY;
