@@ -1,4 +1,3 @@
-
 {
   "name": "delete-supervisor",
   "main": "lib/index.js",
@@ -8,6 +7,9 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": "22"
   },
   "scripts": {
     "build": "tsc"

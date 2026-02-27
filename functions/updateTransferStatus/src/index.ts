@@ -1,4 +1,3 @@
-
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
@@ -6,6 +5,9 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
+/**
+ * تحديث حالة الحوالة المصرية المعلقة مع منطق استرداد الرصيد في حال الرفض.
+ */
 export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "يجب تسجيل الدخول أولاً.");
@@ -13,7 +15,7 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
 
   const { transferId, status, receiptUrl } = request.data;
   if (!transferId || !status) {
-    throw new HttpsError("invalid-argument", "بيانات ناقصة.");
+    throw new HttpsError("invalid-argument", "بيانات الحوالة أو الحالة ناقصة.");
   }
 
   const db = admin.database();
@@ -24,18 +26,21 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
     const transferData = snapshot.val();
 
     if (!transferData) {
-      throw new HttpsError("not-found", "المعاملة غير موجودة.");
+      throw new HttpsError("not-found", "المعاملة غير موجودة في قائمة الانتظار.");
     }
 
     const userId = transferData.userId;
     const deduction = Number(transferData.totalDeduction || transferData.amountEGP || 0);
 
+    // تحديث أرصدة المستخدم بشكل آمن (Atomic Transaction)
     const userRef = db.ref(`/users/${userId}`);
     await userRef.transaction((user) => {
       if (user) {
+        // دائماً يتم خصم المبلغ من الرصيد المعلق
         const currentPending = Number(user.balanceEgyptianPending) || 0;
         user.balanceEgyptianPending = Math.max(0, currentPending - deduction);
 
+        // إذا تم رفض العملية، نقوم بإعادة المبلغ للرصيد المتاح (Refund)
         if (status === "failed") {
           const currentBalance = Number(user.balanceEGP) || 0;
           user.balanceEGP = currentBalance + deduction;
@@ -49,15 +54,16 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
       ...transferData,
       status,
       receiptUrl: receiptUrl || null,
-      processedAt: Date.now(),
+      processedAt: admin.database.ServerValue.TIMESTAMP,
     };
 
+    // نقل المعاملة لسجل المستخدم وحذفها من قائمة انتظار الإدارة
     await db.ref(`/users/${userId}/transactions/${transferId}`).set(updatedTransferData);
     await transferRef.remove();
 
     return { success: true };
   } catch (error: any) {
-    console.error("Error:", error);
+    console.error("Error in updateTransferStatus:", error);
     throw new HttpsError("internal", error.message);
   }
 });

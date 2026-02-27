@@ -1,5 +1,5 @@
 {
-  "name": "send-notification",
+  "name": "notify-on-rate-change",
   "main": "lib/index.js",
   "dependencies": {
     "firebase-admin": "^12.0.0",
