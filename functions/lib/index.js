@@ -52,4 +52,6 @@ __exportStar(require("./triggers/sendNotification"), exports);
 __exportStar(require("./triggers/updateOneSignalPlayerId"), exports);
 __exportStar(require("./triggers/notifyOnRateChange"), exports);
 __exportStar(require("./triggers/deleteSupervisor"), exports);
+__exportStar(require("./triggers/updateTransferStatus"), exports);
+__exportStar(require("./triggers/listAuthUsers"), exports);
 //# sourceMappingURL=index.js.map

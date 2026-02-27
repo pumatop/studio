@@ -1,6 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
+/**
+ * Updates the status of a pending Egyptian transfer and moves it to the user's transactions.
+ */
 export const updateTransferStatus = functions.region("asia-southeast1").https.onCall(async (data, context) => {
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -30,10 +33,14 @@ export const updateTransferStatus = functions.region("asia-southeast1").https.on
     }
 
     // Update the status and receipt URL
-    const updatedTransferData = {...transferData, status, receiptUrl};
+    const updatedTransferData = {
+      ...transferData,
+      status,
+      receiptUrl: receiptUrl || null,
+    };
 
-    // Move the transaction to the user's egy_transactions
-    const userTransactionRef = db.ref(`/users/${transferData.userId}/egy_transactions/${transferId}`);
+    // Move the transaction to the user's transactions (Unified table)
+    const userTransactionRef = db.ref(`/users/${transferData.userId}/transactions/${transferId}`);
     await userTransactionRef.set(updatedTransferData);
 
     // Remove from pending transfers

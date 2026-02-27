@@ -41,8 +41,13 @@ const OneSignal = __importStar(require("onesignal-node"));
 // Initialize the Firebase Admin SDK
 const db = admin.database();
 exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"] }, async (request) => {
+    const appId = process.env.ONE_SIGNAL_APP_ID;
+    const apiKey = process.env.ONE_SIGNAL_API_KEY;
+    if (!appId || !apiKey) {
+        throw new https_1.HttpsError("internal", "OneSignal configuration is missing.");
+    }
     // OneSignal Client Initialization
-    const oneSignalClient = new OneSignal.Client(process.env.ONE_SIGNAL_APP_ID, process.env.ONE_SIGNAL_API_KEY);
+    const oneSignalClient = new OneSignal.Client(appId, apiKey);
     if (!request.auth) {
         throw new https_1.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
@@ -121,7 +126,7 @@ exports.sendNotification = (0, https_1.onCall)({ region: "asia-southeast1", secr
             throw error;
         }
         v2_1.logger.error("Error sending notification:", error);
-        throw new https_1.HttpsError("internal", "Failed to send notification.", error);
+        throw new https_1.HttpsError("internal", "Failed to send notification.");
     }
 });
 //# sourceMappingURL=sendNotification.js.map

@@ -60,8 +60,14 @@ exports.notifyOnRateChange = (0, database_1.onValueWritten)({
         return;
     }
     const title = "تحديث سعر الصرف";
-    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${newRate.toFixed(2)}`;
-    const oneSignalClient = new OneSignal.Client(process.env.ONE_SIGNAL_APP_ID, process.env.ONE_SIGNAL_API_KEY);
+    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${Number(newRate).toFixed(2)}`;
+    const appId = process.env.ONE_SIGNAL_APP_ID;
+    const apiKey = process.env.ONE_SIGNAL_API_KEY;
+    if (!appId || !apiKey) {
+        v2_1.logger.error("OneSignal configuration missing (APP_ID or API_KEY)");
+        return;
+    }
+    const oneSignalClient = new OneSignal.Client(appId, apiKey);
     const notification = {
         contents: {
             en: body,
@@ -79,9 +85,6 @@ exports.notifyOnRateChange = (0, database_1.onValueWritten)({
     }
     catch (error) {
         v2_1.logger.error("Error sending notification:", error);
-        if (error.response) {
-            v2_1.logger.error("OneSignal response body:", error.response.body);
-        }
     }
 });
 //# sourceMappingURL=notifyOnRateChange.js.map

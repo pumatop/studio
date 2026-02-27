@@ -19,7 +19,9 @@
             "status",
             "timestamp",
             "delegateId",
-            "recipientId"
+            "recipientId",
+            "transferMethod",
+            "recipientNumber"
           ]
         },
         "egy_transactions": {
