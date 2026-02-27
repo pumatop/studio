@@ -10,7 +10,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction } from '@/lib/types';
+import type { Transaction, AccountTransferTransaction, EgyptTransferTransaction, EgyptLocalTransferTransaction } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,12 +46,16 @@ const typeMap: Record<string, string> = {
     'account_transfer': 'تحويل داخلي',
     'egypt_transfer': 'تحويل للجنيه',
     'recharge_purchase': 'شراء كروت',
+    'egypt_home': 'وصلي للبيت',
+    'egypt_wallets': 'محفظة كاش',
+    'egypt_instapay': 'انستاباي',
 }
 
 const getSenderPhone = (transaction: Transaction): string | null => {
     if (transaction.type === 'account_transfer') return transaction.senderPhone;
     if (transaction.type === 'egypt_transfer') return transaction.userPhone;
     if (transaction.type === 'recharge_purchase') return transaction.userPhone;
+    if (transaction.type === 'egypt_home' || transaction.type === 'egypt_wallets' || transaction.type === 'egypt_instapay') return transaction.userPhone;
     return null;
 }
 
@@ -77,7 +81,8 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
         }
         
         const senderPhone = getSenderPhone(item) || '';
-        const recipientPhone = (item.type === 'account_transfer' && item.recipientPhone) || '';
+        const recipientPhone = (item.type === 'account_transfer' && item.recipientPhone) || 
+                               ((item.type === 'egypt_home' || item.type === 'egypt_wallets' || item.type === 'egypt_instapay') && item.recipientNumber) || '';
 
         return (searchTerm === '' ||
           item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -145,14 +150,24 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
             return (transaction.amountLYD || 0).toLocaleString('en-US') + ' د.ل';
         case 'recharge_purchase':
              return (transaction.amount || 0).toLocaleString('en-US') + ' د.ل';
+        case 'egypt_home':
+        case 'egypt_wallets':
+        case 'egypt_instapay':
+             return (transaction.totalDeduction || 0).toLocaleString('en-US') + ' ج.م';
         default:
             return '-';
     }
   }
 
   const renderServiceFee = (transaction: Transaction) => {
+    const isEgp = transaction.type === 'egypt_home' || transaction.type === 'egypt_wallets' || transaction.type === 'egypt_instapay';
+    const currency = isEgp ? ' ج.م' : ' د.ل';
+
+    if ('serviceFee' in transaction && typeof transaction.serviceFee === 'number') {
+        return transaction.serviceFee.toLocaleString('en-US') + currency;
+    }
     if ('fee' in transaction && typeof transaction.fee === 'number') {
-        return transaction.fee.toLocaleString('en-US') + ' د.ل';
+        return transaction.fee.toLocaleString('en-US') + currency;
     }
      if (transaction.type === 'recharge_purchase') {
         const fee = (transaction.balanceBefore || 0) - (transaction.balanceAfter || 0) - (transaction.amount || 0);
@@ -204,7 +219,10 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
                 <SelectItem value="all">كل العمليات</SelectItem>
                 <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
                 <SelectItem value="egypt_transfer">تحويل للجنيه</SelectItem>
-                 <SelectItem value="recharge_purchase">شراء كروت</SelectItem>
+                <SelectItem value="recharge_purchase">شراء كروت</SelectItem>
+                <SelectItem value="egypt_home">وصلي للبيت</SelectItem>
+                <SelectItem value="egypt_wallets">محفظة كاش</SelectItem>
+                <SelectItem value="egypt_instapay">انستاباي</SelectItem>
               </SelectContent>
             </Select>
 
@@ -243,21 +261,29 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
           </TableHeader>
           <TableBody>
             {filteredData.map((transaction, index) => {
-                const tx = transaction as AccountTransferTransaction | EgyptTransferTransaction;
+                const tx = transaction as any;
               return (
               <TableRow key={`${tx.id}-${index}`} className="even:bg-muted/20">
                 <TableCell className="text-xs font-mono">{tx.id}</TableCell>
-                <TableCell>{typeMap[tx.type]}</TableCell>
+                <TableCell>{typeMap[tx.type] || tx.type}</TableCell>
                 <TableCell>
-                  <Badge className={cn(statusColors[tx.status], `hover:${statusColors[tx.status]}`)}>{statusMap[tx.status]}</Badge>
+                  <Badge className={cn(statusColors[tx.status as keyof typeof statusColors], `hover:${statusColors[tx.status as keyof typeof statusColors]}`)}>{statusMap[tx.status as keyof typeof statusMap]}</Badge>
                 </TableCell>
                 <TableCell className="text-xs">{new Date(tx.timestamp).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell className="font-medium">{getSenderPhone(tx)}</TableCell>
                 <TableCell>{renderSentAmount(tx)}</TableCell>
                 <TableCell>{renderServiceFee(tx)}</TableCell>
-                <TableCell>{tx.type === 'account_transfer' ? tx.recipientPhone : '-'}</TableCell>
-                <TableCell>{tx.type === 'account_transfer' ? `${(tx.amount || 0).toLocaleString('en-US')} د.ل` : tx.type === 'egypt_transfer' ? `${(tx.amountEGP || 0).toLocaleString('en-US')} ج.م` : '-'}</TableCell>
-                {showExchangeRate && <TableHead>{tx.type === 'egypt_transfer' ? tx.exchangeRate?.toFixed(2) || '-' : '-'}</TableHead>}
+                <TableCell>
+                    {tx.type === 'account_transfer' ? tx.recipientPhone : 
+                     (tx.type === 'egypt_home' || tx.type === 'egypt_wallets' || tx.type === 'egypt_instapay') ? tx.recipientNumber : 
+                     '-'}
+                </TableCell>
+                <TableCell>
+                    {tx.type === 'account_transfer' ? `${(tx.amount || 0).toLocaleString('en-US')} د.ل` : 
+                     (tx.type === 'egypt_transfer' || tx.type === 'egypt_home' || tx.type === 'egypt_wallets' || tx.type === 'egypt_instapay') ? `${(tx.amountEGP || 0).toLocaleString('en-US')} ج.م` : 
+                     '-'}
+                </TableCell>
+                {showExchangeRate && <TableCell>{tx.type === 'egypt_transfer' ? tx.exchangeRate?.toFixed(2) || '-' : '-'}</TableCell>}
               </TableRow>
             )})}
           </TableBody>

@@ -102,10 +102,28 @@ export type EgyptTransferTransaction = BaseTransaction & {
   receiptImageUrl?: string; // Optional field
 };
 
+export type EgyptLocalTransferTransaction = BaseTransaction & {
+  type: 'egypt_home' | 'egypt_wallets' | 'egypt_instapay';
+  amountEGP: number;
+  balanceEGPAfter: number;
+  balanceEGPBefore: number;
+  methodDisplayName: string;
+  recipientName?: string;
+  recipientNumber: string;
+  serviceFee: number;
+  totalDeduction: number;
+  transferMethod: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  agentInfo?: string;
+};
+
 export type Transaction = 
   | RechargePurchaseTransaction 
   | AccountTransferTransaction 
-  | EgyptTransferTransaction;
+  | EgyptTransferTransaction
+  | EgyptLocalTransferTransaction;
 
 // Types for Exchange Rate page
 export type ExchangeRate = {

@@ -14,6 +14,7 @@ const prefixToTitle: Record<string, string> = {
     'ec': 'تحويل محفظة كاش (EC)',
     'ei': 'تحويل انستاباي (EI)',
     'ew': 'وصلي للبيت (EW)',
+    'el': 'تحويل انستاباي (EL)',
 };
 
 export default function TransfersByPrefixPage() {
@@ -80,7 +81,7 @@ export default function TransfersByPrefixPage() {
           <CardDescription>عرض لجميع المعاملات التي تبدأ بالمعرف {prefix.toUpperCase()}.</CardDescription>
         </CardHeader>
         <CardContent>
-            <LibyanTransactionsDataTable initialData={filteredTransactions || []} showExchangeRate={prefix.toLowerCase() !== 'dd'} />
+            <LibyanTransactionsDataTable initialData={filteredTransactions || []} showExchangeRate={['dg'].includes(prefix.toLowerCase())} />
         </CardContent>
      </Card>
   );
