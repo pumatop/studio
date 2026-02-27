@@ -38,12 +38,13 @@ const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 /**
  * Updates the status of a pending Egyptian transfer and moves it to the user's transactions.
+ * Handles automatic balance refunds if the transaction is failed.
  */
 exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(async (data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
-    const { transferId, status, receiptUrl } = data;
+    const {transferId, status, receiptUrl} = data;
     if (!transferId || !status) {
         throw new functions.https.HttpsError("invalid-argument", "The function must be called with a transferId and status.");
     }
@@ -55,10 +56,28 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
         if (!transferData) {
             throw new functions.https.HttpsError("not-found", "Transfer not found.");
         }
+        const userId = transferData.userId;
+        const deduction = Number(transferData.totalDeduction || transferData.amountEGP || 0);
+        // Update User Balance atomically using transaction
+        const userRef = db.ref(`/users/${userId}`);
+        await userRef.transaction((user) => {
+            if (user) {
+                // Always decrement the pending balance
+                const currentPending = Number(user.balanceEgyptianPending) || 0;
+                user.balanceEgyptianPending = Math.max(0, currentPending - deduction);
+                // If failed, return the amount to the main balance
+                if (status === "failed") {
+                    const currentBalance = Number(user.balanceEGP) || 0;
+                    user.balanceEGP = currentBalance + deduction;
+                }
+                user.lastUpdate = Date.now();
+            }
+            return user;
+        });
         // Update the status and receipt URL
         const updatedTransferData = Object.assign(Object.assign({}, transferData), { status, receiptUrl: receiptUrl || null });
-        // Move the transaction to the user's transactions (Unified table)
-        const userTransactionRef = db.ref(`/users/${transferData.userId}/transactions/${transferId}`);
+        // Move the transaction to the user's transactions
+        const userTransactionRef = db.ref(`/users/${userId}/transactions/${transferId}`);
         await userTransactionRef.set(updatedTransferData);
         // Remove from pending transfers
         await transferRef.remove();
@@ -66,7 +85,7 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
     }
     catch (error) {
         console.error("Error updating transfer status:", error);
-        throw new functions.https.HttpsError("unknown", "Error updating transfer status.", error instanceof Error ? error.message : "Unknown error");
+        const message = error instanceof Error ? error.message : "Unknown error";
+        throw new functions.https.HttpsError("unknown", "Error updating transfer status.", message);
     }
 });
-//# sourceMappingURL=updateTransferStatus.js.map
