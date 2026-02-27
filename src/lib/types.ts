@@ -1,3 +1,4 @@
+
 // Base User Type from RTDB
 
 export type UserSession = {
@@ -100,6 +101,7 @@ export type EgyptTransferTransaction = BaseTransaction & {
   delegateName?: string;
   executionDuration?: string;
   receiptImageUrl?: string; // Optional field
+  methodDisplayName?: string; // Optional field for generic transfers
 };
 
 export type EgyptLocalTransferTransaction = BaseTransaction & {

@@ -1,4 +1,3 @@
-
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
@@ -31,18 +30,14 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
     }
 
     const userId = transferData.userId;
-    // المبلغ الإجمالي المخصوم (المبلغ الأصلي + الرسوم)
     const deduction = Number(transferData.totalDeduction || transferData.amountEGP || 0);
 
-    // تحديث أرصدة المستخدم بشكل آمن (Atomic Transaction)
     const userRef = db.ref(`/users/${userId}`);
     await userRef.transaction((user) => {
       if (user) {
-        // دائماً يتم خصم المبلغ من الرصيد المعلق لأن المعاملة انتهت من حالة "الانتظار"
         const currentPending = Number(user.balanceEgyptianPending) || 0;
         user.balanceEgyptianPending = Math.max(0, currentPending - deduction);
 
-        // إذا تم رفض العملية (failed)، نقوم بإعادة المبلغ كاملاً للرصيد المتاح (Refund)
         if (status === "failed") {
           const currentBalance = Number(user.balanceEGP) || 0;
           user.balanceEGP = currentBalance + deduction;
@@ -59,7 +54,6 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
       processedAt: admin.database.ServerValue.TIMESTAMP,
     };
 
-    // نقل المعاملة لسجل المستخدم وحذفها من قائمة انتظار الإدارة
     await db.ref(`/users/${userId}/transactions/${transferId}`).set(updatedTransferData);
     await transferRef.remove();
 
