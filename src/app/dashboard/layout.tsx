@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { useEffect, ForwardRefExoticComponent, RefAttributes } from 'react';
 import {
   SidebarProvider,
   Sidebar,
@@ -54,13 +54,35 @@ import {
   Shield,
   Coins,
   Bell,
+  LucideProps,
 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { useUser, FirebaseClientProvider } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const navGroups = [
+// Type definitions for navigation items
+type SubItem = {
+  href: string;
+  label: string;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  bgColor: string;
+  iconColor: string;
+};
+
+type NavItem = {
+  href?: string;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  label: string;
+  description: string;
+  match: RegExp;
+  bgColor: string;
+  iconColor: string;
+  subItems?: SubItem[];
+};
+
+
+const navGroups: { label: string | null; items: NavItem[] }[] = [
   {
     label: null,
     items: [
@@ -260,11 +282,11 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     if (pageTitles[pathname]) {
       return pageTitles[pathname];
     }
-    let bestMatch: { href: string } | null = null;
+    let bestMatch: NavItem | null = null;
     for (const group of navGroups) {
       for (const item of group.items) {
         if (item.href && pathname.startsWith(item.href)) {
-          if (!bestMatch || item.href.length > bestMatch.href.length) {
+          if (!bestMatch || (bestMatch.href && item.href.length > bestMatch.href.length)) {
             bestMatch = item;
           }
         }
@@ -277,7 +299,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         }
       }
     }
-    if (bestMatch && pageTitles[bestMatch.href]) {
+    if (bestMatch && bestMatch.href && pageTitles[bestMatch.href]) {
       return pageTitles[bestMatch.href];
     }
     if (pathname.startsWith('/dashboard/')) {
@@ -323,7 +345,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
               <React.Fragment key={group.label || `group-${i}`}>
                 {i > 0 && <SidebarSeparator className="my-1" />}
                 {group.label && <SidebarGroupLabel className="mt-3">{group.label}</SidebarGroupLabel>}
-                {group.items.map((item) => {
+                {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
                   if (item.subItems) {
@@ -351,7 +373,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                           </CollapsibleTrigger>
                           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
                             <SidebarMenuSub>
-                              {item.subItems.map((subItem) => {
+                              {item.subItems.map((subItem: SubItem) => {
                                 const isSubActive = pathname.startsWith(subItem.href);
                                 return (
                                   <SidebarMenuSubItem key={subItem.href}>

@@ -2,7 +2,7 @@
 
 import { Row } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
-import { EgyptianTransaction } from '@/lib/types';
+import { EgyptTransferTransaction } from '@/lib/types';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { UpdateStatusForm } from './update-status-form';
@@ -21,7 +21,7 @@ interface DataTableRowActionsProps<TData> {
 
 export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TData>) {
   const [isUpdateStatusDialogOpen, setIsUpdateStatusDialogOpen] = useState(false);
-  const transfer = row.original as EgyptianTransaction;
+  const transfer = row.original as EgyptTransferTransaction;
 
   return (
     <>

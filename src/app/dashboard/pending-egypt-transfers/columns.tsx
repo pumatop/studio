@@ -1,13 +1,13 @@
 "use client";
 
-import { EgyptianTransaction } from "@/lib/types";
+import { EgyptTransferTransaction } from "@/lib/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
+import { DataTableColumnHeader } from "./data-table-column-header";
 
-export const columns: ColumnDef<EgyptianTransaction>[] = [
+export const columns: ColumnDef<EgyptTransferTransaction>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -55,7 +55,7 @@ export const columns: ColumnDef<EgyptianTransaction>[] = [
     header: "المبلغ (جنيه مصري)",
   },
   {
-    accessorKey: "transferMethod",
+    accessorKey: "transferType",
     header: "طريقة التحويل",
   },
   {
