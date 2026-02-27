@@ -1,295 +1,2363 @@
 {
-  "users": {
-    "lHlYeU2fvIX2WeErPOJbqgjgzY12": {
-      "balanceEGP": 100000,
-      "balanceLYD": 1000000,
-      "createdAt": 1770150446096,
-      "lastLogin": "2026-02-04T12:00:00.000Z",
-      "lastUpdate": 1771161010442,
-      "name": "المسؤول الجديد",
-      "phone": "+10000000000",
-      "pin": "123456",
-      "role": "admin",
-      "status": "active",
-      "verification": "verified",
-      "connectionStatus": "متصل",
-      "balanceEgyptianPending": 0,
-      "activeDevice": "Emulator",
-      "phoneOS": "Test Environment",
-      "ipAddress": "127.0.0.1",
-      "idImageUrl": "id-card-placeholder",
-      "lastPasswordChange": 1770150446096,
-      "lastPinChange": 1770150446096
-    },
-    "Mzzg8MinUVfInwNtvdYBVJnpbiB3": {
-      "balanceEGP": 49666.56,
-      "balanceLYD": 998914,
-      "createdAt": 1770150446096,
-      "lastLogin": "2026-02-03T22:27:24.722Z",
-      "lastUpdate": 1771161010442,
-      "name": "مبارك ابراهيم ابوعيشه",
-      "phone": "+201030926584",
-      "pin": "147258",
-      "role": "admin",
-      "status": "active",
-      "verification": "verified",
-      "connectionStatus": "متصل",
-      "balanceEgyptianPending": 0,
-      "activeDevice": "iPhone 15 Pro",
-      "phoneOS": "iOS 19.2",
-      "ipAddress": "197.45.123.98",
-      "idImageUrl": "id-card-placeholder",
-      "lastPasswordChange": 1770150446096,
-      "lastPinChange": 1770150446096,
-      "transactions": {
-        "DC13101032": {
-          "amount": 5,
-          "balanceAfter": 998914,
-          "balanceBefore": 998919,
-          "cardType": "LIB",
-          "status": "completed",
-          "timestamp": 1771161010442,
-          "type": "recharge_purchase",
-          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-          "userName": "مبارك ابراهيم ابوعيشه",
-          "userPhone": "+201030926584",
-          "serialNumber": "SN-4815162342",
-          "code": "1234-5678-9012-3456"
-        },
-        "DD49588767": {
-          "amount": 10,
-          "fee": 1,
-          "recipientBalanceAfter": 2513.83,
-          "recipientBalanceBefore": 2503.83,
-          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
-          "recipientName": "حساب تحريبي تجربي",
-          "recipientPhone": "+201200632506",
-          "senderBalanceAfter": 998919,
-          "senderBalanceBefore": 998930,
-          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-          "senderName": "مبارك ابراهيم ابوعيشه",
-          "senderPhone": "+201030926584",
-          "status": "completed",
-          "timestamp": 1771149588883,
-          "totalDeduction": 11,
-          "type": "account_transfer"
-        },
-        "DG9264951": {
-          "amountEGP": 415,
-          "amountLYD": 50,
-          "balanceEGPAfter": 49666.56,
-          "balanceEGPBefore": 49251.56,
-          "balanceLYDAfter": 998941,
-          "balanceLYDBefore": 998991,
-          "exchangeRate": 8.3,
-          "status": "completed",
-          "timestamp": 1771149265067,
-          "type": "egypt_transfer",
-          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
-          "userName": "مبارك ابراهيم ابوعيشه",
-          "userPhone": "+201030926584",
-          "recipientName": "علي أحمد",
-          "recipientNumber": "01098765432",
-          "transferType": "محفظة كاش",
-          "serviceFee": 5,
-          "delegateId": "sup_1",
-          "delegateName": "مندوب 1",
-          "executionDuration": "5 دقائق",
-          "receiptImageUrl": "https://example.com/receipt.jpg"
-        }
-      }
-    },
-    "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2": {
-      "balanceEGP": 57713.87,
-      "balanceLYD": 2513.83,
-      "createdAt": 1770150446096,
-      "lastLogin": "2026-02-03T22:27:24.722Z",
-      "lastUpdate": 1771149588883,
-      "name": "حساب تحريبي تجربي",
-      "phone": "+201200632506",
-      "pin": "147258",
-      "role": "user",
-      "status": "active",
-      "verification": "verified",
-      "connectionStatus": "غير متصل",
-      "balanceEgyptianPending": 1000,
-      "activeDevice": "Samsung S25",
-      "phoneOS": "Android 16",
-      "ipAddress": "156.204.110.33",
-      "idImageUrl": "id-card-placeholder",
-      "lastPasswordChange": 1770150446096,
-      "lastPinChange": 1770150446096,
-      "transactions": {
-        "DH1234567": {
-          "amountEGP": 1000,
-          "amountLYD": 104,
-          "exchangeRate": 9.6,
-          "status": "pending",
-          "timestamp": 1771169265067,
-          "type": "egypt_transfer",
-          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
-          "userName": "حساب تحريبي تجربي",
-          "userPhone": "+201200632506",
-          "recipientName": "محمد حسن",
-          "recipientNumber": "01123456789",
-          "transferType": "انستاباي",
-          "serviceFee": 10
-        }
-      }
-    },
-    "user_3_pending": {
-      "balanceEGP": 100,
-      "balanceLYD": 500,
-      "createdAt": 1770250446096,
-      "lastLogin": "2026-02-02T10:15:00.000Z",
-      "lastUpdate": 1770250446096,
-      "name": "علي محمد",
-      "phone": "+201112345678",
-      "pin": "5555",
-      "role": "user",
-      "status": "active",
-      "verification": "pending",
-      "connectionStatus": "غير متصل",
-      "balanceEgyptianPending": 0,
-      "activeDevice": "Oppo Reno 10",
-      "phoneOS": "Android 15",
-      "ipAddress": "41.33.10.55",
-      "idImageUrl": "id-card-placeholder",
-      "lastPasswordChange": 1770250446096,
-      "lastPinChange": 1770250446096
-    }
-  },
-  "supervisors": {
-    "sup_1": {
-      "name": "مندوب 1",
-      "phone": "+201000000001",
-      "canEditExchangeRate": true,
-      "connectionStatus": "متصل",
-      "lastSeen": "2026-02-04T12:00:00.000Z",
-      "specialization": ["محفظة كاش", "انستاباي"],
-      "status": "نشط"
-    },
-    "sup_2": {
-      "name": "مندوب 2",
-      "phone": "+201000000002",
-      "canEditExchangeRate": false,
-      "connectionStatus": "غير متصل",
-      "lastSeen": "2026-02-04T10:00:00.000Z",
-      "specialization": ["انستاباي"],
-      "status": "نشط"
-    }
-  },
-  "exchangeRates": {
-    "LYD_EGP": { "currencyPair": "LYD/EGP", "rate": 9.65, "lastUpdated": "2026-02-04T12:00:00.000Z" },
-    "USD_LYD": { "currencyPair": "USD/LYD", "rate": 4.85, "lastUpdated": "2026-02-02T12:00:00.000Z" }
-  },
-  "exchangeRateLogs": {
-    "log_1": { "date": "2026-01-29T12:00:00.000Z", "modifiedBy": "مشرف النظام", "oldRate": 9.60, "newRate": 9.65, "currencyPair": "LYD/EGP" },
-    "log_2": { "date": "2026-02-01T10:00:00.000Z", "modifiedBy": "مندوب 1", "oldRate": 9.65, "newRate": 9.70, "currencyPair": "LYD/EGP" },
-    "log_3": { "date": "2026-02-03T18:00:00.000Z", "modifiedBy": "مشرف النظام", "oldRate": 9.70, "newRate": 9.65, "currencyPair": "LYD/EGP" }
-  },
-  "fakkaSafe": {
-    "totalFakka": 0.325,
-    "logs": {
-      "log_fakka_1": {
-        "transactionId": "DG_HYPOTHETICAL",
-        "amount": 0.325,
-        "timestamp": 1771149265067,
-        "userName": "مبارك ابراهيم ابوعيشه",
-        "userPhone": "+201030926584"
+  "admin": {
+    "pending_egypt_transfers": {
+      "EC54629888": {
+        "amountEGP": 4580,
+        "balanceEGPAfter": 100986,
+        "balanceEGPBefore": 105571,
+        "methodDisplayName": "محافظ كاش",
+        "recipientNumber": "123123",
+        "serviceFee": 5,
+        "status": "pending",
+        "timestamp": 1772154630000,
+        "totalDeduction": 4585,
+        "transferMethod": "wallets",
+        "type": "egypt_wallets",
+        "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "EL54640573": {
+        "amountEGP": 2137,
+        "balanceEGPAfter": 98844,
+        "balanceEGPBefore": 100986,
+        "methodDisplayName": "إنستاباي",
+        "recipientNumber": "1343",
+        "serviceFee": 5,
+        "status": "pending",
+        "timestamp": 1772154640679,
+        "totalDeduction": 2142,
+        "transferMethod": "instapay",
+        "type": "egypt_instapay",
+        "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "EW54658536": {
+        "agentInfo": "محمد على",
+        "amountEGP": 1245,
+        "balanceEGPAfter": 97598,
+        "balanceEGPBefore": 98844,
+        "methodDisplayName": "وصلي للبيت",
+        "recipientName": "اسهبتع",
+        "recipientNumber": "54346",
+        "serviceFee": 1,
+        "status": "pending",
+        "timestamp": 1772154658640,
+        "totalDeduction": 1246,
+        "transferMethod": "home",
+        "type": "egypt_home",
+        "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
       }
     }
   },
   "appVersions": {
-    "v100": {
-      "versionName": "1.0.0",
-      "versionCode": 100,
-      "description": "الإصدار الأولي للتطبيق مع الميزات الأساسية.",
-      "changelog": "- إطلاق التطبيق الأولي.\\n- ميزة التحويلات الداخلية.\\n- ميزة التحويلات المصرية.",
-      "createdAt": 1770150446096,
-      "directDownloadUrl": null,
-      "googlePlayUrl": null,
-      "appleStoreUrl": null,
-      "huaweiAppGalleryUrl": null
-    }
-  },
-   "notifications": {
-    "notif_1": {
-      "title": "مرحباً بك في حولّي كاش!",
-      "body": "نحن سعداء بانضمامك. استكشف ميزات التطبيق الآن.",
-      "type": "standard",
-      "target": "all",
-      "createdAt": 1771150446096,
-      "sentBy": "lHlYeU2fvIX2WeErPOJbqgjgzY12"
-    }
-  },
-  "settings": {
-    "main": {
-      "isMaintenance": false,
-      "forceUpdate": false,
-      "isOtpDisabled": false,
-      "isRegistrationDisabled": false
-    },
-    "fees": {
-      "internalFreeTransactions": 3,
-      "internal": {
-        "tier_1": { "from": 1, "to": 1000, "fee": 1 },
-        "tier_2": { "from": 1001, "to": 5000, "fee": 3 }
-      },
-      "wallet": {
-        "tier_1": { "from": 100, "to": 10000, "fee": 20 }
-      },
-      "instapay": {
-         "tier_1": { "from": 100, "to": 50000, "fee": 100 }
-      },
-      "delivery": {
-         "tier_1": { "from": 1000, "to": 20000, "fee": 150 }
-      }
-    },
-    "limits": {
-      "internal": {
-        "unverified": { "min": 10, "max": 1000 },
-        "verified": { "min": 10, "max": 5000 },
-        "merchant": { "min": 10, "max": 20000 }
-      },
-      "egypt": {
-        "instapay": { "min": 100, "max": 50000 },
-        "wallet": { "min": 100, "max": 30000 },
-        "delivery": { "min": 1000, "max": 100000 }
-      }
-    },
-    "app": {
-      "banners": [
-        "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxtYXJrZXRpbmclMjBiYW5uZXJ8ZW58MHx8fHwxNzE2NDg3ODg3fDA&ixlib=rb-4.1.0&q=80&w=1080"
-      ],
-      "supportNumbers": {
-        "libyan": "091-0000000",
-        "egyptian": "010-00000000"
-      },
-      "regions": {
-        "region_1": {
-          "name": "طرابلس",
-          "agents": {
-            "agent_1_1": { "name": "وكيل الظهرة", "phone": "091-1111111", "address": "الظهرة، بجانب مقهى المدينة" }
-          }
-        }
-      }
-    },
-    "exchangeControl": {
-      "mode": "manual",
-      "isOpen": true,
-      "autoCloseThreshold": 1000000,
-      "currentRate": 9.65,
-      "autoConditionsActive": true,
-      "conditions": {
-        "cond_1": { "type": "amount", "value": 500000, "targetRate": 9.70, "createdBy": "Admin" }
-      },
-      "timezone": "Africa/Cairo"
+    "v1": {
+      "changelog": "1",
+      "createdAt": 1771801414946,
+      "description": "1",
+      "id": "v1",
+      "versionCode": 1,
+      "versionName": "1"
     }
   },
   "dailyAggregates": {
-    "2026-02-03": {
-        "totalEgpAmount": 415
+    "2026-02-19": {
+      "totalEgpAmount": 57882.546
+    },
+    "2026-02-20": {
+      "totalEgpAmount": 10206
+    },
+    "2026-02-21": {
+      "totalEgpAmount": 11123
+    },
+    "2026-02-22": {
+      "totalEgpAmount": 95216
+    },
+    "2026-02-23": {
+      "totalEgpAmount": 2880
+    },
+    "2026-02-25": {
+      "totalEgpAmount": 59828
+    },
+    "2026-02-26": {
+      "totalEgpAmount": 4028
+    }
+  },
+  "exchangeRateLogs": {
+    "-Olpi9p5NEhaFAgt5HBc": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T11:46:03.213Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 90,
+      "oldRate": 60
+    },
+    "-OlpibyEVSb5IenVueRS": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T11:48:02.583Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 45,
+      "oldRate": 30
+    },
+    "-OlpkazNBAjZdDMw3dsq": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T11:56:42.062Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 50,
+      "oldRate": 45
+    },
+    "-OlqRAABYy8-rv5cbQj4": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T15:07:03.252Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 90,
+      "oldRate": 50
+    },
+    "-OlrTHeNvkee64bKzwdk": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T19:55:55.547Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 8.298,
+      "oldRate": 90
+    },
+    "-OlrTJzn7Y7By5KwX49V": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T19:56:05.110Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 8.3,
+      "oldRate": 8.298
+    },
+    "-OlrU-LyfKJSUuPA5lfs": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T19:59:02.596Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 90,
+      "oldRate": 8.3
+    },
+    "-OlrVymkDorw7ZIxu99v": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:07:40.594Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 2.998,
+      "oldRate": 90
+    },
+    "-OlrWa5ahSj1MTNTbHvU": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:10:21.609Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 30,
+      "oldRate": 2.998
+    },
+    "-OlrWcCVavJly4VF_RQb": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:10:30.243Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 20,
+      "oldRate": 30
+    },
+    "-OlrXCQOSKwZSkTRfz4T": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:13:02.559Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 90,
+      "oldRate": 20
+    },
+    "-OlramfyxKxbkfaTyd7S": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:33:03.692Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 19.998,
+      "oldRate": 90
+    },
+    "-Olrdp9Ox4lZOlfupodX": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:46:20.201Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 30,
+      "oldRate": 19.998
+    },
+    "-OlreKrO09mhlwnpaC6V": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:48:34.153Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 20,
+      "oldRate": 30
+    },
+    "-OlreNfAGnO0nAqW-Xk2": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:48:45.659Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 22,
+      "oldRate": 20
+    },
+    "-OlreYFpxyZJUHiAvJYt": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:49:29.029Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 99,
+      "oldRate": 22
+    },
+    "-OlrelTzNMFKpnD0lkgi": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T20:50:27.279Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 20,
+      "oldRate": 99
+    },
+    "-Olry4h3wA-TGcoqkgap": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T22:14:51.124Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 10,
+      "oldRate": 20
+    },
+    "-OlryA-BRcKwGvXnIWvH": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T22:15:12.827Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 10.999,
+      "oldRate": 10
+    },
+    "-OlryKqfgX-n6hv_E2A_": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T22:15:57.275Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 11.999,
+      "oldRate": 10.999
+    },
+    "-OlrzjDESEHHHI3mj-yp": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T22:22:03.155Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5,
+      "oldRate": 11.999
+    },
+    "-Ols-DPpI1ec0RYk6xqH": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-19T22:24:11.108Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 19.999,
+      "oldRate": 5
+    },
+    "-Ols_Ux2prKc8umUoo03": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T01:07:02.549Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 90,
+      "oldRate": 19.999
+    },
+    "-Ols_q3TjntOPB1T67rz": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T01:08:32.812Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 10,
+      "oldRate": 90
+    },
+    "-Olsa-sopteZigc1MpLz": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T01:09:17.123Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 11,
+      "oldRate": 10
+    },
+    "-OlsadBaedG9GLnh3e8o": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T01:12:02.552Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 13,
+      "oldRate": 11
+    },
+    "-OlsarqOxlx9zNfXrptN": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T01:13:02.571Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 13,
+      "oldRate": 13
+    },
+    "-OluyRKAf99s8ey0f9Yk": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T12:15:14.360Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 30,
+      "oldRate": 13
+    },
+    "-OlvxT7oWt4U5cvpipcl": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T16:50:37.487Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 8.3,
+      "oldRate": 30
+    },
+    "-OlwtvhVj2Vqm0RcPndw": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T21:14:47.711Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 12,
+      "oldRate": 8.3
+    },
+    "-OlwwZ486bAQArNwXPvM": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T21:26:17.350Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 14,
+      "oldRate": 12
+    },
+    "-Olwwe3DStKiJIt2vxtr": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-20T21:26:41.870Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 20,
+      "oldRate": 14
+    },
+    "-OlzTbxM3ieNmeKU1H95": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T09:14:19.283Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 8.5,
+      "oldRate": 20
+    },
+    "-Om-L7jSeoANeJ_OP2_e": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T13:16:52.204Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 95.334,
+      "oldRate": 8.5
+    },
+    "-Om-LGqItXyvNYhYVBkw": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T13:17:29.505Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 87.999,
+      "oldRate": 95.334
+    },
+    "-Om-LQqV2Hz3hOd93eVi": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T13:18:10.479Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 59.999,
+      "oldRate": 87.999
+    },
+    "-Om-cGSKsZThDo2yvzH4": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T14:36:07.554Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 29.999,
+      "oldRate": 59.999
+    },
+    "-Om-cJGWXLMEEeTN_sux": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T14:36:19.087Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.998,
+      "oldRate": 29.999
+    },
+    "-Om-fwn4faa-NZ4fBLTt": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T14:52:11.473Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 90,
+      "oldRate": 5.998
+    },
+    "-Om-fyHMPmcCtVtFz1B0": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T14:52:17.571Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 3,
+      "oldRate": 90
+    },
+    "-Om1OJkE6khncSWLHvXN": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-21T22:50:02.643Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 60,
+      "oldRate": 3
+    },
+    "-Om5T0Cibho0RHU4tXUd": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T17:49:02.346Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.2,
+      "oldRate": 60
+    },
+    "-Om6FN1L_5P9OB1SJnNS": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T21:29:03.140Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5.25,
+      "oldRate": 5.2
+    },
+    "-Om6Fpz1cK0dgFxCFkoD": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T21:31:02.716Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.261,
+      "oldRate": 5.25
+    },
+    "-Om6FvUHbQqyH73ka4Ei": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T21:31:25.260Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.269,
+      "oldRate": 5.261
+    },
+    "-Om6Mrv-TSajIXhyvcgr": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T22:01:45.655Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.3,
+      "oldRate": 5.269
+    },
+    "-Om6MxZrv2Smjsm_0zx4": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T22:02:08.815Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5,
+      "oldRate": 5.3
+    },
+    "-Om6N23Ucm_35VzUPyfo": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T22:02:31.319Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 0.51,
+      "oldRate": 5
+    },
+    "-Om6N9H74MxwR_urUyEj": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-22T22:03:00.864Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.1,
+      "oldRate": 0.51
+    },
+    "-OmBUn6S3xfwtgpdiWf-": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T21:54:25.726Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.3,
+      "oldRate": 5.1
+    },
+    "-OmB_C30ZUVoe5bE9eZf": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T22:18:02.721Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.1,
+      "oldRate": 5.3
+    },
+    "-OmBaK9-qn04_iHhVs6U": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T22:22:58.014Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 6.1,
+      "oldRate": 5.1
+    },
+    "-OmBdM4p2qj_mZ_bywFO": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T22:36:12.371Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5,
+      "oldRate": 6.1
+    },
+    "-OmBdWe26zYBaBi9jPye": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T22:36:55.650Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 6,
+      "oldRate": 5
+    },
+    "-OmBgE6429I8Cv9CxFnI": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T22:48:46.115Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.3,
+      "oldRate": 6
+    },
+    "-OmBiynPJkP0_iiGuR3q": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:00:45.749Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5,
+      "oldRate": 5.3
+    },
+    "-OmBj7vkQyhVouStOjUI": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:01:27.244Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.1,
+      "oldRate": 5
+    },
+    "-OmBjQKvRG_JoqEkbkKh": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:02:42.645Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.2,
+      "oldRate": 5.1
+    },
+    "-OmBkqPYN2SVE_MYlX8o": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:09:02.561Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5.33,
+      "oldRate": 5.2
+    },
+    "-OmBlfkkAcT20zH5E_7V": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:12:34.189Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.2,
+      "oldRate": 5.33
+    },
+    "-OmBlzmLkTG-DGgYHwdY": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:14:03.091Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5,
+      "oldRate": 5.2
+    },
+    "-OmBnMgAhVmLpAOqf9XY": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:20:02.577Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5.4,
+      "oldRate": 5
+    },
+    "-OmBoW3SU8B9UpJVmshg": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:25:03.139Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 6,
+      "oldRate": 5.4
+    },
+    "-OmBo_mYx1yfZ8F3ooMM": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-23T23:25:16.158Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5,
+      "oldRate": 6
+    },
+    "-OmCE_WmVbZxOO9TAfYG": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-24T01:23:19.447Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.35,
+      "oldRate": 5
+    },
+    "-OmDVkHG22IgazzdJDnZ": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-24T07:17:57.374Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 100,
+      "oldRate": 5.35
+    },
+    "-OmFwbw398lFJkYQ4aZk": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-24T18:38:57.459Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 6,
+      "oldRate": 100
+    },
+    "-OmG_ztcyG1gbS44FTtp": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-24T21:39:34.652Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.9,
+      "oldRate": 6
+    },
+    "-OmGbCqsHgui5vakPRia": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-24T21:45:03.118Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 5.8,
+      "oldRate": 5.9
+    },
+    "-OmJi_ODo4NRnQkcg1B6": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-25T12:16:04.567Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 8,
+      "oldRate": 5.8
+    },
+    "-OmJk3_hC1FkC5pOpoeR": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-25T12:22:35.636Z",
+      "modifiedBy": "النظام التلقائي",
+      "newRate": 30,
+      "oldRate": 8
+    },
+    "-OmLn4NqAhneOWdhYwsH": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-25T21:54:57.644Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5,
+      "oldRate": 30
+    },
+    "-OmLsfILwBKUbeWozhAu": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-25T22:19:23.661Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 5.1,
+      "oldRate": 5
+    },
+    "-OmR7UaM0x921QrHmf3i": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-26T22:46:33.215Z",
+      "modifiedBy": "المسؤول",
+      "newRate": 4.6,
+      "oldRate": 5.1
+    },
+    "log_1": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-01-29T12:00:00.000Z",
+      "modifiedBy": "مشرف النظام",
+      "newRate": 9.65,
+      "oldRate": 9.6
+    },
+    "log_2": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-01T10:00:00.000Z",
+      "modifiedBy": "مندوب 1",
+      "newRate": 9.7,
+      "oldRate": 9.65
+    },
+    "log_3": {
+      "currencyPair": "LYD/EGP",
+      "date": "2026-02-03T18:00:00.000Z",
+      "modifiedBy": "مشرف النظام",
+      "newRate": 9.65,
+      "oldRate": 9.7
+    }
+  },
+  "exchangeRates": {
+    "LYD_EGP": {
+      "currencyPair": "LYD/EGP",
+      "lastUpdated": "2026-02-04T12:00:00.000Z",
+      "rate": 9.65
+    }
+  },
+  "fakkaSafe": {
+    "logs": {
+      "LOG_DG02840411": {
+        "amount": 0.5,
+        "timestamp": 1771802840524,
+        "transactionId": "DG02840411",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG02868669": {
+        "amount": 0.1,
+        "timestamp": 1771802868777,
+        "transactionId": "DG02868669",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG03202825": {
+        "amount": 0.8,
+        "timestamp": 1771803202934,
+        "transactionId": "DG03202825",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG05367835": {
+        "amount": 0.8,
+        "timestamp": 1771805367946,
+        "transactionId": "DG05367835",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG10233253": {
+        "amount": 0.5,
+        "timestamp": 1771810233363,
+        "transactionId": "DG10233253",
+        "userName": "مبارك ابراهيم ابوعيشه",
+        "userPhone": "+201030926584"
+      },
+      "LOG_DG16554264": {
+        "amount": 0.5,
+        "timestamp": 1772116554377,
+        "transactionId": "DG16554264",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG35382303": {
+        "amount": 0.5,
+        "timestamp": 1772135382414,
+        "transactionId": "DG35382303",
+        "userName": "ahmed elbanaa",
+        "userPhone": "+201151469805"
+      },
+      "LOG_DG65908885": {
+        "amount": 0.1,
+        "timestamp": 1771865909001,
+        "transactionId": "DG65908885",
+        "userName": "مبارك ابراهيم ابوعيشه",
+        "userPhone": "+201030926584"
+      },
+      "LOG_DG65936467": {
+        "amount": 0.1,
+        "timestamp": 1771865936576,
+        "transactionId": "DG65936467",
+        "userName": "مبارك ابراهيم ابوعيشه",
+        "userPhone": "+201030926584"
+      }
+    },
+    "totalFakka": 3.9000000000000004
+  },
+  "settings": {
+    "app": {
+      "regions": {
+        "region_1771536693513": {
+          "agents": {
+            "agent_1771536700393": {
+              "address": "الجارحية أ",
+              "name": "محمد السيد اشرف",
+              "phone": "01200632506"
+            },
+            "agent_1771536708943": {
+              "address": "الجارحية ب",
+              "name": "محمد احمد على",
+              "phone": "01030926584"
+            }
+          },
+          "name": "طرابلس"
+        },
+        "region_1771536721314": {
+          "agents": {
+            "agent_1771796969734": {
+              "address": "ملوي",
+              "name": "مخ",
+              "phone": "010"
+            }
+          },
+          "name": "المرج"
+        },
+        "region_1771797015862": {
+          "name": "بنغازي"
+        }
+      },
+      "supportNumbers": {
+        "egyptian": "+201080708708",
+        "libyan": "+218919010516"
+      }
+    },
+    "exchangeControl": {
+      "autoCloseThreshold": 30000,
+      "autoConditionsActive": true,
+      "currentRate": 4.6,
+      "isOpen": true,
+      "mode": "manual",
+      "timezone": "Africa/Cairo"
+    },
+    "fees": {
+      "delivery": {
+        "tier_1": {
+          "fee": 10,
+          "from": 1000,
+          "to": 20000
+        },
+        "tier_1772058684597": {
+          "fee": 30,
+          "from": 20001,
+          "to": 100000
+        }
+      },
+      "instapay": {
+        "tier_1": {
+          "fee": 2,
+          "from": 100,
+          "to": 20000
+        },
+        "tier_1772058558829": {
+          "fee": 25,
+          "from": 20001,
+          "to": 70000
+        }
+      },
+      "internal": {
+        "tier_1771929504190": {
+          "fee": 1,
+          "from": 0,
+          "to": 10000
+        },
+        "tier_1771929513653": {
+          "fee": 2,
+          "from": 10001,
+          "to": 20000
+        },
+        "tier_1771929526508": {
+          "fee": 3,
+          "from": 20001,
+          "to": 50000
+        }
+      },
+      "internalFreeTransactions": 8,
+      "wallet": {
+        "tier_1": {
+          "fee": 5,
+          "from": 100,
+          "to": 10000
+        },
+        "tier_1772058316837": {
+          "fee": 10,
+          "from": 10001,
+          "to": 20000
+        },
+        "tier_1772058349349": {
+          "fee": 20,
+          "from": 20001,
+          "to": 60000
+        }
+      }
+    },
+    "limits": {
+      "egypt": {
+        "delivery": {
+          "max": 100000,
+          "min": 100
+        },
+        "instapay": {
+          "max": 70000,
+          "min": 100
+        },
+        "wallet": {
+          "max": 60000,
+          "min": 100
+        }
+      },
+      "internal": {
+        "merchant": {
+          "max": 50000,
+          "min": 10
+        },
+        "unverified": {
+          "max": 1000,
+          "min": 10
+        },
+        "verified": {
+          "max": 10000,
+          "min": 10
+        }
+      }
+    },
+    "main": {
+      "forceUpdate": true,
+      "isMaintenance": false,
+      "isOtpDisabled": false,
+      "isRegistrationDisabled": false
+    }
+  },
+  "supervisors": {
+    "TheGv6RcWvZs3NXL2GD1uPXUeuM2": {
+      "canEditExchangeRate": false,
+      "connectionStatus": "غير متصل",
+      "lastSeen": "2026-02-26T10:29:42.045Z",
+      "name": "محمد على",
+      "phone": "+012003658902",
+      "specialization": [
+        "وصلني البيت"
+      ],
+      "status": "نشط"
+    }
+  },
+  "users": {
+    "Mzzg8MinUVfInwNtvdYBVJnpbiB3": {
+      "activeDevice": "Redmi Redmi Note 9 Pro",
+      "balanceEGP": 92990.106,
+      "balanceEgyptianPending": 0,
+      "balanceLYD": 974562.88,
+      "connectionStatus": "",
+      "createdAt": 1770150446096,
+      "ipAddress": "156.216.251.94",
+      "lastLogin": "2026-02-19T19:48:01.421122",
+      "lastPasswordChange": 1770150446096,
+      "lastPinChange": 1770150446096,
+      "lastSeen": "2026-02-19T19:41:18.194896",
+      "lastUpdate": 1772056270538,
+      "name": "مبارك ابراهيم ابوعيشه",
+      "notificationSettings": {
+        "isSubscribed": true,
+        "lastUpdate": 1772056922522,
+        "oneSignalId": "84df38a7-bb5c-4b7b-bd6d-e51cecb75680",
+        "phone": "+201030926584",
+        "tagsSynced": true
+      },
+      "phone": "+201030926584",
+      "phoneOS": "Android 16",
+      "pin": "147258",
+      "role": "merchant",
+      "sessions": {
+        "-Om6HIoVzgWyHvIdmKxc": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-23T01:02:28.913304",
+          "lastSeen": "2026-02-23T01:02:31.214865",
+          "lastUpdate": 1771801351214,
+          "phoneOS": "Android 11"
+        },
+        "-Om6_mqvEZDCwm_nyVZN": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-23T01:42:48.676617",
+          "lastSeen": "2026-02-23T01:42:51.650913",
+          "lastUpdate": 1771803771650,
+          "phoneOS": "Android 11"
+        },
+        "-Om6kicvMsck2m_KfvxM": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-23T18:57:34.468210",
+          "lastSeen": "2026-02-23T18:59:04.120681",
+          "lastUpdate": 1771865944120,
+          "phoneOS": "Android 11"
+        },
+        "-OmBRQwza7H8lQrWhUK_": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-24T01:01:14.576115",
+          "lastSeen": "2026-02-24T01:01:24.364162",
+          "lastUpdate": 1771887684364,
+          "phoneOS": "Android 11"
+        },
+        "-OmBq9QbvGhFquCxAmvm": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-24T15:08:54.225657",
+          "lastSeen": "2026-02-24T15:10:12.584830",
+          "lastUpdate": 1771938612584,
+          "phoneOS": "Android 11"
+        },
+        "-OmGYzQNeCqD2Yt5h2Uz": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-25T01:06:36.294828",
+          "lastSeen": "2026-02-25T01:06:38.963353",
+          "lastUpdate": 1771974398963,
+          "phoneOS": "Android 11"
+        },
+        "-OmKhHV-SqBTmuMzfEVR": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-25T19:35:55.679861",
+          "lastSeen": "2026-02-25T19:36:15.407236",
+          "lastUpdate": 1772040975407,
+          "phoneOS": "Android 11"
+        },
+        "-OmKrsspoaZFNceQa63v": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-25T19:36:22.378144",
+          "lastSeen": "2026-02-25T19:39:27.161651",
+          "lastUpdate": 1772041167161,
+          "phoneOS": "Android 11"
+        },
+        "-OmLm5x8UxiPOVjORfEc": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-26T00:00:31.012036",
+          "lastSeen": "2026-02-26T00:01:55.140075",
+          "lastUpdate": 1772056915140,
+          "phoneOS": "Android 11"
+        },
+        "-OmLogDJUdcohhsyPU-A": {
+          "activeDevice": "samsung SM-A307FN",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "197.59.38.114",
+          "lastLogin": "2026-02-26T00:21:56.673",
+          "lastSeen": "2026-02-26T00:23:27.381376",
+          "lastUpdate": 1772058207381,
+          "phoneOS": "Android 11"
+        }
+      },
+      "status": "active",
+      "transactions": {
+        "DC16551145": {
+          "amount": 5,
+          "balanceAfter": 993704.88,
+          "balanceBefore": 993709.88,
+          "cardType": "LIB",
+          "code": "9774-5673-4700-9434",
+          "serialNumber": "SN-2583457037",
+          "status": "completed",
+          "timestamp": 1771865711568,
+          "type": "recharge_purchase",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DC21422530": {
+          "amount": 20,
+          "balanceAfter": 995665.38,
+          "balanceBefore": 995685.38,
+          "cardType": "SPID",
+          "code": "6945-9604-6548-6329",
+          "serialNumber": "SN-9908186336",
+          "status": "completed",
+          "timestamp": 1771796545412,
+          "type": "recharge_purchase",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DC21472664": {
+          "amount": 5,
+          "balanceAfter": 995660.38,
+          "balanceBefore": 995665.38,
+          "cardType": "MAD",
+          "code": "9266-5886-9414-3007",
+          "serialNumber": "SN-6093880290",
+          "status": "completed",
+          "timestamp": 1771796846747,
+          "type": "recharge_purchase",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DC22183266": {
+          "amount": 5,
+          "balanceAfter": 994221.38,
+          "balanceBefore": 994226.38,
+          "cardType": "SPID",
+          "code": "6691-9305-1795-7216",
+          "serialNumber": "SN-7983333628",
+          "status": "completed",
+          "timestamp": 1771798712779,
+          "type": "recharge_purchase",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DD00704605": {
+          "amount": 200.5,
+          "balanceAfter": 993814.88,
+          "balanceBefore": 994016.38,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771800704726,
+          "totalDeduction": 201.5,
+          "type": "account_transfer"
+        },
+        "DD39617910": {
+          "amount": 1286,
+          "balanceAfter": 974762.88,
+          "balanceBefore": 973476.88,
+          "recipientId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "recipientName": "مبارك ابراهيم ابوعيشه",
+          "recipientPhone": "+201030926584",
+          "role": "recipient",
+          "senderId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "senderName": "ahmed elbanaa",
+          "senderPhone": "+201151469805",
+          "status": "completed",
+          "timestamp": 1772039618026,
+          "type": "account_transfer"
+        },
+        "DD69984446": {
+          "amount": 20000,
+          "balanceAfter": 973501.88,
+          "balanceBefore": 993502.88,
+          "fee": 1,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "sender",
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771969984559,
+          "totalDeduction": 20001,
+          "type": "account_transfer"
+        },
+        "DD81786709": {
+          "amount": 50,
+          "balanceAfter": 995785.38,
+          "balanceBefore": 995735.38,
+          "recipientId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "recipientName": "مبارك ابراهيم ابوعيشه",
+          "recipientPhone": "+201030926584",
+          "role": "recipient",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771781786820,
+          "type": "account_transfer"
+        },
+        "DD98545388": {
+          "amount": 100,
+          "balanceAfter": 994226.38,
+          "balanceBefore": 994327.38,
+          "fee": 1,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "sender",
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771798545495,
+          "totalDeduction": 101,
+          "type": "account_transfer"
+        },
+        "DG00427629": {
+          "amountEGP": 553,
+          "amountLYD": 105,
+          "balanceEGPAfter": 84675.106,
+          "balanceEGPBefore": 84122.106,
+          "balanceLYDAfter": 994016.38,
+          "balanceLYDBefore": 994121.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.245,
+          "status": "completed",
+          "timestamp": 1771800427739,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG10233253": {
+          "amountEGP": 535,
+          "amountLYD": 105,
+          "balanceEGPAfter": 85210.106,
+          "balanceEGPBefore": 84675.106,
+          "balanceLYDAfter": 993709.88,
+          "balanceLYDBefore": 993814.88,
+          "exchangeRate": 5.1,
+          "fakkaAmount": 0.5,
+          "status": "completed",
+          "timestamp": 1771810233363,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG39555135": {
+          "amountEGP": 750,
+          "amountLYD": 25,
+          "balanceEGPAfter": 86990.106,
+          "balanceEGPBefore": 86240.106,
+          "balanceLYDAfter": 973476.88,
+          "balanceLYDBefore": 973501.88,
+          "exchangeRate": 30,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1772039555246,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG40042885": {
+          "amountEGP": 3000,
+          "amountLYD": 100,
+          "balanceEGPAfter": 89990.106,
+          "balanceEGPBefore": 86990.106,
+          "balanceLYDAfter": 974662.88,
+          "balanceLYDBefore": 974762.88,
+          "exchangeRate": 30,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1772040042991,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG56270432": {
+          "amountEGP": 3000,
+          "amountLYD": 100,
+          "balanceEGPAfter": 92990.106,
+          "balanceEGPBefore": 89990.106,
+          "balanceLYDAfter": 974562.88,
+          "balanceLYDBefore": 974662.88,
+          "exchangeRate": 30,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1772056270538,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG65908885": {
+          "amountEGP": 515,
+          "amountLYD": 101,
+          "balanceEGPAfter": 85725.106,
+          "balanceEGPBefore": 85210.106,
+          "balanceLYDAfter": 993603.88,
+          "balanceLYDBefore": 993704.88,
+          "exchangeRate": 5.1,
+          "fakkaAmount": 0.1,
+          "status": "completed",
+          "timestamp": 1771865909001,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG65936467": {
+          "amountEGP": 515,
+          "amountLYD": 101,
+          "balanceEGPAfter": 86240.106,
+          "balanceEGPBefore": 85725.106,
+          "balanceLYDAfter": 993502.88,
+          "balanceLYDBefore": 993603.88,
+          "exchangeRate": 5.1,
+          "fakkaAmount": 0.1,
+          "status": "completed",
+          "timestamp": 1771865936576,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG96523277": {
+          "amountEGP": 526,
+          "amountLYD": 100,
+          "balanceEGPAfter": 76575.106,
+          "balanceEGPBefore": 76049.106,
+          "balanceLYDAfter": 995685.38,
+          "balanceLYDBefore": 995785.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.9,
+          "status": "completed",
+          "timestamp": 1771796523381,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG97320887": {
+          "amountEGP": 700,
+          "amountLYD": 133,
+          "balanceEGPAfter": 77275.106,
+          "balanceEGPBefore": 76575.106,
+          "balanceLYDAfter": 995527.38,
+          "balanceLYDBefore": 995660.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.777,
+          "status": "completed",
+          "timestamp": 1771797320990,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG97627379": {
+          "amountEGP": 5269,
+          "amountLYD": 1000,
+          "balanceEGPAfter": 82544.106,
+          "balanceEGPBefore": 77275.106,
+          "balanceLYDAfter": 994527.38,
+          "balanceLYDBefore": 995527.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1771797627483,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG98160553": {
+          "amountEGP": 526,
+          "amountLYD": 100,
+          "balanceEGPAfter": 83070.106,
+          "balanceEGPBefore": 82544.106,
+          "balanceLYDAfter": 994427.38,
+          "balanceLYDBefore": 994527.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.9,
+          "status": "completed",
+          "timestamp": 1771798160662,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG98238338": {
+          "amountEGP": 526,
+          "amountLYD": 100,
+          "balanceEGPAfter": 83596.106,
+          "balanceEGPBefore": 83070.106,
+          "balanceLYDAfter": 994327.38,
+          "balanceLYDBefore": 994427.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.9,
+          "status": "completed",
+          "timestamp": 1771798238442,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        },
+        "DG98816637": {
+          "amountEGP": 526,
+          "amountLYD": 100,
+          "balanceEGPAfter": 84122.106,
+          "balanceEGPBefore": 83596.106,
+          "balanceLYDAfter": 994121.38,
+          "balanceLYDBefore": 994221.38,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.9,
+          "status": "completed",
+          "timestamp": 1771798816747,
+          "type": "egypt_transfer",
+          "userId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "userName": "مبارك ابراهيم ابوعيشه",
+          "userPhone": "+201030926584"
+        }
+      },
+      "verification": "verified"
+    },
+    "lHlYeU2fvIX2WeErPOJbqgjgzY12": {
+      "activeDevice": "Emulator",
+      "balanceEGP": 100000,
+      "balanceEgyptianPending": 0,
+      "balanceLYD": 1000000,
+      "connectionStatus": "متصل",
+      "createdAt": 1770150446096,
+      "idImageUrl": "id-card-placeholder",
+      "ipAddress": "127.0.0.1",
+      "lastLogin": "2026-02-04T12:00:00.000Z",
+      "lastPasswordChange": 1770150446096,
+      "lastPinChange": 1770150446096,
+      "lastUpdate": 1771161010442,
+      "name": "المسؤول الجديد",
+      "phone": "+10000000000",
+      "phoneOS": "Test Environment",
+      "pin": "123456",
+      "role": "superadmin",
+      "status": "active",
+      "verification": "verified"
+    },
+    "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2": {
+      "activeDevice": "Redmi Redmi Note 9 Pro",
+      "balanceEGP": 95291,
+      "balanceEgyptianPending": 0,
+      "balanceLYD": 150015123.33,
+      "connectionStatus": "متصل",
+      "createdAt": 1770150446096,
+      "fcmToken": "dhPCppeFRYG1P_w2eByG-l:APA91bHTYxP3oEAMBAx07sPYZ9GO3G1Qh-y0WNnl7ojIi9hgBM9k05THwrUbDw5EVUxPYr3GfmQ9W9UtRXGGpDgU_fjFODQSJdZrimQtO6WYIeqSyCtyHus",
+      "ipAddress": "156.216.251.94",
+      "lastLogin": "2026-02-19T20:12:30.427564",
+      "lastPasswordChange": 1770150446096,
+      "lastPinChange": 1770150446096,
+      "lastSeen": "2026-02-19T20:12:27.656330",
+      "lastTokenUpdate": 1771709749918,
+      "lastUpdate": 1772105967233,
+      "name": "حساب تحريبي تجربي",
+      "notificationSettings": {
+        "isSubscribed": true,
+        "lastUpdate": 1771795713320,
+        "oneSignalId": "669b6604-a34d-41eb-bf5d-8f6f9b05da67",
+        "phone": "+201200632506",
+        "tagsSynced": true
+      },
+      "phone": "+201200632506",
+      "phoneOS": "Android 16",
+      "pin": "555555",
+      "role": "user",
+      "status": "active",
+      "transactions": {
+        "DC00244748": {
+          "amount": 20,
+          "balanceAfter": 149995408,
+          "balanceBefore": 149995428,
+          "cardType": "MAD",
+          "code": "1256-1685-1111-3202",
+          "serialNumber": "SN-3755372652",
+          "status": "completed",
+          "timestamp": 1771719887598,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC12125253": {
+          "amount": 5,
+          "balanceAfter": 149997353,
+          "balanceBefore": 149997358,
+          "cardType": "LIB",
+          "code": "2404-3153-4497-5754",
+          "serialNumber": "SN-5521289997",
+          "status": "completed",
+          "timestamp": 1771675972642,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC12270966": {
+          "amount": 5,
+          "balanceAfter": 149997348,
+          "balanceBefore": 149997353,
+          "cardType": "MAD",
+          "code": "8239-9445-8907-7944",
+          "serialNumber": "SN-1715081419",
+          "status": "completed",
+          "timestamp": 1771676829766,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC12274958": {
+          "amount": 5,
+          "balanceAfter": 149997343,
+          "balanceBefore": 149997348,
+          "cardType": "SPID",
+          "code": "5025-1711-5386-8727",
+          "serialNumber": "SN-5117772642",
+          "status": "completed",
+          "timestamp": 1771676869686,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC17292114": {
+          "amount": 100,
+          "balanceAfter": 149995306.33,
+          "balanceBefore": 149995406.33,
+          "cardType": "MAD",
+          "code": "8433-2215-4646-5872",
+          "serialNumber": "SN-1650593008",
+          "status": "completed",
+          "timestamp": 1771781361259,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC17305242": {
+          "amount": 20,
+          "balanceAfter": 149995286.33,
+          "balanceBefore": 149995306.33,
+          "cardType": "LIB",
+          "code": "4934-1233-1175-2650",
+          "serialNumber": "SN-1630912005",
+          "status": "completed",
+          "timestamp": 1771781452524,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC17312288": {
+          "amount": 30,
+          "balanceAfter": 149995256.33,
+          "balanceBefore": 149995286.33,
+          "cardType": "SPID",
+          "code": "6105-4931-3656-8113",
+          "serialNumber": "SN-6709738205",
+          "status": "completed",
+          "timestamp": 1771781482988,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DC17451085": {
+          "amount": 20,
+          "balanceAfter": 149994185.33,
+          "balanceBefore": 149994205.33,
+          "cardType": "SPID",
+          "code": "3133-4114-8296-2564",
+          "serialNumber": "SN-7373554807",
+          "status": "completed",
+          "timestamp": 1771782310957,
+          "type": "recharge_purchase",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DD05967123": {
+          "amount": 458,
+          "balanceAfter": 150015123.33,
+          "balanceBefore": 150014665.33,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "recipient",
+          "senderId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "senderName": "ahmed elbanaa",
+          "senderPhone": "+201151469805",
+          "status": "completed",
+          "timestamp": 1772105967233,
+          "type": "account_transfer"
+        },
+        "DD12097172": {
+          "amount": 140,
+          "balanceAfter": 149996648,
+          "balanceBefore": 149996789,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771712097285,
+          "totalDeduction": 141,
+          "type": "account_transfer"
+        },
+        "DD12538614": {
+          "amount": 34,
+          "balanceAfter": 149996613,
+          "balanceBefore": 149996648,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771712538729,
+          "totalDeduction": 35,
+          "type": "account_transfer"
+        },
+        "DD39598098": {
+          "amount": 1286,
+          "balanceAfter": 150014665.33,
+          "balanceBefore": 150013379.33,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "recipient",
+          "senderId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "senderName": "ahmed elbanaa",
+          "senderPhone": "+201151469805",
+          "status": "completed",
+          "timestamp": 1772039598214,
+          "type": "account_transfer"
+        },
+        "DD69984446": {
+          "amount": 20000,
+          "balanceAfter": 150013379.33,
+          "balanceBefore": 149993379.33,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "recipient",
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771969984559,
+          "type": "account_transfer"
+        },
+        "DD75675942": {
+          "amount": 500,
+          "balanceAfter": 149997358,
+          "balanceBefore": 149997859,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771675676053,
+          "totalDeduction": 501,
+          "type": "account_transfer"
+        },
+        "DD77036636": {
+          "amount": 50,
+          "balanceAfter": 149997292,
+          "balanceBefore": 149997343,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771677036749,
+          "totalDeduction": 51,
+          "type": "account_transfer"
+        },
+        "DD81786709": {
+          "amount": 50,
+          "balanceAfter": 149995205.33,
+          "balanceBefore": 149995256.33,
+          "fee": 1,
+          "recipientId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "recipientName": "مبارك ابراهيم ابوعيشه",
+          "recipientPhone": "+201030926584",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771781786820,
+          "totalDeduction": 51,
+          "type": "account_transfer"
+        },
+        "DD95557610": {
+          "amount": 12,
+          "balanceAfter": 149993472.33,
+          "balanceBefore": 149993460.33,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "recipient",
+          "senderId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "senderName": "ahmed elbanaa",
+          "senderPhone": "+201151469805",
+          "status": "completed",
+          "timestamp": 1771795557721,
+          "type": "account_transfer"
+        },
+        "DD95733827": {
+          "amount": 12,
+          "balanceAfter": 149993459.33,
+          "balanceBefore": 149993472.33,
+          "fee": 1,
+          "recipientId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "recipientName": "ahmed elbanaa",
+          "recipientPhone": "+201151469805",
+          "role": "sender",
+          "senderId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "senderName": "حساب تحريبي تجربي",
+          "senderPhone": "+201200632506",
+          "status": "completed",
+          "timestamp": 1771795733933,
+          "totalDeduction": 13,
+          "type": "account_transfer"
+        },
+        "DD98545388": {
+          "amount": 100,
+          "balanceAfter": 149993379.33,
+          "balanceBefore": 149993279.33,
+          "recipientId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "recipientName": "حساب تحريبي تجربي",
+          "recipientPhone": "+201200632506",
+          "role": "recipient",
+          "senderId": "Mzzg8MinUVfInwNtvdYBVJnpbiB3",
+          "senderName": "مبارك ابراهيم ابوعيشه",
+          "senderPhone": "+201030926584",
+          "status": "completed",
+          "timestamp": 1771798545495,
+          "type": "account_transfer"
+        },
+        "DG19525560": {
+          "amountEGP": 9835,
+          "amountLYD": 1185,
+          "balanceEGPAfter": 29927,
+          "balanceEGPBefore": 20092,
+          "balanceLYDAfter": 149995428,
+          "balanceLYDBefore": 149996613,
+          "exchangeRate": 8.3,
+          "fakkaAmount": 0.5,
+          "status": "completed",
+          "timestamp": 1771719525669,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG75604619": {
+          "amountEGP": 263,
+          "amountLYD": 31,
+          "balanceEGPAfter": 15817,
+          "balanceEGPBefore": 15554,
+          "balanceLYDAfter": 149997859,
+          "balanceLYDBefore": 149997890,
+          "exchangeRate": 8.5,
+          "fakkaAmount": 0.5,
+          "status": "completed",
+          "timestamp": 1771675604729,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG78420000": {
+          "amountEGP": 4275,
+          "amountLYD": 503,
+          "balanceEGPAfter": 20092,
+          "balanceEGPBefore": 15817,
+          "balanceLYDAfter": 149996789,
+          "balanceLYDBefore": 149997292,
+          "exchangeRate": 8.5,
+          "fakkaAmount": 0.5,
+          "status": "completed",
+          "timestamp": 1771678420113,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG81263903": {
+          "amountEGP": 100,
+          "amountLYD": 1.67,
+          "balanceEGPAfter": 30027,
+          "balanceEGPBefore": 29927,
+          "balanceLYDAfter": 149995406.33,
+          "balanceLYDBefore": 149995408,
+          "exchangeRate": 60,
+          "fakkaAmount": 0.2,
+          "status": "completed",
+          "timestamp": 1771781264013,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG82263053": {
+          "amountEGP": 60000,
+          "amountLYD": 1000,
+          "balanceEGPAfter": 90027,
+          "balanceEGPBefore": 30027,
+          "balanceLYDAfter": 149994205.33,
+          "balanceLYDBefore": 149995205.33,
+          "exchangeRate": 60,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1771782263159,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG82487970": {
+          "amountEGP": 600,
+          "amountLYD": 10,
+          "balanceEGPAfter": 90627,
+          "balanceEGPBefore": 90027,
+          "balanceLYDAfter": 149994175.33,
+          "balanceLYDBefore": 149994185.33,
+          "exchangeRate": 60,
+          "fakkaAmount": 0,
+          "status": "completed",
+          "timestamp": 1771782488076,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG83045789": {
+          "amountEGP": 239,
+          "amountLYD": 46,
+          "balanceEGPAfter": 90866,
+          "balanceEGPBefore": 90627,
+          "balanceLYDAfter": 149994129.33,
+          "balanceLYDBefore": 149994175.33,
+          "exchangeRate": 5.2,
+          "fakkaAmount": 0.2,
+          "status": "completed",
+          "timestamp": 1771783045894,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG83088827": {
+          "amountEGP": 634,
+          "amountLYD": 122,
+          "balanceEGPAfter": 91500,
+          "balanceEGPBefore": 90866,
+          "balanceLYDAfter": 149994007.33,
+          "balanceLYDBefore": 149994129.33,
+          "exchangeRate": 5.2,
+          "fakkaAmount": 0.4,
+          "status": "completed",
+          "timestamp": 1771783088930,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG95001475": {
+          "amountEGP": 993,
+          "amountLYD": 191,
+          "balanceEGPAfter": 92493,
+          "balanceEGPBefore": 91500,
+          "balanceLYDAfter": 149993816.33,
+          "balanceLYDBefore": 149994007.33,
+          "exchangeRate": 5.2,
+          "fakkaAmount": 0.2,
+          "status": "completed",
+          "timestamp": 1771795001593,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG95092574": {
+          "amountEGP": 873,
+          "amountLYD": 168,
+          "balanceEGPAfter": 93366,
+          "balanceEGPBefore": 92493,
+          "balanceLYDAfter": 149993648.33,
+          "balanceLYDBefore": 149993816.33,
+          "exchangeRate": 5.2,
+          "fakkaAmount": 0.6,
+          "status": "completed",
+          "timestamp": 1771795092681,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG95225320": {
+          "amountEGP": 977,
+          "amountLYD": 188,
+          "balanceEGPAfter": 94343,
+          "balanceEGPBefore": 93366,
+          "balanceLYDAfter": 149993460.33,
+          "balanceLYDBefore": 149993648.33,
+          "exchangeRate": 5.2,
+          "fakkaAmount": 0.6,
+          "status": "completed",
+          "timestamp": 1771795225428,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        },
+        "DG95966724": {
+          "amountEGP": 948,
+          "amountLYD": 180,
+          "balanceEGPAfter": 95291,
+          "balanceEGPBefore": 94343,
+          "balanceLYDAfter": 149993279.33,
+          "balanceLYDBefore": 149993459.33,
+          "exchangeRate": 5.269,
+          "fakkaAmount": 0.42,
+          "status": "completed",
+          "timestamp": 1771795966830,
+          "type": "egypt_transfer",
+          "userId": "mkExZ4Xp8zS1iDK6mKpBYpQOAVS2",
+          "userName": "حساب تحريبي تجربي",
+          "userPhone": "+201200632506"
+        }
+      },
+      "verification": "verified"
+    },
+    "peCRvbVojiSQyIqt20brLcfSlI63": {
+      "balanceEGP": 97598,
+      "balanceEgyptianPending": 99588,
+      "balanceLYD": 86174.256,
+      "createdAt": 1771581438564,
+      "egy_transactions": {
+        "EC54629888": {
+          "amountEGP": 4580,
+          "balanceEGPAfter": 100986,
+          "balanceEGPBefore": 105571,
+          "methodDisplayName": "محافظ كاش",
+          "recipientNumber": "123123",
+          "serviceFee": 5,
+          "status": "pending",
+          "timestamp": 1772154630000,
+          "totalDeduction": 4585,
+          "transferMethod": "wallets",
+          "type": "egypt_wallets",
+          "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "userName": "ahmed elbanaa",
+          "userPhone": "+201151469805"
+        },
+        "EL54640573": {
+          "amountEGP": 2137,
+          "balanceEGPAfter": 98844,
+          "balanceEGPBefore": 100986,
+          "methodDisplayName": "إنستاباي",
+          "recipientNumber": "1343",
+          "serviceFee": 5,
+          "status": "pending",
+          "timestamp": 1772154640679,
+          "totalDeduction": 2142,
+          "transferMethod": "instapay",
+          "type": "egypt_instapay",
+          "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "userName": "ahmed elbanaa",
+          "userPhone": "+201151469805"
+        },
+        "EW54658536": {
+          "agentInfo": "محمد على",
+          "amountEGP": 1245,
+          "balanceEGPAfter": 97598,
+          "balanceEGPBefore": 98844,
+          "methodDisplayName": "وصلي للبيت",
+          "recipientName": "اسهبتع",
+          "recipientNumber": "54346",
+          "serviceFee": 1,
+          "status": "pending",
+          "timestamp": 1772154658640,
+          "totalDeduction": 1246,
+          "transferMethod": "home",
+          "type": "egypt_home",
+          "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "userName": "ahmed elbanaa",
+          "userPhone": "+201151469805"
+        }
+      },
+      "email": "201151469805@hawelly.app",
+      "fcmToken": "dhPCppeFRYG1P_w2eByG-l:APA91bHTYxP3oEAMBAx07sPYZ9GO3G1Qh-y0WNnl7ojIi9hgBM9k05THwrUbDw5EVUxPYr3GfmQ9W9UtRXGGpDgU_fjFODQSJdZrimQtO6WYIeqSyCtyHus",
+      "lastTokenUpdate": 1771747962032,
+      "lastUpdate": 1772154658640,
+      "name": "ahmed elbanaa",
+      "notificationSettings": {
+        "isSubscribed": true,
+        "lastUpdate": 1772154241390,
+        "oneSignalId": "669b6604-a34d-41eb-bf5d-8f6f9b05da67",
+        "phone": "+201151469805",
+        "tagsSynced": true
+      },
+      "phone": "+201151469805",
+      "pin": "147258",
+      "role": "user",
+      "sessions": {
+        "-Om3Lrnis3KvmzIn-v-l": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T09:58:35.896258",
+          "lastUpdate": 1771747115896,
+          "phoneOS": "Android 16"
+        },
+        "-Om3MO7MGTK-7muI8xui": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T10:12:31.652202",
+          "lastSeen": "2026-02-22T10:12:31.607600",
+          "lastUpdate": 1771747951652,
+          "phoneOS": "Android 16"
+        },
+        "-Om3P57GtNyP7xocIHzO": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T10:30:39.313154",
+          "lastSeen": "2026-02-22T10:30:35.072033",
+          "lastUpdate": 1771749039313,
+          "phoneOS": "Android 16"
+        },
+        "-Om3YxEGW0eyEaHTPnCN": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T11:41:41.510422",
+          "lastSeen": "2026-02-22T11:41:39.485774",
+          "lastUpdate": 1771753301510,
+          "phoneOS": "Android 16"
+        },
+        "-Om3nlS7AGUYZ3YM1ebo": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T12:05:00.206093",
+          "lastUpdate": 1771754700206,
+          "phoneOS": "Android 16"
+        },
+        "-Om3qJSqWlrDW7PykqCD": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T12:26:54.316795",
+          "lastSeen": "2026-02-22T12:41:51.343779",
+          "lastUpdate": 1771756911343,
+          "phoneOS": "Android 16"
+        },
+        "-Om41j3PE2bEqI2mXwfB": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T13:11:51.346095",
+          "lastSeen": "2026-02-22T13:11:49.489102",
+          "lastUpdate": 1771758711346,
+          "phoneOS": "Android 16"
+        },
+        "-Om43H07AyMle4oUUawx": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-22T14:37:08.010519",
+          "lastSeen": "2026-02-22T14:37:07.853921",
+          "lastUpdate": 1771763828010,
+          "phoneOS": "Android 16"
+        },
+        "-Om6-CHoeojOg4MXbEfu": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-22T22:51:39.756107",
+          "lastSeen": "2026-02-22T22:51:43.268848",
+          "lastUpdate": 1771793503268,
+          "phoneOS": "Android 16"
+        },
+        "-Om6Fjx2GjO9q7l42yJA": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-23T00:02:16.884894",
+          "lastSeen": "2026-02-23T00:02:13.425885",
+          "lastUpdate": 1771797736884,
+          "phoneOS": "Android 16"
+        },
+        "-Om6OqAuaa2JU0UqB0HV": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-23T02:14:12.859289",
+          "lastSeen": "2026-02-23T02:14:11.322726",
+          "lastUpdate": 1771805652859,
+          "phoneOS": "Android 16"
+        },
+        "-Om6r-XWmmyyDCMA0zHh": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-23T02:17:54.516911",
+          "lastUpdate": 1771805874516,
+          "phoneOS": "Android 16"
+        },
+        "-Om6rxRObr0k6oYaa_FM": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-23T02:22:09.858951",
+          "lastSeen": "2026-02-23T02:34:46.706702",
+          "lastUpdate": 1771806886706,
+          "phoneOS": "Android 16"
+        },
+        "-Om6utpAO_wvroo1jXeZ": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-23T02:34:51.993173",
+          "lastSeen": "2026-02-23T02:34:52.055892",
+          "lastUpdate": 1771806892055,
+          "phoneOS": "Android 16"
+        },
+        "-Om85Cfv_ce9bAJ6UHYT": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "Unknown IP",
+          "lastLogin": "2026-02-23T08:03:58.706177",
+          "lastSeen": "2026-02-23T08:03:53.772068",
+          "lastUpdate": 1771826638706,
+          "phoneOS": "Android 16"
+        },
+        "-Om8R0NFb7L--jBR3l2k": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T09:39:12.434549",
+          "lastUpdate": 1771832352434,
+          "phoneOS": "Android 16"
+        },
+        "-Om8VV4hHX68NKG8ktbh": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T10:03:18.682459",
+          "lastSeen": "2026-02-23T10:03:04.906807",
+          "lastUpdate": 1771833798682,
+          "phoneOS": "Android 16"
+        },
+        "-Om8cREmUGjupiItzM3J": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T10:38:42.042893",
+          "lastSeen": "2026-02-23T10:41:08.207797",
+          "lastUpdate": 1771836068207,
+          "phoneOS": "Android 16"
+        },
+        "-Om8eFn_sCTDcm_7z7Ym": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T10:41:24.846829",
+          "lastUpdate": 1771836084846,
+          "phoneOS": "Android 16"
+        },
+        "-Om8ecKKk7KdC0ljBbON": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T10:44:43.215072",
+          "lastSeen": "2026-02-23T10:44:51.652877",
+          "lastUpdate": 1771836291652,
+          "phoneOS": "Android 16"
+        },
+        "-Om8fnf_BM668r1R1UWc": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-23T11:00:05.915156",
+          "lastSeen": "2026-02-23T11:02:14.945397",
+          "lastUpdate": 1771837334945,
+          "phoneOS": "Android 16"
+        },
+        "-OmBdWR-MYaAytas2QAA": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-24T00:37:02.667363",
+          "lastUpdate": 1771886222667,
+          "phoneOS": "Android 16"
+        },
+        "-OmD8QzRtbZWF79GCW7V": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-24T07:36:05.521530",
+          "lastUpdate": 1771911365521,
+          "phoneOS": "Android 16"
+        },
+        "-OmDViYROIaDoTgiPC_x": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-24T09:26:56.824870",
+          "lastSeen": "2026-02-24T09:30:26.761142",
+          "lastUpdate": 1771918226761,
+          "phoneOS": "Android 16"
+        },
+        "-OmDfTHh50sF0xwaQomk": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-24T10:04:48.784392",
+          "lastSeen": "2026-02-24T10:05:40.501660",
+          "lastUpdate": 1771920340501,
+          "phoneOS": "Android 16"
+        },
+        "-OmDm75U1Ykr4I1Rv2kn": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-24T10:46:51.763540",
+          "lastSeen": "2026-02-24T10:59:19.811594",
+          "lastUpdate": 1771923559811,
+          "phoneOS": "Android 16"
+        },
+        "-OmE5lFnYikE0dzouFIy": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-24T12:55:41.820223",
+          "lastSeen": "2026-02-24T12:55:46.151722",
+          "lastUpdate": 1771930546151,
+          "phoneOS": "Android 16"
+        },
+        "-OmEXWI6YzCVemUyptUX": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-24T15:26:12.352963",
+          "lastSeen": "2026-02-24T15:29:57.513493",
+          "lastUpdate": 1771939797513,
+          "phoneOS": "Android 16"
+        },
+        "-OmIKEjucseXhMbd0TFF": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-25T07:48:32.894929",
+          "lastSeen": "2026-02-25T07:48:33.747962",
+          "lastUpdate": 1771998513747,
+          "phoneOS": "Android 16"
+        },
+        "-OmJjIg-QhuB3mPFewGm": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-25T14:35:01.029643",
+          "lastSeen": "2026-02-25T14:35:02.242931",
+          "lastUpdate": 1772022902242,
+          "phoneOS": "Android 16"
+        },
+        "-OmKm1bpwbS7E1QJgLgf": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-25T19:12:28.633793",
+          "lastSeen": "2026-02-25T19:15:21.843296",
+          "lastUpdate": 1772039721843,
+          "phoneOS": "Android 16"
+        },
+        "-OmKnnmkAs9Nkr9d3Yy9": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-25T19:18:33.636797",
+          "lastUpdate": 1772039913636,
+          "phoneOS": "Android 16"
+        },
+        "-OmM4PcL8-Md-m_7uEm9": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T02:19:50.035972",
+          "lastSeen": "2026-02-26T02:19:50.556238",
+          "lastUpdate": 1772065190556,
+          "phoneOS": "Android 16"
+        },
+        "-OmMLXLbBfRdDtAxKSMR": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T02:30:50.131616",
+          "lastSeen": "2026-02-26T02:31:13.051482",
+          "lastUpdate": 1772065873051,
+          "phoneOS": "Android 16"
+        },
+        "-OmMLr3Gu6amt3Ok0v-x": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T02:39:09.047980",
+          "lastSeen": "2026-02-26T02:39:49.145932",
+          "lastUpdate": 1772066389145,
+          "phoneOS": "Android 16"
+        },
+        "-OmNz3emaIkPZjTl3802": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-26T10:43:45.289118",
+          "lastSeen": "2026-02-26T10:46:25.031729",
+          "lastUpdate": 1772095585031,
+          "phoneOS": "Android 16"
+        },
+        "-OmO8tJfHgn3uSDc_aj6": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-26T10:55:42.328513",
+          "lastSeen": "2026-02-26T10:55:43.205967",
+          "lastUpdate": 1772096143205,
+          "phoneOS": "Android 16"
+        },
+        "-OmO9UqKUFX7nQ3_s_gX": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-26T12:49:23.700471",
+          "lastSeen": "2026-02-26T12:49:20.652678",
+          "lastUpdate": 1772102963700,
+          "phoneOS": "Android 16"
+        },
+        "-OmObztfNuwirCLwCDOw": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.115.39",
+          "lastLogin": "2026-02-26T13:37:40.874013",
+          "lastSeen": "2026-02-26T13:43:51.549275",
+          "lastUpdate": 1772106231549,
+          "phoneOS": "Android 16"
+        },
+        "-OmPM_eTobE2ToHx20FV": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T16:33:21.940848",
+          "lastUpdate": 1772116401940,
+          "phoneOS": "Android 16"
+        },
+        "-OmPNK_GZSJ_DGatUoa9": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T16:40:47.002456",
+          "lastSeen": "2026-02-26T17:08:04.799090",
+          "lastUpdate": 1772118484799,
+          "phoneOS": "Android 16"
+        },
+        "-OmQOy6nQRQT47RF8RtG": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T21:23:46.507939",
+          "lastUpdate": 1772133826507,
+          "phoneOS": "Android 16"
+        },
+        "-OmQP_4lqWaVw4-n4Vw_": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-26T21:48:04.258816",
+          "lastSeen": "2026-02-26T21:51:05.424042",
+          "lastUpdate": 1772135465424,
+          "phoneOS": "Android 16"
+        },
+        "-OmRbvclfrhYF1Ly71bq": {
+          "activeDevice": "Redmi Redmi Note 9 Pro",
+          "connectionStatus": "غير متصل",
+          "ipAddress": "156.214.184.10",
+          "lastLogin": "2026-02-27T03:09:32.981676",
+          "lastSeen": "2026-02-27T03:11:05.428341",
+          "lastUpdate": 1772154665428,
+          "phoneOS": "Android 16"
+        }
+      },
+      "status": "active",
+      "transactions": {
+        "DG35382303": {
+          "amountEGP": 280,
+          "amountLYD": 55,
+          "balanceEGPAfter": 105571,
+          "balanceEGPBefore": 105291,
+          "balanceLYDAfter": 86174.256,
+          "balanceLYDBefore": 86229.256,
+          "exchangeRate": 5.1,
+          "fakkaAmount": 0.5,
+          "status": "completed",
+          "timestamp": 1772135382414,
+          "type": "egypt_transfer",
+          "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "userName": "ahmed elbanaa",
+          "userPhone": "+201151469805"
+        },
+        "EW34006900": {
+          "agentInfo": "محمد على",
+          "amountEGP": 6535,
+          "balanceEGPAfter": 105945,
+          "balanceEGPBefore": 112481,
+          "methodDisplayName": "وصلي للبيت",
+          "recipientName": "رتلها",
+          "recipientNumber": "0653",
+          "serviceFee": 1,
+          "status": "pending",
+          "timestamp": 1772134007012,
+          "totalDeduction": 6536,
+          "transferMethod": "home",
+          "type": "egypt_home",
+          "userId": "peCRvbVojiSQyIqt20brLcfSlI63",
+          "userName": "ahmed elbanaa",
+          "userPhone": "+201151469805"
+        }
+      },
+      "verification": "verified"
     }
   }
 }
