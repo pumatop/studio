@@ -1,3 +1,4 @@
+
 {
   "database": {
     "rules": "database.rules.json"
@@ -6,15 +7,18 @@
     "rules": "storage.rules"
   },
   "functions": [
-    { "codebase": "update-transfer-status", "source": "functions/updateTransferStatus" },
-    { "codebase": "delete-supervisor", "source": "functions/deleteSupervisor" },
-    { "codebase": "list-auth-users", "source": "functions/listAuthUsers" },
-    { "codebase": "manage-user-sessions", "source": "functions/manageUserSessions" },
-    { "codebase": "notify-on-rate-change", "source": "functions/notifyOnRateChange" },
-    { "codebase": "process-scheduled-rate-changes", "source": "functions/processScheduledRateChanges" },
-    { "codebase": "process-transaction-based-rate-changes", "source": "functions/processTransactionBasedRateChanges" },
-    { "codebase": "send-notification", "source": "functions/sendNotification" },
-    { "codebase": "update-onesignal-player-id", "source": "functions/updateOneSignalPlayerId" },
-    { "codebase": "handle-auto-exchange-status", "source": "functions/handleAutoExchangeStatus" }
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
   ]
 }

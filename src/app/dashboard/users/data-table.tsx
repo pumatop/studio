@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -62,16 +63,17 @@ import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Datatables imports
-import $ from 'jquery';
-import 'datatables.net-responsive-dt';
-import 'datatables.net-buttons-dt';
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'jszip';
+// استيراد jQuery و DataTables فقط في المتصفح
+let $: any;
+if (typeof window !== 'undefined') {
+  $ = require('jquery');
+  require('datatables.net-responsive-dt');
+  require('datatables.net-buttons-dt');
+  require('datatables.net-buttons/js/buttons.html5.js');
+  require('datatables.net-buttons/js/buttons.print.js');
+  require('jszip');
+}
 
-// استيراد ديناميكي لمنع أخطاء SSR
 const LibyanTransactionsDataTable = dynamic(
   () => import('../libyan-transactions/data-table').then(m => m.LibyanTransactionsDataTable),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
@@ -145,28 +147,28 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     {isEditingName ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2" dir="rtl">
                             <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9"/>
                             <Button size="sm" onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم التحديث" }); }}>حفظ</Button>
                             <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)}>إلغاء</Button>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2" dir="rtl">
                             <DialogTitle>{user.name}</DialogTitle>
                             <Button variant="ghost" size="icon" onClick={() => setIsEditingName(true)}><Pencil className="h-4 w-4" /></Button>
                         </div>
                     )}
-                    <DialogDescription>{user.phone}</DialogDescription>
+                    <DialogDescription className="text-right">{user.phone}</DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4" dir="rtl">
                     <div className="md:col-span-1 space-y-4">
-                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle></CardHeader>
+                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Wallet className="ml-2 h-4 w-4"/> الأرصدة</CardTitle></CardHeader>
                             <CardContent className="text-sm space-y-2 pt-4">
                                 <div className="flex justify-between"><span>د.ل:</span> <span className="font-semibold">{(user.balanceLYD || 0).toFixed(2)}</span></div>
                                 <div className="flex justify-between"><span>ج.م:</span> <span className="font-semibold">{(user.balanceEGP || 0).toFixed(2)}</span></div>
                             </CardContent>
                         </Card>
-                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText /> الهوية</CardTitle></CardHeader>
+                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="ml-2 h-4 w-4"/> الهوية</CardTitle></CardHeader>
                             <CardContent className="pt-4">
                                 {frontImageUrl ? <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="ID" width={300} height={200} className="rounded-md object-contain border" /></a> : <div className="h-32 border-2 border-dashed flex items-center justify-center text-xs text-muted-foreground">لا توجد صورة</div>}
                                 <div className="grid grid-cols-2 gap-2 mt-4">
@@ -177,7 +179,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                         </Card>
                     </div>
                     <div className="md:col-span-2 space-y-4">
-                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات</CardTitle></CardHeader>
+                        <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone className="ml-2 h-4 w-4"/> الجلسات</CardTitle></CardHeader>
                             <CardContent>
                                 <Table><TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>الحالة</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
                                     <TableBody>{sessions.map(s => <TableRow key={s.id}><TableCell>{s.activeDevice}</TableCell><TableCell><Badge className={connectionStatusColors[s.connectionStatus]}>{s.connectionStatus}</Badge></TableCell><TableCell className="text-left"><Button size="sm" variant="ghost" onClick={() => onDeleteSession(user.id, s.id)}>إنهاء</Button></TableCell></TableRow>)}</TableBody>
@@ -211,14 +213,14 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter]);
 
   useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+    if (!tableRef.current || !document.body.contains(tableRef.current) || !$) return;
 
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
         $(tableRef.current).DataTable().destroy();
     }
     
     const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+        if (!tableRef.current || !document.body.contains(tableRef.current) || !$) return;
 
         $(tableRef.current).DataTable({
           responsive: true,
@@ -237,7 +239,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
     return () => {
       clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current) && $) {
         $(tableRef.current).DataTable().destroy();
       }
     };
@@ -245,7 +247,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <div className="flex gap-4" dir="rtl">
         <Input placeholder="بحث بالاسم أو الهاتف..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="max-w-sm" />
         <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger className="w-[150px]"><SelectValue placeholder="النوع" /></SelectTrigger>
@@ -257,12 +259,12 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </Select>
       </div>
       <div className="rounded-lg border">
-        <Table ref={tableRef}>
-          <TableHeader><TableRow><TableHead>الاسم</TableHead><TableHead>الهاتف</TableHead><TableHead>النوع</TableHead><TableHead>الحالة</TableHead><TableHead className="text-left">إجراءات</TableHead></TableRow></TableHeader>
+        <Table ref={tableRef} dir="rtl">
+          <TableHeader><TableRow><TableHead className="text-right">الاسم</TableHead><TableHead className="text-right">الهاتف</TableHead><TableHead className="text-right">النوع</TableHead><TableHead className="text-right">الحالة</TableHead><TableHead className="text-left">إجراءات</TableHead></TableRow></TableHeader>
           <TableBody>{filteredData.map(u => (
             <TableRow key={u.id} className={cn(u.status === 'banned' && 'bg-red-50/50')}>
-              <TableCell>{u.name}</TableCell><TableCell>{u.phone}</TableCell><TableCell>{roleMap[u.role]}</TableCell>
-              <TableCell><Badge className={statusColors[u.status]}>{statusMap[u.status]}</Badge></TableCell>
+              <TableCell className="text-right">{u.name}</TableCell><TableCell className="text-right">{u.phone}</TableCell><TableCell className="text-right">{roleMap[u.role]}</TableCell>
+              <TableCell className="text-right"><Badge className={statusColors[u.status]}>{statusMap[u.status]}</Badge></TableCell>
               <TableCell className="text-left"><DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm"><MoreHorizontal /></Button></DropdownMenuTrigger><DropdownMenuContent><DropdownMenuItem onClick={() => { setSelectedUser(u); setDetailsOpen(true); }}><Eye className="ml-2 h-4 w-4" /> تفاصيل</DropdownMenuItem><DropdownMenuItem className="text-destructive" onClick={() => updateRtdb(database, `/users/${u.id}`, { status: u.status === 'active' ? 'banned' : 'active' })}>حظر/فك</DropdownMenuItem></DropdownMenuContent></DropdownMenu></TableCell>
             </TableRow>
           ))}</TableBody>

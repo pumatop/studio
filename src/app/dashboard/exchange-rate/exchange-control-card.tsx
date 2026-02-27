@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -57,7 +58,7 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4" dir="rtl">
              <div>
                 <Label>نوع الشرط</Label>
                  <RadioGroup
@@ -83,19 +84,19 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
             {type === 'amount' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (جنيه مصري)</Label>
-                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required className="text-right" />
                  </div>
             )}
             {type === 'time' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-time">الوقت المحدد للتغيير</Label>
-                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required className="text-right" />
                  </div>
             )}
 
             <div className="space-y-2">
                 <Label htmlFor="cond-target-rate">السعر الجديد المستهدف</Label>
-                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required />
+                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required className="text-right" />
             </div>
 
             <DialogFooter>
@@ -146,6 +147,7 @@ export function ExchangeControlCard() {
   }, [settings, toast]);
 
   useEffect(() => {
+    // تحديث الوقت فقط في المتصفح لتجنب أخطاء الـ Hydration
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
@@ -220,7 +222,7 @@ export function ExchangeControlCard() {
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col" dir="rtl">
       <CardHeader>
         <CardTitle>التحكم في الصرف</CardTitle>
         <CardDescription>
@@ -276,6 +278,7 @@ export function ExchangeControlCard() {
                         type="number"
                         value={localSettings.autoCloseThreshold}
                         onChange={(e) => handleSettingChange('autoCloseThreshold', parseInt(e.target.value, 10))}
+                        className="text-right"
                     />
                 </div>
             )}
@@ -301,10 +304,10 @@ export function ExchangeControlCard() {
               type="number"
               value={localSettings.currentRate ?? ''}
               onChange={(e) => handleSettingChange('currentRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
-              className="text-lg font-bold pl-16 text-left"
+              className="text-lg font-bold pr-16 text-right"
               step="0.01"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
               ج.م
             </span>
           </div>
@@ -312,7 +315,7 @@ export function ExchangeControlCard() {
 
         <Separator />
 
-        <div className="space-y-2">
+        <div className="space-y-2 text-right">
           <Label htmlFor="timezone-select" className="font-semibold">المنطقة الزمنية</Label>
           <p className="text-xs text-muted-foreground">
             تُستخدم هذه المنطقة الزمنية للتحقق من شروط تغيير السعر المستندة إلى الوقت.
@@ -324,7 +327,7 @@ export function ExchangeControlCard() {
             <SelectTrigger id="timezone-select">
               <SelectValue placeholder="اختر منطقة زمنية..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent dir="rtl">
               <SelectItem value="Africa/Cairo">توقيت القاهرة (EET)</SelectItem>
               <SelectItem value="Asia/Riyadh">توقيت الرياض (AST)</SelectItem>
               <SelectItem value="UTC">التوقيت العالمي المنسق (UTC)</SelectItem>
@@ -337,7 +340,7 @@ export function ExchangeControlCard() {
         
         <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border p-3">
-                <div className="space-y-0.5">
+                <div className="space-y-0.5 text-right">
                     <Label htmlFor="auto-conditions-switch">تفعيل الشروط التلقائية</Label>
                     <p className="text-xs text-muted-foreground">في حال الإيقاف، لن يتم تطبيق أي شرط من الشروط أدناه.</p>
                 </div>
@@ -360,7 +363,7 @@ export function ExchangeControlCard() {
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>إضافة شرط جديد</DialogTitle>
+                            <DialogTitle className="text-right">إضافة شرط جديد</DialogTitle>
                         </DialogHeader>
                         <NewConditionForm onSave={handleAddCondition} />
                     </DialogContent>
@@ -375,7 +378,7 @@ export function ExchangeControlCard() {
                     <div key={condition.id} className="flex items-center justify-between rounded-lg border p-3">
                        <div className="flex items-center gap-3">
                             {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-muted-foreground" /> : <Clock className="h-5 w-5 text-muted-foreground" />}
-                            <div className="text-sm">
+                            <div className="text-sm text-right">
                                 <p>
                                     {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
                                     <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
