@@ -1,4 +1,3 @@
-
 import {onValueWritten} from "firebase-functions/v2/database";
 import {logger} from "firebase-functions/v2";
 import * as OneSignal from "onesignal-node";
@@ -34,10 +33,15 @@ export const notifyOnRateChange = onValueWritten(
     const title = "تحديث سعر الصرف";
     const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${newRate.toFixed(2)}`;
 
-    const oneSignalClient = new OneSignal.Client(
-      process.env.ONE_SIGNAL_APP_ID!,
-      process.env.ONE_SIGNAL_API_KEY!
-    );
+    const appId = process.env.ONE_SIGNAL_APP_ID;
+    const apiKey = process.env.ONE_SIGNAL_API_KEY;
+
+    if (!appId || !apiKey) {
+      logger.error("OneSignal configuration missing (APP_ID or API_KEY)");
+      return;
+    }
+
+    const oneSignalClient = new OneSignal.Client(appId, apiKey);
 
     const notification = {
       contents: {
@@ -54,11 +58,8 @@ export const notifyOnRateChange = onValueWritten(
     try {
       const response = await oneSignalClient.createNotification(notification);
       logger.info("Notification sent successfully:", response.body);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error("Error sending notification:", error);
-      if (error.response) {
-        logger.error("OneSignal response body:", error.response.body);
-      }
     }
   }
 );

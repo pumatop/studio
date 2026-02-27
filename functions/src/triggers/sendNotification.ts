@@ -1,4 +1,3 @@
-
 import * as admin from "firebase-admin";
 import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
@@ -17,33 +16,37 @@ interface NotificationPayload {
 
 // Define a type for the OneSignal filter
 interface OneSignalFilter {
-    field: "tag";
-    key: string;
-    relation: "=";
-    value: string;
+  field: "tag";
+  key: string;
+  relation: "=";
+  value: string;
 }
 
 // Define a custom interface for the OneSignal notification object
 interface MyOneSignalNotification {
-    contents: {
-        en: string;
-    };
-    headings: {
-        en: string;
-    };
-    big_picture?: string;
-    included_segments?: string[];
-    filters?: OneSignalFilter[];
+  contents: {
+    en: string;
+  };
+  headings: {
+    en: string;
+  };
+  big_picture?: string;
+  included_segments?: string[];
+  filters?: OneSignalFilter[];
 }
 
 export const sendNotification = onCall(
   {region: "asia-southeast1", secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"]},
   async (request) => {
+    const appId = process.env.ONE_SIGNAL_APP_ID;
+    const apiKey = process.env.ONE_SIGNAL_API_KEY;
+
+    if (!appId || !apiKey) {
+      throw new HttpsError("internal", "OneSignal configuration is missing.");
+    }
+
     // OneSignal Client Initialization
-    const oneSignalClient = new OneSignal.Client(
-      process.env.ONE_SIGNAL_APP_ID!,
-      process.env.ONE_SIGNAL_API_KEY!
-    );
+    const oneSignalClient = new OneSignal.Client(appId, apiKey);
 
     if (!request.auth) {
       throw new HttpsError(
@@ -143,12 +146,12 @@ export const sendNotification = onCall(
           message: "Notification for user sent successfully via tags.",
         };
       }
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof HttpsError) {
         throw error;
       }
       logger.error("Error sending notification:", error);
-      throw new HttpsError("internal", "Failed to send notification.", error);
+      throw new HttpsError("internal", "Failed to send notification.");
     }
   },
 );
