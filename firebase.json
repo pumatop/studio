@@ -21,6 +21,11 @@
       "source": "functions/sendNotification",
       "codebase": "send-notification",
       "ignore": ["node_modules", ".git", "firebase-debug.log"]
+    },
+    {
+      "source": "functions/listAuthUsers",
+      "codebase": "list-auth-users",
+      "ignore": ["node_modules", ".git", "firebase-debug.log"]
     }
   ]
 }
