@@ -1,3 +1,4 @@
+
 {
   "name": "notify-on-rate-change",
   "main": "lib/index.js",

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -34,11 +35,20 @@ export function PageHeader({ title }: { title: string }) {
   ) as ImagePlaceholder;
 
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
-  const [serverTime, setServerTime] = useState<Date | null>(null);
+  const [serverTime, setServerTime] = useState<string | null>(null);
 
   useEffect(() => {
-    setServerTime(new Date());
-    const timerId = setInterval(() => setServerTime(new Date()), 1000);
+    // تحديث الوقت فقط في جانب العميل لمنع أخطاء الـ Hydration
+    const updateTime = () => {
+        setServerTime(new Date().toLocaleTimeString("ar-EG-u-nu-latn", {
+            hour: 'numeric',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true,
+        }));
+    };
+    updateTime();
+    const timerId = setInterval(updateTime, 1000);
     return () => clearInterval(timerId);
   }, []);
   
@@ -48,7 +58,6 @@ export function PageHeader({ title }: { title: string }) {
   };
 
   return (
-    <>
     <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/80 px-4 backdrop-blur-lg sm:h-24 sm:px-8">
       <div className="flex items-center gap-3">
         <SidebarTrigger className="md:hidden" />
@@ -96,13 +105,8 @@ export function PageHeader({ title }: { title: string }) {
           <Separator orientation="vertical" className="h-4 bg-border/70" />
           <div className="flex items-center gap-1.5" title="وقت السيرفر">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="font-mono text-xs font-medium text-foreground">
-              {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
-                hour: 'numeric',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-              }) : '--:--:--'}
+            <span className="font-mono text-xs font-medium text-foreground min-w-[80px]">
+              {serverTime || '--:--:--'}
             </span>
           </div>
         </div>
@@ -141,6 +145,5 @@ export function PageHeader({ title }: { title: string }) {
         </DropdownMenu>
       </div>
     </header>
-    </>
   );
 }
