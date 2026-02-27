@@ -39,8 +39,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRtdbList, useDatabase, setRtdb, updateRtdb, removeRtdb, useAuth } from '@/firebase';
+import { useRtdbList, useDatabase, setRtdb, updateRtdb, useAuth, useFunctions } from '@/firebase';
 import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Datatables imports
@@ -162,6 +163,7 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   const { data: supervisors, isLoading } = useRtdbList<Supervisor>('/supervisors');
   const { database } = useDatabase();
   const auth = useAuth();
+  const functions = useFunctions();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -302,12 +304,22 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`هل أنت متأكد من حذف المشرف '${name}' بشكل نهائي؟ هذا الإجراء سيحذف بياناته من قاعدة البيانات فقط ولن يحذف حسابه من نظام المصادقة.`)) return;
+      if (!window.confirm(`هل أنت متأكد من حذف المشرف '${name}' بشكل نهائي؟ هذا الإجراء سيقوم بحذفه من نظام المصادقة وقاعدة البيانات.`)) return;
+  
+      const deleteSupervisorFn = httpsCallable(functions, 'deleteSupervisor');
+      
+      toast({ title: 'جاري حذف المشرف...', description: 'يرجى الانتظار.' });
+
       try {
-          await removeRtdb(database, `/supervisors/${id}`);
-          toast({ title: 'تم حذف بيانات المشرف بنجاح', description: 'تنبيه: لم يتم حذف حساب الدخول الخاص به. يرجى حذفه يدوياً من صفحة Authentication.', variant: 'default' });
+          const result = await deleteSupervisorFn({ uid: id });
+          if (result.data.success) {
+              toast({ title: 'تم الحذف بنجاح', description: `تم حذف المشرف ${name} نهائياً.` });
+          } else {
+              throw new Error((result.data as any).message || 'فشل حذف المشرف.');
+          }
       } catch (error: any) {
-          toast({ title: 'حدث خطأ', description: error.message, variant: 'destructive' });
+          console.error("Error deleting supervisor:", error);
+          toast({ title: 'حدث خطأ أثناء الحذف', description: error.message, variant: 'destructive' });
       }
   }
 

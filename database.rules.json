@@ -2,45 +2,77 @@
   "rules": {
     "users": {
       ".read": "auth != null",
-      ".write": "auth != null",
-      ".indexOn": ["phone", "role", "status", "verification"],
-      
+      ".indexOn": [
+        "phone",
+        "role",
+        "status",
+        "verification"
+      ],
       "$uid": {
+        ".write": "auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'",
+        ".validate": "!data.exists() || newData.child('role').val() === data.child('role').val() || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'",
         "transactions": {
-          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
-          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
-          ".indexOn": ["type", "status", "timestamp", "delegateId", "recipientId"]
+          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".indexOn": [
+            "type",
+            "status",
+            "timestamp",
+            "delegateId",
+            "recipientId"
+          ]
+        },
+        "egy_transactions": {
+          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".write": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".indexOn": [
+            "type",
+            "status",
+            "timestamp",
+            "transferMethod",
+            "recipientNumber"
+          ]
         },
         "notifications": {
-            ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin')",
-            ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
-            ".indexOn": ["createdAt"]
+          ".read": "auth != null && (auth.uid == $uid || root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+          ".indexOn": [
+            "createdAt"
+          ]
         }
       }
     },
-    
     "supervisors": {
       ".read": "auth != null",
-      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-      ".indexOn": ["status", "connectionStatus"]
+      ".indexOn": [
+        "status",
+        "connectionStatus"
+      ],
+      "$uid": {
+        ".write": "(root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin') || (auth.uid == $uid && !data.exists())"
+      }
     },
     "exchangeRates": {
       ".read": "auth != null",
-      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-      ".indexOn": ["currencyPair"]
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'",
+      ".indexOn": [
+        "currencyPair"
+      ]
     },
     "settings": {
       ".read": "auth != null",
-      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'"
     },
     "appVersions": {
       ".read": "auth != null",
-      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'"
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'"
     },
     "exchangeRateLogs": {
       ".read": "auth != null",
-      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin'",
-      ".indexOn": ["date"]
+      ".write": "root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin'",
+      ".indexOn": [
+        "date"
+      ]
     },
     "fakkaSafe": {
       ".read": "auth != null",
@@ -49,12 +81,28 @@
     "dailyAggregates": {
       ".read": "auth != null",
       ".write": false,
-      ".indexOn": ["totalEgpAmount"]
+      ".indexOn": [
+        "totalEgpAmount"
+      ]
     },
     "notifications": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() == 'admin'",
-      ".indexOn": ["createdAt"]
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+      ".indexOn": [
+        "createdAt"
+      ]
+    },
+    "admin": {
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+      "pending_egypt_transfers": {
+        ".indexOn": [
+          "status",
+          "timestamp",
+          "transferMethod",
+          "userId"
+        ]
+      }
     }
   }
 }

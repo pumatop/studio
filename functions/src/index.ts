@@ -16,3 +16,4 @@ export * from "./triggers/manageUserSessions";
 export * from "./triggers/sendNotification";
 export * from "./triggers/updateOneSignalPlayerId";
 export * from "./triggers/notifyOnRateChange";
+export * from "./triggers/deleteSupervisor";

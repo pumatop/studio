@@ -24,11 +24,11 @@ export const notifyOnRateChange = onValueWritten(
       logger.info(`Rate has not changed. Old: ${oldRate}, New: ${newRate}. No notification sent.`);
       return;
     }
-    
+
     // Don't notify on initial creation
     if (!event.data.before.exists()) {
-        logger.info(`Rate was created with value: ${newRate}. No notification sent on initial creation.`);
-        return;
+      logger.info(`Rate was created with value: ${newRate}. No notification sent on initial creation.`);
+      return;
     }
 
     const title = "تحديث سعر الصرف";
