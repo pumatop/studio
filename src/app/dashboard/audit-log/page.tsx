@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
-import { LibyanTransactionsDataTable } from "@/app/dashboard/libyan-transactions/data-table";
-import { EgyptianTransfersDataTable } from "@/app/dashboard/egyptian-transactions/data-table";
 import {
   Card,
   CardContent,
@@ -13,6 +12,17 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Transaction, EgyptTransferTransaction, User } from "@/lib/types";
+
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const LibyanTransactionsDataTable = dynamic(
+  () => import("@/app/dashboard/libyan-transactions/data-table").then(m => m.LibyanTransactionsDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
+
+const EgyptianTransfersDataTable = dynamic(
+  () => import("@/app/dashboard/egyptian-transactions/data-table").then(m => m.EgyptianTransfersDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 export default function AuditLogPage() {
   const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");

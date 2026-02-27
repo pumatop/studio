@@ -1,7 +1,7 @@
 'use client';
 
+import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
-import { SupervisorsDataTable } from "./data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Supervisor } from "@/lib/types";
 import {
@@ -11,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const SupervisorsDataTable = dynamic(
+  () => import("./data-table").then(m => m.SupervisorsDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 export default function SupervisorsPage() {
   const { data: supervisors, isLoading, error } = useRtdbList<Supervisor>("/supervisors");

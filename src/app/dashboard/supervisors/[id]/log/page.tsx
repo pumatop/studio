@@ -1,7 +1,7 @@
 'use client';
 
+import dynamic from "next/dynamic";
 import { useRtdbObject, useRtdbList } from "@/firebase";
-import { SupervisorLogDataTable } from "./log-data-table";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,10 +11,16 @@ import React, { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const SupervisorLogDataTable = dynamic(
+  () => import("./log-data-table").then(m => m.SupervisorLogDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
+
 export default function SupervisorLogPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
   const params = React.use(paramsPromise);
   const { data: supervisor, isLoading: supervisorLoading } = useRtdbObject<Supervisor>(`/supervisors/${params.id}`);
-  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
+  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
 
   const transactions = useMemo(() => {
     if (!users) return [];
@@ -24,9 +30,8 @@ export default function SupervisorLogPage({ params: paramsPromise }: { params: P
         : []
     ) as Transaction[];
   }, [users]);
-  const transactionsLoading = usersLoading;
 
-  const isLoading = supervisorLoading || transactionsLoading;
+  const isLoading = supervisorLoading || usersLoading;
 
   const supervisorTransfers = useMemo(() => {
     if (!supervisor || !transactions) return [];

@@ -1,6 +1,6 @@
 'use client';
+import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
-import { UsersDataTable } from "./data-table";
 import type { User, Transaction } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
@@ -11,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const UsersDataTable = dynamic(
+  () => import("./data-table").then(m => m.UsersDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 export default function UsersPage() {
   const { data: users, isLoading, error } = useRtdbList<User>("/users");

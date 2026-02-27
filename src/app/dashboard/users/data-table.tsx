@@ -1,7 +1,9 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   Table,
   TableHeader,
@@ -77,20 +79,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useDatabase, updateRtdb, useRtdbList, useFunctions } from '@/firebase';
+import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
-import { LibyanTransactionsDataTable } from '../libyan-transactions/data-table';
-import { EgyptianTransfersDataTable } from '../egyptian-transactions/data-table';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Datatables imports
-import $ from 'jquery';
-import 'datatables.net-responsive-dt';
-import 'datatables.net-buttons-dt';
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'jszip';
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const LibyanTransactionsDataTable = dynamic(
+  () => import('../libyan-transactions/data-table').then(m => m.LibyanTransactionsDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
+);
+
+const EgyptianTransfersDataTable = dynamic(
+  () => import('../egyptian-transactions/data-table').then(m => m.EgyptianTransfersDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
+);
 
 // Maps for UI display
 const verificationMap: Record<User["verification"], string> = {
@@ -176,17 +179,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                 .map(([id, sessionData]) => ({ id, ...sessionData }))
                 .sort((a, b) => b.lastUpdate - a.lastUpdate);
         }
-        if (user.activeDevice) {
-            return [{
-                id: 'legacy-session',
-                activeDevice: user.activeDevice,
-                phoneOS: user.phoneOS || 'N/A',
-                connectionStatus: user.connectionStatus || 'غير متصل',
-                ipAddress: user.ipAddress || 'N/A',
-                lastLogin: user.lastLogin || new Date(user.lastUpdate || 0).toISOString(),
-                lastUpdate: user.lastUpdate || 0
-            }];
-        }
         return [];
     }, [user]);
 
@@ -214,7 +206,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
             await onUserUpdate(user.id, updates);
             toast({ 
                 title: "تم توثيق الحساب بنجاح",
-                description: "تم حذف صور الهوية الإضافية والاحتفاظ بالصورة الأمامية.",
+                description: "تم تحديث الحالة بنجاح.",
             });
         } else if (newStatus === 'unverified') {
             updates.idImageUrl = null;
@@ -223,7 +215,6 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
             await onUserUpdate(user.id, updates);
             toast({ 
                 title: "تم إلغاء توثيق الحساب", 
-                description: "تم حذف جميع صور إثبات الهوية.",
                 variant: "destructive",
             });
         } else {
@@ -259,7 +250,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
 
     return (
         <Dialog open={open} onOpenChange={(o) => { if (!o) { setIsEditingName(false); } onOpenChange(o); }}>
-            <DialogContent className="max-w-4xl">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     {isEditingName ? (
                         <div className="flex items-center gap-2">
@@ -277,12 +268,11 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                 </DialogHeader>
                  <AlertDialog open={!!confirmation} onOpenChange={(open) => !open && setConfirmation(null)}>
                     <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة. لا يمكن التراجع عن هذا الإجراء.'}</AlertDialogDescription></AlertDialogHeader>
+                        <AlertDialogHeader><AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle><AlertDialogDescription>{confirmation?.action === 'delete-session' ? 'سيتم إنهاء هذه الجلسة وتسجيل خروج المستخدم من هذا الجهاز.' : 'سيتم تسجيل خروج المستخدم من جميع الأجهزة النشطة.'}</AlertDialogDescription></AlertDialogHeader>
                         <AlertDialogFooter><AlertDialogCancel onClick={() => setConfirmation(null)}>إلغاء</AlertDialogCancel><AlertDialogAction onClick={() => { if (confirmation?.action === 'delete-session' && confirmation.sessionId) { handleLogoutSession(confirmation.sessionId); } else if (confirmation?.action === 'logout-all') { handleLogoutAll(); } setConfirmation(null); }}>نعم، متابعة</AlertDialogAction></AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
-                    {/* Column 1: Balances & Personal Info */}
                     <div className="md:col-span-1 space-y-4">
                         <Card>
                             <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><Wallet /> الأرصدة</CardTitle></CardHeader>
@@ -298,73 +288,45 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الأمامية)</h4>
                                     {frontImageUrl ? (
-                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="صورة الهوية (الأمامية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
+                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="صورة الهوية" width={600} height={400} className="rounded-md object-contain border bg-muted/20" /></a>
                                     ) : (
                                         <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-medium text-muted-foreground">صورة الهوية (الخلفية)</h4>
-                                    {backImageUrl ? (
-                                        <a href={backImageUrl} target="_blank" rel="noopener noreferrer"><Image src={backImageUrl} alt="صورة الهوية (الخلفية)" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
-                                    ) : (
-                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفرة</p></div>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
-                                    <h4 className="text-sm font-medium text-muted-foreground">مستند إضافي</h4>
-                                    {otherImageUrl ? (
-                                        <a href={otherImageUrl} target="_blank" rel="noopener noreferrer"><Image src={otherImageUrl} alt="مستند إضافي" width={600} height={400} className="rounded-md object-contain aspect-video border bg-muted/20" /></a>
-                                    ) : (
-                                        <div className="aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50"><p className="text-sm text-muted-foreground">غير متوفر</p></div>
                                     )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-2 pt-2">
                                     <Button size="sm" variant="outline" onClick={() => handleVerification('verified')}><CheckCircle className="ml-2" /> توثيق</Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء التوثيق</Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleVerification('unverified')}><XCircle className="ml-2" /> إلغاء</Button>
                                     <Button size="sm" variant="secondary" className="col-span-2" onClick={() => handleTypeChange(user.role === 'user' ? 'merchant' : 'user')}><UserCog className="ml-2" /> تحويل إلى {user.role === 'user' ? 'تاجر' : 'مستخدم'}</Button>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Column 2: History & Security */}
                     <div className="md:col-span-2 space-y-4">
                         <Card>
-                            <CardHeader className="pb-2"><CardTitle className="text-base flex items-center gap-2"><ShieldCheck /> معلومات الحساب</CardTitle></CardHeader>
-                            <CardContent className="text-sm space-y-2 pt-4">
-                                <div className="flex justify-between"><span>تاريخ فتح الحساب:</span> <span>{new Date(user.createdAt).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير لكلمة المرور:</span> <span>{user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
-                                <div className="flex justify-between"><span>آخر تغيير للرقم السري:</span> <span>{user.lastPinChange ? new Date(user.lastPinChange).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat) : 'غير معروف'}</span></div>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات والأجهزة</CardTitle><CardDescription>عرض وإدارة الجلسات النشطة للمستخدم.</CardDescription></CardHeader>
+                            <CardHeader><CardTitle className="text-base flex items-center gap-2"><Smartphone /> الجلسات</CardTitle></CardHeader>
                             <CardContent>
                                 {sessions.length > 0 ? (
                                     <div className="overflow-x-auto">
                                         <Table>
-                                            <TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>آخر ظهور</TableHead><TableHead>الحالة</TableHead><TableHead>IP</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
+                                            <TableHeader><TableRow><TableHead>الجهاز</TableHead><TableHead>آخر ظهور</TableHead><TableHead>الحالة</TableHead><TableHead className="text-left">إجراء</TableHead></TableRow></TableHeader>
                                             <TableBody>
                                                 {sessions.map((session) => (
-                                                    <TableRow key={session.id} className="even:bg-muted/20"><TableCell><div className="font-medium">{session.activeDevice}</div><div className="text-xs text-muted-foreground">{session.phoneOS}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus], `hover:${connectionStatusColors[session.connectionStatus]}`)}>{session.connectionStatus}</Badge></TableCell><TableCell className="font-mono text-xs">{session.ipAddress}</TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })} disabled={session.id === 'legacy-session'}><LogOut className="ml-2 h-3 w-3" />إنهاء</Button></TableCell></TableRow>
+                                                    <TableRow key={session.id} className="even:bg-muted/20"><TableCell><div className="font-medium">{session.activeDevice}</div></TableCell><TableCell className="text-xs">{new Date(session.lastUpdate).toLocaleString('ar-EG-u-nu-latn', dateTimeFormat)}</TableCell><TableCell><Badge className={cn(connectionStatusColors[session.connectionStatus])}>{session.connectionStatus}</Badge></TableCell><TableCell className="text-left"><Button variant="ghost" size="sm" onClick={() => setConfirmation({ action: 'delete-session', sessionId: session.id })}>إنهاء</Button></TableCell></TableRow>
                                                 ))}
                                             </TableBody>
                                         </Table>
                                     </div>
-                                ) : (<p className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات لعرضها.</p>)}
+                                ) : (<p className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات.</p>)}
                             </CardContent>
-                            <CardFooter><Button variant="destructive" className="w-full" onClick={() => setConfirmation({ action: 'logout-all' })}><LogOut className="ml-2"/> تسجيل الخروج من جميع الأجهزة</Button></CardFooter>
                         </Card>
                         <Tabs defaultValue="libyan">
                             <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="libyan">سجل المعاملات (د.ل)</TabsTrigger><TabsTrigger value="egyptian">سجل التحويلات (ج.م)</TabsTrigger></TabsList>
-                            <TabsContent value="libyan"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل معاملات لعرضه.</p>}</CardContent></Card></TabsContent>
-                            <TabsContent value="egyptian"><Card><CardContent className="pt-6">{transactionsLoading ? <p>جاري تحميل العمليات...</p> : userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-muted-foreground text-sm">لا يوجد سجل تحويلات لعرضه.</p>}</CardContent></Card></TabsContent>
+                            <TabsContent value="libyan"><Card><CardContent className="pt-6">{userFinancialTransactions.length > 0 ? <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} /> : <p className="text-center text-sm">لا يوجد سجل.</p>}</CardContent></Card></TabsContent>
+                            <TabsContent value="egyptian"><Card><CardContent className="pt-6">{userEgyptianTransactions.length > 0 ? <EgyptianTransfersDataTable initialData={userEgyptianTransactions} /> : <p className="text-center text-sm">لا يوجد سجل.</p>}</CardContent></Card></TabsContent>
                         </Tabs>
                     </div>
                 </div>
-
-               
             </DialogContent>
         </Dialog>
     )
@@ -430,17 +392,13 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
         dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
         buttons: [
           { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-          { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
           { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-          { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
           { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
         ],
-        language: {
-          url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-        },
+        language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
         pageLength: 10,
         lengthMenu: [10, 25, 50, 100],
-        searching: false, // We use our custom search input
+        searching: false,
         pagingType: 'full_numbers',
       });
     }, 100);
@@ -455,17 +413,12 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
   
   const handleToggleBan = async (userId: string, currentStatus: User['status']) => {
       const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-      const userName = initialData.find(u => u.id === userId)?.name || '';
-      if (!window.confirm(`هل أنت متأكد من ${newStatus === 'banned' ? 'حظر' : 'رفع الحظر عن'} ${userName}؟`)) return;
+      if (!window.confirm(`هل أنت متأكد من تغيير الحالة؟`)) return;
       try {
           await updateRtdb(database, `/users/${userId}`, { status: newStatus });
-          toast({ 
-              title: newStatus === 'banned' ? "تم حظر المستخدم" : "تم رفع الحظر عن المستخدم",
-              description: `حالة ${userName} الآن: ${statusMap[newStatus]}`,
-              variant: newStatus === 'banned' ? 'destructive' : 'default',
-          });
+          toast({ title: "تم التحديث بنجاح" });
       } catch (e: any) {
-          toast({ title: "حدث خطأ", description: e.message, variant: 'destructive' });
+          toast({ title: "حدث خطأ", variant: 'destructive' });
       }
   }
   
@@ -476,7 +429,7 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
           setSelectedUser(prev => prev ? {...prev, ...updates} : null);
         }
     } catch(e: any) {
-        toast({ title: "حدث خطأ", description: e.message, variant: "destructive" });
+        toast({ title: "حدث خطأ", variant: "destructive" });
     }
   };
 
@@ -484,10 +437,9 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
     try {
       const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
       await manageUserSessions({ userId, sessionId });
-      toast({ title: "تم إنهاء الجلسة بنجاح", description: "تم تسجيل خروج المستخدم من هذا الجهاز." });
-      setSelectedUser(prev => { if (!prev || prev.id !== userId) return prev; const newSessions = {...prev.sessions}; delete (newSessions as any)[sessionId]; return {...prev, sessions: newSessions}; });
+      toast({ title: "تم إنهاء الجلسة بنجاح" });
     } catch (e: any) {
-      toast({ title: "خطأ في إنهاء الجلسة", description: e.message, variant: "destructive" });
+      toast({ title: "خطأ", variant: "destructive" });
     }
   };
 
@@ -495,17 +447,11 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
     try {
       const manageUserSessions = httpsCallable(functions, 'manageUserSessions');
       await manageUserSessions({ userId, action: 'deleteAll' });
-      toast({ title: "تم تسجيل الخروج من جميع الأجهزة بنجاح", description: "تم حذف جميع جلسات المستخدم." });
-      setSelectedUser(prev => { if (!prev || prev.id !== userId) return prev; return { ...prev, sessions: {} }; });
+      toast({ title: "تم تسجيل الخروج من جميع الأجهزة" });
     } catch (e: any) {
-      toast({ title: "خطأ في تسجيل الخروج", description: e.message, variant: "destructive" });
+      toast({ title: "خطأ", variant: "destructive" });
     }
   };
-
-  const handleShowDetails = (user: User) => {
-      setSelectedUser(user);
-      setDetailsOpen(true);
-  }
 
   const handleClearFilters = () => {
     setRoleFilter("all");
@@ -519,12 +465,7 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 flex-grow">
-            <Input
-              placeholder="ابحث بالاسم أو رقم الهاتف..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-sm"
-            />
+            <Input placeholder="ابحث بالاسم أو الرقم..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full max-w-sm" />
             <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="النوع" /></SelectTrigger>
                 <SelectContent>
@@ -532,22 +473,9 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
                     <SelectItem value="user">مستخدم</SelectItem>
                     <SelectItem value="merchant">تاجر</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="superadmin">Super Admin</SelectItem>
                 </SelectContent>
             </Select>
-            <Select value={connectionStatusFilter} onValueChange={setConnectionStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الاتصال" /></SelectTrigger>
-                <SelectContent><SelectItem value="all">كل حالات الاتصال</SelectItem><SelectItem value="متصل">متصل</SelectItem><SelectItem value="غير متصل">غير متصل</SelectItem></SelectContent>
-            </Select>
-            <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التوثيق" /></SelectTrigger>
-                <SelectContent><SelectItem value="all">كل حالات التوثيق</SelectItem><SelectItem value="verified">موثق</SelectItem><SelectItem value="unverified">غير موثق</SelectItem><SelectItem value="pending">قيد المراجعة</SelectItem></SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحظر" /></SelectTrigger>
-                <SelectContent><SelectItem value="all">الكل</SelectItem><SelectItem value="active">غير محظور</SelectItem><SelectItem value="banned">محظور</SelectItem></SelectContent>
-            </Select>
-            <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto"><FilterX className="ml-2 h-4 w-4" />مسح</Button>
+            <Button variant="ghost" onClick={handleClearFilters}><FilterX className="ml-2 h-4 w-4" />مسح</Button>
           </div>
       </div>
       <div className="rounded-lg border">
@@ -557,9 +485,7 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
               <TableHead>الاسم</TableHead>
               <TableHead>رقم الهاتف</TableHead>
               <TableHead>النوع</TableHead>
-              <TableHead>حالة الاتصال</TableHead>
-              <TableHead>حالة الحساب</TableHead>
-              <TableHead>اخر ظهور</TableHead>
+              <TableHead>الحالة</TableHead>
               <TableHead>التوثيق</TableHead>
               <TableHead className="text-left">الإجراءات</TableHead>
             </TableRow>
@@ -572,17 +498,14 @@ export function UsersDataTable({ initialData, allTransactions, transactionsLoadi
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.phone}</TableCell>
                   <TableCell>{roleMap[user.role]}</TableCell>
-                  <TableCell><Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[latestSession.connectionStatus], `hover:${connectionStatusColors[latestSession.connectionStatus]}`)}><span className={cn('h-2 w-2 rounded-full', latestSession.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>{latestSession.connectionStatus}</Badge></TableCell>
-                  <TableCell><Badge className={cn(statusColors[user.status], `hover:${statusColors[user.status]}`)}>{statusMap[user.status]}</Badge></TableCell>
-                  <TableCell>{new Date(latestSession.lastUpdate).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
-                  <TableCell><Badge className={cn(verificationStatusColors[user.verification], `hover:${verificationStatusColors[user.verification]}`)}>{verificationMap[user.verification]}</Badge></TableCell>
+                  <TableCell><Badge className={cn(statusColors[user.status])}>{statusMap[user.status]}</Badge></TableCell>
+                  <TableCell><Badge className={cn(verificationStatusColors[user.verification])}>{verificationMap[user.verification]}</Badge></TableCell>
                   <TableCell className="text-left">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><span className="sr-only">فتح القائمة</span><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleShowDetails(user)}><Eye className="ml-2 h-4 w-4" /><span>تفاصيل</span></DropdownMenuItem>
-                        {user.verification === 'pending' && (<DropdownMenuItem onClick={() => handleUserUpdate(user.id, {verification: 'verified'})} className="text-blue-600 focus:text-blue-600"><ShieldCheck className="ml-2 h-4 w-4" /><span>توثيق الحساب</span></DropdownMenuItem>)}
-                        <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className={cn(user.status === 'banned' ? 'text-green-600 focus:text-green-600' : 'text-destructive focus:text-destructive')}>{user.status === 'banned' ? <UserCheck className="ml-2 h-4 w-4" /> : <UserX className="ml-2 h-4 w-4" />}<span>{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</span></DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => { setSelectedUser(user); setDetailsOpen(true); }}><Eye className="ml-2 h-4 w-4" /><span>تفاصيل</span></DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleBan(user.id, user.status)} className="text-destructive">{user.status === 'banned' ? 'رفع الحظر' : 'حظر'}</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

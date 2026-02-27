@@ -1,11 +1,17 @@
 "use client";
+import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
-import { LibyanTransactionsDataTable } from "@/app/dashboard/libyan-transactions/data-table";
 import type { Transaction, User } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMemo } from "react";
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const LibyanTransactionsDataTable = dynamic(
+  () => import("@/app/dashboard/libyan-transactions/data-table").then(m => m.LibyanTransactionsDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 const prefixToTitle: Record<string, string> = {
     'dd': 'التحويل من دينار لدينار (DD)',

@@ -1,6 +1,6 @@
 'use client';
+import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
-import { FakkaLogDataTable } from "./data-table";
 import type { FakkaLog } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,6 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+// استيراد ديناميكي مع تعطيل SSR لتجنب مشاكل jQuery على السيرفر
+const FakkaLogDataTable = dynamic(
+  () => import("./data-table").then(m => m.FakkaLogDataTable),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> }
+);
 
 export default function FakkaLogPage() {
   const { data: fakkaLogs, isLoading, error } = useRtdbList<FakkaLog>("/fakkaSafe/logs");
