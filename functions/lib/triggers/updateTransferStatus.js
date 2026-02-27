@@ -1,5 +1,4 @@
 "use strict";
-"use server";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -35,19 +34,21 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateTransferStatus = void 0;
-const functions = __importStar(require("firebase-functions"));
+const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 /**
- * Updates the status of a pending Egyptian transfer and moves it to the user's transactions.
- * Handles automatic balance refunds if the transaction is failed.
+ * تحديث حالة الحوالة المصرية المعلقة مع منطق استرداد الرصيد في حال الرفض.
  */
-exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(async (data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+exports.updateTransferStatus = (0, https_1.onCall)({ region: "asia-southeast1" }, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError("unauthenticated", "يجب تسجيل الدخول أولاً.");
     }
-    const { transferId, status, receiptUrl } = data;
+    const { transferId, status, receiptUrl } = request.data;
     if (!transferId || !status) {
-        throw new functions.https.HttpsError("invalid-argument", "The function must be called with a transferId and status.");
+        throw new https_1.HttpsError("invalid-argument", "بيانات الحوالة أو الحالة ناقصة.");
     }
     const db = admin.database();
     const transferRef = db.ref(`/admin/pending_egypt_transfers/${transferId}`);
@@ -55,19 +56,19 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
         const snapshot = await transferRef.once("value");
         const transferData = snapshot.val();
         if (!transferData) {
-            throw new functions.https.HttpsError("not-found", "Transfer not found.");
+            throw new https_1.HttpsError("not-found", "المعاملة غير موجودة في قائمة الانتظار.");
         }
         const userId = transferData.userId;
-        // Get the amount to be handled (Total deduction includes fees)
+        // المبلغ الإجمالي المخصوم (المبلغ الأصلي + الرسوم)
         const deduction = Number(transferData.totalDeduction || transferData.amountEGP || 0);
-        // Update User Balance atomically using transaction
+        // تحديث أرصدة المستخدم بشكل آمن (Atomic Transaction)
         const userRef = db.ref(`/users/${userId}`);
         await userRef.transaction((user) => {
             if (user) {
-                // Always decrement the pending balance as the "in-flight" status is ending
+                // دائماً يتم خصم المبلغ من الرصيد المعلق لأن المعاملة انتهت من حالة "الانتظار"
                 const currentPending = Number(user.balanceEgyptianPending) || 0;
                 user.balanceEgyptianPending = Math.max(0, currentPending - deduction);
-                // If the transaction failed, return the money to the available EGP balance
+                // إذا تم رفض العملية (failed)، نقوم بإعادة المبلغ كاملاً للرصيد المتاح (Refund)
                 if (status === "failed") {
                     const currentBalance = Number(user.balanceEGP) || 0;
                     user.balanceEGP = currentBalance + deduction;
@@ -76,19 +77,15 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
             }
             return user;
         });
-        // Update the status and receipt URL in the transaction record
-        const updatedTransferData = Object.assign(Object.assign({}, transferData), { status, receiptUrl: receiptUrl || null });
-        // Move the transaction to the user's transactions list
-        const userTransactionRef = db.ref(`/users/${userId}/transactions/${transferId}`);
-        await userTransactionRef.set(updatedTransferData);
-        // Clean up the pending transfer record from admin queue
+        const updatedTransferData = Object.assign(Object.assign({}, transferData), { status, receiptUrl: receiptUrl || null, processedAt: admin.database.ServerValue.TIMESTAMP });
+        // نقل المعاملة لسجل المستخدم وحذفها من قائمة انتظار الإدارة
+        await db.ref(`/users/${userId}/transactions/${transferId}`).set(updatedTransferData);
         await transferRef.remove();
         return { success: true };
     }
     catch (error) {
-        console.error("Error updating transfer status:", error);
-        const message = error instanceof Error ? error.message : "Unknown error";
-        throw new functions.https.HttpsError("unknown", "Error updating transfer status.", message);
+        console.error("Error in updateTransferStatus:", error);
+        throw new https_1.HttpsError("internal", error.message);
     }
 });
 //# sourceMappingURL=updateTransferStatus.js.map

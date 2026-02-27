@@ -35,56 +35,36 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.notifyOnRateChange = void 0;
 const database_1 = require("firebase-functions/v2/database");
-const v2_1 = require("firebase-functions/v2");
+const admin = __importStar(require("firebase-admin"));
 const OneSignal = __importStar(require("onesignal-node"));
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 exports.notifyOnRateChange = (0, database_1.onValueWritten)({
     ref: "/settings/exchangeControl/currentRate",
     region: "asia-southeast1",
     secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"],
 }, async (event) => {
-    // Exit if the data was deleted.
-    if (!event.data.after.exists()) {
-        v2_1.logger.info("Rate was deleted, no notification sent.");
+    if (!event.data.after.exists())
         return;
-    }
     const oldRate = event.data.before.val();
     const newRate = event.data.after.val();
-    // Exit if the rate hasn't changed.
-    if (oldRate === newRate) {
-        v2_1.logger.info(`Rate has not changed. Old: ${oldRate}, New: ${newRate}. No notification sent.`);
+    if (oldRate === newRate || !event.data.before.exists())
         return;
-    }
-    // Don't notify on initial creation
-    if (!event.data.before.exists()) {
-        v2_1.logger.info(`Rate was created with value: ${newRate}. No notification sent on initial creation.`);
-        return;
-    }
-    const title = "تحديث سعر الصرف";
-    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${Number(newRate).toFixed(2)}`;
     const appId = process.env.ONE_SIGNAL_APP_ID;
     const apiKey = process.env.ONE_SIGNAL_API_KEY;
-    if (!appId || !apiKey) {
-        v2_1.logger.error("OneSignal configuration missing (APP_ID or API_KEY)");
-        return;
-    }
-    const oneSignalClient = new OneSignal.Client(appId, apiKey);
-    const notification = {
-        contents: {
-            en: body,
-            ar: body,
-        },
-        headings: {
-            en: title,
-            ar: title,
-        },
-        included_segments: ["All"],
-    };
+    const client = new OneSignal.Client(appId, apiKey);
+    const title = "تحديث سعر الصرف";
+    const body = `تم تحديث سعر صرف الدينار الليبي مقابل الجنيه المصري. السعر الجديد: ${Number(newRate).toFixed(2)}`;
     try {
-        const response = await oneSignalClient.createNotification(notification);
-        v2_1.logger.info("Notification sent successfully:", response.body);
+        await client.createNotification({
+            contents: { en: body, ar: body },
+            headings: { en: title, ar: title },
+            included_segments: ["All"],
+        });
     }
-    catch (error) {
-        v2_1.logger.error("Error sending notification:", error);
+    catch (e) {
+        console.error("Error sending rate notification:", e);
     }
 });
 //# sourceMappingURL=notifyOnRateChange.js.map

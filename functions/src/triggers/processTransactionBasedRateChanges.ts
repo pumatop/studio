@@ -1,19 +1,10 @@
+import { onValueCreated } from "firebase-functions/v2/database";
 import * as admin from "firebase-admin";
-import {onValueCreated} from "firebase-functions/v2/database";
-import {logger} from "firebase-functions/v2";
 
-const db = admin.database();
-
-interface Condition {
-  type: "time" | "amount";
-  value: string | number;
-  targetRate: number;
+if (!admin.apps.length) {
+  admin.initializeApp();
 }
 
-/**
- * Checks for amount-based exchange rate conditions on new transactions.
- * This function runs if 'autoConditionsActive' is true.
- */
 export const processTransactionBasedRateChanges = onValueCreated(
   {
     ref: "/users/{userId}/transactions/{transactionId}",
@@ -21,93 +12,42 @@ export const processTransactionBasedRateChanges = onValueCreated(
   },
   async (event) => {
     const transaction = event.data.val();
+    if (transaction.type !== "egypt_transfer" || transaction.status !== "completed") return;
 
-    if (
-      transaction.type !== "egypt_transfer" ||
-      transaction.status !== "completed"
-    ) {
-      return;
-    }
-
-    // Update the daily aggregate first. This will trigger the auto-close function if needed.
+    const db = admin.database();
     const date = new Date(transaction.timestamp).toISOString().split("T")[0];
     const aggregateRef = db.ref(`/dailyAggregates/${date}`);
-    const {committed, snapshot: aggSnap} = await aggregateRef.transaction(
-      (currentData) => {
-        if (currentData === null) {
-          return {totalEgpAmount: transaction.amountEGP};
-        }
-        return {
-          totalEgpAmount: currentData.totalEgpAmount + transaction.amountEGP,
-        };
-      }
-    );
 
-    if (!committed) {
-      logger.error(
-        "Failed to commit transaction to update daily aggregate."
-      );
-      return;
-    }
+    const { snapshot: aggSnap } = await aggregateRef.transaction((current) => {
+      if (current === null) return { totalEgpAmount: transaction.amountEGP };
+      return { totalEgpAmount: current.totalEgpAmount + transaction.amountEGP };
+    });
 
-    // Now, check for rate change conditions
-    const settingsRef = db.ref("/settings/exchangeControl");
-    const settingsSnap = await settingsRef.get();
+    const settingsSnap = await db.ref("/settings/exchangeControl").get();
     const settings = settingsSnap.val();
 
-    if (!settings?.autoConditionsActive || !settings.conditions) {
-      logger.info("Automatic rate conditions disabled or no conditions exist.");
-      return;
-    }
+    if (!settings?.autoConditionsActive || !settings.conditions) return;
 
-    const amountConditions = Object.entries(
-      settings.conditions as Record<string, Condition>
-    )
-      .filter(([, cond]) => cond.type === "amount")
-      .sort(([, a], [, b]) => (a.value as number) - (b.value as number));
+    const newTotal = aggSnap.val().totalEgpAmount;
+    const amountConditions = Object.entries(settings.conditions)
+      .filter(([, c]: any) => c.type === "amount")
+      .sort(([, a]: any, [, b]: any) => a.value - b.value);
 
-    if (amountConditions.length === 0) {
-      logger.info("No amount-based rate conditions to check.");
-      return;
-    }
-
-    const newTotalAmount = aggSnap.val().totalEgpAmount;
-    logger.info(
-      `New total EGP amount for ${date} is ${newTotalAmount}. Checking for rate changes.`
-    );
-
-    let rateChanged = false;
-    const updates: Record<string, unknown> = {};
-
-    for (const [id, condition] of amountConditions) {
-      if (newTotalAmount >= (condition.value as number)) {
-        logger.info(
-          `Amount-based rate condition met for ID ${id}. ` +
-            `New total ${newTotalAmount} >= ${condition.value}. ` +
-            `Changing rate to ${condition.targetRate}`
-        );
-
-        updates["/settings/exchangeControl/currentRate"] =
-          condition.targetRate;
-        const logId = db.ref("/exchangeRateLogs").push().key;
-        updates[`/exchangeRateLogs/${logId}`] = {
+    for (const [id, cond] of amountConditions as any) {
+      if (newTotal >= cond.value) {
+        const updates: any = {};
+        updates["/settings/exchangeControl/currentRate"] = cond.targetRate;
+        updates[`/exchangeRateLogs/${db.ref("/exchangeRateLogs").push().key}`] = {
           date: new Date().toISOString(),
           modifiedBy: "النظام التلقائي",
           oldRate: settings.currentRate,
-          newRate: condition.targetRate,
+          newRate: cond.targetRate,
           currencyPair: "LYD/EGP",
         };
         updates[`/settings/exchangeControl/conditions/${id}`] = null;
-        rateChanged = true;
-        break; // Apply only the first threshold met
+        await db.ref().update(updates);
+        break;
       }
     }
-
-    if (rateChanged) {
-      await db.ref().update(updates);
-      logger.log("Successfully applied amount-based rate change.");
-    }
-
-    return;
   }
 );

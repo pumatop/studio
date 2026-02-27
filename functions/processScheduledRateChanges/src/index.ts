@@ -17,7 +17,7 @@ export const processScheduledRateChanges = onSchedule(
 
     if (!settings?.autoConditionsActive || !settings.conditions) return;
 
-    const userTimezone = settings.timezone || "UTC";
+    const userTimezone = settings.timezone || "Africa/Cairo";
     const currentTime = new Date().toLocaleTimeString("en-GB", {
       timeZone: userTimezone,
       hour: "2-digit",

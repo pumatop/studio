@@ -62,7 +62,16 @@ import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// استيراد ديناميكي لمنع أخطاء jQuery على السيرفر
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
+
+// استيراد ديناميكي لمنع أخطاء SSR
 const LibyanTransactionsDataTable = dynamic(
   () => import('../libyan-transactions/data-table').then(m => m.LibyanTransactionsDataTable),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
@@ -159,7 +168,7 @@ function UserDetailsDialog({ user, open, onOpenChange, onUserUpdate, onDeleteSes
                         </Card>
                         <Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText /> الهوية</CardTitle></CardHeader>
                             <CardContent className="pt-4">
-                                {frontImageUrl ? <a href={frontImageUrl} target="_blank"><Image src={frontImageUrl} alt="ID" width={300} height={200} className="rounded-md object-contain border" /></a> : <div className="h-32 border-2 border-dashed flex items-center justify-center text-xs text-muted-foreground">لا توجد صورة</div>}
+                                {frontImageUrl ? <a href={frontImageUrl} target="_blank" rel="noopener noreferrer"><Image src={frontImageUrl} alt="ID" width={300} height={200} className="rounded-md object-contain border" /></a> : <div className="h-32 border-2 border-dashed flex items-center justify-center text-xs text-muted-foreground">لا توجد صورة</div>}
                                 <div className="grid grid-cols-2 gap-2 mt-4">
                                     <Button size="sm" onClick={() => onUserUpdate(user.id, { verification: 'verified' })}>توثيق</Button>
                                     <Button size="sm" variant="destructive" onClick={() => onUserUpdate(user.id, { verification: 'unverified' })}>إلغاء</Button>
@@ -202,27 +211,36 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter]);
 
   useEffect(() => {
-    import('jquery').then(($) => {
-        if (!tableRef.current) return;
-        // @ts-ignore
-        if ($.default.fn.DataTable.isDataTable(tableRef.current)) {
-            // @ts-ignore
-            $(tableRef.current).DataTable().destroy();
-        }
-        
-        const timer = setTimeout(() => {
-          // @ts-ignore
-          $(tableRef.current!).DataTable({
-            responsive: true,
-            dom: "Bfrtip",
-            buttons: ['copy', 'excel', 'print'],
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
-            pageLength: 10,
-            searching: false,
-          });
-        }, 100);
-        return () => { clearTimeout(timer); };
-    });
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+
+    if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+    }
+    
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+          ],
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+          pageLength: 10,
+          searching: false,
+          pagingType: 'full_numbers',
+        });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+        $(tableRef.current).DataTable().destroy();
+      }
+    };
   }, [filteredData]);
 
   return (

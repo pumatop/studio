@@ -1,4 +1,3 @@
-
 {
   "database": {
     "rules": "database.rules.json"
@@ -7,55 +6,15 @@
     "rules": "storage.rules"
   },
   "functions": [
-    {
-      "source": "functions/updateTransferStatus",
-      "codebase": "update-transfer-status",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/deleteSupervisor",
-      "codebase": "delete-supervisor",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/sendNotification",
-      "codebase": "send-notification",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/listAuthUsers",
-      "codebase": "list-auth-users",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/manageUserSessions",
-      "codebase": "manage-user-sessions",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/updateOneSignalPlayerId",
-      "codebase": "update-onesignal-id",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/notifyOnRateChange",
-      "codebase": "notify-rate-change",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/handleAutoExchangeStatus",
-      "codebase": "auto-exchange-status",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/processScheduledRateChanges",
-      "codebase": "scheduled-rate-changes",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    },
-    {
-      "source": "functions/processTransactionBasedRateChanges",
-      "codebase": "transaction-rate-changes",
-      "ignore": ["node_modules", ".git", "firebase-debug.log"]
-    }
+    { "codebase": "update-transfer-status", "source": "functions/updateTransferStatus" },
+    { "codebase": "delete-supervisor", "source": "functions/deleteSupervisor" },
+    { "codebase": "list-auth-users", "source": "functions/listAuthUsers" },
+    { "codebase": "manage-user-sessions", "source": "functions/manageUserSessions" },
+    { "codebase": "notify-on-rate-change", "source": "functions/notifyOnRateChange" },
+    { "codebase": "process-scheduled-rate-changes", "source": "functions/processScheduledRateChanges" },
+    { "codebase": "process-transaction-based-rate-changes", "source": "functions/processTransactionBasedRateChanges" },
+    { "codebase": "send-notification", "source": "functions/sendNotification" },
+    { "codebase": "update-onesignal-player-id", "source": "functions/updateOneSignalPlayerId" },
+    { "codebase": "handle-auto-exchange-status", "source": "functions/handleAutoExchangeStatus" }
   ]
 }

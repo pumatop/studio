@@ -1,47 +1,27 @@
+import { onValueWritten } from "firebase-functions/v2/database";
 import * as admin from "firebase-admin";
-import {onValueWritten} from "firebase-functions/v2/database";
-import {logger} from "firebase-functions/v2";
 
-const db = admin.database();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
-/**
- * Automatically closes the exchange based on daily trading volume.
- * This function only runs if the exchange mode is 'auto'.
- */
 export const handleAutoExchangeStatus = onValueWritten(
   {
     ref: "/dailyAggregates/{date}",
     region: "asia-southeast1",
   },
   async (event) => {
-    const settingsRef = db.ref("/settings/exchangeControl");
-    const settingsSnap = await settingsRef.get();
+    const db = admin.database();
+    const settingsSnap = await db.ref("/settings/exchangeControl").get();
     const settings = settingsSnap.val();
 
-    // Only run if mode is 'auto' and exchange is currently open.
-    if (settings?.mode !== "auto" || !settings.isOpen) {
-      logger.info(
-        "Auto-close is disabled (mode is not 'auto' or exchange is already closed)."
-      );
-      return;
-    }
+    if (settings?.mode !== "auto" || !settings.isOpen) return;
 
-    // Get the total amount for the day from the trigger event's 'after' state.
     const aggregate = event.data.after.val();
-    if (!aggregate || typeof aggregate.totalEgpAmount === "undefined") {
-      logger.info("No aggregate data found to process for auto-close check.");
-      return;
-    }
-    const newTotalAmount = aggregate.totalEgpAmount;
+    if (!aggregate || typeof aggregate.totalEgpAmount === "undefined") return;
 
-    // Check if the threshold is met.
-    if (newTotalAmount >= settings.autoCloseThreshold) {
-      logger.info(
-        `Auto-close threshold met. Total: ${newTotalAmount}, Threshold: ${settings.autoCloseThreshold}. Closing exchange.`
-      );
-      // Close the exchange by setting isOpen to false.
-      await settingsRef.update({isOpen: false});
+    if (aggregate.totalEgpAmount >= settings.autoCloseThreshold) {
+      await db.ref("/settings/exchangeControl").update({ isOpen: false });
     }
-    return;
   }
 );

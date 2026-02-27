@@ -1,34 +1,22 @@
-
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
-import {HttpsError, onCall} from "firebase-functions/v2/https";
-import {logger} from "firebase-functions/v2";
 
-const db = admin.database();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
-export const updateOneSignalPlayerId = onCall({region: "asia-southeast1"}, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError(
-      "unauthenticated",
-      "The function must be called while authenticated."
-    );
-  }
+export const updateOneSignalPlayerId = onCall({ region: "asia-southeast1" }, async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Unauthenticated.");
 
   const uid = request.auth.uid;
-  const {playerId} = request.data;
+  const { playerId } = request.data;
 
-  if (!playerId || typeof playerId !== "string") {
-    throw new HttpsError(
-      "invalid-argument",
-      "The 'playerId' parameter must be a non-empty string."
-    );
-  }
+  if (!playerId) throw new HttpsError("invalid-argument", "playerId required.");
 
   try {
-    await db.ref(`/users/${uid}`).update({oneSignalPlayerId: playerId});
-    logger.info(`Updated OneSignal Player ID for user ${uid}`);
-    return {success: true, message: "OneSignal Player ID updated successfully."};
-  } catch (error) {
-    logger.error(`Error updating OneSignal Player ID for user ${uid}:`, error);
-    throw new HttpsError("internal", "Could not update OneSignal Player ID.");
+    await admin.database().ref(`/users/${uid}`).update({ oneSignalPlayerId: playerId });
+    return { success: true };
+  } catch (error: any) {
+    throw new HttpsError("internal", error.message);
   }
 });

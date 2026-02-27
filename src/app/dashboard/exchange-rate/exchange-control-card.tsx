@@ -115,7 +115,7 @@ function formatTime12h(timeString: string) {
   const [hour, minute] = timeString.split(':');
   let h = parseInt(hour, 10);
   const suffix = h >= 12 ? 'م' : 'ص';
-  h = ((h + 11) % 12) + 1; // Convert 24h to 12h
+  h = ((h + 11) % 12) + 1;
   return `${h}:${minute} ${suffix}`;
 }
 
@@ -146,7 +146,6 @@ export function ExchangeControlCard() {
   }, [settings, toast]);
 
   useEffect(() => {
-    setServerTime(new Date());
     const timerId = setInterval(() => setServerTime(new Date()), 1000);
     return () => clearInterval(timerId);
   }, []);
@@ -192,7 +191,6 @@ export function ExchangeControlCard() {
     }
     setIsSaving(true);
     try {
-        // Check if the current rate has been changed manually
         if (settings && typeof localSettings.currentRate === 'number' && localSettings.currentRate !== settings.currentRate) {
             const logPath = '/exchangeRateLogs';
             const newLog = {
@@ -231,7 +229,6 @@ export function ExchangeControlCard() {
       </CardHeader>
       <CardContent className="flex-1 space-y-6">
         
-        {/* Exchange Status */}
         <div className="space-y-4">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-base">حالة الصرف</h3>
@@ -286,7 +283,6 @@ export function ExchangeControlCard() {
         
         <Separator />
 
-        {/* Current Exchange Rate */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
@@ -316,7 +312,6 @@ export function ExchangeControlCard() {
 
         <Separator />
 
-        {/* Timezone Setting */}
         <div className="space-y-2">
           <Label htmlFor="timezone-select" className="font-semibold">المنطقة الزمنية</Label>
           <p className="text-xs text-muted-foreground">
@@ -340,7 +335,6 @@ export function ExchangeControlCard() {
         
         <Separator />
         
-        {/* Automatic Rate Change Conditions */}
         <div className="space-y-4">
             <div className="flex items-center justify-between rounded-lg border p-3">
                 <div className="space-y-0.5">

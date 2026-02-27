@@ -44,14 +44,14 @@ const admin = __importStar(require("firebase-admin"));
 admin.initializeApp();
 // Import and export functions from their individual files.
 // This allows Firebase to discover and deploy them.
+__exportStar(require("./triggers/deleteSupervisor"), exports);
 __exportStar(require("./triggers/handleAutoExchangeStatus"), exports);
+__exportStar(require("./triggers/listAuthUsers"), exports);
+__exportStar(require("./triggers/manageUserSessions"), exports);
+__exportStar(require("./triggers/notifyOnRateChange"), exports);
 __exportStar(require("./triggers/processScheduledRateChanges"), exports);
 __exportStar(require("./triggers/processTransactionBasedRateChanges"), exports);
-__exportStar(require("./triggers/manageUserSessions"), exports);
 __exportStar(require("./triggers/sendNotification"), exports);
 __exportStar(require("./triggers/updateOneSignalPlayerId"), exports);
-__exportStar(require("./triggers/notifyOnRateChange"), exports);
-__exportStar(require("./triggers/deleteSupervisor"), exports);
 __exportStar(require("./triggers/updateTransferStatus"), exports);
-__exportStar(require("./triggers/listAuthUsers"), exports);
 //# sourceMappingURL=index.js.map

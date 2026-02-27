@@ -34,54 +34,30 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.manageUserSessions = void 0;
-const admin = __importStar(require("firebase-admin"));
 const https_1 = require("firebase-functions/v2/https");
-const v2_1 = require("firebase-functions/v2");
-const db = admin.database();
+const admin = __importStar(require("firebase-admin"));
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 exports.manageUserSessions = (0, https_1.onCall)({ region: "asia-southeast1" }, async (request) => {
     if (!request.auth) {
-        throw new https_1.HttpsError("unauthenticated", "The function must be called while authenticated.");
-    }
-    const adminUid = request.auth.uid;
-    const adminUserRef = db.ref(`/users/${adminUid}`);
-    const adminUserSnapshot = await adminUserRef.get();
-    const adminUserData = adminUserSnapshot.val();
-    if (!adminUserData) {
-        throw new https_1.HttpsError("permission-denied", `Permission denied. User profile not found in database for UID: ${adminUid}.`);
-    }
-    if (adminUserData.role !== "admin") {
-        throw new https_1.HttpsError("permission-denied", `Permission denied. User does not have admin role. Role found: '${adminUserData.role}'.`);
+        throw new https_1.HttpsError("unauthenticated", "Unauthenticated.");
     }
     const { userId, sessionId, action } = request.data;
-    if (!userId || typeof userId !== "string") {
-        throw new https_1.HttpsError("invalid-argument", "The 'userId' parameter must be a non-empty string.");
+    if (!userId)
+        throw new https_1.HttpsError("invalid-argument", "userId required.");
+    const db = admin.database();
+    try {
+        if (action === "deleteAll") {
+            await db.ref(`/users/${userId}/sessions`).remove();
+        }
+        else if (sessionId) {
+            await db.ref(`/users/${userId}/sessions/${sessionId}`).remove();
+        }
+        return { success: true };
     }
-    if (action === "deleteAll") {
-        v2_1.logger.info(`Admin ${adminUid} is deleting all sessions for user ${userId}.`);
-        const sessionsRef = db.ref(`/users/${userId}/sessions`);
-        try {
-            await sessionsRef.remove();
-            return { success: true, message: `All sessions for user ${userId} have been deleted.` };
-        }
-        catch (error) {
-            v2_1.logger.error(`Error deleting all sessions for user ${userId}:`, error);
-            throw new https_1.HttpsError("internal", "Could not delete all user sessions.");
-        }
-    }
-    else if (sessionId && typeof sessionId === "string") {
-        v2_1.logger.info(`Admin ${adminUid} is deleting session '${sessionId}' for user ${userId}.`);
-        const sessionRef = db.ref(`/users/${userId}/sessions/${sessionId}`);
-        try {
-            await sessionRef.remove();
-            return { success: true, message: `Session '${sessionId}' for user ${userId} has been deleted.` };
-        }
-        catch (error) {
-            v2_1.logger.error(`Error deleting session '${sessionId}' for user ${userId}:`, error);
-            throw new https_1.HttpsError("internal", `Could not delete session '${sessionId}'.`);
-        }
-    }
-    else {
-        throw new https_1.HttpsError("invalid-argument", "The function must be called with a 'sessionId' or with the 'action' set to 'deleteAll'.");
+    catch (error) {
+        throw new https_1.HttpsError("internal", error.message);
     }
 });
 //# sourceMappingURL=manageUserSessions.js.map

@@ -34,39 +34,25 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleAutoExchangeStatus = void 0;
-const admin = __importStar(require("firebase-admin"));
 const database_1 = require("firebase-functions/v2/database");
-const v2_1 = require("firebase-functions/v2");
-const db = admin.database();
-/**
- * Automatically closes the exchange based on daily trading volume.
- * This function only runs if the exchange mode is 'auto'.
- */
+const admin = __importStar(require("firebase-admin"));
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
 exports.handleAutoExchangeStatus = (0, database_1.onValueWritten)({
     ref: "/dailyAggregates/{date}",
     region: "asia-southeast1",
 }, async (event) => {
-    const settingsRef = db.ref("/settings/exchangeControl");
-    const settingsSnap = await settingsRef.get();
+    const db = admin.database();
+    const settingsSnap = await db.ref("/settings/exchangeControl").get();
     const settings = settingsSnap.val();
-    // Only run if mode is 'auto' and exchange is currently open.
-    if ((settings === null || settings === void 0 ? void 0 : settings.mode) !== "auto" || !settings.isOpen) {
-        v2_1.logger.info("Auto-close is disabled (mode is not 'auto' or exchange is already closed).");
+    if ((settings === null || settings === void 0 ? void 0 : settings.mode) !== "auto" || !settings.isOpen)
         return;
-    }
-    // Get the total amount for the day from the trigger event's 'after' state.
     const aggregate = event.data.after.val();
-    if (!aggregate || typeof aggregate.totalEgpAmount === "undefined") {
-        v2_1.logger.info("No aggregate data found to process for auto-close check.");
+    if (!aggregate || typeof aggregate.totalEgpAmount === "undefined")
         return;
+    if (aggregate.totalEgpAmount >= settings.autoCloseThreshold) {
+        await db.ref("/settings/exchangeControl").update({ isOpen: false });
     }
-    const newTotalAmount = aggregate.totalEgpAmount;
-    // Check if the threshold is met.
-    if (newTotalAmount >= settings.autoCloseThreshold) {
-        v2_1.logger.info(`Auto-close threshold met. Total: ${newTotalAmount}, Threshold: ${settings.autoCloseThreshold}. Closing exchange.`);
-        // Close the exchange by setting isOpen to false.
-        await settingsRef.update({ isOpen: false });
-    }
-    return;
 });
 //# sourceMappingURL=handleAutoExchangeStatus.js.map
