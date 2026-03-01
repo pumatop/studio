@@ -5,8 +5,8 @@
     "node": "22"
   },
   "scripts": {
-    "bundle:base": "esbuild --bundle --platform=node --target=node22 --external:firebase-admin --external:firebase-functions",
-    "copy-pkg": "copy-pkg() { cp src/$1/package.json dist/$1/package.json; }; copy-pkg",
+    "bundle:base": "esbuild --bundle --platform=node --target=node22 --external:firebase-admin --external:firebase-functions --external:onesignal-node",
+    "copy-pkg": "node -e \"const fs=require('fs'); const p=process.argv[1]; const d='dist/'+p; if(!fs.existsSync(d))fs.mkdirSync(d,{recursive:true}); fs.copyFileSync('src/'+p+'/package.json', d+'/package.json')\" --",
     "bundle:delete-supervisor": "npm run bundle:base -- src/delete-supervisor/index.ts --outfile=dist/delete-supervisor/index.js && npm run copy-pkg -- delete-supervisor",
     "bundle:handle-auto-exchange-status": "npm run bundle:base -- src/handle-auto-exchange-status/index.ts --outfile=dist/handle-auto-exchange-status/index.js && npm run copy-pkg -- handle-auto-exchange-status",
     "bundle:list-auth-users": "npm run bundle:base -- src/list-auth-users/index.ts --outfile=dist/list-auth-users/index.js && npm run copy-pkg -- list-auth-users",
