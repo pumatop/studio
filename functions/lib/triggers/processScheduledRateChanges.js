@@ -48,7 +48,7 @@ exports.processScheduledRateChanges = (0, scheduler_1.onSchedule)({
     const settings = settingsSnap.val();
     if (!(settings === null || settings === void 0 ? void 0 : settings.autoConditionsActive) || !settings.conditions)
         return;
-    const userTimezone = settings.timezone || "UTC";
+    const userTimezone = settings.timezone || "Africa/Cairo";
     const currentTime = new Date().toLocaleTimeString("en-GB", {
         timeZone: userTimezone,
         hour: "2-digit",
