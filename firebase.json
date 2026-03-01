@@ -7,18 +7,54 @@
   },
   "functions": [
     {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ]
+      "codebase": "delete-supervisor",
+      "source": "functions/dist/delete-supervisor",
+      "predeploy": ["npm --prefix functions run bundle:delete-supervisor"]
+    },
+    {
+      "codebase": "handle-auto-exchange-status",
+      "source": "functions/dist/handle-auto-exchange-status",
+      "predeploy": ["npm --prefix functions run bundle:handle-auto-exchange-status"]
+    },
+    {
+      "codebase": "list-auth-users",
+      "source": "functions/dist/list-auth-users",
+      "predeploy": ["npm --prefix functions run bundle:list-auth-users"]
+    },
+    {
+      "codebase": "manage-user-sessions",
+      "source": "functions/dist/manage-user-sessions",
+      "predeploy": ["npm --prefix functions run bundle:manage-user-sessions"]
+    },
+    {
+      "codebase": "notify-on-rate-change",
+      "source": "functions/dist/notify-on-rate-change",
+      "predeploy": ["npm --prefix functions run bundle:notify-on-rate-change"]
+    },
+    {
+      "codebase": "process-scheduled-rate-changes",
+      "source": "functions/dist/process-scheduled-rate-changes",
+      "predeploy": ["npm --prefix functions run bundle:process-scheduled-rate-changes"]
+    },
+    {
+      "codebase": "process-transaction-based-rate-changes",
+      "source": "functions/dist/process-transaction-based-rate-changes",
+      "predeploy": ["npm --prefix functions run bundle:process-transaction-based-rate-changes"]
+    },
+    {
+      "codebase": "send-notification",
+      "source": "functions/dist/send-notification",
+      "predeploy": ["npm --prefix functions run bundle:send-notification"]
+    },
+    {
+      "codebase": "update-onesignal-player-id",
+      "source": "functions/dist/update-onesignal-player-id",
+      "predeploy": ["npm --prefix functions run bundle:update-onesignal-player-id"]
+    },
+    {
+      "codebase": "update-transfer-status",
+      "source": "functions/dist/update-transfer-status",
+      "predeploy": ["npm --prefix functions run bundle:update-transfer-status"]
     }
   ]
 }

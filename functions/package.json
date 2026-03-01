@@ -1,29 +1,30 @@
 {
-  "name": "functions",
-  "scripts": {
-    "lint": "eslint --ext .js,.ts .",
-    "build": "tsc",
-    "serve": "npm run build && firebase emulators:start --only functions",
-    "shell": "npm run build && firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
-  },
+  "name": "functions-root",
+  "private": true,
   "engines": {
     "node": "22"
   },
-  "main": "lib/index.js",
-  "dependencies": {
-    "firebase-functions": "^5.0.1",
-    "onesignal-node": "^3.4.0"
+  "scripts": {
+    "bundle:base": "esbuild --bundle --platform=node --target=node22 --external:firebase-admin --external:firebase-functions",
+    "copy-pkg": "copy-pkg() { cp src/$1/package.json dist/$1/package.json; }; copy-pkg",
+    "bundle:delete-supervisor": "npm run bundle:base -- src/delete-supervisor/index.ts --outfile=dist/delete-supervisor/index.js && npm run copy-pkg -- delete-supervisor",
+    "bundle:handle-auto-exchange-status": "npm run bundle:base -- src/handle-auto-exchange-status/index.ts --outfile=dist/handle-auto-exchange-status/index.js && npm run copy-pkg -- handle-auto-exchange-status",
+    "bundle:list-auth-users": "npm run bundle:base -- src/list-auth-users/index.ts --outfile=dist/list-auth-users/index.js && npm run copy-pkg -- list-auth-users",
+    "bundle:manage-user-sessions": "npm run bundle:base -- src/manage-user-sessions/index.ts --outfile=dist/manage-user-sessions/index.js && npm run copy-pkg -- manage-user-sessions",
+    "bundle:notify-on-rate-change": "npm run bundle:base -- src/notify-on-rate-change/index.ts --outfile=dist/notify-on-rate-change/index.js && npm run copy-pkg -- notify-on-rate-change",
+    "bundle:process-scheduled-rate-changes": "npm run bundle:base -- src/process-scheduled-rate-changes/index.ts --outfile=dist/process-scheduled-rate-changes/index.js && npm run copy-pkg -- process-scheduled-rate-changes",
+    "bundle:process-transaction-based-rate-changes": "npm run bundle:base -- src/process-transaction-based-rate-changes/index.ts --outfile=dist/process-transaction-based-rate-changes/index.js && npm run copy-pkg -- process-transaction-based-rate-changes",
+    "bundle:send-notification": "npm run bundle:base -- src/send-notification/index.ts --outfile=dist/send-notification/index.js && npm run copy-pkg -- send-notification",
+    "bundle:update-onesignal-player-id": "npm run bundle:base -- src/update-onesignal-player-id/index.ts --outfile=dist/update-onesignal-player-id/index.js && npm run copy-pkg -- update-onesignal-player-id",
+    "bundle:update-transfer-status": "npm run bundle:base -- src/update-transfer-status/index.ts --outfile=dist/update-transfer-status/index.js && npm run copy-pkg -- update-transfer-status"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.57.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-plugin-import": "^2.29.1",
+    "esbuild": "^0.24.0",
     "typescript": "^5.4.5"
   },
-  "private": true
+  "dependencies": {
+    "firebase-admin": "^12.1.0",
+    "firebase-functions": "^5.0.1",
+    "onesignal-node": "^3.4.0"
+  }
 }
