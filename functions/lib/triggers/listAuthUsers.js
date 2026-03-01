@@ -34,22 +34,22 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.listAuthUsers = void 0;
-const functions = __importStar(require("firebase-functions"));
+const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
 /**
  * وظيفة لجلب قائمة المستخدمين من نظام المصادقة (Auth).
  * لا يمكن الوصول إليها إلا من قبل المسؤولين.
  */
-exports.listAuthUsers = functions.region("asia-southeast1").https.onCall(async (data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError("unauthenticated", "يجب تسجيل الدخول لاستخدام هذه الخاصية.");
+exports.listAuthUsers = (0, https_1.onCall)({ region: "asia-southeast1" }, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError("unauthenticated", "يجب تسجيل الدخول لاستخدام هذه الخاصية.");
     }
-    const callerUid = context.auth.uid;
+    const callerUid = request.auth.uid;
     try {
         const callerSnap = await admin.database().ref(`/users/${callerUid}`).once("value");
         const callerData = callerSnap.val();
         if (!callerData || (callerData.role !== "admin" && callerData.role !== "superadmin")) {
-            throw new functions.https.HttpsError("permission-denied", "ليس لديك صلاحية لعرض قائمة المستخدمين.");
+            throw new https_1.HttpsError("permission-denied", "ليس لديك صلاحية لعرض قائمة المستخدمين.");
         }
         const listUsersResult = await admin.auth().listUsers(1000);
         return {
@@ -65,7 +65,7 @@ exports.listAuthUsers = functions.region("asia-southeast1").https.onCall(async (
     }
     catch (error) {
         console.error("Error listing users:", error);
-        throw new functions.https.HttpsError("internal", "حدث خطأ أثناء جلب المستخدمين.");
+        throw new https_1.HttpsError("internal", "حدث خطأ أثناء جلب المستخدمين.");
     }
 });
 //# sourceMappingURL=listAuthUsers.js.map

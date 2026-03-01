@@ -1,4 +1,5 @@
 "use strict";
+"use server";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -34,19 +35,19 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateTransferStatus = void 0;
-const functions = __importStar(require("firebase-functions"));
+const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
 /**
  * Updates the status of a pending Egyptian transfer and moves it to the user's transactions.
  * Handles automatic balance refunds if the transaction is failed.
  */
-exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(async (data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError("unauthenticated", "The function must be called while authenticated.");
+exports.updateTransferStatus = (0, https_1.onCall)({ region: "asia-southeast1" }, async (request) => {
+    if (!request.auth) {
+        throw new https_1.HttpsError("unauthenticated", "The function must be called while authenticated.");
     }
-    const {transferId, status, receiptUrl} = data;
+    const { transferId, status, receiptUrl } = request.data;
     if (!transferId || !status) {
-        throw new functions.https.HttpsError("invalid-argument", "The function must be called with a transferId and status.");
+        throw new https_1.HttpsError("invalid-argument", "The function must be called with a transferId and status.");
     }
     const db = admin.database();
     const transferRef = db.ref(`/admin/pending_egypt_transfers/${transferId}`);
@@ -54,18 +55,19 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
         const snapshot = await transferRef.once("value");
         const transferData = snapshot.val();
         if (!transferData) {
-            throw new functions.https.HttpsError("not-found", "Transfer not found.");
+            throw new https_1.HttpsError("not-found", "Transfer not found.");
         }
         const userId = transferData.userId;
+        // Get the amount to be handled (Total deduction includes fees)
         const deduction = Number(transferData.totalDeduction || transferData.amountEGP || 0);
         // Update User Balance atomically using transaction
         const userRef = db.ref(`/users/${userId}`);
         await userRef.transaction((user) => {
             if (user) {
-                // Always decrement the pending balance
+                // Always decrement the pending balance as the "in-flight" status is ending
                 const currentPending = Number(user.balanceEgyptianPending) || 0;
                 user.balanceEgyptianPending = Math.max(0, currentPending - deduction);
-                // If failed, return the amount to the main balance
+                // If the transaction failed, return the money to the available EGP balance
                 if (status === "failed") {
                     const currentBalance = Number(user.balanceEGP) || 0;
                     user.balanceEGP = currentBalance + deduction;
@@ -74,18 +76,19 @@ exports.updateTransferStatus = functions.region("asia-southeast1").https.onCall(
             }
             return user;
         });
-        // Update the status and receipt URL
+        // Update the status and receipt URL in the transaction record
         const updatedTransferData = Object.assign(Object.assign({}, transferData), { status, receiptUrl: receiptUrl || null });
-        // Move the transaction to the user's transactions
+        // Move the transaction to the user's transactions list
         const userTransactionRef = db.ref(`/users/${userId}/transactions/${transferId}`);
         await userTransactionRef.set(updatedTransferData);
-        // Remove from pending transfers
+        // Clean up the pending transfer record from admin queue
         await transferRef.remove();
         return { success: true };
     }
     catch (error) {
         console.error("Error updating transfer status:", error);
         const message = error instanceof Error ? error.message : "Unknown error";
-        throw new functions.https.HttpsError("unknown", "Error updating transfer status.", message);
+        throw new https_1.HttpsError("unknown", "Error updating transfer status.", message);
     }
 });
+//# sourceMappingURL=updateTransferStatus.js.map

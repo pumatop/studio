@@ -1,23 +1,23 @@
 "use server";
-import * as functions from "firebase-functions";
+import {onCall, HttpsError} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 
 /**
  * Updates the status of a pending Egyptian transfer and moves it to the user's transactions.
  * Handles automatic balance refunds if the transaction is failed.
  */
-export const updateTransferStatus = functions.region("asia-southeast1").https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
+export const updateTransferStatus = onCall({region: "asia-southeast1"}, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError(
       "unauthenticated",
       "The function must be called while authenticated."
     );
   }
 
-  const {transferId, status, receiptUrl} = data;
+  const {transferId, status, receiptUrl} = request.data;
 
   if (!transferId || !status) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "invalid-argument",
       "The function must be called with a transferId and status."
     );
@@ -31,7 +31,7 @@ export const updateTransferStatus = functions.region("asia-southeast1").https.on
     const transferData = snapshot.val();
 
     if (!transferData) {
-      throw new functions.https.HttpsError("not-found", "Transfer not found.");
+      throw new HttpsError("not-found", "Transfer not found.");
     }
 
     const userId = transferData.userId;
@@ -75,7 +75,7 @@ export const updateTransferStatus = functions.region("asia-southeast1").https.on
   } catch (error: unknown) {
     console.error("Error updating transfer status:", error);
     const message = error instanceof Error ? error.message : "Unknown error";
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
       "unknown",
       "Error updating transfer status.",
       message
