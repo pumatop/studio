@@ -7,7 +7,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const manageusersessions = onCall({ region: "asia-southeast1" }, async (request) => {
+export const manageUserSessions = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "The function must be called while authenticated.");
   }

@@ -5,7 +5,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-export const deletesupervisor = onCall({ region: "asia-southeast1" }, async (request) => {
+export const deleteSupervisor = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "The function must be called by an authenticated user.");
   }
@@ -14,7 +14,7 @@ export const deletesupervisor = onCall({ region: "asia-southeast1" }, async (req
   let isAdmin = false;
   try {
     const callerSnap = await admin.database().ref(`/users/${callerUid}`).once("value");
-    isAdmin = callerSnap.val()?.role === "admin";
+    isAdmin = callerSnap.val()?.role === "admin" || callerSnap.val()?.role === "superadmin";
   } catch (e: any) {
     throw new HttpsError("internal", "Could not verify admin status.");
   }

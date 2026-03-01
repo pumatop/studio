@@ -7,7 +7,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const updatetransferstatus = onCall({ region: "asia-southeast1" }, async (request) => {
+export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
   const { transferId, status, receiptUrl } = request.data;
   if (!transferId || !status) throw new HttpsError("invalid-argument", "Missing params.");

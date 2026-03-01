@@ -9,7 +9,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const sendnotification = onCall(
+export const sendNotification = onCall(
   { region: "asia-southeast1", secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"] },
   async (request) => {
     const appId = process.env.ONE_SIGNAL_APP_ID;

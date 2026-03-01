@@ -7,7 +7,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-export const notifyonratechange = onValueWritten({
+export const notifyOnRateChange = onValueWritten({
   ref: "/settings/exchangeControl/currentRate",
   region: "asia-southeast1",
   secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"],

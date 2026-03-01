@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const handleautoexchangestatus = onValueWritten(
+export const handleAutoExchangeStatus = onValueWritten(
   {
     ref: "/dailyAggregates/{date}",
     region: "asia-southeast1",

@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const processtransactionbasedratechanges = onValueCreated({
+export const processTransactionBasedRateChanges = onValueCreated({
   ref: "/users/{userId}/transactions/{transactionId}",
   region: "asia-southeast1",
 }, async (event) => {

@@ -8,7 +8,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-export const processscheduledratechanges = onSchedule({
+export const processScheduledRateChanges = onSchedule({
   schedule: "every 1 minutes",
   region: "asia-southeast1",
 }, async () => {

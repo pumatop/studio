@@ -5,7 +5,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-export const listauthusers = onCall({ region: "asia-southeast1" }, async (request) => {
+export const listAuthUsers = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "يجب تسجيل الدخول لاستخدام هذه الخاصية.");
   }

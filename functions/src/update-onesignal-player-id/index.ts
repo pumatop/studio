@@ -5,7 +5,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-export const updateonesignalplayerid = onCall({ region: "asia-southeast1" }, async (request) => {
+export const updateOneSignalPlayerId = onCall({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Auth required.");
   const { playerId } = request.data;
   if (!playerId) throw new HttpsError("invalid-argument", "Missing playerId.");
