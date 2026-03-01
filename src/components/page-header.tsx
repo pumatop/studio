@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -37,7 +38,7 @@ export function PageHeader({ title }: { title: string }) {
   const [serverTime, setServerTime] = useState<string | null>(null);
 
   useEffect(() => {
-    // تحديث الوقت فقط في المتصفح لتجنب أخطاء الـ Hydration
+    // تحديث الوقت فقط في جانب العميل لمنع أخطاء الـ Hydration
     const updateTime = () => {
         setServerTime(new Date().toLocaleTimeString("ar-EG-u-nu-latn", {
             hour: 'numeric',

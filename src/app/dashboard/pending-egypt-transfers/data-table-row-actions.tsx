@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Row } from '@tanstack/react-table';
@@ -43,10 +42,7 @@ export function DataTableRowActions<TData>({ row }: DataTableRowActionsProps<TDa
           <DialogHeader>
             <DialogTitle>تحديث حالة التحويل</DialogTitle>
           </DialogHeader>
-          <UpdateStatusForm 
-            transfer={transfer} 
-            onSuccess={() => setIsUpdateStatusDialogOpen(false)} 
-          />
+          <UpdateStatusForm transfer={transfer} />
         </DialogContent>
       </Dialog>
     </>
