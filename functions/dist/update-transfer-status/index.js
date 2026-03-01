@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/update-transfer-status/index.ts
 var index_exports = {};
 __export(index_exports, {
-  updatetransferstatus: () => updatetransferstatus
+  updateTransferStatus: () => updateTransferStatus
 });
 module.exports = __toCommonJS(index_exports);
 var import_https = require("firebase-functions/v2/https");
@@ -39,7 +39,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 var db = admin.database();
-var updatetransferstatus = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
+var updateTransferStatus = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) throw new import_https.HttpsError("unauthenticated", "Auth required.");
   const { transferId, status, receiptUrl } = request.data;
   if (!transferId || !status) throw new import_https.HttpsError("invalid-argument", "Missing params.");
@@ -64,5 +64,5 @@ var updatetransferstatus = (0, import_https.onCall)({ region: "asia-southeast1" 
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  updatetransferstatus
+  updateTransferStatus
 });

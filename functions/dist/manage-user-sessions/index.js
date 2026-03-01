@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/manage-user-sessions/index.ts
 var index_exports = {};
 __export(index_exports, {
-  manageusersessions: () => manageusersessions
+  manageUserSessions: () => manageUserSessions
 });
 module.exports = __toCommonJS(index_exports);
 var import_https = require("firebase-functions/v2/https");
@@ -39,7 +39,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 var db = admin.database();
-var manageusersessions = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
+var manageUserSessions = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new import_https.HttpsError("unauthenticated", "The function must be called while authenticated.");
   }
@@ -79,5 +79,5 @@ var manageusersessions = (0, import_https.onCall)({ region: "asia-southeast1" },
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  manageusersessions
+  manageUserSessions
 });

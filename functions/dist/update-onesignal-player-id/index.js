@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/update-onesignal-player-id/index.ts
 var index_exports = {};
 __export(index_exports, {
-  updateonesignalplayerid: () => updateonesignalplayerid
+  updateOneSignalPlayerId: () => updateOneSignalPlayerId
 });
 module.exports = __toCommonJS(index_exports);
 var import_https = require("firebase-functions/v2/https");
@@ -38,7 +38,7 @@ var admin = __toESM(require("firebase-admin"));
 if (!admin.apps.length) {
   admin.initializeApp();
 }
-var updateonesignalplayerid = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
+var updateOneSignalPlayerId = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) throw new import_https.HttpsError("unauthenticated", "Auth required.");
   const { playerId } = request.data;
   if (!playerId) throw new import_https.HttpsError("invalid-argument", "Missing playerId.");
@@ -51,5 +51,5 @@ var updateonesignalplayerid = (0, import_https.onCall)({ region: "asia-southeast
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  updateonesignalplayerid
+  updateOneSignalPlayerId
 });

@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/process-scheduled-rate-changes/index.ts
 var index_exports = {};
 __export(index_exports, {
-  processscheduledratechanges: () => processscheduledratechanges
+  processScheduledRateChanges: () => processScheduledRateChanges
 });
 module.exports = __toCommonJS(index_exports);
 var import_scheduler = require("firebase-functions/v2/scheduler");
@@ -39,7 +39,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 var db = admin.database();
-var processscheduledratechanges = (0, import_scheduler.onSchedule)({
+var processScheduledRateChanges = (0, import_scheduler.onSchedule)({
   schedule: "every 1 minutes",
   region: "asia-southeast1"
 }, async () => {
@@ -77,5 +77,5 @@ var processscheduledratechanges = (0, import_scheduler.onSchedule)({
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  processscheduledratechanges
+  processScheduledRateChanges
 });

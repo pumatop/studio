@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/notify-on-rate-change/index.ts
 var index_exports = {};
 __export(index_exports, {
-  notifyonratechange: () => notifyonratechange
+  notifyOnRateChange: () => notifyOnRateChange
 });
 module.exports = __toCommonJS(index_exports);
 var import_database = require("firebase-functions/v2/database");
@@ -40,7 +40,7 @@ var OneSignal = __toESM(require("onesignal-node"));
 if (!admin.apps.length) {
   admin.initializeApp();
 }
-var notifyonratechange = (0, import_database.onValueWritten)({
+var notifyOnRateChange = (0, import_database.onValueWritten)({
   ref: "/settings/exchangeControl/currentRate",
   region: "asia-southeast1",
   secrets: ["ONE_SIGNAL_APP_ID", "ONE_SIGNAL_API_KEY"]
@@ -72,5 +72,5 @@ var notifyonratechange = (0, import_database.onValueWritten)({
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  notifyonratechange
+  notifyOnRateChange
 });

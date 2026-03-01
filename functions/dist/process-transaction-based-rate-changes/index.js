@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/process-transaction-based-rate-changes/index.ts
 var index_exports = {};
 __export(index_exports, {
-  processtransactionbasedratechanges: () => processtransactionbasedratechanges
+  processTransactionBasedRateChanges: () => processTransactionBasedRateChanges
 });
 module.exports = __toCommonJS(index_exports);
 var import_database = require("firebase-functions/v2/database");
@@ -39,7 +39,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 var db = admin.database();
-var processtransactionbasedratechanges = (0, import_database.onValueCreated)({
+var processTransactionBasedRateChanges = (0, import_database.onValueCreated)({
   ref: "/users/{userId}/transactions/{transactionId}",
   region: "asia-southeast1"
 }, async (event) => {
@@ -79,5 +79,5 @@ var processtransactionbasedratechanges = (0, import_database.onValueCreated)({
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  processtransactionbasedratechanges
+  processTransactionBasedRateChanges
 });

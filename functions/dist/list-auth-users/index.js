@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/list-auth-users/index.ts
 var index_exports = {};
 __export(index_exports, {
-  listauthusers: () => listauthusers
+  listAuthUsers: () => listAuthUsers
 });
 module.exports = __toCommonJS(index_exports);
 var import_https = require("firebase-functions/v2/https");
@@ -38,7 +38,7 @@ var admin = __toESM(require("firebase-admin"));
 if (!admin.apps.length) {
   admin.initializeApp();
 }
-var listauthusers = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
+var listAuthUsers = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new import_https.HttpsError("unauthenticated", "\u064A\u062C\u0628 \u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u062F\u062E\u0648\u0644 \u0644\u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0647\u0630\u0647 \u0627\u0644\u062E\u0627\u0635\u064A\u0629.");
   }
@@ -67,5 +67,5 @@ var listauthusers = (0, import_https.onCall)({ region: "asia-southeast1" }, asyn
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  listauthusers
+  listAuthUsers
 });

@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/handle-auto-exchange-status/index.ts
 var index_exports = {};
 __export(index_exports, {
-  handleautoexchangestatus: () => handleautoexchangestatus
+  handleAutoExchangeStatus: () => handleAutoExchangeStatus
 });
 module.exports = __toCommonJS(index_exports);
 var import_database = require("firebase-functions/v2/database");
@@ -40,7 +40,7 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 var db = admin.database();
-var handleautoexchangestatus = (0, import_database.onValueWritten)(
+var handleAutoExchangeStatus = (0, import_database.onValueWritten)(
   {
     ref: "/dailyAggregates/{date}",
     region: "asia-southeast1"
@@ -68,5 +68,5 @@ var handleautoexchangestatus = (0, import_database.onValueWritten)(
 );
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  handleautoexchangestatus
+  handleAutoExchangeStatus
 });

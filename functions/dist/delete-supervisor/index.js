@@ -30,7 +30,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/delete-supervisor/index.ts
 var index_exports = {};
 __export(index_exports, {
-  deletesupervisor: () => deletesupervisor
+  deleteSupervisor: () => deleteSupervisor
 });
 module.exports = __toCommonJS(index_exports);
 var import_https = require("firebase-functions/v2/https");
@@ -38,7 +38,7 @@ var admin = __toESM(require("firebase-admin"));
 if (!admin.apps.length) {
   admin.initializeApp();
 }
-var deletesupervisor = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
+var deleteSupervisor = (0, import_https.onCall)({ region: "asia-southeast1" }, async (request) => {
   if (!request.auth) {
     throw new import_https.HttpsError("unauthenticated", "The function must be called by an authenticated user.");
   }
@@ -46,7 +46,7 @@ var deletesupervisor = (0, import_https.onCall)({ region: "asia-southeast1" }, a
   let isAdmin = false;
   try {
     const callerSnap = await admin.database().ref(`/users/${callerUid}`).once("value");
-    isAdmin = callerSnap.val()?.role === "admin";
+    isAdmin = callerSnap.val()?.role === "admin" || callerSnap.val()?.role === "superadmin";
   } catch (e) {
     throw new import_https.HttpsError("internal", "Could not verify admin status.");
   }
@@ -73,5 +73,5 @@ var deletesupervisor = (0, import_https.onCall)({ region: "asia-southeast1" }, a
 });
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  deletesupervisor
+  deleteSupervisor
 });
