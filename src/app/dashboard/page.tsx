@@ -59,7 +59,7 @@ const FormattedAmount = ({
     const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
-        <span className="inline-flex items-baseline tabular-nums break-all" dir="ltr">
+        <span className="inline-flex items-baseline tabular-nums whitespace-nowrap" dir="ltr">
             <span className={cn('mr-1', currencyClass)}>{currency}</span>
             <span className={integerClass}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground opacity-60', fractionClass)}>.{fraction}</span>}
@@ -296,8 +296,8 @@ export default function DashboardPage() {
                     ))}
                 </div>
             </div>
-            <div className="p-4 md:p-6 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm">
-                <h4 className="text-[10px] md:text-xs font-black uppercase text-yellow-600 tracking-widest mb-3 md:mb-4 flex items-center gap-2">
+            <div className="p-4 md:p-6 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm text-yellow-600">
+                <h4 className="text-[10px] md:text-xs font-black uppercase text-inherit tracking-widest mb-3 md:mb-4 flex items-center gap-2">
                     <div className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-yellow-500"></div>
                     الحوالات المعلقة
                 </h4>
@@ -337,8 +337,8 @@ export default function DashboardPage() {
                         <div className="w-10 h-10 md:w-14 md:h-14 bg-green-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-green-600 font-black text-xs md:text-sm shadow-inner shadow-green-600/5 shrink-0">LYD</div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6">
-                    <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-xl sm:text-2xl md:text-3xl lg:text-2xl xl:text-3xl font-black text-green-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
+                    <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-green-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
                 </CardContent>
             </Card>
 
@@ -380,8 +380,8 @@ export default function DashboardPage() {
                         <div className="w-10 h-10 md:w-14 md:h-14 bg-purple-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-purple-600 font-black text-xs md:text-sm shadow-inner shadow-purple-600/5 shrink-0">EGP</div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6">
-                    <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-xl sm:text-2xl md:text-3xl lg:text-2xl xl:text-3xl font-black text-purple-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
+                    <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-purple-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
                 </CardContent>
             </Card>
         </div>
