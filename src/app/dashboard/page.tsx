@@ -181,11 +181,10 @@ export default function DashboardPage() {
         t.type === "egypt_instapay";
 
     const getDisplayType = (t: any): EgyptTransferTransaction['transferType'] => {
-        if (t.transferType) return t.transferType;
-        if (t.methodDisplayName) return t.methodDisplayName;
-        if (t.type === 'egypt_wallets') return 'محفظة كاش';
-        if (t.type === 'egypt_instapay') return 'انستاباي';
-        if (t.type === 'egypt_home') return 'وصلني البيت';
+        const typeStr = t.transferType || t.methodDisplayName || t.type || '';
+        if (typeStr.includes('محفظة') || typeStr.includes('محافظ')) return 'محفظة كاش';
+        if (typeStr.includes('انستاباي') || typeStr.includes('إنستاباي')) return 'انستاباي';
+        if (typeStr.includes('بيت') || typeStr.includes('منزلي')) return 'وصلني البيت';
         return 'محفظة كاش';
     };
 
@@ -197,14 +196,14 @@ export default function DashboardPage() {
 
     const dailyTradeStats = {
         count: dailyTrades.length,
-        lydAmount: dailyTrades.reduce((sum, t) => sum + (t as any).amountLYD || 0, 0),
-        egpAmount: dailyTrades.reduce((sum, t) => sum + (t as any).amountEGP || 0, 0),
+        lydAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).amountLYD || 0), 0),
+        egpAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
         fakkaAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).fakkaAmount || 0), 0),
     };
     const monthlyTradeStats = {
         count: monthlyTrades.length,
-        lydAmount: monthlyTrades.reduce((sum, t) => sum + (t as any).amountLYD || 0, 0),
-        egpAmount: monthlyTrades.reduce((sum, t) => sum + (t as any).amountEGP || 0, 0),
+        lydAmount: monthlyTrades.reduce((sum, t) => sum + ((t as any).amountLYD || 0), 0),
+        egpAmount: monthlyTrades.reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
         fakkaAmount: monthlyTrades.reduce((sum, t) => sum + ((t as any).fakkaAmount || 0), 0),
     };
 
