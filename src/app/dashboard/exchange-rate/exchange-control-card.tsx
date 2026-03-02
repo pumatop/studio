@@ -258,7 +258,7 @@ export function ExchangeControlCard() {
                 </div>
                 <div className="flex items-center space-x-2 space-x-reverse">
                     <RadioGroupItem value="auto" id="r-auto" />
-                    <Label htmlFor="r-auto">تلقائي</Label>
+                    <Label htmlFor="r-auto">اغلاق تلقائي</Label>
                 </div>
             </RadioGroup>
 
