@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Popover,
@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useRtdbList } from "@/firebase";
-import type { User, Supervisor, Transaction, RechargePurchaseTransaction, AccountTransferTransaction, EgyptTransferTransaction } from "@/lib/types";
+import type { User, Supervisor } from "@/lib/types";
 import { 
     Users, UserCog, Search, LayoutDashboard, 
     ArrowRightLeft, PiggyBank, BrainCircuit, History, Settings, FileSearch 

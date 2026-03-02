@@ -142,7 +142,7 @@ export default function SettingsPage() {
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-4 border rounded-lg p-4 bg-muted/10">
-                  <h3 className="font-bold text-primary">التحويل الداخلي (د.ل) - يمين</h3>
+                  <h3 className="font-bold text-primary">التحويل الداخلي (د.ل)</h3>
                   <div className="space-y-4">
                     {['unverified', 'verified', 'merchant'].map(role => (
                       <div key={role} className="p-3 border rounded bg-card space-y-2">
@@ -156,7 +156,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="space-y-4 border rounded-lg p-4 bg-muted/10">
-                  <h3 className="font-bold text-primary">التحويلات إلى مصر (ج.م) - يسار</h3>
+                  <h3 className="font-bold text-primary">التحويلات إلى مصر (ج.م)</h3>
                   <div className="space-y-4">
                     {['instapay', 'wallet', 'delivery'].map(type => (
                       <div key={type} className="p-3 border rounded bg-card space-y-2">

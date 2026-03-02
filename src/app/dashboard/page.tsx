@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const EGYPTIAN_TRANSFER_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
+const E_TYPES = EGYPTIAN_TRANSFER_TYPES;
 
 const FormattedAmount = ({
     amount,
@@ -214,7 +215,7 @@ export default function DashboardPage() {
     const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
     const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
-    const monthlyRevenueByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+    const monthlyRevenueByType = E_TYPES.reduce((acc, type) => {
         const typeTransfers = monthlyEgyptList.filter(t => t.transferType === type && t.status === 'completed');
         acc[type] = {
             count: typeTransfers.length,
@@ -232,7 +233,7 @@ export default function DashboardPage() {
             monthlyTotal: sMonthTx.reduce((sum, t) => sum + t.amountEGP, 0),
             monthlyFees: sMonthTx.reduce((sum, t) => sum + (t.serviceFee || 0), 0),
             monthlyCount: sMonthTx.length,
-            details: EGYPTIAN_TRANSFER_TYPES.map(type => sMonthTx.filter(t => t.transferType === type).length)
+            details: E_TYPES.map(type => sMonthTx.filter(t => t.transferType === type).length)
         };
     });
 
@@ -270,8 +271,6 @@ export default function DashboardPage() {
         </div>
     );
   }
-
-  const E_TYPES = EGYPTIAN_TRANSFER_TYPES;
 
   const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 pt-6 flex-grow flex flex-col justify-center">
