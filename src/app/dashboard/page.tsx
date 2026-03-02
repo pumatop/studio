@@ -19,7 +19,8 @@ import {
   CreditCard,
   ShieldCheck,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  PiggyBank
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -86,27 +87,30 @@ export default function DashboardPage() {
   }, []);
 
   const transactions = useMemo(() => {
-    const allTx: Transaction[] = [];
+    // استخدام Map لضمان عدم تكرار العمليات بناءً على الـ ID
+    const txMap = new Map<string, Transaction>();
     
-    // 1. Add completed and historical transactions from users
+    // 1. إضافة المعاملات من سجلات المستخدمين
     if (users) {
         users.forEach(user => {
             if (user.transactions) {
                 Object.entries(user.transactions).forEach(([id, tx]) => {
-                    allTx.push({ ...(tx as object), id } as Transaction);
+                    txMap.set(id, { ...(tx as object), id } as Transaction);
                 });
             }
         });
     }
 
-    // 2. Add global pending transfers that haven't been assigned to users yet
+    // 2. إضافة الحوالات المعلقة من القائمة العامة (مع تجنب التكرار إذا كانت موجودة مسبقاً)
     if (globalPendingTransfers) {
         globalPendingTransfers.forEach(tx => {
-            allTx.push(tx as Transaction);
+            if (!txMap.has(tx.id)) {
+                txMap.set(tx.id, tx as Transaction);
+            }
         });
     }
 
-    return allTx;
+    return Array.from(txMap.values());
   }, [users, globalPendingTransfers]);
 
   const daysInMonth = useMemo(() => {
