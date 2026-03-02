@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(3); 
-  const [selectedDay, setSelectedDay] = useState(1); 
+  const [selectedDay, setSelectedDay] = useState(3); 
 
   useEffect(() => {
     setIsMounted(true);
@@ -125,7 +125,7 @@ export default function DashboardPage() {
   );
 
   const InlineDaySelector = () => {
-    const isToday = selectedDay === 1 && selectedMonth === 3;
+    const isToday = selectedDay === 3 && selectedMonth === 3;
     const displayLabel = isToday ? "اليوم" : `يوم ${selectedDay}`;
     
     return (
@@ -136,7 +136,7 @@ export default function DashboardPage() {
         <SelectContent dir="rtl" className="max-h-[300px] rounded-2xl border-none shadow-2xl">
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
             <SelectItem key={d} value={String(d)} className="rounded-xl font-bold">
-              {d === 1 && selectedMonth === 3 ? "اليوم" : `يوم ${d}`}
+              {d === 3 && selectedMonth === 3 ? "اليوم" : `يوم ${d}`}
             </SelectItem>
           ))}
         </SelectContent>
@@ -338,7 +338,9 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-green-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full">
+                        <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-green-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    </div>
                 </CardContent>
             </Card>
 
@@ -381,7 +383,9 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-purple-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full">
+                        <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-purple-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -391,7 +395,7 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-bold uppercase tracking-widest">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-black uppercase tracking-widest">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
                         <div className="p-3 md:p-4 bg-orange-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-orange-600/5 shrink-0"><Users2 className="h-5 w-5 md:h-6 md:w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
