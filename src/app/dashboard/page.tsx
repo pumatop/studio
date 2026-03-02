@@ -287,7 +287,7 @@ export default function DashboardPage() {
                     <div key={type} className="grid grid-cols-3 items-center">
                         <span className="text-right">{type}</span>
                         <div className="flex justify-center"><Badge variant="outline" className="px-3 text-green-600 border-green-200">{s.count} حوالة</Badge></div>
-                        <span className="font-semibold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-semibold" /></span>
+                        <span className="font-bold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-bold" /></span>
                     </div>
                 ))}
             </div>
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                     <div key={type} className="grid grid-cols-3 items-center text-yellow-600">
                         <span className="text-right">{type}</span>
                         <div className="flex justify-center"><Badge variant="outline" className="px-3 border-yellow-200 text-yellow-700 bg-yellow-50">{s.count} حوالة</Badge></div>
-                        <span className="font-semibold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-semibold" /></span>
+                        <span className="font-bold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-bold" /></span>
                     </div>
                 ))}
             </div>
@@ -350,13 +350,13 @@ export default function DashboardPage() {
                                 <span className="text-muted-foreground">العمليات</span>
                                 <span className="font-bold">{stats.dailyTradeStats.count}</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span>المبلغ (د.ل)</span>
-                                <span className="font-semibold"><FormattedAmount amount={stats.dailyTradeStats.lydAmount} currency="د.ل" /></span>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">المبلغ (د.ل)</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.dailyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold" /></span>
                             </div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span>المبلغ (ج.م)</span>
-                                <span className="font-semibold"><FormattedAmount amount={stats.dailyTradeStats.egpAmount} currency="ج.م" /></span>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">المبلغ (ج.م)</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.dailyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold" /></span>
                             </div>
                         </div>
                     </div>
@@ -367,13 +367,13 @@ export default function DashboardPage() {
                                 <span className="text-muted-foreground">العمليات</span>
                                 <span className="font-bold">{stats.monthlyTradeStats.count}</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span>المبلغ (د.ل)</span>
-                                <span className="font-semibold"><FormattedAmount amount={stats.monthlyTradeStats.lydAmount} currency="د.ل" /></span>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">المبلغ (د.ل)</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.monthlyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold" /></span>
                             </div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground">
-                                <span>المبلغ (ج.م)</span>
-                                <span className="font-semibold"><FormattedAmount amount={stats.monthlyTradeStats.egpAmount} currency="ج.م" /></span>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">المبلغ (ج.م)</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.monthlyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold" /></span>
                             </div>
                         </div>
                     </div>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
             <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className={cn("text-xs", stats.userCounts.pendingDoc > 0 ? "text-yellow-600" : "text-muted-foreground")}>{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className={cn("text-xs", stats.userCounts.pendingDoc > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground")}>{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
                         <div className="p-3 bg-orange-100 rounded-xl"><Users2 className="h-6 w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
@@ -427,15 +427,27 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center text-sm">
                     <div><h4 className="text-sm font-semibold mb-2 text-center"><InlineDaySelector /></h4>
                         <div className="space-y-1">
-                            <div className="flex justify-between items-center"><span>العمليات</span><span className="font-bold">{stats.dailyInternalStats.count}</span></div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground"><span>الرسوم</span><FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" integerClass="font-semibold" /></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">العمليات</span>
+                                <span className="font-bold">{stats.dailyInternalStats.count}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">الرسوم</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" integerClass="font-bold" /></span>
+                            </div>
                         </div>
                     </div>
                     <Separator />
                     <div><h4 className="text-sm font-semibold mb-2 text-center"><InlineMonthSelector /></h4>
                         <div className="space-y-1">
-                            <div className="flex justify-between items-center"><span>العمليات</span><span className="font-bold">{stats.monthlyInternalStats.count}</span></div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground"><span>الرسوم</span><FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" integerClass="font-semibold" /></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">العمليات</span>
+                                <span className="font-bold">{stats.monthlyInternalStats.count}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">الرسوم</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" integerClass="font-bold" /></span>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
@@ -451,15 +463,27 @@ export default function DashboardPage() {
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center text-sm">
                     <div><h4 className="text-sm font-semibold mb-2 text-center"><InlineDaySelector /></h4>
                         <div className="space-y-1">
-                            <div className="flex justify-between items-center"><span>الكروت</span><span className="font-bold">{stats.dailyCardStats.count}</span></div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground"><span>القيمة</span><FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" integerClass="font-semibold" /></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">الكروت</span>
+                                <span className="font-bold">{stats.dailyCardStats.count}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">القيمة</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" integerClass="font-bold" /></span>
+                            </div>
                         </div>
                     </div>
                     <Separator />
                     <div><h4 className="text-sm font-semibold mb-2 text-center"><InlineMonthSelector /></h4>
                         <div className="space-y-1">
-                            <div className="flex justify-between items-center"><span>الكروت</span><span className="font-bold">{stats.monthlyCardStats.count}</span></div>
-                            <div className="flex justify-between items-center text-xs text-muted-foreground"><span>القيمة</span><FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" integerClass="font-semibold" /></div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-muted-foreground">الكروت</span>
+                                <span className="font-bold">{stats.monthlyCardStats.count}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">القيمة</span>
+                                <span className="font-bold"><FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" integerClass="font-bold" /></span>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
@@ -494,7 +518,7 @@ export default function DashboardPage() {
                         {Object.entries(stats.monthlyRevenueByType).map(([type, s]: [string, any]) => (
                             <div key={type} className="flex justify-between items-center">
                                 <span>{type}</span>
-                                <div className="flex items-center gap-3"><Badge variant="outline" className="px-2">{s.count}</Badge> <FormattedAmount amount={s.revenue} currency="ج.م" integerClass="font-semibold" /></div>
+                                <div className="flex items-center gap-3"><Badge variant="outline" className="px-2">{s.count}</Badge> <FormattedAmount amount={s.revenue} currency="ج.م" integerClass="font-bold" /></div>
                             </div>
                         ))}
                     </div>
@@ -547,8 +571,8 @@ export default function DashboardPage() {
                                     <TableCell className="text-center"><FormattedAmount amount={s.dailyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
                                     <TableCell className="text-center"><FormattedAmount amount={s.monthlyTotal} currency="ج.m" integerClass="font-bold" /></TableCell>
                                     <TableCell className="text-center"><FormattedAmount amount={s.monthlyFees} currency="ج.م" integerClass="font-bold text-primary" /></TableCell>
-                                    <TableCell className="text-center font-semibold">{s.monthlyCount}</TableCell>
-                                    {s.details.map((count, i) => <TableCell key={i} className="text-center">{count}</TableCell>)}
+                                    <TableCell className="text-center font-bold">{s.monthlyCount}</TableCell>
+                                    {s.details.map((count, i) => <TableCell key={i} className="text-center font-bold">{count}</TableCell>)}
                                 </TableRow>
                             ))}
                         </TableBody>
