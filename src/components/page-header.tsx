@@ -37,7 +37,6 @@ export function PageHeader({ title }: { title: string }) {
   const [serverTime, setServerTime] = useState<string | null>(null);
 
   useEffect(() => {
-    // تحديث الوقت فقط في جانب العميل لمنع أخطاء الـ Hydration
     const updateTime = () => {
         setServerTime(new Date().toLocaleTimeString("ar-EG-u-nu-latn", {
             hour: 'numeric',
@@ -57,7 +56,7 @@ export function PageHeader({ title }: { title: string }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background px-4 sm:h-24 sm:px-8">
+    <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-4 border-b bg-background/50 backdrop-blur-xl px-4 sm:h-24 sm:px-8 transition-colors">
       <div className="flex items-center gap-3">
         <SidebarTrigger className="md:hidden" />
         <h1 className="hidden text-2xl font-bold tracking-tight text-foreground md:block">
@@ -70,7 +69,7 @@ export function PageHeader({ title }: { title: string }) {
           <GlobalSearch />
         </div>
 
-        <div className="hidden items-center gap-3 rounded-full border bg-card px-3 py-1.5 text-sm lg:flex shadow-sm">
+        <div className="hidden items-center gap-3 rounded-full border bg-card/80 px-3 py-1.5 text-sm lg:flex shadow-sm">
           {isLoading ? (
             <>
               <Skeleton className="h-6 w-24" />

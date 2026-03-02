@@ -326,7 +326,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
-        <SidebarHeader className="h-24 border-b border-sidebar-border/20 sticky top-0 bg-card/80 dark:bg-card/60 backdrop-blur-xl z-10">
+        <SidebarHeader className="h-24 border-b border-sidebar-border/20 sticky top-0 bg-background/50 backdrop-blur-xl z-10">
           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
             <div className="p-3 bg-gradient-to-br from-primary/80 to-primary rounded-xl text-primary-foreground shadow-lg shadow-primary/30">
               <CircleDollarSign className="h-8 w-8 shrink-0" />
@@ -415,8 +415,8 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-2 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-card/80 dark:bg-card/60 backdrop-blur-xl border-t border-sidebar-border/20">
-          <Card className="bg-primary/5 border-primary/20">
+        <SidebarFooter className="p-2 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-background/50 backdrop-blur-xl border-t border-sidebar-border/20">
+          <Card className="bg-primary/5 border-primary/20 shadow-none">
             <CardHeader className="p-3">
               <CardTitle className="flex items-center gap-2 text-sm">
                 <DatabaseZap className="h-5 w-5 text-primary" />
