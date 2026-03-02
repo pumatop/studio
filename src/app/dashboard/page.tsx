@@ -342,16 +342,19 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-center w-full">إجمالي الرصيد الليبي</CardTitle>
-                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-center w-full">رصيد جميع المستخدمين بالدينار</CardDescription>
-                        </div>
+                    <div className="flex flex-col items-center justify-center space-y-1 text-center w-full">
+                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد الليبي</CardTitle>
+                        <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالدينار</CardDescription>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full overflow-hidden">
-                        <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-green-600" currencyClass="text-xs sm:text-sm md:text-lg font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full overflow-hidden whitespace-nowrap">
+                        <FormattedAmount 
+                            amount={stats.totalLibyanBalance} 
+                            currency="د.ل" 
+                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-green-600" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm font-bold opacity-30" 
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -388,16 +391,19 @@ export default function DashboardPage() {
 
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-center w-full">إجمالي الرصيد المصري</CardTitle>
-                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-center w-full">رصيد جميع المستخدمين بالجنيه</CardDescription>
-                        </div>
+                    <div className="flex flex-col items-center justify-center space-y-1 text-center w-full">
+                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد المصري</CardTitle>
+                        <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالجنيه</CardDescription>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full overflow-hidden">
-                        <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-purple-600" currencyClass="text-xs sm:text-sm md:text-lg font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full overflow-hidden whitespace-nowrap">
+                        <FormattedAmount 
+                            amount={stats.totalEgyptianBalance} 
+                            currency="ج.م" 
+                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-purple-600" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm font-bold opacity-30" 
+                        />
                     </div>
                 </CardContent>
             </Card>
