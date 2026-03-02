@@ -382,7 +382,7 @@ export default function DashboardPage() {
             <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className="text-xs">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className="text-xs text-yellow-600">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
                         <div className="p-3 bg-orange-100 rounded-xl"><Users2 className="h-6 w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
