@@ -67,21 +67,9 @@ const FormattedAmount = ({
     );
 };
 
-const MoneyBoxIcon = () => (
-  <div className="relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-blue-50 rounded-xl md:rounded-2xl">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="md:w-[32px] md:h-[32px]">
-      <rect x="2" y="8" width="20" height="12" rx="4" className="fill-[#1A4B84]/20 stroke-[#1A4B84]" strokeWidth="1.5" />
-      <path d="M12 2V6" className="stroke-[#FFB800]" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="14" r="3" className="fill-[#FFB800]" />
-      <path d="M10 14H14" className="stroke-white" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  </div>
-);
-
 export default function DashboardPage() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
-  const { data: fakkaSafeData, isLoading: fakkaLoading } = useRtdbObject<{totalFakka: number}>("/fakkaSafe");
 
   const [isMounted, setIsMounted] = useState(false);
   
@@ -258,7 +246,6 @@ export default function DashboardPage() {
         dailyTradeStats,
         monthlyTradeStats,
         userCounts,
-        fakkaBalance: fakkaSafeData?.totalFakka || 0,
         dailyInternalStats: { count: dailyInternal.length, revenue: dailyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
         monthlyInternalStats: { count: monthlyInternal.length, revenue: monthlyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
         dailyCardStats: { count: dailyCards.length, value: dailyCards.reduce((sum, t) => sum + (t.amount || 0), 0) },
@@ -273,9 +260,9 @@ export default function DashboardPage() {
         monthlyRevenueByType,
         supervisorSummary
     };
-  }, [isMounted, users, transactions, selectedMonth, selectedDay, fakkaSafeData, supervisors, currentYear]);
+  }, [isMounted, users, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
 
-  const isLoading = usersLoading || supervisorsLoading || fakkaLoading || !isMounted;
+  const isLoading = usersLoading || supervisorsLoading || !isMounted;
 
   if (isLoading || !stats) {
     return (
@@ -489,19 +476,7 @@ export default function DashboardPage() {
 
         {/* Row 3: Detailed Overviews */}
         <div className="grid gap-4 md:gap-8 lg:grid-cols-4 items-stretch">
-            <Card className="floating-card flex flex-col text-center p-4 md:p-6 bg-gradient-to-br from-white to-[#E3F2FD] overflow-hidden">
-                <CardHeader className="pb-2 md:pb-4">
-                    <CardTitle className="text-[#1A4B84] font-black text-lg md:text-xl mb-1 md:mb-2">حصالة الفكة</CardTitle>
-                    <CardDescription className="text-[9px] md:text-[10px] font-bold text-slate-400 mb-4 md:mb-6 uppercase tracking-widest">مجموع كسور التحويلات</CardDescription>
-                    <div className="flex justify-center"><MoneyBoxIcon /></div>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center justify-center py-4 md:py-6 px-4">
-                    <div className="mb-4 md:mb-6"><InlineMonthSelector /></div>
-                    <FormattedAmount amount={stats.fakkaBalance} currency="ج.م" integerClass="text-2xl md:text-4xl font-black text-[#1A4B84]" currencyClass="text-base md:text-xl font-bold" />
-                </CardContent>
-            </Card>
-
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
+            <Card className="floating-card lg:col-span-2 flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2 md:pb-4">
                     <div className="flex flex-col space-y-1">
                         <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
