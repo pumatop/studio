@@ -84,8 +84,11 @@ export default function DashboardPage() {
   const { data: fakkaSafeData, isLoading: fakkaLoading } = useRtdbObject<{totalFakka: number}>("/fakkaSafe");
 
   const [isMounted, setIsMounted] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(3); 
-  const [selectedDay, setSelectedDay] = useState(3); 
+  
+  // استخدام التاريخ الحالي للنظام بدلاً من القيم الثابتة
+  const [now] = useState(() => new Date());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1); 
+  const [selectedDay, setSelectedDay] = useState(now.getDate()); 
 
   useEffect(() => {
     setIsMounted(true);
@@ -109,23 +112,28 @@ export default function DashboardPage() {
     return new Date(2026, month - 1).toLocaleString('ar', { month: 'long' });
   };
 
-  const InlineMonthSelector = () => (
-    <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
-      <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
-        <SelectValue placeholder={`شهر ${getMonthName(selectedMonth)}`} />
-      </SelectTrigger>
-      <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl">
-        {months.map((m) => (
-          <SelectItem key={m} value={String(m)} className="rounded-xl font-bold">
-            {getMonthName(m)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+  const InlineMonthSelector = () => {
+    const isThisMonth = selectedMonth === (now.getMonth() + 1);
+    const displayLabel = isThisMonth ? `هذا الشهر (${getMonthName(selectedMonth)})` : `شهر ${getMonthName(selectedMonth)}`;
+
+    return (
+        <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
+        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+            <SelectValue placeholder={displayLabel} />
+        </SelectTrigger>
+        <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl">
+            {months.map((m) => (
+            <SelectItem key={m} value={String(m)} className="rounded-xl font-bold">
+                {m === (now.getMonth() + 1) ? `هذا الشهر (${getMonthName(m)})` : getMonthName(m)}
+            </SelectItem>
+            ))}
+        </SelectContent>
+        </Select>
+    );
+  };
 
   const InlineDaySelector = () => {
-    const isToday = selectedDay === 3 && selectedMonth === 3;
+    const isToday = selectedDay === now.getDate() && selectedMonth === (now.getMonth() + 1);
     const displayLabel = isToday ? "اليوم" : `يوم ${selectedDay}`;
     
     return (
@@ -136,7 +144,7 @@ export default function DashboardPage() {
         <SelectContent dir="rtl" className="max-h-[300px] rounded-2xl border-none shadow-2xl">
           {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
             <SelectItem key={d} value={String(d)} className="rounded-xl font-bold">
-              {d === 3 && selectedMonth === 3 ? "اليوم" : `يوم ${d}`}
+              {d === now.getDate() && selectedMonth === (now.getMonth() + 1) ? "اليوم" : `يوم ${d}`}
             </SelectItem>
           ))}
         </SelectContent>
@@ -331,15 +339,14 @@ export default function DashboardPage() {
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div className="space-y-1">
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد الليبي</CardTitle>
-                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالدينار</CardDescription>
+                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-center w-full">إجمالي الرصيد الليبي</CardTitle>
+                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-center w-full">رصيد جميع المستخدمين بالدينار</CardDescription>
                         </div>
-                        <div className="w-10 h-10 md:w-14 md:h-14 bg-green-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-green-600 font-black text-xs md:text-sm shadow-inner shadow-green-600/5 shrink-0">LYD</div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full">
-                        <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-green-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full overflow-hidden">
+                        <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-green-600" currencyClass="text-xs sm:text-sm md:text-lg font-bold opacity-30" />
                     </div>
                 </CardContent>
             </Card>
@@ -376,15 +383,14 @@ export default function DashboardPage() {
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div className="space-y-1">
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد المصري</CardTitle>
-                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالجنيه</CardDescription>
+                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-center w-full">إجمالي الرصيد المصري</CardTitle>
+                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-center w-full">رصيد جميع المستخدمين بالجنيه</CardDescription>
                         </div>
-                        <div className="w-10 h-10 md:w-14 md:h-14 bg-purple-50 rounded-xl md:rounded-[1.5rem] flex items-center justify-center text-purple-600 font-black text-xs md:text-sm shadow-inner shadow-purple-600/5 shrink-0">EGP</div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full">
-                        <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-3xl md:text-4xl font-black text-purple-600" currencyClass="text-sm md:text-xl font-bold opacity-30" />
+                    <div className="flex items-center justify-center w-full overflow-hidden">
+                        <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-purple-600" currencyClass="text-xs sm:text-sm md:text-lg font-bold opacity-30" />
                     </div>
                 </CardContent>
             </Card>
@@ -395,7 +401,7 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-black uppercase tracking-widest">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-black uppercase tracking-widest">{stats.userCounts.pendingDoc} طلب توثيق</CardDescription></div>
                         <div className="p-3 md:p-4 bg-orange-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-orange-600/5 shrink-0"><Users2 className="h-5 w-5 md:h-6 md:w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
