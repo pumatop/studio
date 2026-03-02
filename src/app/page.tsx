@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, CircleDollarSign } from "lucide-react";
+import { AlertCircle, ShieldCheck } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { signInWithEmailAndPassword, AuthError } from "firebase/auth";
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
     return (
        <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-            <CircleDollarSign className="h-12 w-12 text-primary animate-pulse" />
+            <ShieldCheck className="h-12 w-12 text-primary animate-pulse" />
         </div>
       </div>
     );
@@ -77,7 +77,7 @@ export default function LoginPage() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
       <div className="flex items-center gap-3 mb-8 text-primary">
-        <CircleDollarSign className="h-12 w-12" />
+        <ShieldCheck className="h-12 w-12" />
         <h1 className="text-3xl font-bold">حولّي كاش</h1>
       </div>
       <Card className="w-full max-w-sm">

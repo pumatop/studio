@@ -39,7 +39,7 @@ import {
   UserCog,
   Settings,
   History,
-  CircleDollarSign,
+  ShieldCheck,
   PiggyBank,
   ChevronDown,
   DatabaseZap,
@@ -316,7 +316,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <CircleDollarSign className="h-12 w-12 animate-pulse text-primary" />
+          <ShieldCheck className="h-12 w-12 animate-pulse text-primary" />
           <p className="text-muted-foreground">جاري التحقق من الهوية...</p>
         </div>
       </div>
@@ -329,7 +329,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="h-24 border-b border-sidebar-border/20 sticky top-0 bg-background/50 backdrop-blur-xl z-10">
           <div className="flex items-center gap-3 p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
             <div className="p-3 bg-gradient-to-br from-primary/80 to-primary rounded-xl text-primary-foreground shadow-lg shadow-primary/30">
-              <CircleDollarSign className="h-8 w-8 shrink-0" />
+              <ShieldCheck className="h-8 w-8 shrink-0" />
             </div>
             <Sparkles className="h-4 w-4 text-primary/50 absolute top-2 right-14 group-data-[collapsible=icon]:hidden" />
             <Shield className="h-4 w-4 text-accent/50 absolute bottom-2 right-2 group-data-[collapsible=icon]:hidden" />

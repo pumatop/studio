@@ -10,7 +10,7 @@ import {
   DialogDescription, DialogFooter
 } from '@/components/ui/dialog';
 import {
-  Eye, FilterX, Calendar as CalendarIcon, CircleDollarSign, User,
+  Eye, FilterX, Calendar as CalendarIcon, ShieldCheck, User,
   Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft,
   Landmark, Receipt, Wallet, Save, Share2
 } from 'lucide-react';
@@ -231,7 +231,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                       <DialogContent className="max-w-md">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2">
-                              <CircleDollarSign className="h-8 w-8 text-primary" />
+                              <ShieldCheck className="h-8 w-8 text-primary" />
                               <span className="text-2xl font-bold text-primary">حولّي كاش</span>
                           </DialogTitle>
                           <DialogDescription>إيصال تحويل إلكتروني</DialogDescription>
