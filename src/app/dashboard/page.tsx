@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useRtdbList, useRtdbObject } from "@/firebase";
-import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction } from "@/lib/types";
+import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction, EgyptLocalTransferTransaction } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -69,6 +69,7 @@ const FormattedAmount = ({
 
 export default function DashboardPage() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
+  const { data: globalPendingTransfers, isLoading: pendingLoading } = useRtdbList<EgyptLocalTransferTransaction>("admin/pending_egypt_transfers");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
 
   const [isMounted, setIsMounted] = useState(false);
@@ -85,13 +86,28 @@ export default function DashboardPage() {
   }, []);
 
   const transactions = useMemo(() => {
-    if (!users) return [];
-    return users.flatMap(user => 
-        user.transactions 
-            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
-            : []
-    ) as Transaction[];
-  }, [users]);
+    const allTx: Transaction[] = [];
+    
+    // 1. Add completed and historical transactions from users
+    if (users) {
+        users.forEach(user => {
+            if (user.transactions) {
+                Object.entries(user.transactions).forEach(([id, tx]) => {
+                    allTx.push({ ...(tx as object), id } as Transaction);
+                });
+            }
+        });
+    }
+
+    // 2. Add global pending transfers that haven't been assigned to users yet
+    if (globalPendingTransfers) {
+        globalPendingTransfers.forEach(tx => {
+            allTx.push(tx as Transaction);
+        });
+    }
+
+    return allTx;
+  }, [users, globalPendingTransfers]);
 
   const daysInMonth = useMemo(() => {
     return new Date(currentYear, selectedMonth, 0).getDate();
@@ -157,7 +173,23 @@ export default function DashboardPage() {
     const totalLibyanBalance = users.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
     const totalEgyptianBalance = users.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
 
-    const egyptTransfers = transactions.filter((t): t is EgyptTransferTransaction => t.type === "egypt_transfer");
+    // Egypt transfers can be type 'egypt_transfer' or local types like 'egypt_wallets'
+    const isEgyptType = (t: Transaction) => 
+        t.type === "egypt_transfer" || 
+        t.type === "egypt_home" || 
+        t.type === "egypt_wallets" || 
+        t.type === "egypt_instapay";
+
+    const getDisplayType = (t: any): EgyptTransferTransaction['transferType'] => {
+        if (t.transferType) return t.transferType;
+        if (t.methodDisplayName) return t.methodDisplayName;
+        if (t.type === 'egypt_wallets') return 'محفظة كاش';
+        if (t.type === 'egypt_instapay') return 'انستاباي';
+        if (t.type === 'egypt_home') return 'وصلني البيت';
+        return 'محفظة كاش';
+    };
+
+    const egyptTransfers = transactions.filter(isEgyptType);
     const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
 
     const dailyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
@@ -165,15 +197,15 @@ export default function DashboardPage() {
 
     const dailyTradeStats = {
         count: dailyTrades.length,
-        lydAmount: dailyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
-        egpAmount: dailyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
-        fakkaAmount: dailyTrades.reduce((sum, t) => sum + (t.fakkaAmount || 0), 0),
+        lydAmount: dailyTrades.reduce((sum, t) => sum + (t as any).amountLYD || 0, 0),
+        egpAmount: dailyTrades.reduce((sum, t) => sum + (t as any).amountEGP || 0, 0),
+        fakkaAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).fakkaAmount || 0), 0),
     };
     const monthlyTradeStats = {
         count: monthlyTrades.length,
-        lydAmount: monthlyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
-        egpAmount: monthlyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
-        fakkaAmount: monthlyTrades.reduce((sum, t) => sum + (t.fakkaAmount || 0), 0),
+        lydAmount: monthlyTrades.reduce((sum, t) => sum + (t as any).amountLYD || 0, 0),
+        egpAmount: monthlyTrades.reduce((sum, t) => sum + (t as any).amountEGP || 0, 0),
+        fakkaAmount: monthlyTrades.reduce((sum, t) => sum + ((t as any).fakkaAmount || 0), 0),
     };
 
     const userCounts = {
@@ -193,50 +225,51 @@ export default function DashboardPage() {
     const dailyCards = cardsTx.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
     const monthlyCards = cardsTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
-    const createTransferStats = (list: EgyptTransferTransaction[]) => {
+    const createTransferStats = (list: Transaction[]) => {
         const statsObj = E_TYPES.reduce((acc, type) => {
             acc[type] = { count: 0, amount: 0 };
             return acc;
         }, {} as any);
 
         list.forEach(t => {
-            if (t.status === 'completed' && statsObj[t.transferType]) {
-                statsObj[t.transferType].count++;
-                statsObj[t.transferType].amount += t.amountEGP;
+            const displayType = getDisplayType(t);
+            if (statsObj[displayType]) {
+                statsObj[displayType].count++;
+                statsObj[displayType].amount += (t as any).amountEGP || 0;
             }
         });
         return statsObj;
     };
 
-    const createStatusStats = (list: EgyptTransferTransaction[]) => ({
+    const createStatusStats = (list: Transaction[]) => ({
         successful: list.filter(t => t.status === 'completed').length,
         pending: list.filter(t => t.status === 'pending').length,
         failed: list.filter(t => t.status === 'failed').length,
-        totalActive: list.filter(t => t.status === 'completed' || t.status === 'pending').reduce((sum, t) => sum + t.amountEGP, 0)
+        totalActive: list.filter(t => t.status === 'completed' || t.status === 'pending').reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0)
     });
 
     const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
     const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
     const monthlyRevenueByType = E_TYPES.reduce((acc, type) => {
-        const typeTransfers = monthlyEgyptList.filter(t => t.transferType === type && t.status === 'completed');
+        const typeTransfers = monthlyEgyptList.filter(t => getDisplayType(t) === type && t.status === 'completed');
         acc[type] = {
             count: typeTransfers.length,
-            revenue: typeTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0)
+            revenue: typeTransfers.reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0)
         };
         return acc;
     }, {} as any);
 
     const supervisorSummary = (supervisors || []).map(s => {
-        const sMonthTx = monthlyEgyptList.filter(t => t.delegateName === s.name && t.status === 'completed');
+        const sMonthTx = monthlyEgyptList.filter(t => ((t as any).delegateName === s.name || (t as any).agentInfo === s.name) && t.status === 'completed');
         return {
             id: s.id,
             name: s.name,
-            dailyTotal: dailyEgyptList.filter(t => t.delegateName === s.name && t.status === 'completed').reduce((sum, t) => sum + t.amountEGP, 0),
-            monthlyTotal: sMonthTx.reduce((sum, t) => sum + t.amountEGP, 0),
-            monthlyFees: sMonthTx.reduce((sum, t) => sum + (t.serviceFee || 0), 0),
+            dailyTotal: dailyEgyptList.filter(t => ((t as any).delegateName === s.name || (t as any).agentInfo === s.name) && t.status === 'completed').reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
+            monthlyTotal: sMonthTx.reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
+            monthlyFees: sMonthTx.reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
             monthlyCount: sMonthTx.length,
-            details: E_TYPES.map(type => sMonthTx.filter(t => t.transferType === type).length)
+            details: E_TYPES.map(type => sMonthTx.filter(t => getDisplayType(t) === type).length)
         };
     });
 
@@ -256,13 +289,13 @@ export default function DashboardPage() {
         monthlyEgyptDetailed: createTransferStats(monthlyEgyptList.filter(t => t.status === 'completed')),
         dailyPendingDetailed: createTransferStats(dailyEgyptList.filter(t => t.status === 'pending')),
         monthlyPendingDetailed: createTransferStats(monthlyEgyptList.filter(t => t.status === 'pending')),
-        monthlyTotalRevenueEGP: monthlyEgyptList.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.serviceFee || 0), 0),
+        monthlyTotalRevenueEGP: monthlyEgyptList.filter(t => t.status === 'completed').reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
         monthlyRevenueByType,
         supervisorSummary
     };
-  }, [isMounted, users, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
+  }, [isMounted, users, globalPendingTransfers, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
 
-  const isLoading = usersLoading || supervisorsLoading || !isMounted;
+  const isLoading = usersLoading || pendingLoading || supervisorsLoading || !isMounted;
 
   if (isLoading || !stats) {
     return (
