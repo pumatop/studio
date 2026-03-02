@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
 const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
 const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
+const inputLevel4Class = "bg-white/80 border-black/5 focus:bg-white transition-colors font-mono";
 
 function FeeTierManager({
   title,
@@ -75,18 +76,18 @@ function FeeTierManager({
         </div>
         {showFreeTransactionsInput && (
             <div className="flex items-center gap-2">
-                <Label htmlFor="free-transactions" className="text-sm">المعاملات المجانية</Label>
-                <Input id="free-transactions" type="number" value={freeTransactions} onChange={(e) => onFreeTransactionsChange?.(Number(e.target.value))} className="w-20 h-8 bg-card border-black/10" />
+                <Label htmlFor="free-transactions" className="text-sm font-bold">المعاملات المجانية</Label>
+                <Input id="free-transactions" type="number" value={freeTransactions} onChange={(e) => onFreeTransactionsChange?.(Number(e.target.value))} className={cn("w-20 h-8", inputLevel4Class)} />
             </div>
         )}
       </div>
       <div className="space-y-3">
         {tiersArray.map((tier) => (
           <div key={tier.id} className={cn("flex items-end gap-2", deepInnerCardClass)}>
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">من ({currency})</Label><Input type="number" value={tier.from} onChange={(e) => handleTierChange(tier.id, "from", e.target.value)} className="h-8 bg-background/50" /></div>
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">إلى ({currency})</Label><Input type="number" value={tier.to} onChange={(e) => handleTierChange(tier.id, "to", e.target.value)} className="h-8 bg-background/50" /></div>
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">الرسوم ({currency})</Label><Input type="number" value={tier.fee} onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)} className="h-8 bg-background/50" /></div>
-            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => handleDeleteTier(tier.id)}><Trash2 className="h-4 w-4" /></Button>
+            <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">من ({currency})</Label><Input type="number" value={tier.from} onChange={(e) => handleTierChange(tier.id, "from", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
+            <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">إلى ({currency})</Label><Input type="number" value={tier.to} onChange={(e) => handleTierChange(tier.id, "to", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
+            <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">الرسوم ({currency})</Label><Input type="number" value={tier.fee} onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
+            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hover:bg-red-50" onClick={() => handleDeleteTier(tier.id)}><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
@@ -152,8 +153,8 @@ export default function SettingsPage() {
                       <div key={role} className={cn("space-y-2", deepInnerCardClass)}>
                         <Label className="text-xs font-bold uppercase">{role === 'unverified' ? 'غير موثق' : role === 'verified' ? 'موثق' : 'تاجر'}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} className="bg-background/50" />
-                          <Input type="number" placeholder="أقصى" value={(localLimits.internal as any)?.[role]?.max || 0} onChange={e => handleLimitsChange(`internal.${role}.max`, e.target.value)} className="bg-background/50" />
+                          <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} className={inputLevel4Class} />
+                          <Input type="number" placeholder="أقصى" value={(localLimits.internal as any)?.[role]?.max || 0} onChange={e => handleLimitsChange(`internal.${role}.max`, e.target.value)} className={inputLevel4Class} />
                         </div>
                       </div>
                     ))}
@@ -166,8 +167,8 @@ export default function SettingsPage() {
                       <div key={type} className={cn("space-y-2", deepInnerCardClass)}>
                         <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة' : 'توصيل منزلي'}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} className="bg-background/50" />
-                          <Input type="number" placeholder="أقصى" value={(localLimits.egypt as any)?.[type]?.max || 0} onChange={e => handleLimitsChange(`egypt.${type}.max`, e.target.value)} className="bg-background/50" />
+                          <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} className={inputLevel4Class} />
+                          <Input type="number" placeholder="أقصى" value={(localLimits.egypt as any)?.[type]?.max || 0} onChange={e => handleLimitsChange(`egypt.${type}.max`, e.target.value)} className={inputLevel4Class} />
                         </div>
                       </div>
                     ))}

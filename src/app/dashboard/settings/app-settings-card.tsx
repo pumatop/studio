@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
 const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
 const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
+const inputLevel4Class = "bg-white/80 border-black/5 focus:bg-white transition-colors font-mono";
 
 // Helper component to render banner content (image or video)
 function BannerContent({ url }: { url: string }) {
@@ -325,7 +326,7 @@ export function AppSettingsCard() {
                                                     value={region.name}
                                                     onChange={e => handleRegionNameChange(regionId, e.target.value)}
                                                     placeholder="اسم المنطقة"
-                                                    className="font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent"
+                                                    className={cn("font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent", inputLevel4Class.split(' ')[0])}
                                                     onClick={e => e.stopPropagation()}
                                                 />
                                             </AccordionTrigger>
@@ -343,7 +344,7 @@ export function AppSettingsCard() {
                                                             value={agent.name}
                                                             onChange={e => handleAgentChange(regionId, agentId, 'name', e.target.value)}
                                                             placeholder="اسم الوكيل"
-                                                            className="font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent"
+                                                            className="font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent"
                                                         />
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => handleDeleteAgent(regionId, agentId)}>
                                                             <Trash2 className="h-4 w-4" />
@@ -352,11 +353,11 @@ export function AppSettingsCard() {
                                                       <div className="space-y-2">
                                                         <div className="relative">
                                                             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                             <Input value={agent.phone} onChange={e => handleAgentChange(regionId, agentId, 'phone', e.target.value)} placeholder="رقم الهاتف" className="pl-10 bg-background/50" />
+                                                             <Input value={agent.phone} onChange={e => handleAgentChange(regionId, agentId, 'phone', e.target.value)} placeholder="رقم الهاتف" className={cn("pl-10 h-9", inputLevel4Class)} />
                                                         </div>
                                                          <div className="relative">
                                                             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                            <Input value={agent.address} onChange={e => handleAgentChange(regionId, agentId, 'address', e.target.value)} placeholder="العنوان" className="pl-10 bg-background/50" />
+                                                            <Input value={agent.address} onChange={e => handleAgentChange(regionId, agentId, 'address', e.target.value)} placeholder="العنوان" className={cn("pl-10 h-9", inputLevel4Class)} />
                                                         </div>
                                                       </div>
                                                  </div>
@@ -379,12 +380,12 @@ export function AppSettingsCard() {
                         <h3 className="font-semibold text-lg">صفحة الدعم الفني</h3>
                         <div className="space-y-4">
                             <div className={cn("space-y-2", deepInnerCardClass)}>
-                                <Label htmlFor="support-ly">رقم الهاتف الليبي</Label>
-                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} className="bg-background/50" />
+                                <Label htmlFor="support-ly" className="font-bold">رقم الهاتف الليبي</Label>
+                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} className={inputLevel4Class} />
                             </div>
                             <div className={cn("space-y-2", deepInnerCardClass)}>
-                                <Label htmlFor="support-eg">رقم الهاتف المصري</Label>
-                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} className="bg-background/50" />
+                                <Label htmlFor="support-eg" className="font-bold">رقم الهاتف المصري</Label>
+                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} className={inputLevel4Class} />
                             </div>
                         </div>
                     </div>
