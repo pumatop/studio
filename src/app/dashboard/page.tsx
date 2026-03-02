@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRtdbList, useRtdbObject } from "@/firebase";
 import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction } from "@/lib/types";
 import {
@@ -11,17 +12,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  DollarSign,
   ArrowRightLeft,
-  Users,
-  CreditCard,
-  Landmark,
-  PiggyBank,
   Activity,
   Banknote,
   Users2,
   Wallet,
-  Truck
+  CreditCard,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +40,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const E_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
+const EGYPTIAN_TRANSFER_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
 const FormattedAmount = ({
     amount,
@@ -70,11 +66,30 @@ const FormattedAmount = ({
     );
 };
 
+// أيقونة حصالة النقود المخصصة
+const MoneyBoxIcon = () => (
+  <div className="relative w-10 h-10 flex items-center justify-center">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="8" width="20" height="12" rx="2" className="fill-blue-500" />
+      <path d="M12 2V6" className="stroke-yellow-500" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="12" cy="14" r="3" className="fill-yellow-400" />
+      <path d="M10 14H14" className="stroke-white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  </div>
+);
 
 export default function DashboardPage() {
-  const { data: users, isLoading: usersLoading, error: usersError } = useRtdbList<User>("/users");
+  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
   const { data: fakkaSafeData, isLoading: fakkaLoading } = useRtdbObject<{totalFakka: number}>("/fakkaSafe");
+
+  const [isMounted, setIsMounted] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(3); 
+  const [selectedDay, setSelectedDay] = useState(1); 
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const transactions = useMemo(() => {
     if (!users) return [];
@@ -84,65 +99,67 @@ export default function DashboardPage() {
             : []
     ) as Transaction[];
   }, [users]);
-  const transactionsLoading = usersLoading;
 
-  const mostRecentTimestamp = useMemo(() => {
-    if (!transactions || transactions.length === 0) return Date.now();
-    return Math.max(...transactions.map(t => t.timestamp));
-  }, [transactions]);
-  
-  const todayDate = new Date(mostRecentTimestamp);
+  const daysInMonth = useMemo(() => {
+    return new Date(2026, selectedMonth, 0).getDate();
+  }, [selectedMonth]);
 
-  const [selectedMonth, setSelectedMonth] = useState(() => todayDate.getMonth() + 1);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  
-  const {
-    totalLibyanBalance,
-    totalEgyptianBalance,
-    dailyTradeStats,
-    monthlyTradeStats,
-    totalUsers,
-    pendingVerificationUsers,
-    dailyCardStats,
-    monthlyCardStats,
-    dailyInternalStats,
-    monthlyInternalStats,
-    fakkaBalance,
-    dailyEgyptianTransfers,
-    monthlyEgyptianTransfers,
-    dailyTotalActiveTransfersEGP,
-    monthlyTotalActiveTransfersEGP,
-    dailySuccessfulStatsByType,
-    monthlySuccessfulStatsByType,
-    dailyPendingStatsByType,
-    monthlyPendingStatsByType,
-    dailyEgyptianTransferStatus,
-    monthlyEgyptianTransferStatus,
-    monthlyRevenueByType,
-    supervisorStats,
-    monthlyTotalRevenueLYD,
-    monthlyTotalRevenueEGP
-  } = useMemo(() => {
-    const usersData = users || [];
-    const transactionsData = transactions || [];
-    const supervisorsData = supervisors || [];
+  const getMonthName = (month: number) => {
+    return new Date(2026, month - 1).toLocaleString('ar', { month: 'long' });
+  };
 
-    const startOfToday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
-    const startOfMonth = new Date(todayDate.getFullYear(), selectedMonth - 1, 1);
-    const endOfMonth = new Date(todayDate.getFullYear(), selectedMonth, 0, 23, 59, 59, 999);
+  const InlineMonthSelector = () => (
+    <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
+      <SelectTrigger className="inline-flex h-auto w-auto border-none bg-transparent p-0 font-bold text-primary hover:underline focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer">
+        <SelectValue placeholder={`شهر ${getMonthName(selectedMonth)}`} />
+      </SelectTrigger>
+      <SelectContent dir="rtl">
+        {months.map((m) => (
+          <SelectItem key={m} value={String(m)}>
+            {getMonthName(m)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
-    const totalLibyanBalance = usersData.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
-    const totalEgyptianBalance = usersData.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
-
-    const lydToEgpTransactions = transactionsData.filter(
-        (t): t is EgyptTransferTransaction => t.type === "egypt_transfer" && t.status === "completed"
+  const InlineDaySelector = () => {
+    const isToday = selectedDay === 1 && selectedMonth === 3;
+    const displayLabel = isToday ? "اليوم" : `يوم ${selectedDay}`;
+    
+    return (
+      <Select value={String(selectedDay)} onValueChange={(val) => setSelectedDay(Number(val))}>
+        <SelectTrigger className="inline-flex h-auto w-auto border-none bg-transparent p-0 font-bold text-primary hover:underline focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer">
+          <SelectValue placeholder={displayLabel} />
+        </SelectTrigger>
+        <SelectContent dir="rtl" className="max-h-[300px]">
+          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => (
+            <SelectItem key={d} value={String(d)}>
+              {d === 1 && selectedMonth === 3 ? "اليوم" : `يوم ${d}`}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     );
+  };
 
-    const dailyTrades = lydToEgpTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-    const monthlyTrades = lydToEgpTransactions.filter(t => {
-        const transactionDate = new Date(t.timestamp);
-        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-    });
+  const stats = useMemo(() => {
+    if (!isMounted || !users) return null;
+
+    const startOfSelectedDay = new Date(2026, selectedMonth - 1, selectedDay);
+    const endOfSelectedDay = new Date(2026, selectedMonth - 1, selectedDay, 23, 59, 59, 999);
+    const startOfMonth = new Date(2026, selectedMonth - 1, 1);
+    const endOfMonth = new Date(2026, selectedMonth, 0, 23, 59, 59, 999);
+
+    const totalLibyanBalance = users.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
+    const totalEgyptianBalance = users.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
+
+    const egyptTransfers = transactions.filter((t): t is EgyptTransferTransaction => t.type === "egypt_transfer");
+    const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
+
+    const dailyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
+    const monthlyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
     const dailyTradeStats = {
         count: dailyTrades.length,
@@ -155,219 +172,135 @@ export default function DashboardPage() {
         egpAmount: monthlyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
     };
 
-    const totalUsers = usersData.length;
-    const pendingVerificationUsers = usersData.filter(u => u.verification === "pending").length;
-    
-    const cardTransactions = transactionsData.filter((t): t is RechargePurchaseTransaction => t.type === "recharge_purchase" && t.status === "completed");
-    const dailyCards = cardTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-    const monthlyCards = cardTransactions.filter(t => {
-        const transactionDate = new Date(t.timestamp);
-        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-    });
-
-    const dailyCardStats = {
-        count: dailyCards.length,
-        revenue: dailyCards.reduce((sum, t) => {
-            const balanceChange = (t.balanceBefore || 0) - (t.balanceAfter || 0);
-            const fee = balanceChange - (t.amount || 0);
-            return sum + (fee > 0 ? fee : 0);
-        }, 0)
-    };
-    const monthlyCardStats = {
-        count: monthlyCards.length,
-        revenue: monthlyCards.reduce((sum, t) => {
-            const balanceChange = (t.balanceBefore || 0) - (t.balanceAfter || 0);
-            const fee = balanceChange - (t.amount || 0);
-            return sum + (fee > 0 ? fee : 0);
-        }, 0)
+    const userCounts = {
+        total: users.length,
+        merchants: users.filter(u => u.role === 'merchant').length,
+        verified: users.filter(u => u.verification === 'verified' && u.role !== 'merchant').length,
+        unverified: users.filter(u => u.verification === 'unverified' && u.role !== 'merchant').length,
+        banned: users.filter(u => u.status === 'banned').length,
+        pendingDoc: users.filter(u => u.verification === 'pending').length,
     };
 
-    const internalTransactions = transactionsData.filter((t): t is AccountTransferTransaction => t.type === "account_transfer" && t.status === "completed");
-    const dailyInternal = internalTransactions.filter(t => new Date(t.timestamp) >= startOfToday);
-    const monthlyInternal = internalTransactions.filter(t => {
-        const transactionDate = new Date(t.timestamp);
-        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-    });
-    const dailyInternalStats = {
-        count: dailyInternal.length,
-        revenue: dailyInternal.reduce((sum, t) => sum + (t.fee || 0), 0)
-    };
-    const monthlyInternalStats = {
-        count: monthlyInternal.length,
-        revenue: monthlyInternal.reduce((sum, t) => sum + (t.fee || 0), 0)
-    };
+    const internalTx = transactions.filter((t): t is AccountTransferTransaction => t.type === "account_transfer" && t.status === "completed");
+    const dailyInternal = internalTx.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
+    const monthlyInternal = internalTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
-    const fakkaBalance = fakkaSafeData?.totalFakka || 0;
+    const cardsTx = transactions.filter((t): t is RechargePurchaseTransaction => t.type === "recharge_purchase" && t.status === "completed");
+    const dailyCards = cardsTx.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
+    const monthlyCards = cardsTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
-    // Egyptian Transfers Stats (from live data)
-    const egyptianTransfers = transactionsData.filter((t): t is EgyptTransferTransaction => t.type === 'egypt_transfer');
-    
-    const dailyEgyptianTransfers = egyptianTransfers.filter(t => new Date(t.timestamp) >= startOfToday);
-    const monthlyEgyptianTransfers = egyptianTransfers.filter(t => {
-        const transactionDate = new Date(t.timestamp);
-        return transactionDate >= startOfMonth && transactionDate <= endOfMonth;
-    });
-    
-    const dailySuccessfulTransfersEGP = dailyEgyptianTransfers.filter(t => t.status === "completed").reduce((sum, t) => sum + t.amountEGP, 0);
-    const dailyPendingTransfersEGP = dailyEgyptianTransfers.filter(t => t.status === "pending").reduce((sum, t) => sum + t.amountEGP, 0);
-    const dailyTotalActiveTransfersEGP = dailySuccessfulTransfersEGP + dailyPendingTransfersEGP;
-
-    const createStatsObject = () => E_TYPES.reduce((acc, type) => {
-        acc[type] = { count: 0, amount: 0 };
-        return acc;
-    }, {} as Record<EgyptTransferTransaction['transferType'], {count: number, amount: number}>);
-    
-    const dailySuccessfulStatsByType = createStatsObject();
-    const dailyPendingStatsByType = createStatsObject();
-
-    dailyEgyptianTransfers.forEach(t => {
-        if (t.status === 'completed' && dailySuccessfulStatsByType[t.transferType]) {
-            dailySuccessfulStatsByType[t.transferType].count++;
-            dailySuccessfulStatsByType[t.transferType].amount += t.amountEGP;
-        } else if (t.status === 'pending' && dailyPendingStatsByType[t.transferType]) {
-            dailyPendingStatsByType[t.transferType].count++;
-            dailyPendingStatsByType[t.transferType].amount += t.amountEGP;
-        }
-    });
-    
-    const monthlySuccessfulTransfersEGP = monthlyEgyptianTransfers.filter(t => t.status === "completed").reduce((sum, t) => sum + t.amountEGP, 0);
-    const monthlyPendingTransfersEGP = monthlyEgyptianTransfers.filter(t => t.status === "pending").reduce((sum, t) => sum + t.amountEGP, 0);
-    const monthlyTotalActiveTransfersEGP = monthlySuccessfulTransfersEGP + monthlyPendingTransfersEGP;
-
-    const monthlySuccessfulStatsByType = createStatsObject();
-    const monthlyPendingStatsByType = createStatsObject();
-    
-    monthlyEgyptianTransfers.forEach(t => {
-        if (t.status === 'completed' && monthlySuccessfulStatsByType[t.transferType]) {
-            monthlySuccessfulStatsByType[t.transferType].count++;
-            monthlySuccessfulStatsByType[t.transferType].amount += t.amountEGP;
-        } else if (t.status === 'pending' && monthlyPendingStatsByType[t.transferType]) {
-            monthlyPendingStatsByType[t.transferType].count++;
-            monthlyPendingStatsByType[t.transferType].amount += t.amountEGP;
-        }
-    });
-
-    const calculateStatusCounts = (transfers: EgyptTransferTransaction[]) => {
-        return transfers.reduce((acc, t) => {
-            if(t.status === 'completed') acc.successful++;
-            if(t.status === 'pending') acc.pending++;
-            if(t.status === 'failed') acc.failed++;
+    const createTransferStats = (list: EgyptTransferTransaction[]) => {
+        const statsObj = E_TYPES.reduce((acc, type) => {
+            acc[type] = { count: 0, amount: 0 };
             return acc;
-        }, { successful: 0, pending: 0, failed: 0 });
-    };
-    const dailyEgyptianTransferStatus = calculateStatusCounts(dailyEgyptianTransfers);
-    const monthlyEgyptianTransferStatus = calculateStatusCounts(monthlyEgyptianTransfers);
+        }, {} as any);
 
-    const calculateRevenueByType = (transfers: EgyptTransferTransaction[]) => {
-        const initial = E_TYPES.reduce((acc, type) => {
-            acc[type] = { count: 0, revenue: 0 };
-            return acc;
-        }, {} as Record<EgyptTransferTransaction['transferType'], {count: number, revenue: number}>);
-
-        return transfers.reduce((acc, t) => {
-            if (t.status === 'completed' && acc[t.transferType]) {
-                acc[t.transferType].count++;
-                acc[t.transferType].revenue += (t.serviceFee || 0);
+        list.forEach(t => {
+            if (t.status === 'completed' && statsObj[t.transferType]) {
+                statsObj[t.transferType].count++;
+                statsObj[t.transferType].amount += t.amountEGP;
             }
-            return acc;
-        }, initial);
+        });
+        return statsObj;
     };
-    const monthlyRevenueByType = calculateRevenueByType(monthlyEgyptianTransfers);
 
-    const supervisorStats = supervisorsData.map(supervisor => {
-        const supervisorDailyTransfers = dailyEgyptianTransfers.filter(transfer => transfer.delegateName === supervisor.name && transfer.status === 'completed');
-        const supervisorMonthlyTransfers = monthlyEgyptianTransfers.filter(transfer => transfer.delegateName === supervisor.name && transfer.status === 'completed');
-        const dailyTotalAmount = supervisorDailyTransfers.reduce((sum, t) => sum + t.amountEGP, 0);
-        const monthlyTotalAmount = supervisorMonthlyTransfers.reduce((sum, t) => sum + t.amountEGP, 0);
-        const monthlyTotalCount = supervisorMonthlyTransfers.length;
-        const monthlyStatsByType = E_TYPES.reduce((acc, type) => {
-            acc[type] = supervisorMonthlyTransfers.filter(t => t.transferType === type).length;
-            return acc;
-        }, {} as Record<EgyptTransferTransaction['transferType'], number>);
-
-        return { ...supervisor, dailyTotalAmount, monthlyTotalAmount, monthlyTotalCount, monthlyStatsByType };
+    const createStatusStats = (list: EgyptTransferTransaction[]) => ({
+        successful: list.filter(t => t.status === 'completed').length,
+        pending: list.filter(t => t.status === 'pending').length,
+        failed: list.filter(t => t.status === 'failed').length,
+        totalActive: list.filter(t => t.status === 'completed' || t.status === 'pending').reduce((sum, t) => sum + t.amountEGP, 0)
     });
-    
-    const monthlyTotalRevenueLYD = monthlyInternalStats.revenue + monthlyCardStats.revenue;
-    const monthlyTotalRevenueEGP = monthlyEgyptianTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0);
 
+    const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
+    const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
+
+    const monthlyRevenueByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+        const typeTransfers = monthlyEgyptList.filter(t => t.transferType === type && t.status === 'completed');
+        acc[type] = {
+            count: typeTransfers.length,
+            revenue: typeTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0)
+        };
+        return acc;
+    }, {} as any);
+
+    const supervisorSummary = (supervisors || []).map(s => {
+        const sMonthTx = monthlyEgyptList.filter(t => t.delegateName === s.name && t.status === 'completed');
+        return {
+            id: s.id,
+            name: s.name,
+            dailyTotal: dailyEgyptList.filter(t => t.delegateName === s.name && t.status === 'completed').reduce((sum, t) => sum + t.amountEGP, 0),
+            monthlyTotal: sMonthTx.reduce((sum, t) => sum + t.amountEGP, 0),
+            monthlyFees: sMonthTx.reduce((sum, t) => sum + (t.serviceFee || 0), 0),
+            monthlyCount: sMonthTx.length,
+            details: EGYPTIAN_TRANSFER_TYPES.map(type => sMonthTx.filter(t => t.transferType === type).length)
+        };
+    });
 
     return {
         totalLibyanBalance,
         totalEgyptianBalance,
         dailyTradeStats,
         monthlyTradeStats,
-        totalUsers,
-        pendingVerificationUsers,
-        dailyCardStats,
-        monthlyCardStats,
-        dailyInternalStats,
-        monthlyInternalStats,
-        fakkaBalance,
-        dailyEgyptianTransfers,
-        monthlyEgyptianTransfers,
-        dailyTotalActiveTransfersEGP,
-        monthlyTotalActiveTransfersEGP,
-        dailySuccessfulStatsByType,
-        monthlySuccessfulStatsByType,
-        dailyPendingStatsByType,
-        monthlyPendingStatsByType,
-        dailyEgyptianTransferStatus,
-        monthlyEgyptianTransferStatus,
+        userCounts,
+        fakkaBalance: fakkaSafeData?.totalFakka || 0,
+        dailyInternalStats: { count: dailyInternal.length, revenue: dailyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
+        monthlyInternalStats: { count: monthlyInternal.length, revenue: monthlyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
+        dailyCardStats: { count: dailyCards.length, value: dailyCards.reduce((sum, t) => sum + (t.amount || 0), 0) },
+        monthlyCardStats: { count: monthlyCards.length, value: monthlyCards.reduce((sum, t) => sum + (t.amount || 0), 0) },
+        dailyEgyptSummary: createStatusStats(dailyEgyptList),
+        monthlyEgyptSummary: createStatusStats(monthlyEgyptList),
+        dailyEgyptDetailed: createTransferStats(dailyEgyptList.filter(t => t.status === 'completed')),
+        monthlyEgyptDetailed: createTransferStats(monthlyEgyptList.filter(t => t.status === 'completed')),
+        dailyPendingDetailed: createTransferStats(dailyEgyptList.filter(t => t.status === 'pending')),
+        monthlyPendingDetailed: createTransferStats(monthlyEgyptList.filter(t => t.status === 'pending')),
+        monthlyTotalRevenueEGP: monthlyEgyptList.filter(t => t.status === 'completed').reduce((sum, t) => sum + (t.serviceFee || 0), 0),
         monthlyRevenueByType,
-        supervisorStats,
-        monthlyTotalRevenueLYD,
-        monthlyTotalRevenueEGP,
+        supervisorSummary
     };
+  }, [isMounted, users, transactions, selectedMonth, selectedDay, fakkaSafeData, supervisors]);
 
-   }, [users, transactions, supervisors, selectedMonth, todayDate, fakkaSafeData]);
+  const isLoading = usersLoading || supervisorsLoading || fakkaLoading || !isMounted;
 
-  const isLoading = usersLoading || transactionsLoading || supervisorsLoading || fakkaLoading;
-  
-  const transferSummaryContent = (
-      period: 'daily' | 'monthly',
-      totalActive: number, 
-      successfulStats: Record<string, {count: number, amount: number}>,
-      pendingStats: Record<string, {count: number, amount: number}>,
-      statusCounts: { successful: number, pending: number, failed: number }
-    ) => (
+  if (isLoading || !stats) {
+    return (
+        <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-40" /><Skeleton className="h-40" /><Skeleton className="h-40" /></div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-64" /><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
+            <div className="grid gap-6 lg:grid-cols-4"><Skeleton className="h-96" /><Skeleton className="h-96" /><Skeleton className="h-96 lg:col-span-2" /></div>
+        </div>
+    );
+  }
+
+  const E_TYPES = EGYPTIAN_TRANSFER_TYPES;
+
+  const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 pt-6 flex-grow flex flex-col justify-center">
         <div className="text-center">
-            <p className="text-sm text-muted-foreground">الإجمالي (ناجح + معلق)</p>
-            <p>
-                <FormattedAmount amount={totalActive} currency="ج.م" integerClass="text-xl md:text-2xl font-bold" fractionClass="text-md md:text-lg" currencyClass="text-sm md:text-base font-medium" />
-            </p>
+            <p className="text-sm text-muted-foreground">إجمالي (ناجح + معلق)</p>
+            <p><FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl font-bold" fractionClass="text-md md:text-lg" currencyClass="text-sm md:text-base font-medium" /></p>
         </div>
         <Separator />
         <div>
             <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
             <div className="space-y-2 text-xs">
-                {Object.entries(successfulStats).map(([type, stats]) => (
-                    <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <span>{type}</span>
-                        <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
-                            <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
-                            <span className="font-semibold text-left">
-                                <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
-                            </span>
-                        </div>
+                {Object.entries(successful).map(([type, s]: [string, any]) => (
+                    <div key={type} className="grid grid-cols-3 items-center">
+                        <span className="text-right">{type}</span>
+                        <div className="flex justify-center"><Badge variant="outline" className="px-3 text-green-600 border-green-200">{s.count} حوالة</Badge></div>
+                        <span className="font-semibold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-semibold" /></span>
                     </div>
                 ))}
             </div>
         </div>
         <Separator />
-          <div>
-            <h4 className="text-sm font-semibold mb-2 text-yellow-600 dark:text-yellow-400">الحوالات المعلقة</h4>
+        <div>
+            <h4 className="text-sm font-semibold mb-2 text-yellow-600">الحوالات المعلقة</h4>
             <div className="space-y-2 text-xs">
-                {Object.entries(pendingStats).map(([type, stats]) => (
-                    <div key={type} className="flex flex-col items-start gap-1 text-yellow-600 dark:text-yellow-400 sm:flex-row sm:items-center sm:justify-between">
-                        <span>{type}</span>
-                        <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
-                            <Badge variant="outline" className="shrink-0 border-yellow-500/50 bg-yellow-50 px-3 text-yellow-700 dark:border-yellow-500/50 dark:bg-yellow-500/10 dark:text-yellow-400">{stats.count} حوالة</Badge>
-                            <span className="font-semibold text-left">
-                                <FormattedAmount amount={stats.amount} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
-                            </span>
-                        </div>
+                {Object.entries(pending).map(([type, s]: [string, any]) => (
+                    <div key={type} className="grid grid-cols-3 items-center text-yellow-600">
+                        <span className="text-right">{type}</span>
+                        <div className="flex justify-center"><Badge variant="outline" className="px-3 border-yellow-200 text-yellow-700 bg-yellow-50">{s.count} حوالة</Badge></div>
+                        <span className="font-semibold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-semibold" /></span>
                     </div>
                 ))}
             </div>
@@ -375,344 +308,224 @@ export default function DashboardPage() {
         <Separator />
         <div>
             <h4 className="text-sm font-semibold mb-2">حالة الحوالات</h4>
-            <div className="space-y-1 text-xs text-muted-foreground">
-                <p className="flex justify-between"><span>ناجحة:</span> <span className="font-semibold text-foreground">{statusCounts.successful}</span></p>
-                <p className="flex justify-between"><span>قيد التحويل:</span> <span className="font-semibold text-yellow-600 dark:text-yellow-400">{statusCounts.pending}</span></p>
-                <p className="flex justify-between"><span>مرفوضة:</span> <span className="font-semibold text-foreground">{statusCounts.failed}</span></p>
+            <div className="space-y-1 text-xs font-medium">
+                <p className="flex justify-between text-green-600"><span>ناجحة:</span> <span>{summary.successful}</span></p>
+                <p className="flex justify-between text-yellow-600"><span>قيد التحويل:</span> <span>{summary.pending}</span></p>
+                <p className="flex justify-between text-red-600"><span>مرفوضة:</span> <span>{summary.failed}</span></p>
             </div>
         </div>
     </CardContent>
   );
 
-  if (isLoading) {
-    return (
-        <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-                <Skeleton className="h-40" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Skeleton className="h-64" />
-                <Skeleton className="h-64" />
-                <Skeleton className="h-64" />
-                <Skeleton className="h-64" />
-            </div>
-            <div className="grid gap-6 lg:grid-cols-3">
-                <Skeleton className="h-96 lg:col-span-2" />
-                <Skeleton className="h-96" />
-            </div>
-            <Skeleton className="h-64" />
-        </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-card flex flex-col">
+        {/* Row 1: Balances */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="bg-card flex flex-col shadow-sm border">
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div className="space-y-1.5">
-                            <CardTitle className="text-base">إجمالي الرصيد (د.ل)</CardTitle>
+                        <div className="space-y-1">
+                            <CardTitle className="text-base">إجمالي الرصيد الليبي</CardTitle>
                             <CardDescription className="text-xs">رصيد جميع المستخدمين بالدينار</CardDescription>
                         </div>
-                        <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-lg">
-                            <DollarSign className="h-7 w-7 text-green-600 dark:text-green-400" />
-                        </div>
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 font-bold text-sm">LYD</div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center">
-                    <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
+                <CardContent className="flex-grow flex items-center justify-center pb-8">
+                    <FormattedAmount amount={stats.totalLibyanBalance} currency="د.ل" integerClass="text-3xl md:text-4xl font-bold text-green-600" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card flex flex-col">
+
+            <Card className="bg-card flex flex-col shadow-sm border">
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div className="space-y-1.5">
-                            <CardTitle className="text-base">إجمالي الرصيد (ج.م)</CardTitle>
+                        <div><CardTitle>تداول الدينار مقابل الجنيه</CardTitle><CardDescription>العمليات الناجحة (DG)</CardDescription></div>
+                        <div className="p-3 bg-blue-100 rounded-lg"><ArrowRightLeft className="h-6 w-6 text-blue-600" /></div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineDaySelector /></h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{stats.dailyTradeStats.count}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (د.ل):</span> <span className="font-semibold text-foreground"><FormattedAmount amount={stats.dailyTradeStats.lydAmount} currency="د.ل" /></span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground"><FormattedAmount amount={stats.dailyTradeStats.egpAmount} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                    <Separator />
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineMonthSelector /></h4>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{stats.monthlyTradeStats.count}</span></p>
+                            <p className="flex justify-between"><span>المبلغ (د.ل):</span> <span className="font-semibold text-foreground"><FormattedAmount amount={stats.monthlyTradeStats.lydAmount} currency="د.ل" /></span></p>
+                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground"><FormattedAmount amount={stats.monthlyTradeStats.egpAmount} currency="ج.م" /></span></p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                            <CardTitle className="text-base">إجمالي الرصيد المصري</CardTitle>
                             <CardDescription className="text-xs">رصيد جميع المستخدمين بالجنيه</CardDescription>
                         </div>
-                        <div className="p-3 bg-purple-100 dark:bg-purple-500/20 rounded-lg">
-                            <DollarSign className="h-7 w-7 text-purple-600 dark:text-purple-400" />
-                        </div>
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 font-bold text-sm">EGP</div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center">
-                    <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
+                <CardContent className="flex-grow flex items-center justify-center pb-8">
+                    <FormattedAmount amount={stats.totalEgyptianBalance} currency="ج.م" integerClass="text-3xl md:text-4xl font-bold text-purple-600" currencyClass="text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card flex flex-col">
-                <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1.5">
-                            <CardTitle className="text-base">المستخدمون</CardTitle>
-                            <CardDescription className="text-xs">إجمالي المستخدمين والحسابات المعلقة</CardDescription>
-                        </div>
-                        <div className="p-3 bg-orange-100 dark:bg-orange-500/20 rounded-lg">
-                            <Users2 className="h-7 w-7 text-orange-600 dark:text-orange-400" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="flex flex-grow items-center justify-center gap-4">
-                    <div className="text-4xl font-bold">{totalUsers}</div>
-                    <div className="text-lg text-yellow-600 dark:text-yellow-400">({pendingVerificationUsers} معلق)</div>
-                </CardContent>
-            </Card>
-            <Card className="bg-card flex flex-col">
-                <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div className="space-y-1.5">
-                            <CardTitle className="text-base">حصالة الفكة</CardTitle>
-                            <CardDescription className="text-xs">مجموع كسور التحويلات</CardDescription>
-                        </div>
-                        <div className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-lg">
-                            <PiggyBank className="h-7 w-7 text-pink-600 dark:text-pink-400" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center">
-                    <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
-                </CardContent>
-            </div>
         </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card flex flex-col">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle className="text-base">إيرادات الشهر (د.ل)</CardTitle>
-                        <CardDescription>الرسوم من (DD) و (DC)</CardDescription>
+        {/* Row 2: Users and Internal Operations */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className="text-xs">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div className="p-3 bg-orange-100 rounded-lg"><Users2 className="h-6 w-6 text-orange-600" /></div>
                     </div>
-                     <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-lg">
-                        <DollarSign className="h-7 w-7 text-green-600 dark:text-green-400" />
+                </CardHeader>
+                <CardContent className="flex-grow space-y-4">
+                    <div className="text-center text-4xl font-bold mb-4">{stats.userCounts.total}</div>
+                    <Separator />
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold">
+                        <div className="flex justify-between text-green-600 bg-green-50 p-1.5 rounded"><span>تاجر:</span><span>{stats.userCounts.merchants}</span></div>
+                        <div className="flex justify-between text-blue-600 bg-blue-50 p-1.5 rounded"><span>موثق:</span><span>{stats.userCounts.verified}</span></div>
+                        <div className="flex justify-between text-yellow-600 bg-yellow-50 p-1.5 rounded"><span>غير موثق:</span><span>{stats.userCounts.unverified}</span></div>
+                        <div className="flex justify-between text-red-600 bg-red-50 p-1.5 rounded"><span>مجمد:</span><span>{stats.userCounts.banned}</span></div>
                     </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                 <div className="text-center">
-                    <FormattedAmount amount={monthlyTotalRevenueLYD} currency="د.ل" integerClass="text-2xl xl:text-3xl font-bold" fractionClass="text-lg xl:text-xl" currencyClass="text-sm xl:text-base" />
-                </div>
-                <Separator />
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>التحويل الداخلي (DD):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyInternalStats.revenue} currency="د.ل" /></span></p>
-                    <p className="flex justify-between"><span>شراء الكروت (DC):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyCardStats.revenue} currency="د.ل" /></span></p>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className="bg-card flex flex-col">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle>تداول الدينار مقابل الجنيه</CardTitle>
-                        <CardDescription>العمليات الناجحة (DG)</CardDescription>
-                    </div>
-                    <div className="p-3 bg-blue-100 dark:bg-blue-500/20 rounded-lg">
-                        <ArrowRightLeft className="h-7 w-7 text-blue-600 dark:text-blue-400" />
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                <div>
-                <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailyTradeStats.count}</span></p>
-                    <p className="flex justify-between"><span>المبلغ (د.ل):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyTradeStats.lydAmount} currency="د.ل" /></span></p>
-                    <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyTradeStats.egpAmount} currency="ج.م" /></span></p>
-                </div>
-                </div>
-                <Separator />
-                <div>
-                <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlyTradeStats.count}</span></p>
-                    <p className="flex justify-between"><span>المبلغ (د.ل):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyTradeStats.lydAmount} currency="د.ل" /></span></p>
-                    <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyTradeStats.egpAmount} currency="ج.م" /></span></p>
-                </div>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className="bg-card flex flex-col">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle>التحويل الداخلي (DD)</CardTitle>
-                        <CardDescription>العمليات ورسومها بالدينار</CardDescription>
-                    </div>
-                    <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-lg">
-                        <Wallet className="h-7 w-7 text-green-600 dark:text-green-400" />
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                <div>
-                <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailyInternalStats.count}</span></p>
-                    <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyInternalStats.revenue} currency="د.ل" /></span></p>
-                </div>
-                </div>
-                <Separator />
-                <div>
-                <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlyInternalStats.count}</span></p>
-                    <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyInternalStats.revenue} currency="د.ل" /></span></p>
-                </div>
-                </div>
-            </CardContent>
-        </Card>
-        <Card className="bg-card flex flex-col">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle>شراء الكروت (DC)</CardTitle>
-                        <CardDescription>العمليات ورسومها بالدينار</CardDescription>
-                    </div>
-                    <div className="p-3 bg-sky-100 dark:bg-sky-500/20 rounded-lg">
-                        <CreditCard className="h-7 w-7 text-sky-600 dark:text-sky-400" />
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                <div>
-                <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{dailyCardStats.count}</span></p>
-                    <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailyCardStats.revenue} currency="د.ل" /></span></p>
-                </div>
-                </div>
-                <Separator />
-                <div>
-                <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="flex justify-between"><span>عدد الكروت:</span> <span className="font-semibold text-foreground">{monthlyCardStats.count}</span></p>
-                    <p className="flex justify-between"><span>قيمة الرسوم:</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlyCardStats.revenue} currency="د.ل" /></span></p>
-                </div>
-                </div>
-            </CardContent>
-        </Card>
-      </div>
+                </CardContent>
+            </Card>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="bg-card flex flex-col">
-            <CardHeader>
-                <div className="flex items-start justify-between">
-                    <div>
-                        <CardTitle>إيرادات الشهر (ج.م)</CardTitle>
-                        <CardDescription>إجمالي رسوم التحويلات المصرية</CardDescription>
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div><CardTitle>التحويل الداخلي (DD)</CardTitle><CardDescription>العمليات والرسوم بالدينار</CardDescription></div>
+                        <div className="p-3 bg-green-100 rounded-lg"><Wallet className="h-6 w-6 text-green-600" /></div>
                     </div>
-                    <div className="p-3 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg">
-                        <Banknote className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineDaySelector /></h4>
+                        <div className="flex justify-between text-sm"><span>العمليات: {stats.dailyInternalStats.count}</span> <FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" /></div>
                     </div>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                <div className="text-center">
-                    <FormattedAmount amount={monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-2xl xl:text-3xl font-bold" fractionClass="text-lg xl:text-xl" currencyClass="text-sm xl:text-base" />
-                </div>
-                <Separator />
-                <div>
-                    <h4 className="text-sm font-semibold mb-2">تفاصيل الشهر</h4>
+                    <Separator />
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineMonthSelector /></h4>
+                        <div className="flex justify-between text-sm"><span>العمليات: {stats.monthlyInternalStats.count}</span> <FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" /></div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div><CardTitle>متجر الكروت (DC)</CardTitle><CardDescription>المبيعات بالدينار</CardDescription></div>
+                        <div className="p-3 bg-sky-100 rounded-lg"><CreditCard className="h-6 w-6 text-sky-600" /></div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineDaySelector /></h4>
+                        <div className="flex justify-between text-sm"><span>الكروت: {stats.dailyCardStats.count}</span> <FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" /></div>
+                    </div>
+                    <Separator />
+                    <div><h4 className="text-sm font-semibold mb-2"><InlineMonthSelector /></h4>
+                        <div className="flex justify-between text-sm"><span>الكروت: {stats.monthlyCardStats.count}</span> <FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" /></div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
+        {/* Row 3: Fakka and Detailed Summaries */}
+        <div className="grid gap-6 lg:grid-cols-4">
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader className="text-center">
+                    <CardTitle className="text-base font-bold">حصالة الفكة</CardTitle>
+                    <CardDescription className="text-xs">مجموع كسور التحويلات</CardDescription>
+                    <div className="flex justify-center mt-2"><MoneyBoxIcon /></div>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center justify-center pb-8">
+                    <div className="mb-2"><InlineMonthSelector /></div>
+                    <FormattedAmount amount={stats.fakkaBalance} currency="ج.م" integerClass="text-2xl md:text-3xl font-bold text-blue-600" />
+                </CardContent>
+            </Card>
+
+            <Card className="bg-card flex flex-col shadow-sm border">
+                <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div className="space-y-1"><CardTitle>إيرادات <InlineMonthSelector /></CardTitle><CardDescription className="text-xs">رسوم التحويلات المصرية</CardDescription></div>
+                        <div className="p-3 bg-indigo-100 rounded-lg"><Banknote className="h-6 w-6 text-indigo-600" /></div>
+                    </div>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                    <div className="text-center"><FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-2xl font-bold text-indigo-600" /></div>
+                    <Separator />
                     <div className="space-y-2 text-xs">
-                        {Object.entries(monthlyRevenueByType).map(([type, stats]) => (
-                            <div key={type} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
+                        {Object.entries(stats.monthlyRevenueByType).map(([type, s]: [string, any]) => (
+                            <div key={type} className="flex justify-between items-center">
                                 <span>{type}</span>
-                                <div className="flex w-full items-center justify-end gap-4 sm:w-auto sm:justify-start">
-                                    <Badge variant="outline" className="shrink-0 px-3">{stats.count} حوالة</Badge>
-                                    <span className="font-semibold text-left">
-                                        <FormattedAmount amount={stats.revenue} currency="ج.م" integerClass="font-semibold" fractionClass="text-xs" currencyClass="text-xs" />
-                                    </span>
-                                </div>
+                                <div className="flex items-center gap-3"><Badge variant="outline" className="px-2">{s.count}</Badge> <FormattedAmount amount={s.revenue} currency="ج.م" integerClass="font-semibold" /></div>
                             </div>
                         ))}
                     </div>
+                </CardContent>
+            </Card>
+
+            <Card className="lg:col-span-2 bg-card flex flex-col shadow-sm border">
+                <Tabs defaultValue="today" dir="rtl" className="flex flex-col h-full">
+                    <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="flex items-center gap-2"><Activity size={18} /> ملخص الحوالات</CardTitle>
+                            <TabsList className="grid grid-cols-2 w-48">
+                                <TabsTrigger value="today"><InlineDaySelector /></TabsTrigger>
+                                <TabsTrigger value="month">الإجمالي الشهري</TabsTrigger>
+                            </TabsList>
+                        </div>
+                    </CardHeader>
+                    <TabsContent value="today" className="flex-grow m-0">{renderTransferSummary(stats.dailyEgyptSummary, stats.dailyEgyptDetailed, stats.dailyPendingDetailed)}</TabsContent>
+                    <TabsContent value="month" className="flex-grow m-0">
+                        <div className="px-6 py-1 text-[10px] text-muted-foreground flex justify-center items-center gap-1">عرض بيانات <InlineMonthSelector /></div>
+                        {renderTransferSummary(stats.monthlyEgyptSummary, stats.monthlyEgyptDetailed, stats.monthlyPendingDetailed)}
+                    </TabsContent>
+                </Tabs>
+            </Card>
+        </div>
+
+        {/* Row 4: Supervisor Table */}
+        <Card className="bg-card shadow-sm border">
+            <CardHeader>
+                <CardTitle>ملخص أداء المندوبين <InlineMonthSelector /></CardTitle>
+                <CardDescription>عرض شامل لمبالغ التحويل والرسوم حسب كل مندوب</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="rounded-md border overflow-hidden">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow>
+                                <TableHead className="font-bold">المندوب</TableHead>
+                                <TableHead className="text-left font-bold"><InlineDaySelector /> (ج.م)</TableHead>
+                                <TableHead className="text-left font-bold">إجمالي الشهر (ج.م)</TableHead>
+                                <TableHead className="text-left font-bold">إجمالي الرسوم (ج.م)</TableHead>
+                                <TableHead className="text-center font-bold">عدد العمليات</TableHead>
+                                {E_TYPES.map(t => <TableHead key={t} className="text-center font-bold">{t}</TableHead>)}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {stats.supervisorSummary.map(s => (
+                                <TableRow key={s.id}>
+                                    <TableCell className="font-medium">{s.name}</TableCell>
+                                    <TableCell className="text-left"><FormattedAmount amount={s.dailyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
+                                    <TableCell className="text-left"><FormattedAmount amount={s.monthlyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
+                                    <TableCell className="text-left"><FormattedAmount amount={s.monthlyFees} currency="ج.م" integerClass="font-bold text-primary" /></TableCell>
+                                    <TableCell className="text-center font-semibold">{s.monthlyCount}</TableCell>
+                                    {s.details.map((count, i) => <TableCell key={i} className="text-center">{count}</TableCell>)}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </CardContent>
         </Card>
-
-        <Card className="lg:col-span-2 bg-card flex flex-col">
-            <Tabs defaultValue="today" dir="rtl" className="flex flex-col flex-grow">
-                <CardHeader>
-                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <CardTitle className="flex items-center gap-2"><Activity /> ملخص التحويلات المصرية</CardTitle>
-                            <CardDescription>عرض تفصيلي للحوالات الناجحة والمعلقة.</CardDescription>
-                        </div>
-                        <TabsList className="grid w-full grid-cols-2 sm:w-auto">
-                            <TabsTrigger value="today">اليوم</TabsTrigger>
-                            <TabsTrigger value="month">هذا الشهر</TabsTrigger>
-                        </TabsList>
-                    </div>
-                </CardHeader>
-                <TabsContent value="today" className="flex-grow">
-                    {transferSummaryContent('daily', dailyTotalActiveTransfersEGP, dailySuccessfulStatsByType, dailyPendingStatsByType, dailyEgyptianTransferStatus)}
-                </TabsContent>
-                <TabsContent value="month" className="flex-grow">
-                    {transferSummaryContent('monthly', monthlyTotalActiveTransfersEGP, monthlySuccessfulStatsByType, monthlyPendingStatsByType, monthlyEgyptianTransferStatus)}
-                </TabsContent>
-            </Tabs>
-        </Card>
-      </div>
-
-      <Card className="bg-card flex flex-col">
-        <CardHeader>
-          <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-            <span>ملخص أداء المندوبين لشهر</span>
-            <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
-              <SelectTrigger className="w-full sm:w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((m) => (
-                  <SelectItem key={m} value={String(m)}>
-                    {new Date(0, m - 1).toLocaleString('ar', { month: 'long' })}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardTitle>
-          <CardDescription>
-            ملخص أداء المندوبين اليومي والشهري مع تفصيل أنواع الحوالات الناجحة.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="overflow-x-auto flex-grow">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>اسم المندوب</TableHead>
-                <TableHead className="text-left">إجمالي اليومي (ج.م)</TableHead>
-                <TableHead className="text-left">إجمالي الشهري (ج.م)</TableHead>
-                <TableHead className="text-center">عدد حوالات الشهر</TableHead>
-                {E_TYPES.map(type => (
-                    <TableHead key={type} className="text-center">{type} (عدد)</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {supervisorStats.map((supervisor) => {
-                return (
-                  <TableRow key={supervisor.id}>
-                    <TableCell className="font-medium">{supervisor.name}</TableCell>
-                    <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.dailyTotalAmount} currency="ج.م" integerClass="font-bold" fractionClass="text-sm" currencyClass="text-sm" />
-                    </TableCell>
-                    <TableCell className="text-left">
-                        <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="font-bold" fractionClass="text-sm" currencyClass="text-sm" />
-                    </TableCell>
-                    <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
-                    {E_TYPES.map(type => (
-                       <TableCell key={type} className="text-center">{supervisor.monthlyStatsByType[type] || 0}</TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   );
 }
