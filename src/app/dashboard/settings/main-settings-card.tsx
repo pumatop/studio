@@ -39,6 +39,10 @@ import type { MainSettings, AppVersion } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useMemo } from "react";
+import { cn } from "@/lib/utils";
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border-none";
 
 function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSave: (data: Partial<AppVersion>, file: File | null, packageName: string) => void; isSaving: boolean; }) {
   const [formData, setFormData] = useState<Partial<AppVersion>>({});
@@ -286,10 +290,10 @@ function AppVersionManager() {
   }
 
   return (
-    <div className="space-y-4 pt-4">
+    <div className={cn("space-y-4 p-4", innerCardClass)}>
         <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">إدارة إصدارات التطبيق</h3>
-            <Button variant="outline" size="sm" onClick={openDialogForNew}>
+            <Button variant="outline" size="sm" onClick={openDialogForNew} className="bg-background">
                 <PlusCircle className="ml-2 h-4 w-4" />
                 إضافة إصدار
             </Button>
@@ -300,7 +304,7 @@ function AppVersionManager() {
                 <Skeleton className="h-10 w-full" />
             </div>
         ) : (
-            <div className="rounded-lg border">
+            <div className="rounded-lg border bg-background overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -401,7 +405,7 @@ export function MainSettingsCard() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className={cn(floatingCardClass, "w-full")}>
         <CardHeader>
           <CardTitle>الإعدادات الرئيسية للنظام</CardTitle>
           <CardDescription>
@@ -410,7 +414,7 @@ export function MainSettingsCard() {
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                 <div className="flex items-center justify-between rounded-lg border p-4">
+                 <div className={cn("flex items-center justify-between p-4", innerCardClass)}>
                     <div>
                     <Label htmlFor="maintenance-mode" className="flex items-center gap-2 font-semibold">
                         <Wrench className="h-5 w-5 text-destructive" />
@@ -429,7 +433,7 @@ export function MainSettingsCard() {
                     className="data-[state=checked]:bg-destructive"
                     />
                 </div>
-                 <div className="flex items-center justify-between rounded-lg border p-4">
+                 <div className={cn("flex items-center justify-between p-4", innerCardClass)}>
                     <div>
                     <Label htmlFor="otp-verification" className="flex items-center gap-2 font-semibold">
                         <ShieldOff className="h-5 w-5 text-orange-500" />
@@ -448,7 +452,7 @@ export function MainSettingsCard() {
                     className="data-[state=checked]:bg-orange-500"
                     />
                 </div>
-                <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className={cn("flex items-center justify-between p-4", innerCardClass)}>
                     <div>
                     <Label htmlFor="disable-registration" className="flex items-center gap-2 font-semibold">
                         <UserPlus className="h-5 w-5 text-destructive" />
@@ -467,7 +471,7 @@ export function MainSettingsCard() {
                     className="data-[state=checked]:bg-destructive"
                     />
                 </div>
-                 <div className="flex items-center justify-between rounded-lg border p-4">
+                 <div className={cn("flex items-center justify-between p-4", innerCardClass)}>
                     <div>
                     <Label htmlFor="force-update" className="flex items-center gap-2 font-semibold">
                         <Smartphone className="h-5 w-5 text-primary" />

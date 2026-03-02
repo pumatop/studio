@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border-none";
 
 function FeeTierManager({
   title,
@@ -65,7 +66,7 @@ function FeeTierManager({
   };
 
   return (
-    <div className="space-y-4 rounded-xl border p-4 bg-muted/5">
+    <div className={cn("space-y-4 p-4", innerCardClass)}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
             <h3 className="font-semibold text-lg">{title}</h3>
@@ -74,21 +75,21 @@ function FeeTierManager({
         {showFreeTransactionsInput && (
             <div className="flex items-center gap-2">
                 <Label htmlFor="free-transactions" className="text-sm">المعاملات المجانية</Label>
-                <Input id="free-transactions" type="number" value={freeTransactions} onChange={(e) => onFreeTransactionsChange?.(Number(e.target.value))} className="w-20 h-8" />
+                <Input id="free-transactions" type="number" value={freeTransactions} onChange={(e) => onFreeTransactionsChange?.(Number(e.target.value))} className="w-20 h-8 bg-background" />
             </div>
         )}
       </div>
       <div className="space-y-3">
         {tiersArray.map((tier) => (
           <div key={tier.id} className="flex items-end gap-2">
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">من ({currency})</Label><Input type="number" value={tier.from} onChange={(e) => handleTierChange(tier.id, "from", e.target.value)} className="h-8" /></div>
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">إلى ({currency})</Label><Input type="number" value={tier.to} onChange={(e) => handleTierChange(tier.id, "to", e.target.value)} className="h-8" /></div>
-            <div className="flex-1 space-y-1"><Label className="text-[10px]">الرسوم ({currency})</Label><Input type="number" value={tier.fee} onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)} className="h-8" /></div>
+            <div className="flex-1 space-y-1"><Label className="text-[10px]">من ({currency})</Label><Input type="number" value={tier.from} onChange={(e) => handleTierChange(tier.id, "from", e.target.value)} className="h-8 bg-background" /></div>
+            <div className="flex-1 space-y-1"><Label className="text-[10px]">إلى ({currency})</Label><Input type="number" value={tier.to} onChange={(e) => handleTierChange(tier.id, "to", e.target.value)} className="h-8 bg-background" /></div>
+            <div className="flex-1 space-y-1"><Label className="text-[10px]">الرسوم ({currency})</Label><Input type="number" value={tier.fee} onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)} className="h-8 bg-background" /></div>
             <Button variant="ghost" size="icon" className="text-destructive h-8 w-8" onClick={() => handleDeleteTier(tier.id)}><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
-      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
+      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs bg-background"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
     </div>
   );
 }
@@ -136,36 +137,36 @@ export default function SettingsPage() {
     };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       {limitsLoading || feesLoading ? <Skeleton className="h-[600px] w-full rounded-2xl" /> : (
         <div className="grid grid-cols-1 gap-6">
           <Card className={floatingCardClass}>
             <CardHeader><CardTitle>حدود المعاملات والتحويلات</CardTitle><CardDescription>إدارة الحدود الدنيا والقصوى للعمليات.</CardDescription></CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-4 border rounded-xl p-4 bg-muted/5">
+                <div className={cn("space-y-4 p-4", innerCardClass)}>
                   <h3 className="font-bold text-primary">التحويل الداخلي (د.ل)</h3>
                   <div className="space-y-4">
                     {['unverified', 'verified', 'merchant'].map(role => (
-                      <div key={role} className="p-3 border rounded-lg bg-card/50 space-y-2">
+                      <div key={role} className="p-3 border rounded-lg bg-background/50 space-y-2">
                         <Label className="text-xs font-bold uppercase">{role === 'unverified' ? 'غير موثق' : role === 'verified' ? 'موثق' : 'تاجر'}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} />
-                          <Input type="number" placeholder="أقصى" value={(localLimits.internal as any)?.[role]?.max || 0} onChange={e => handleLimitsChange(`internal.${role}.max`, e.target.value)} />
+                          <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} className="bg-background" />
+                          <Input type="number" placeholder="أقصى" value={(localLimits.internal as any)?.[role]?.max || 0} onChange={e => handleLimitsChange(`internal.${role}.max`, e.target.value)} className="bg-background" />
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="space-y-4 border rounded-xl p-4 bg-muted/5">
+                <div className={cn("space-y-4 p-4", innerCardClass)}>
                   <h3 className="font-bold text-primary">التحويلات إلى مصر (ج.م)</h3>
                   <div className="space-y-4">
                     {['instapay', 'wallet', 'delivery'].map(type => (
-                      <div key={type} className="p-3 border rounded-lg bg-card/50 space-y-2">
+                      <div key={type} className="p-3 border rounded-lg bg-background/50 space-y-2">
                         <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة' : 'توصيل منزلي'}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                          <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} />
-                          <Input type="number" placeholder="أقصى" value={(localLimits.egypt as any)?.[type]?.max || 0} onChange={e => handleLimitsChange(`egypt.${type}.max`, e.target.value)} />
+                          <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} className="bg-background" />
+                          <Input type="number" placeholder="أقصى" value={(localLimits.egypt as any)?.[type]?.max || 0} onChange={e => handleLimitsChange(`egypt.${type}.max`, e.target.value)} className="bg-background" />
                         </div>
                       </div>
                     ))}

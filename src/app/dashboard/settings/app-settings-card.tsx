@@ -21,6 +21,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useRtdbObject, useDatabase, updateRtdb, useStorage } from "@/firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border-none";
 
 // Helper component to render banner content (image or video)
 function BannerContent({ url }: { url: string }) {
@@ -235,7 +239,7 @@ export function AppSettingsCard() {
     }
 
     return (
-        <Card className="w-full">
+        <Card className={cn(floatingCardClass, "w-full")}>
             <CardHeader>
                 <CardTitle>إعدادات التطبيق</CardTitle>
                 <CardDescription>إدارة الإعدادات العامة واللوحة الدعائية وبيانات الدعم.</CardDescription>
@@ -250,10 +254,10 @@ export function AppSettingsCard() {
                     disabled={isUploading}
                 />
                 {/* Promotional Banners */}
-                <div className="space-y-4 rounded-lg border p-4">
+                <div className={cn("space-y-4 p-4", innerCardClass)}>
                     <div className="flex items-center justify-between">
                          <h3 className="font-semibold text-lg">اللوحة الدعائية للتطبيق</h3>
-                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="bg-background">
                             {isUploading ? (
                                 <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                             ) : (
@@ -267,7 +271,7 @@ export function AppSettingsCard() {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {(localSettings.banners || []).map((bannerUrl, index) => (
-                            <div key={index} className="relative group aspect-video rounded-md border bg-muted/50 overflow-hidden">
+                            <div key={index} className="relative group aspect-video rounded-md border bg-background/50 overflow-hidden">
                                 <BannerContent url={bannerUrl} />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)} disabled={isUploading || deletingIndex !== null}>
@@ -281,7 +285,7 @@ export function AppSettingsCard() {
                             </div>
                         ))}
                          {isUploading && (
-                             <div className="relative aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-muted/50 overflow-hidden">
+                             <div className="relative aspect-video rounded-md border-2 border-dashed flex items-center justify-center bg-background/50 overflow-hidden">
                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                     <Loader2 className="h-8 w-8 animate-spin" />
                                     <span className="text-sm">جاري الرفع...</span>
@@ -301,10 +305,10 @@ export function AppSettingsCard() {
                 {/* Agents & Support */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Wallet Charging Agents */}
-                    <div className="space-y-4 rounded-lg border p-4">
+                    <div className={cn("space-y-4 p-4", innerCardClass)}>
                         <div className="flex items-center justify-between">
                             <h3 className="font-semibold text-lg">صفحة شحن المحفظة (الوكلاء)</h3>
-                             <Button variant="outline" size="sm" onClick={handleAddRegion}>
+                             <Button variant="outline" size="sm" onClick={handleAddRegion} className="bg-background">
                                 <PlusCircle className="ml-2 h-4 w-4" />
                                 إضافة منطقة
                             </Button>
@@ -315,7 +319,7 @@ export function AppSettingsCard() {
                                 {Object.entries(localSettings.regions).map(([regionId, region]) => (
                                     <AccordionItem value={regionId} key={regionId} className="border-b-0 mb-2">
                                         <div className="flex items-center gap-2">
-                                            <AccordionTrigger className="border rounded-md px-3 hover:no-underline flex-1">
+                                            <AccordionTrigger className="border rounded-md px-3 hover:no-underline flex-1 bg-background">
                                                 <Input
                                                     value={region.name}
                                                     onChange={e => handleRegionNameChange(regionId, e.target.value)}
@@ -332,7 +336,7 @@ export function AppSettingsCard() {
                                           <div className="space-y-3 border-r pr-4 mr-4">
                                             {!region.agents || Object.keys(region.agents).length === 0 ? <p className="text-sm text-muted-foreground text-center py-2">لا يوجد وكلاء في هذه المنطقة.</p> :
                                             Object.entries(region.agents).map(([agentId, agent]) => (
-                                                 <div key={agentId} className="flex flex-col gap-2 rounded-md border p-3">
+                                                 <div key={agentId} className="flex flex-col gap-2 rounded-md bg-background border p-3">
                                                      <div className="flex items-center justify-between">
                                                         <Input
                                                             value={agent.name}
@@ -356,7 +360,7 @@ export function AppSettingsCard() {
                                                       </div>
                                                  </div>
                                             ))}
-                                            <Button variant="outline" size="sm" onClick={() => handleAddAgent(regionId)} className="mt-2">
+                                            <Button variant="outline" size="sm" onClick={() => handleAddAgent(regionId)} className="mt-2 bg-background">
                                                 <PlusCircle className="ml-2 h-4 w-4" />
                                                 إضافة وكيل
                                             </Button>
@@ -370,16 +374,16 @@ export function AppSettingsCard() {
                     </div>
 
                     {/* Technical Support */}
-                     <div className="space-y-4 rounded-lg border p-4">
+                     <div className={cn("space-y-4 p-4", innerCardClass)}>
                         <h3 className="font-semibold text-lg">صفحة الدعم الفني</h3>
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="support-ly">رقم الهاتف الليبي</Label>
-                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} />
+                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} className="bg-background" />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="support-eg">رقم الهاتف المصري</Label>
-                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} />
+                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} className="bg-background" />
                             </div>
                         </div>
                     </div>
@@ -387,7 +391,7 @@ export function AppSettingsCard() {
             </CardContent>
              <CardFooter>
                 <Button onClick={handleSave} className="w-full" disabled={isSaving || isUploading}>
-                    {isSaving ? "جاري الحفظ..." : isUploading ? "يرجى انتظار انتهاء الرفع..." : "حفظ إعدادات التطبيق"}
+                    {isSaving ? "جاري الحفظ..." : "حفظ إعدادات التطبيق"}
                 </Button>
             </CardFooter>
         </Card>
