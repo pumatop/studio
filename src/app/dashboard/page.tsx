@@ -45,7 +45,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const EGYPTIAN_TRANSFER_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
+const E_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
 const FormattedAmount = ({
     amount,
@@ -61,7 +61,7 @@ const FormattedAmount = ({
     currencyClass?: string;
 }) => {
     const hasFraction = amount % 1 !== 0;
-    const [integer, fraction] = amount.toFixed(2).split('.');
+    const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
         <span className="inline-flex items-baseline" dir="ltr">
             <span className={cn('mr-1', currencyClass)}>{currency}</span>
@@ -119,9 +119,6 @@ export default function DashboardPage() {
     monthlyPendingStatsByType,
     dailyEgyptianTransferStatus,
     monthlyEgyptianTransferStatus,
-    totalRevenueEGP,
-    dailyRevenueByType,
-    monthlyRevenueByType,
     supervisorStats,
     monthlyTotalRevenueLYD,
     monthlyTotalRevenueEGP
@@ -215,7 +212,7 @@ export default function DashboardPage() {
     const dailyPendingTransfersEGP = dailyEgyptianTransfers.filter(t => t.status === "pending").reduce((sum, t) => sum + t.amountEGP, 0);
     const dailyTotalActiveTransfersEGP = dailySuccessfulTransfersEGP + dailyPendingTransfersEGP;
 
-    const createStatsObject = () => EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+    const createStatsObject = () => E_TYPES.reduce((acc, type) => {
         acc[type] = { count: 0, amount: 0 };
         return acc;
     }, {} as Record<EgyptTransferTransaction['transferType'], {count: number, amount: number}>);
@@ -261,11 +258,8 @@ export default function DashboardPage() {
     const dailyEgyptianTransferStatus = calculateStatusCounts(dailyEgyptianTransfers);
     const monthlyEgyptianTransferStatus = calculateStatusCounts(monthlyEgyptianTransfers);
 
-    const successfulEgyptianTransfers = egyptianTransfers.filter(t => t.status === 'completed');
-    const totalRevenueEGP = successfulEgyptianTransfers.reduce((sum, t) => sum + (t.serviceFee || 0), 0);
-
     const calculateRevenueByType = (transfers: EgyptTransferTransaction[]) => {
-        const initial = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+        const initial = E_TYPES.reduce((acc, type) => {
             acc[type] = { count: 0, revenue: 0 };
             return acc;
         }, {} as Record<EgyptTransferTransaction['transferType'], {count: number, revenue: number}>);
@@ -278,7 +272,6 @@ export default function DashboardPage() {
             return acc;
         }, initial);
     };
-    const dailyRevenueByType = calculateRevenueByType(dailyEgyptianTransfers);
     const monthlyRevenueByType = calculateRevenueByType(monthlyEgyptianTransfers);
 
     const supervisorStats = supervisorsData.map(supervisor => {
@@ -287,7 +280,7 @@ export default function DashboardPage() {
         const dailyTotalAmount = supervisorDailyTransfers.reduce((sum, t) => sum + t.amountEGP, 0);
         const monthlyTotalAmount = supervisorMonthlyTransfers.reduce((sum, t) => sum + t.amountEGP, 0);
         const monthlyTotalCount = supervisorMonthlyTransfers.length;
-        const monthlyStatsByType = EGYPTIAN_TRANSFER_TYPES.reduce((acc, type) => {
+        const monthlyStatsByType = E_TYPES.reduce((acc, type) => {
             acc[type] = supervisorMonthlyTransfers.filter(t => t.transferType === type).length;
             return acc;
         }, {} as Record<EgyptTransferTransaction['transferType'], number>);
@@ -321,8 +314,6 @@ export default function DashboardPage() {
         monthlyPendingStatsByType,
         dailyEgyptianTransferStatus,
         monthlyEgyptianTransferStatus,
-        totalRevenueEGP,
-        dailyRevenueByType,
         monthlyRevenueByType,
         supervisorStats,
         monthlyTotalRevenueLYD,
@@ -666,102 +657,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold tracking-tight">تفاصيل التحويلات المصرية الناجحة</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
-                <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <CardTitle>محفظة كاش (EC)</CardTitle>
-                            <CardDescription>التحويلات الناجحة</CardDescription>
-                        </div>
-                        <div className="p-3 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
-                            <Landmark className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['محفظة كاش']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['محفظة كاش']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['محفظة كاش']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['محفظة كاش']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
-                <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <CardTitle>انستاباي (EI)</CardTitle>
-                            <CardDescription>التحويلات الناجحة</CardDescription>
-                        </div>
-                        <div className="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
-                            <Banknote className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['انستاباي']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['انستاباي']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['انستاباي']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['انستاباي']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
-                <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div>
-                            <CardTitle>وصلي للبيت (EW)</CardTitle>
-                            <CardDescription>التحويلات الناجحة</CardDescription>
-                        </div>
-                        <div className="p-3 bg-rose-100 dark:bg-rose-900/50 rounded-lg">
-                            <Truck className="h-7 w-7 text-rose-600 dark:text-rose-400" />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">اليوم</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{dailySuccessfulStatsByType['وصلني البيت']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={dailySuccessfulStatsByType['وصلني البيت']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                    <Separator />
-                    <div>
-                        <h4 className="text-sm font-semibold mb-2">هذا الشهر</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                            <p className="flex justify-between"><span>العمليات:</span> <span className="font-semibold text-foreground">{monthlySuccessfulStatsByType['وصلني البيت']?.count || 0}</span></p>
-                            <p className="flex justify-between"><span>المبلغ (ج.م):</span> <span className="font-semibold text-foreground text-left"><FormattedAmount amount={monthlySuccessfulStatsByType['وصلني البيت']?.amount || 0} currency="ج.م" /></span></p>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-      </div>
-
       <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
         <CardHeader>
           <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
@@ -791,7 +686,7 @@ export default function DashboardPage() {
                 <TableHead className="text-left">إجمالي اليومي (ج.م)</TableHead>
                 <TableHead className="text-left">إجمالي الشهري (ج.م)</TableHead>
                 <TableHead className="text-center">عدد حوالات الشهر</TableHead>
-                {EGYPTIAN_TRANSFER_TYPES.map(type => (
+                {E_TYPES.map(type => (
                     <TableHead key={type} className="text-center">{type} (عدد)</TableHead>
                 ))}
               </TableRow>
@@ -808,7 +703,7 @@ export default function DashboardPage() {
                         <FormattedAmount amount={supervisor.monthlyTotalAmount} currency="ج.م" integerClass="font-bold" fractionClass="text-sm" currencyClass="text-sm" />
                     </TableCell>
                     <TableCell className="text-center font-semibold">{supervisor.monthlyTotalCount}</TableCell>
-                    {EGYPTIAN_TRANSFER_TYPES.map(type => (
+                    {E_TYPES.map(type => (
                        <TableCell key={type} className="text-center">{supervisor.monthlyStatsByType[type] || 0}</TableCell>
                     ))}
                   </TableRow>
