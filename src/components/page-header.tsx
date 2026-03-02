@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -13,8 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { LogOut, User as UserIcon, Clock, ShieldCheck } from "lucide-react";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import type { ImagePlaceholder } from "@/lib/placeholder-images";
 import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -29,9 +26,6 @@ import { GlobalSearch } from "./global-search";
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
   const auth = useAuth();
-  const avatar = PlaceHolderImages.find(
-    (img) => img.id === "user-avatar"
-  ) as ImagePlaceholder;
 
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
   const [serverTime, setServerTime] = useState<string | null>(null);
@@ -115,16 +109,9 @@ export function PageHeader({ title }: { title: string }) {
             <Button
               variant="outline"
               size="icon"
-              className="overflow-hidden rounded-full shadow-sm"
+              className="overflow-hidden rounded-full shadow-sm bg-primary/10 border-primary/20"
             >
-              <Image
-                src={avatar.imageUrl}
-                width={40}
-                height={40}
-                alt="User Avatar"
-                data-ai-hint={avatar.imageHint}
-                className="overflow-hidden rounded-full"
-              />
+              <ShieldCheck className="h-6 w-6 text-primary" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
