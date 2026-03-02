@@ -80,7 +80,7 @@ export default function ExchangeRatePage() {
       </div>
       <div className="lg:col-span-1 space-y-6">
         {isLoading ? (
-          <Skeleton className="h-[380px] w-full" />
+          <Skeleton className="h-[380px] w-full rounded-2xl" />
         ) : (
           <ExchangeRateChartCard 
             data={dailyRates} 

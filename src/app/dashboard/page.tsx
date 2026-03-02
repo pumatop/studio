@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -18,6 +17,7 @@ import {
   Users2,
   Wallet,
   CreditCard,
+  Coins,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -40,8 +40,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const EGYPTIAN_TRANSFER_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
-const E_TYPES = EGYPTIAN_TRANSFER_TYPES;
+const E_TYPES: EgyptTransferTransaction['transferType'][] = ['محفظة كاش', 'انستاباي', 'وصلني البيت'];
 
 const FormattedAmount = ({
     amount,
@@ -67,7 +66,6 @@ const FormattedAmount = ({
     );
 };
 
-// أيقونة حصالة النقود المخصصة
 const MoneyBoxIcon = () => (
   <div className="relative w-10 h-10 flex items-center justify-center">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,6 +76,8 @@ const MoneyBoxIcon = () => (
     </svg>
   </div>
 );
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
 export default function DashboardPage() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
@@ -265,9 +265,9 @@ export default function DashboardPage() {
   if (isLoading || !stats) {
     return (
         <div className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-40" /><Skeleton className="h-40" /><Skeleton className="h-40" /></div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-64" /><Skeleton className="h-64" /><Skeleton className="h-64" /></div>
-            <div className="grid gap-6 lg:grid-cols-4"><Skeleton className="h-96" /><Skeleton className="h-96" /><Skeleton className="h-96 lg:col-span-2" /></div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-40 rounded-2xl" /><Skeleton className="h-40 rounded-2xl" /><Skeleton className="h-40 rounded-2xl" /></div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></div>
+            <div className="grid gap-6 lg:grid-cols-4"><Skeleton className="h-96 rounded-2xl" /><Skeleton className="h-96 rounded-2xl" /><Skeleton className="h-96 lg:col-span-2 rounded-2xl" /></div>
         </div>
     );
   }
@@ -320,14 +320,14 @@ export default function DashboardPage() {
     <div className="space-y-6">
         {/* Row 1: Balances */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1">
                             <CardTitle className="text-base">إجمالي الرصيد الليبي</CardTitle>
                             <CardDescription className="text-xs">رصيد جميع المستخدمين بالدينار</CardDescription>
                         </div>
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 font-bold text-sm">LYD</div>
+                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center text-green-600 font-bold text-sm">LYD</div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center pb-8">
@@ -335,11 +335,11 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div><CardTitle>تداول الدينار مقابل الجنيه</CardTitle><CardDescription>العمليات الناجحة (DG)</CardDescription></div>
-                        <div className="p-3 bg-blue-100 rounded-lg"><ArrowRightLeft className="h-6 w-6 text-blue-600" /></div>
+                        <div className="p-3 bg-blue-100 rounded-xl"><ArrowRightLeft className="h-6 w-6 text-blue-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
@@ -361,14 +361,14 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1">
                             <CardTitle className="text-base">إجمالي الرصيد المصري</CardTitle>
                             <CardDescription className="text-xs">رصيد جميع المستخدمين بالجنيه</CardDescription>
                         </div>
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 font-bold text-sm">EGP</div>
+                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 font-bold text-sm">EGP</div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center pb-8">
@@ -379,11 +379,11 @@ export default function DashboardPage() {
 
         {/* Row 2: Users and Internal Operations */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div><CardTitle>المستخدمون</CardTitle><CardDescription className="text-xs">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
-                        <div className="p-3 bg-orange-100 rounded-lg"><Users2 className="h-6 w-6 text-orange-600" /></div>
+                        <div className="p-3 bg-orange-100 rounded-xl"><Users2 className="h-6 w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4">
@@ -398,11 +398,11 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div><CardTitle>التحويل الداخلي (DD)</CardTitle><CardDescription>العمليات والرسوم بالدينار</CardDescription></div>
-                        <div className="p-3 bg-green-100 rounded-lg"><Wallet className="h-6 w-6 text-green-600" /></div>
+                        <div className="p-3 bg-green-100 rounded-xl"><Wallet className="h-6 w-6 text-green-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
@@ -416,11 +416,11 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div><CardTitle>متجر الكروت (DC)</CardTitle><CardDescription>المبيعات بالدينار</CardDescription></div>
-                        <div className="p-3 bg-sky-100 rounded-lg"><CreditCard className="h-6 w-6 text-sky-600" /></div>
+                        <div className="p-3 bg-sky-100 rounded-xl"><CreditCard className="h-6 w-6 text-sky-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
@@ -437,8 +437,8 @@ export default function DashboardPage() {
 
         {/* Row 3: Fakka and Detailed Summaries */}
         <div className="grid gap-6 lg:grid-cols-4">
-            <Card className="bg-card flex flex-col shadow-sm border">
-                <CardHeader className="text-center">
+            <Card className={cn(floatingCardClass, "flex flex-col text-center")}>
+                <CardHeader>
                     <CardTitle className="text-base font-bold">حصالة الفكة</CardTitle>
                     <CardDescription className="text-xs">مجموع كسور التحويلات</CardDescription>
                     <div className="flex justify-center mt-2"><MoneyBoxIcon /></div>
@@ -449,11 +449,11 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1"><CardTitle>إيرادات <InlineMonthSelector /></CardTitle><CardDescription className="text-xs">رسوم التحويلات المصرية</CardDescription></div>
-                        <div className="p-3 bg-indigo-100 rounded-lg"><Banknote className="h-6 w-6 text-indigo-600" /></div>
+                        <div className="p-3 bg-indigo-100 rounded-xl"><Banknote className="h-6 w-6 text-indigo-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
@@ -470,7 +470,7 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="lg:col-span-2 bg-card flex flex-col shadow-sm border">
+            <Card className={cn(floatingCardClass, "lg:col-span-2 flex flex-col")}>
                 <Tabs defaultValue="today" dir="rtl" className="flex flex-col h-full">
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
@@ -491,20 +491,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Row 4: Supervisor Table */}
-        <Card className="bg-card shadow-sm border">
+        <Card className={cn(floatingCardClass)}>
             <CardHeader>
                 <CardTitle>ملخص أداء المندوبين <InlineMonthSelector /></CardTitle>
                 <CardDescription>عرض شامل لمبالغ التحويل والرسوم حسب كل مندوب</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="rounded-md border overflow-hidden">
+                <div className="rounded-xl border overflow-hidden">
                     <Table>
                         <TableHeader className="bg-muted/50">
                             <TableRow>
-                                <TableHead className="font-bold">المندوب</TableHead>
-                                <TableHead className="text-left font-bold"><InlineDaySelector /> (ج.م)</TableHead>
-                                <TableHead className="text-left font-bold">إجمالي الشهر (ج.م)</TableHead>
-                                <TableHead className="text-left font-bold">إجمالي الرسوم (ج.م)</TableHead>
+                                <TableHead className="font-bold text-center">المندوب</TableHead>
+                                <TableHead className="text-center font-bold"><InlineDaySelector /> (ج.م)</TableHead>
+                                <TableHead className="text-center font-bold">إجمالي الشهر (ج.م)</TableHead>
+                                <TableHead className="text-center font-bold">إجمالي الرسوم (ج.م)</TableHead>
                                 <TableHead className="text-center font-bold">عدد العمليات</TableHead>
                                 {E_TYPES.map(t => <TableHead key={t} className="text-center font-bold">{t}</TableHead>)}
                             </TableRow>
@@ -512,10 +512,10 @@ export default function DashboardPage() {
                         <TableBody>
                             {stats.supervisorSummary.map(s => (
                                 <TableRow key={s.id}>
-                                    <TableCell className="font-medium">{s.name}</TableCell>
-                                    <TableCell className="text-left"><FormattedAmount amount={s.dailyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
-                                    <TableCell className="text-left"><FormattedAmount amount={s.monthlyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
-                                    <TableCell className="text-left"><FormattedAmount amount={s.monthlyFees} currency="ج.م" integerClass="font-bold text-primary" /></TableCell>
+                                    <TableCell className="font-medium text-center">{s.name}</TableCell>
+                                    <TableCell className="text-center"><FormattedAmount amount={s.dailyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
+                                    <TableCell className="text-center"><FormattedAmount amount={s.monthlyTotal} currency="ج.م" integerClass="font-bold" /></TableCell>
+                                    <TableCell className="text-center"><FormattedAmount amount={s.monthlyFees} currency="ج.م" integerClass="font-bold text-primary" /></TableCell>
                                     <TableCell className="text-center font-semibold">{s.monthlyCount}</TableCell>
                                     {s.details.map((count, i) => <TableCell key={i} className="text-center">{count}</TableCell>)}
                                 </TableRow>

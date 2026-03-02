@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -21,6 +20,9 @@ import { MainSettingsCard } from "./main-settings-card";
 import { useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
 
 function FeeTierManager({
   title,
@@ -63,7 +65,7 @@ function FeeTierManager({
   };
 
   return (
-    <div className="space-y-4 rounded-lg border p-4 bg-card">
+    <div className="space-y-4 rounded-xl border p-4 bg-muted/5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
             <h3 className="font-semibold text-lg">{title}</h3>
@@ -135,17 +137,17 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      {limitsLoading || feesLoading ? <Skeleton className="h-[600px] w-full" /> : (
+      {limitsLoading || feesLoading ? <Skeleton className="h-[600px] w-full rounded-2xl" /> : (
         <div className="grid grid-cols-1 gap-6">
-          <Card className="bg-card shadow-sm border">
+          <Card className={floatingCardClass}>
             <CardHeader><CardTitle>حدود المعاملات والتحويلات</CardTitle><CardDescription>إدارة الحدود الدنيا والقصوى للعمليات.</CardDescription></CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="space-y-4 border rounded-lg p-4 bg-muted/10">
+                <div className="space-y-4 border rounded-xl p-4 bg-muted/5">
                   <h3 className="font-bold text-primary">التحويل الداخلي (د.ل)</h3>
                   <div className="space-y-4">
                     {['unverified', 'verified', 'merchant'].map(role => (
-                      <div key={role} className="p-3 border rounded bg-card space-y-2">
+                      <div key={role} className="p-3 border rounded-lg bg-card/50 space-y-2">
                         <Label className="text-xs font-bold uppercase">{role === 'unverified' ? 'غير موثق' : role === 'verified' ? 'موثق' : 'تاجر'}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} />
@@ -155,11 +157,11 @@ export default function SettingsPage() {
                     ))}
                   </div>
                 </div>
-                <div className="space-y-4 border rounded-lg p-4 bg-muted/10">
+                <div className="space-y-4 border rounded-xl p-4 bg-muted/5">
                   <h3 className="font-bold text-primary">التحويلات إلى مصر (ج.م)</h3>
                   <div className="space-y-4">
                     {['instapay', 'wallet', 'delivery'].map(type => (
-                      <div key={type} className="p-3 border rounded bg-card space-y-2">
+                      <div key={type} className="p-3 border rounded-lg bg-card/50 space-y-2">
                         <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة' : 'توصيل منزلي'}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} />
@@ -174,7 +176,7 @@ export default function SettingsPage() {
             <CardFooter className="border-t pt-4"><Button onClick={handleSaveLimits} disabled={isSavingLimits}>{isSavingLimits ? 'جاري الحفظ...' : 'حفظ التغييرات'}</Button></CardFooter>
           </Card>
 
-          <Card className="bg-card shadow-sm border">
+          <Card className={floatingCardClass}>
             <CardHeader><CardTitle>رسوم الخدمة</CardTitle><CardDescription>إدارة شرائح الرسوم.</CardDescription></CardHeader>
             <CardContent className="space-y-6">
               <FeeTierManager title="التحويل الداخلي" currency="د.ل" tiers={localFees.internal || {}} onTiersChange={t => setLocalFees(p => ({...p, internal: t}))} showFreeTransactionsInput freeTransactions={localFees.internalFreeTransactions} onFreeTransactionsChange={v => setLocalFees(p => ({...p, internalFreeTransactions: v}))} />
