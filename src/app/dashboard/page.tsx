@@ -475,8 +475,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Row 3: Detailed Overviews */}
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-4 items-stretch">
-            <Card className="floating-card lg:col-span-2 flex flex-col p-1 md:p-2 overflow-hidden">
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-3 items-stretch">
+            <Card className="floating-card lg:col-span-1 flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2 md:pb-4">
                     <div className="flex flex-col space-y-1">
                         <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
