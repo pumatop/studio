@@ -43,6 +43,7 @@ import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
 const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
+const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
 
 function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSave: (data: Partial<AppVersion>, file: File | null, packageName: string) => void; isSaving: boolean; }) {
   const [formData, setFormData] = useState<Partial<AppVersion>>({});
@@ -293,20 +294,20 @@ function AppVersionManager() {
     <div className={cn("space-y-4 p-4", innerCardClass)}>
         <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">إدارة إصدارات التطبيق</h3>
-            <Button variant="outline" size="sm" onClick={openDialogForNew} className="bg-background">
+            <Button variant="outline" size="sm" onClick={openDialogForNew} className="bg-card border-black/10">
                 <PlusCircle className="ml-2 h-4 w-4" />
                 إضافة إصدار
             </Button>
         </div>
         {isLoading ? (
-            <div className="border rounded-lg p-2 space-y-2">
+            <div className="border border-black/10 rounded-lg p-2 space-y-2 bg-card">
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
             </div>
         ) : (
-            <div className="rounded-lg border bg-background overflow-hidden">
+            <div className="rounded-lg border border-black/10 bg-card overflow-hidden">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-muted/30">
                         <TableRow>
                             <TableHead>الإصدار</TableHead>
                             <TableHead>الوصف</TableHead>
