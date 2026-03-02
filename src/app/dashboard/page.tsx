@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -85,7 +84,6 @@ export default function DashboardPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   
-  // استخدام التاريخ الحالي للنظام بدلاً من القيم الثابتة
   const [now] = useState(() => new Date());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1); 
   const [selectedDay, setSelectedDay] = useState(now.getDate()); 
@@ -104,12 +102,15 @@ export default function DashboardPage() {
   }, [users]);
 
   const daysInMonth = useMemo(() => {
-    return new Date(2026, selectedMonth, 0).getDate();
-  }, [selectedMonth]);
+    const year = now.getFullYear();
+    return new Date(year, selectedMonth, 0).getDate();
+  }, [selectedMonth, now]);
 
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const getMonthName = (month: number) => {
-    return new Date(2026, month - 1).toLocaleString('ar', { month: 'long' });
+    const date = new Date();
+    date.setMonth(month - 1);
+    return date.toLocaleString('ar', { month: 'long' });
   };
 
   const InlineMonthSelector = () => {
@@ -155,10 +156,11 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     if (!isMounted || !users) return null;
 
-    const startOfSelectedDay = new Date(2026, selectedMonth - 1, selectedDay);
-    const endOfSelectedDay = new Date(2026, selectedMonth - 1, selectedDay, 23, 59, 59, 999);
-    const startOfMonth = new Date(2026, selectedMonth - 1, 1);
-    const endOfMonth = new Date(2026, selectedMonth, 0, 23, 59, 59, 999);
+    const currentYear = now.getFullYear();
+    const startOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay);
+    const endOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay, 23, 59, 59, 999);
+    const startOfMonth = new Date(currentYear, selectedMonth - 1, 1);
+    const endOfMonth = new Date(currentYear, selectedMonth, 0, 23, 59, 59, 999);
 
     const totalLibyanBalance = users.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
     const totalEgyptianBalance = users.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
@@ -173,11 +175,13 @@ export default function DashboardPage() {
         count: dailyTrades.length,
         lydAmount: dailyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
         egpAmount: dailyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
+        fakkaAmount: dailyTrades.reduce((sum, t) => sum + (t.fakkaAmount || 0), 0),
     };
     const monthlyTradeStats = {
         count: monthlyTrades.length,
         lydAmount: monthlyTrades.reduce((sum, t) => sum + t.amountLYD, 0),
         egpAmount: monthlyTrades.reduce((sum, t) => sum + t.amountEGP, 0),
+        fakkaAmount: monthlyTrades.reduce((sum, t) => sum + (t.fakkaAmount || 0), 0),
     };
 
     const userCounts = {
@@ -265,7 +269,7 @@ export default function DashboardPage() {
         monthlyRevenueByType,
         supervisorSummary
     };
-  }, [isMounted, users, transactions, selectedMonth, selectedDay, fakkaSafeData, supervisors]);
+  }, [isMounted, users, transactions, selectedMonth, selectedDay, fakkaSafeData, supervisors, now]);
 
   const isLoading = usersLoading || supervisorsLoading || fakkaLoading || !isMounted;
 
@@ -366,6 +370,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base">{stats.dailyTradeStats.count}</span></div>
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">المبلغ (د.ل)</span><span className="font-bold text-[#1A4B84]"><FormattedAmount amount={stats.dailyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">المبلغ (ج.م)</span><span className="font-bold text-[#1A4B84]"><FormattedAmount amount={stats.dailyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
+                        <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">حصالة الفكة</span><span className="font-bold text-orange-600"><FormattedAmount amount={stats.dailyTradeStats.fakkaAmount} currency="ج.م" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
                     </div>
                     <Separator className="bg-slate-50" />
                     <div className="space-y-2 md:space-y-3">
@@ -375,6 +380,7 @@ export default function DashboardPage() {
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base">{stats.monthlyTradeStats.count}</span></div>
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">المبلغ (د.ل)</span><span className="font-bold text-[#1A4B84]"><FormattedAmount amount={stats.monthlyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
                         <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">المبلغ (ج.م)</span><span className="font-bold text-[#1A4B84]"><FormattedAmount amount={stats.monthlyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
+                        <div className="flex justify-between items-center"><span className="text-slate-500 font-bold text-xs md:text-sm">حصالة الفكة</span><span className="font-bold text-orange-600"><FormattedAmount amount={stats.monthlyTradeStats.fakkaAmount} currency="ج.م" integerClass="font-bold text-sm md:text-base" currencyClass="text-[9px] md:text-[10px] opacity-40" /></span></div>
                     </div>
                 </CardContent>
             </Card>
@@ -478,8 +484,8 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2 md:pb-4">
                     <div className="flex flex-col space-y-1">
-                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">رسوم التحويلات المصرية</CardTitle>
-                        <CardDescription className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest">إيرادات <InlineMonthSelector /></CardDescription>
+                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
+                        <CardDescription className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest text-right">إيرادات <InlineMonthSelector /></CardDescription>
                     </div>
                     <div className="mt-2 p-3 md:p-4 bg-indigo-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-indigo-600/5 self-end"><Banknote className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" /></div>
                 </CardHeader>

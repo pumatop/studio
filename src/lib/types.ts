@@ -89,6 +89,7 @@ export type EgyptTransferTransaction = BaseTransaction & {
   balanceLYDAfter: number;
   balanceLYDBefore: number;
   exchangeRate: number;
+  fakkaAmount?: number;
   userId: string;
   userName: string;
   userPhone: string;
