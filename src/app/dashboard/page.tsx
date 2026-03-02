@@ -281,13 +281,13 @@ export default function DashboardPage() {
         </div>
         <Separator />
         <div>
-            <h4 className="text-sm font-semibold mb-2">الحوالات الناجحة</h4>
+            <h4 className="text-sm font-semibold mb-2 text-green-600">الحوالات الناجحة</h4>
             <div className="space-y-2 text-xs">
                 {Object.entries(successful).map(([type, s]: [string, any]) => (
-                    <div key={type} className="grid grid-cols-3 items-center">
+                    <div key={type} className="grid grid-cols-3 items-center text-green-600">
                         <span className="text-right">{type}</span>
                         <div className="flex justify-center"><Badge variant="outline" className="px-3 text-green-600 border-green-200">{s.count} حوالة</Badge></div>
-                        <span className="font-bold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-bold" /></span>
+                        <span className="font-bold text-left"><FormattedAmount amount={s.amount} currency="ج.م" integerClass="font-bold text-green-600" /></span>
                     </div>
                 ))}
             </div>
