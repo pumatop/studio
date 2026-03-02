@@ -6,37 +6,33 @@
   :root {
     --background: 203 43% 92%; /* #e1ecf3 */
     --foreground: 215 28% 17%;
-    --card: 205 33% 94%; /* #eaf1f6 */
+    --card: 0 0% 100%;
     --card-foreground: 215 28% 17%;
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
-    --primary: 203 60% 48%;
+    --primary: 213 67% 31%; /* #1A4B84 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 215 28% 17%;
+    --secondary: 207 90% 94%; /* #E3F2FD */
+    --secondary-foreground: 213 67% 31%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20% 55%;
-    --accent: 168 60% 50%;
+    --accent: 45 93% 47%; /* Yellow-Gold accent */
     --accent-foreground: 215 28% 17%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 203 60% 48%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 1rem; /* Slightly larger radius for floating effect */
+    --ring: 213 67% 31%;
+    --radius: 2.5rem; /* Large 40px radius */
+    
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 28% 17%;
-    --sidebar-primary: 203 60% 48%;
+    --sidebar-primary: 213 67% 31%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 20% 96%;
-    --sidebar-accent-foreground: 215 28% 17%;
+    --sidebar-accent: 207 90% 94%;
+    --sidebar-accent-foreground: 213 67% 31%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 203 60% 48%;
+    --sidebar-ring: 213 67% 31%;
   }
   .dark {
     --background: 222 47% 11%;
@@ -45,27 +41,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 203 60% 48%;
+    --primary: 213 67% 45%;
     --primary-foreground: 0 0% 100%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
-    --accent: 168 60% 50%;
+    --accent: 45 93% 47%;
     --accent-foreground: 215 28% 17%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 203 60% 48%;
-    --sidebar-background: 222 47% 11%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 203 60% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 203 60% 48%;
+    --ring: 213 67% 31%;
   }
 }
 
@@ -74,13 +62,23 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    font-feature-settings: "tnum"; /* تمكين الأرقام الجدولية عالمياً */
+    @apply bg-background text-foreground font-sans leading-relaxed;
+    background-image: linear-gradient(180deg, #e1ecf3 0%, #ffffff 100%);
+    background-attachment: fixed;
+    font-feature-settings: "tnum";
   }
 }
 
 @layer components {
-    /* Hide number input spinners */
+    /* Huge Floating Card Style */
+    .floating-card {
+        @apply bg-white/90 backdrop-blur-sm shadow-[0_20px_50px_rgba(26,75,132,0.08)] border-none transition-all duration-500 hover:shadow-[0_30px_70px_rgba(26,75,132,0.12)] hover:-translate-y-2 rounded-[2.5rem];
+    }
+    
+    .accent-gradient-line {
+        @apply h-1 w-24 rounded-full bg-gradient-to-r from-[#1A4B84] to-[#FFB800] mt-2;
+    }
+
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -93,89 +91,42 @@
 
 /* --- DataTables Professional Styling --- */
 .dataTables_wrapper .dataTables_info {
-  font-size: 0.875rem; /* text-sm */
+  font-size: 0.875rem;
   color: hsl(var(--muted-foreground));
-  padding-top: 0.75rem; /* More space */
+  padding-top: 1rem;
 }
 
 .dataTables_wrapper .dataTables_paginate {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-top: 0.5rem;
-  gap: 0.5rem; /* Spacing between buttons */
+  padding-top: 1rem;
+  gap: 0.5rem;
 }
 
 .dataTables_wrapper .paginate_button {
-  box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  user-select: none;
-  cursor: pointer;
-  
-  /* Resetting base styles */
-  text-decoration: none;
-  background-image: none;
-  
-  /* Sizing and Font */
-  height: 2.25rem; /* h-9 */
-  min-width: 2.25rem; /* w-9 */
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  line-height: 1;
-
-  /* Colors and Transition */
-  color: hsl(var(--foreground));
-  background-color: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
-  border-radius: 0.375rem; /* rounded-md */
-  transition: all 0.2s ease-in-out;
+  @apply h-10 min-w-[2.5rem] px-4 rounded-xl border border-border bg-white text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center;
 }
 
 .dataTables_wrapper .paginate_button:hover {
-  background-color: hsl(var(--accent));
-  color: hsl(var(--accent-foreground));
-  border-color: hsl(var(--accent));
+  @apply bg-secondary text-primary border-primary/20;
 }
 
-.dataTables_wrapper .paginate_button.current,
-.dataTables_wrapper .paginate_button.current:hover {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border-color: hsl(var(--primary));
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  cursor: default;
+.dataTables_wrapper .paginate_button.current {
+  @apply bg-primary text-white border-primary shadow-lg shadow-primary/20;
 }
 
-.dataTables_wrapper .paginate_button.disabled,
-.dataTables_wrapper .paginate_button.disabled:hover {
-  color: hsl(var(--muted-foreground));
-  background-color: hsl(var(--background));
-  border-color: hsl(var(--border));
-  opacity: 0.5;
-  cursor: not-allowed;
+.dataTables_wrapper .paginate_button.disabled {
+  @apply opacity-40 cursor-not-allowed;
 }
 
-.dataTables_wrapper .paginate_button.previous,
-.dataTables_wrapper .paginate_button.next,
-.dataTables_wrapper .paginate_button.first,
-.dataTables_wrapper .paginate_button.last {
-  width: auto;
+/* Scrollbar styling for a cleaner look */
+::-webkit-scrollbar {
+  width: 8px;
 }
-
-.dataTables_wrapper .dataTables_paginate .ellipsis {
-  padding: 0 0.5rem;
-  color: hsl(var(--muted-foreground));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 2.25rem;
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
 }
-
-/* التأكد من استخدام خط روبيك للأرقام في كل مكان */
-span, div, p, table, td, th, input {
-    font-family: inherit;
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/10 rounded-full hover:bg-primary/20 transition-colors;
 }
