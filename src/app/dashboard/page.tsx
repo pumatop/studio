@@ -85,14 +85,12 @@ export default function DashboardPage() {
 
   const [isMounted, setIsMounted] = useState(false);
   
-  // Use a stable 'now' for the initial render, then update in useEffect
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); 
   const [selectedDay, setSelectedDay] = useState(new Date().getDate()); 
   const [currentYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     setIsMounted(true);
-    // Sync with actual current date on mount
     const now = new Date();
     setSelectedMonth(now.getMonth() + 1);
     setSelectedDay(now.getDate());
@@ -347,9 +345,14 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
-                    <div className="flex flex-col items-center justify-center space-y-1 text-center w-full">
-                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد الليبي (LYD)</CardTitle>
-                        <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالدينار</CardDescription>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">إجمالي الرصيد الليبي</CardTitle>
+                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-right">رصيد جميع المستخدمين بالدينار</CardDescription>
+                        </div>
+                        <div className="p-3 md:p-4 bg-green-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-green-600/5 shrink-0 flex items-center justify-center min-w-[50px] md:min-w-[64px]">
+                            <span className="text-green-600 font-black text-xs md:text-sm">LYD</span>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
@@ -358,7 +361,7 @@ export default function DashboardPage() {
                             amount={stats.totalLibyanBalance} 
                             currency="LYD" 
                             integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-green-600" 
-                            currencyClass="text-[10px] sm:text-xs md:text-sm font-bold opacity-30" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm font-black text-green-600 opacity-40" 
                         />
                     </div>
                 </CardContent>
@@ -396,9 +399,14 @@ export default function DashboardPage() {
 
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2">
-                    <div className="flex flex-col items-center justify-center space-y-1 text-center w-full">
-                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إجمالي الرصيد المصري (EGP)</CardTitle>
-                        <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">رصيد جميع المستخدمين بالجنيه</CardDescription>
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">إجمالي الرصيد المصري</CardTitle>
+                            <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-right">رصيد جميع المستخدمين بالجنيه</CardDescription>
+                        </div>
+                        <div className="p-3 md:p-4 bg-purple-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-purple-600/5 shrink-0 flex items-center justify-center min-w-[50px] md:min-w-[64px]">
+                            <span className="text-purple-600 font-black text-xs md:text-sm">EGP</span>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
@@ -407,7 +415,7 @@ export default function DashboardPage() {
                             amount={stats.totalEgyptianBalance} 
                             currency="EGP" 
                             integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-purple-600" 
-                            currencyClass="text-[10px] sm:text-xs md:text-sm font-bold opacity-30" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm font-black text-purple-600 opacity-40" 
                         />
                     </div>
                 </CardContent>
