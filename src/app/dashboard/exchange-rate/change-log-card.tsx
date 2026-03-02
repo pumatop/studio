@@ -21,8 +21,10 @@ import { ArrowDown, ArrowUp, History, FileDown, Printer, XCircle } from "lucide-
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { exportToCsv } from "@/lib/utils";
+import { exportToCsv, cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
 export function ChangeLogCard({ 
     logs, 
@@ -65,7 +67,7 @@ export function ChangeLogCard({
   
   if (isLoading) {
       return (
-          <Card>
+          <Card className={cn(floatingCardClass, "hover:translate-y-0")}>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <History className="h-5 w-5" />
@@ -85,58 +87,58 @@ export function ChangeLogCard({
   }
 
   return (
-    <Card>
+    <Card className={floatingCardClass}>
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
           <CardTitle className="flex items-center gap-2">
-              <History className="h-5 w-5" />
+              <History className="h-5 w-5 text-primary" />
               <span>{cardTitle}</span>
           </CardTitle>
           <CardDescription>{cardDescription}</CardDescription>
         </div>
         <div className="flex items-center gap-2">
             {selectedDate && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={onClearSelection}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={onClearSelection}>
                     <XCircle className="h-5 w-5" />
                     <span className="sr-only">Clear selection</span>
                 </Button>
             )}
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="bg-card border-black/10">
                         <FileDown className="ml-2 h-4 w-4" />
                         تصدير
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" size="sm" onClick={handlePrint}>
+            <Button variant="outline" size="sm" className="bg-card border-black/10" onClick={handlePrint}>
                 <Printer className="ml-2 h-4 w-4" />
                 طباعة
             </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="border rounded-lg">
+        <div className="border rounded-xl overflow-hidden bg-background/50">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-[150px]">الوقت</TableHead>
-              <TableHead>زوج العملات</TableHead>
-              <TableHead>المُعدِّل</TableHead>
-              <TableHead className="text-center">السعر القديم</TableHead>
-              <TableHead className="text-center">السعر الجديد</TableHead>
-              <TableHead className="text-right">الفارق</TableHead>
+              <TableHead className="w-[150px] font-bold">الوقت</TableHead>
+              <TableHead className="font-bold">زوج العملات</TableHead>
+              <TableHead className="font-bold">المُعدِّل</TableHead>
+              <TableHead className="text-center font-bold">السعر القديم</TableHead>
+              <TableHead className="text-center font-bold">السعر الجديد</TableHead>
+              <TableHead className="text-right font-bold">الفارق</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {!logs || logs.length === 0 ? (
                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                         لا توجد سجلات لعرضها.
                     </TableCell>
                 </TableRow>
@@ -144,8 +146,8 @@ export function ChangeLogCard({
               const difference = getDifference(log.oldRate, log.newRate);
               const isIncrease = difference > 0;
               return (
-                <TableRow key={log.id}>
-                  <TableCell>
+                <TableRow key={log.id} className="hover:bg-muted/30 transition-colors tabular-nums">
+                  <TableCell className="text-xs">
                     {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -153,25 +155,26 @@ export function ChangeLogCard({
                       hour12: true,
                     })}
                   </TableCell>
-                  <TableCell className="font-medium">{log.currencyPair}</TableCell>
-                  <TableCell className="font-medium">{log.modifiedBy}</TableCell>
-                  <TableCell className="text-center text-muted-foreground">{log.oldRate.toFixed(2)}</TableCell>
-                  <TableCell className="text-center font-semibold">{log.newRate.toFixed(2)}</TableCell>
+                  <TableCell className="font-medium text-xs">{log.currencyPair}</TableCell>
+                  <TableCell className="font-medium text-xs">{log.modifiedBy}</TableCell>
+                  <TableCell className="text-center text-muted-foreground text-xs">{log.oldRate.toFixed(2)}</TableCell>
+                  <TableCell className="text-center font-bold text-xs">{log.newRate.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
-                      className={`flex items-center gap-1 w-fit ml-auto ${
+                      className={cn(
+                        "flex items-center gap-1 w-fit ml-auto text-[10px] px-2 py-0",
                         isIncrease
-                          ? "bg-green-100 text-green-800 hover:bg-green-200"
-                          : "bg-red-100 text-red-800 hover:bg-red-200"
-                      }`}
+                          ? "bg-green-100 text-green-800 border-green-200"
+                          : "bg-red-100 text-red-800 border-red-200"
+                      )}
                     >
                       {isIncrease ? (
                         <ArrowUp className="h-3 w-3" />
                       ) : (
                         <ArrowDown className="h-3 w-3" />
                       )}
-                      <span>{difference.toFixed(2)}</span>
+                      <span>{Math.abs(difference).toFixed(2)}</span>
                     </Badge>
                   </TableCell>
                 </TableRow>

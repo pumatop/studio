@@ -39,6 +39,11 @@ import { cn } from "@/lib/utils";
 import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
+const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
+const inputLevel4Class = "bg-white/80 border-black/5 focus:bg-white transition-colors tabular-nums";
+
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
     const [type, setType] = useState<'amount' | 'time'>('amount');
     const [value, setValue] = useState<string>('');
@@ -83,19 +88,19 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
             {type === 'amount' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-amount">مبلغ التحويل المستهدف (جنيه مصري)</Label>
-                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-amount" type="number" value={value} onChange={e => setValue(e.target.value)} required className={inputLevel4Class} />
                  </div>
             )}
             {type === 'time' && (
                  <div className="space-y-2">
                     <Label htmlFor="cond-value-time">الوقت المحدد للتغيير</Label>
-                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required />
+                    <Input id="cond-value-time" type="time" value={value} onChange={e => setValue(e.target.value)} required className={inputLevel4Class} />
                  </div>
             )}
 
             <div className="space-y-2">
                 <Label htmlFor="cond-target-rate">السعر الجديد المستهدف</Label>
-                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required />
+                <Input id="cond-target-rate" type="number" value={targetRate} onChange={e => setTargetRate(e.target.value)} step="0.01" required className={inputLevel4Class} />
             </div>
 
             <DialogFooter>
@@ -218,11 +223,11 @@ export function ExchangeControlCard() {
   };
 
   if (isLoading) {
-    return <Skeleton className="h-[700px] w-full" />
+    return <Skeleton className="h-[700px] w-full rounded-2xl" />
   }
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className={cn(floatingCardClass, "h-full flex flex-col")}>
       <CardHeader>
         <CardTitle>التحكم في الصرف</CardTitle>
         <CardDescription>
@@ -232,7 +237,7 @@ export function ExchangeControlCard() {
       <CardContent className="flex-1 space-y-6">
         
         {/* Exchange Status */}
-        <div className="space-y-4">
+        <div className={cn("space-y-4 p-4", innerCardClass)}>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-base">حالة الصرف</h3>
               <Badge
@@ -258,7 +263,7 @@ export function ExchangeControlCard() {
             </RadioGroup>
 
             {localSettings.mode === 'manual' && (
-                 <div className="flex items-center justify-between rounded-lg border p-4 animate-in fade-in-0 duration-300">
+                 <div className={cn("flex items-center justify-between p-4 animate-in fade-in-0 duration-300", deepInnerCardClass)}>
                     <div>
                         <Label htmlFor="exchange-status" className="font-semibold">فتح/غلق الصرف يدوي</Label>
                     </div>
@@ -272,13 +277,14 @@ export function ExchangeControlCard() {
                 </div>
             )}
              {localSettings.mode === 'auto' && (
-                <div className="space-y-2 animate-in fade-in-0 duration-300">
-                    <Label htmlFor="auto-close-threshold">إغلاق الصرف عند وصول التداول إلى جنيه مصري</Label>
+                <div className={cn("space-y-2 p-4 animate-in fade-in-0 duration-300", deepInnerCardClass)}>
+                    <Label htmlFor="auto-close-threshold" className="font-bold">إغلاق الصرف عند وصول التداول إلى جنيه مصري</Label>
                     <Input
                         id="auto-close-threshold"
                         type="number"
                         value={localSettings.autoCloseThreshold}
                         onChange={(e) => handleSettingChange('autoCloseThreshold', parseInt(e.target.value, 10))}
+                        className={inputLevel4Class}
                     />
                 </div>
             )}
@@ -287,9 +293,9 @@ export function ExchangeControlCard() {
         <Separator />
 
         {/* Current Exchange Rate */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="current-rate" className="font-semibold">سعر الصرف الحالي (LYD/EGP)</Label>
+        <div className={cn("space-y-2 p-4", innerCardClass)}>
+          <div className="flex justify-between items-center mb-2">
+            <Label htmlFor="current-rate" className="font-bold text-base">سعر الصرف الحالي (LYD/EGP)</Label>
             <span className="text-sm text-primary font-bold">
               {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
                 hour: 'numeric',
@@ -299,16 +305,16 @@ export function ExchangeControlCard() {
               }) : '--:--:--'}
             </span>
           </div>
-          <div className="relative">
+          <div className={cn("relative p-4", deepInnerCardClass)}>
             <Input
               id="current-rate"
               type="number"
               value={localSettings.currentRate ?? ''}
               onChange={(e) => handleSettingChange('currentRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
-              className="text-lg font-bold pl-16 text-left"
+              className={cn("text-lg font-bold pl-16 text-left h-12", inputLevel4Class)}
               step="0.01"
             />
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground">
+            <span className="absolute left-8 top-1/2 -translate-y-1/2 text-lg font-semibold text-muted-foreground pointer-events-none">
               ج.م
             </span>
           </div>
@@ -317,35 +323,37 @@ export function ExchangeControlCard() {
         <Separator />
 
         {/* Timezone Setting */}
-        <div className="space-y-2">
-          <Label htmlFor="timezone-select" className="font-semibold">المنطقة الزمنية</Label>
-          <p className="text-xs text-muted-foreground">
+        <div className={cn("space-y-2 p-4", innerCardClass)}>
+          <Label htmlFor="timezone-select" className="font-bold text-lg">المنطقة الزمنية</Label>
+          <p className="text-xs text-muted-foreground mb-3">
             تُستخدم هذه المنطقة الزمنية للتحقق من شروط تغيير السعر المستندة إلى الوقت.
           </p>
-          <Select
-            value={localSettings.timezone}
-            onValueChange={(value) => handleSettingChange('timezone', value)}
-          >
-            <SelectTrigger id="timezone-select">
-              <SelectValue placeholder="اختر منطقة زمنية..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Africa/Cairo">توقيت القاهرة (EET)</SelectItem>
-              <SelectItem value="Asia/Riyadh">توقيت الرياض (AST)</SelectItem>
-              <SelectItem value="UTC">التوقيت العالمي المنسق (UTC)</SelectItem>
-              <SelectItem value="Europe/London">توقيت لندن (GMT)</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className={deepInnerCardClass}>
+            <Select
+                value={localSettings.timezone}
+                onValueChange={(value) => handleSettingChange('timezone', value)}
+            >
+                <SelectTrigger id="timezone-select" className={inputLevel4Class}>
+                <SelectValue placeholder="اختر منطقة زمنية..." />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="Africa/Cairo">توقيت القاهرة (EET)</SelectItem>
+                <SelectItem value="Asia/Riyadh">توقيت الرياض (AST)</SelectItem>
+                <SelectItem value="UTC">التوقيت العالمي المنسق (UTC)</SelectItem>
+                <SelectItem value="Europe/London">توقيت لندن (GMT)</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <Separator />
         
         {/* Automatic Rate Change Conditions */}
-        <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-3">
+        <div className={cn("space-y-4 p-4", innerCardClass)}>
+            <div className={cn("flex items-center justify-between p-3", deepInnerCardClass)}>
                 <div className="space-y-0.5">
-                    <Label htmlFor="auto-conditions-switch">تفعيل الشروط التلقائية</Label>
-                    <p className="text-xs text-muted-foreground">في حال الإيقاف، لن يتم تطبيق أي شرط من الشروط أدناه.</p>
+                    <Label htmlFor="auto-conditions-switch" className="font-bold">تفعيل الشروط التلقائية</Label>
+                    <p className="text-[10px] text-muted-foreground">في حال الإيقاف، لن يتم تطبيق أي شرط أدناه.</p>
                 </div>
                 <Switch
                     id="auto-conditions-switch"
@@ -356,10 +364,10 @@ export function ExchangeControlCard() {
             </div>
 
             <div className="flex items-center justify-between">
-                 <h3 className="font-semibold text-base">شروط التغيير التلقائي للسعر</h3>
+                 <h3 className="font-semibold text-base">شروط التغيير التلقائي</h3>
                  <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive}>
+                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="bg-card border-black/10">
                             <PlusCircle className="ml-2 h-4 w-4" />
                             إضافة شرط
                         </Button>
@@ -373,25 +381,25 @@ export function ExchangeControlCard() {
                  </Dialog>
             </div>
             
-            <div className={cn("space-y-2 transition-opacity", !localSettings.autoConditionsActive && "opacity-50 pointer-events-none")}>
+            <div className={cn("space-y-2 transition-opacity max-h-60 overflow-y-auto pr-2", !localSettings.autoConditionsActive && "opacity-50 pointer-events-none")}>
                 {!localSettings.conditions || Object.keys(localSettings.conditions).length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">لا توجد شروط حالياً.</p>
                 ) : (
                     Object.values(localSettings.conditions).map(condition => (
-                    <div key={condition.id} className="flex items-center justify-between rounded-lg border p-3">
+                    <div key={condition.id} className={cn("flex items-center justify-between p-3", deepInnerCardClass)}>
                        <div className="flex items-center gap-3">
-                            {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-muted-foreground" /> : <Clock className="h-5 w-5 text-muted-foreground" />}
-                            <div className="text-sm">
-                                <p>
-                                    {condition.type === 'amount' ? `عند وصول المبلغ إلى` : `عند وصول الوقت إلى`}
-                                    <span className="font-bold mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
-                                    {condition.type === 'amount' && ` جنيه مصري،`}
-                                    غيّر السعر إلى <span className="font-bold mx-1">{condition.targetRate.toFixed(2)}</span>
+                            {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-primary" /> : <Clock className="h-5 w-5 text-primary" />}
+                            <div className="text-xs">
+                                <p className="font-medium">
+                                    {condition.type === 'amount' ? `عند الوصول لـ` : `عند الساعة`}
+                                    <span className="font-bold mx-1 text-primary">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
+                                    {condition.type === 'amount' && ` ج.م،`}
+                                    السعر الجديد: <span className="font-bold mx-1 text-primary">{condition.targetRate.toFixed(2)}</span>
                                 </p>
-                                <p className="text-xs text-muted-foreground">أضافها: {condition.createdBy}</p>
+                                <p className="text-[10px] text-muted-foreground">أضافها: {condition.createdBy}</p>
                             </div>
                        </div>
-                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteCondition(condition.id)}>
+                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-red-50" onClick={() => handleDeleteCondition(condition.id)}>
                             <Trash2 className="h-4 w-4" />
                             <span className="sr-only">حذف الشرط</span>
                        </Button>
@@ -401,9 +409,9 @@ export function ExchangeControlCard() {
         </div>
 
       </CardContent>
-      <CardFooter>
-        <Button onClick={handleSave} className="w-full" disabled={isSaving}>
-          {isSaving ? "جاري الحفظ..." : "حفظ الإعدادات"}
+      <CardFooter className="border-t pt-6 bg-muted/10">
+        <Button onClick={handleSave} className="w-full shadow-lg" size="lg" disabled={isSaving}>
+          {isSaving ? "جاري الحفظ..." : "حفظ كافة الإعدادات"}
         </Button>
       </CardFooter>
     </Card>

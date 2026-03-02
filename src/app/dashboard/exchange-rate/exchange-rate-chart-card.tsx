@@ -14,6 +14,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import type { DailyRate } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const chartConfig = {
   rate: {
@@ -27,6 +28,8 @@ const colors = {
     equal: "hsl(215.4 9.3% 62.2%)",   // stone-500
     selected: "hsl(var(--primary))",
 };
+
+const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
 export function ExchangeRateChartCard({ 
     data, 
@@ -64,14 +67,14 @@ export function ExchangeRateChartCard({
   }
 
   return (
-    <Card>
+    <Card className={floatingCardClass}>
       <CardHeader>
         <CardTitle>أسعار الصرف لآخر 7 أيام</CardTitle>
         <CardDescription>زوج العملات: LYD/EGP. اضغط على يوم لعرض تفاصيله.</CardDescription>
       </CardHeader>
       <CardContent>
         {data.length === 0 ? (
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-xl">
             لا توجد بيانات كافية لعرض الرسم البياني.
           </div>
         ) : (
@@ -82,7 +85,7 @@ export function ExchangeRateChartCard({
             accessibilityLayer
             onClick={handleBarClick}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" opacity={0.1} />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -91,7 +94,7 @@ export function ExchangeRateChartCard({
               tickFormatter={(value) =>
                 new Date(value).toLocaleDateString("ar-EG-u-nu-latn", { weekday: "short" })
               }
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 500 }}
             />
             <YAxis
               orientation="right"
@@ -101,23 +104,23 @@ export function ExchangeRateChartCard({
               axisLine={false}
               tickMargin={20}
               tickFormatter={(value) => value.toFixed(2)}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12, fontWeight: 500 }}
             />
             <Tooltip
-              cursor={{fill: 'hsl(var(--accent) / 0.5)'}}
+              cursor={{fill: 'hsl(var(--accent) / 0.15)', radius: 4}}
               content={<ChartTooltipContent indicator="dot" formatter={(value, name, props) => {
                 const { payload } = props;
                 return (
                   <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit'})}</span>
-                    <span className="font-bold">{`${chartConfig.rate.label}: ${Number(value).toFixed(2)}`}</span>
+                    <span className="text-xs text-muted-foreground mb-1">{new Date(payload.date).toLocaleDateString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit'})}</span>
+                    <span className="font-bold text-primary">{`${chartConfig.rate.label}: ${Number(value).toFixed(2)}`}</span>
                   </div>
                 )
               }} />}
             />
             <Bar
                 dataKey="rate"
-                radius={[4, 4, 0, 0]}
+                radius={[6, 6, 0, 0]}
                 className="cursor-pointer"
             >
                 {data.map((_entry, index) => (
@@ -127,8 +130,8 @@ export function ExchangeRateChartCard({
                     dataKey="rate" 
                     position="top" 
                     formatter={(value: number) => value.toFixed(2)} 
-                    className="fill-foreground"
-                    fontSize={12}
+                    className="fill-foreground font-bold"
+                    fontSize={11}
                 />
             </Bar>
           </BarChart>
