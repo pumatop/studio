@@ -24,7 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
-const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border-none";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
 
 // Helper component to render banner content (image or video)
 function BannerContent({ url }: { url: string }) {

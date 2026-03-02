@@ -42,7 +42,7 @@ import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
-const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border-none";
+const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
 
 function VersionForm({ version, onSave, isSaving }: { version?: AppVersion; onSave: (data: Partial<AppVersion>, file: File | null, packageName: string) => void; isSaving: boolean; }) {
   const [formData, setFormData] = useState<Partial<AppVersion>>({});
