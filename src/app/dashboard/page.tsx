@@ -330,7 +330,7 @@ export default function DashboardPage() {
     <div className="space-y-6 md:space-y-10 pb-10 max-w-full overflow-x-hidden">
         {/* Row 1: Balances */}
         <div className="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
+            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden relative">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -343,12 +343,12 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full overflow-hidden whitespace-nowrap">
+                    <div className="flex items-center justify-center w-full overflow-hidden">
                         <FormattedAmount 
                             amount={stats.totalLibyanBalance} 
                             currency="د.ل" 
-                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-green-600" 
-                            currencyClass="text-[10px] sm:text-xs md:text-sm font-black text-green-600" 
+                            integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-green-600" 
+                            currencyClass="text-lg sm:text-lg md:text-xl lg:text-xl xl:text-2xl font-black text-green-600" 
                         />
                     </div>
                 </CardContent>
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden">
+            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden relative">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -397,12 +397,12 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
-                    <div className="flex items-center justify-center w-full overflow-hidden whitespace-nowrap">
+                    <div className="flex items-center justify-center w-full overflow-hidden">
                         <FormattedAmount 
                             amount={stats.totalEgyptianBalance} 
                             currency="ج.م" 
-                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-2xl xl:text-3xl font-black text-purple-600" 
-                            currencyClass="text-[10px] sm:text-xs md:text-sm font-black text-purple-600" 
+                            integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-purple-600" 
+                            currencyClass="text-lg sm:text-lg md:text-xl lg:text-xl xl:text-2xl font-black text-purple-600" 
                         />
                     </div>
                 </CardContent>
@@ -478,11 +478,15 @@ export default function DashboardPage() {
         <div className="grid gap-4 md:gap-8 lg:grid-cols-3 items-stretch">
             <Card className="floating-card lg:col-span-1 flex flex-col p-1 md:p-2 overflow-hidden">
                 <CardHeader className="pb-2 md:pb-4">
-                    <div className="flex flex-col space-y-1">
-                        <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
-                        <CardDescription className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest text-right">إيرادات <InlineMonthSelector /></CardDescription>
+                    <div className="flex items-start justify-between">
+                        <div className="flex flex-col space-y-1">
+                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
+                            <CardDescription className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest text-right">إيرادات <InlineMonthSelector /></CardDescription>
+                        </div>
+                        <div className="p-3 md:p-4 bg-indigo-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-indigo-600/5 shrink-0">
+                            <Banknote className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" />
+                        </div>
                     </div>
-                    <div className="mt-2 p-3 md:p-4 bg-indigo-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-indigo-600/5 self-end"><Banknote className="h-5 w-5 md:h-6 md:w-6 text-indigo-600" /></div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6">
                     <div className="text-center py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50">
