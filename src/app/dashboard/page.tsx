@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -119,6 +118,7 @@ export default function DashboardPage() {
     monthlyPendingStatsByType,
     dailyEgyptianTransferStatus,
     monthlyEgyptianTransferStatus,
+    monthlyRevenueByType,
     supervisorStats,
     monthlyTotalRevenueLYD,
     monthlyTotalRevenueEGP
@@ -411,7 +411,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <Card className="bg-card flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -423,11 +423,11 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center">
+                <CardContent className="flex-grow flex items-center justify-center">
                     <FormattedAmount amount={totalLibyanBalance} currency="د.ل" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <Card className="bg-card flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -439,11 +439,11 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center">
+                <CardContent className="flex-grow flex items-center justify-center">
                     <FormattedAmount amount={totalEgyptianBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <Card className="bg-card flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                     <div className="text-lg text-yellow-600 dark:text-yellow-400">({pendingVerificationUsers} معلق)</div>
                 </CardContent>
             </Card>
-            <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+            <Card className="bg-card flex flex-col">
                 <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="space-y-1.5">
@@ -472,14 +472,14 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center">
+                <CardContent className="flex-grow flex items-center justify-center">
                     <FormattedAmount amount={fakkaBalance} currency="ج.م" integerClass="text-2xl md:text-3xl xl:text-4xl font-bold" fractionClass="text-lg md:text-xl xl:text-2xl" currencyClass="text-base md:text-lg" />
                 </CardContent>
-            </Card>
+            </div>
         </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="bg-card flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -502,7 +502,7 @@ export default function DashboardPage() {
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="bg-card flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -534,7 +534,7 @@ export default function DashboardPage() {
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="bg-card flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -564,7 +564,7 @@ export default function DashboardPage() {
                 </div>
             </CardContent>
         </Card>
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="bg-card flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -597,7 +597,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="bg-card flex flex-col">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div>
@@ -633,7 +633,7 @@ export default function DashboardPage() {
             </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2 bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+        <Card className="lg:col-span-2 bg-card flex flex-col">
             <Tabs defaultValue="today" dir="rtl" className="flex flex-col flex-grow">
                 <CardHeader>
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -657,7 +657,7 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="bg-card/50 dark:bg-card/30 backdrop-blur-xl flex flex-col">
+      <Card className="bg-card flex flex-col">
         <CardHeader>
           <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
             <span>ملخص أداء المندوبين لشهر</span>
