@@ -17,6 +17,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        sans: ['Rubik', 'sans-serif'],
         body: ['Rubik', 'sans-serif'],
         headline: ['Rubik', 'sans-serif'],
         code: ['monospace'],
