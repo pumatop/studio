@@ -66,7 +66,7 @@ function FeeTierManager({
   };
 
   return (
-    <div className="space-y-4 rounded-lg border p-4">
+    <div className="space-y-4 rounded-lg border p-4 bg-card">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
             <h3 className="font-semibold text-lg">{title}</h3>
@@ -202,13 +202,14 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
     {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            <Skeleton className="h-[800px]" />
-            <Skeleton className="h-[800px]" />
+        <div className="space-y-6">
+            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[600px] w-full" />
         </div>
     ) : (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <Card>
+      <div className="space-y-6">
+        {/* Row 1 - Transaction Limits (Wide) */}
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle>حدود المعاملات والتحويلات</CardTitle>
             <CardDescription>
@@ -216,68 +217,113 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-4 rounded-lg border p-4">
-              <h3 className="font-semibold text-lg">التحويل الداخلي (بالدينار الليبي)</h3>
-              <div className="space-y-4">
-                <div className="rounded-lg border p-3 space-y-3">
-                  <Label className="font-medium">المستخدم غير الموثق</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={localLimits.internal?.unverified?.min || ''} onChange={e => handleLimitsChange('internal.unverified.min', e.target.value)} type="number" />
-                    <Input value={localLimits.internal?.unverified?.max || ''} onChange={e => handleLimitsChange('internal.unverified.max', e.target.value)} type="number" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              {/* Right Column: Internal Transfer (RTL) */}
+              <div className="space-y-4 rounded-lg border p-4 bg-muted/5">
+                <h3 className="font-semibold text-lg text-primary flex items-center gap-2">
+                  <span>التحويل الداخلي (بالدينار الليبي)</span>
+                </h3>
+                <div className="space-y-4">
+                  <div className="rounded-lg border p-3 space-y-3 bg-card">
+                    <Label className="font-medium">المستخدم غير الموثق</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.internal?.unverified?.min || ''} onChange={e => handleLimitsChange('internal.unverified.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.internal?.unverified?.max || ''} onChange={e => handleLimitsChange('internal.unverified.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg border p-3 space-y-3">
-                  <Label className="font-medium">المستخدم الموثق</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={localLimits.internal?.verified?.min || ''} onChange={e => handleLimitsChange('internal.verified.min', e.target.value)} type="number" />
-                    <Input value={localLimits.internal?.verified?.max || ''} onChange={e => handleLimitsChange('internal.verified.max', e.target.value)} type="number" />
+                  <div className="rounded-lg border p-3 space-y-3 bg-card">
+                    <Label className="font-medium">المستخدم الموثق</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.internal?.verified?.min || ''} onChange={e => handleLimitsChange('internal.verified.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.internal?.verified?.max || ''} onChange={e => handleLimitsChange('internal.verified.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg border p-3 space-y-3">
-                  <Label className="font-medium">التاجر</Label>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={localLimits.internal?.merchant?.min || ''} onChange={e => handleLimitsChange('internal.merchant.min', e.target.value)} type="number" />
-                    <Input value={localLimits.internal?.merchant?.max || ''} onChange={e => handleLimitsChange('internal.merchant.max', e.target.value)} type="number" />
+                  <div className="rounded-lg border p-3 space-y-3 bg-card">
+                    <Label className="font-medium">التاجر</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.internal?.merchant?.min || ''} onChange={e => handleLimitsChange('internal.merchant.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.internal?.merchant?.max || ''} onChange={e => handleLimitsChange('internal.merchant.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <Separator />
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">التحويلات إلى مصر (بالجنيه المصري)</h3>
-              <div className="space-y-4">
-                <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">حدود التحويل عبر انستاباي</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={localLimits.egypt?.instapay?.min || ''} onChange={e => handleLimitsChange('egypt.instapay.min', e.target.value)} type="number" />
-                    <Input value={localLimits.egypt?.instapay?.max || ''} onChange={e => handleLimitsChange('egypt.instapay.max', e.target.value)} type="number" />
+
+              {/* Left Column: Transfers to Egypt (RTL) */}
+              <div className="space-y-4 rounded-lg border p-4 bg-muted/5">
+                <h3 className="font-semibold text-lg text-primary flex items-center gap-2">
+                  <span>التحويلات إلى مصر (بالجنيه المصري)</span>
+                </h3>
+                <div className="space-y-4">
+                  <div className="rounded-lg border p-4 space-y-3 bg-card">
+                    <Label className="font-medium">حدود التحويل عبر انستاباي</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.egypt?.instapay?.min || ''} onChange={e => handleLimitsChange('egypt.instapay.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.egypt?.instapay?.max || ''} onChange={e => handleLimitsChange('egypt.instapay.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">حدود التحويل عبر محفظة كاش</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <Input value={localLimits.egypt?.wallet?.min || ''} onChange={e => handleLimitsChange('egypt.wallet.min', e.target.value)} type="number" />
-                     <Input value={localLimits.egypt?.wallet?.max || ''} onChange={e => handleLimitsChange('egypt.wallet.max', e.target.value)} type="number" />
+                  <div className="rounded-lg border p-4 space-y-3 bg-card">
+                    <Label className="font-medium">حدود التحويل عبر محفظة كاش</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.egypt?.wallet?.min || ''} onChange={e => handleLimitsChange('egypt.wallet.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.egypt?.wallet?.max || ''} onChange={e => handleLimitsChange('egypt.wallet.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg border p-4 space-y-3">
-                  <Label className="font-medium">حدود التحويل عبر وصلني البيت</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input value={localLimits.egypt?.delivery?.min || ''} onChange={e => handleLimitsChange('egypt.delivery.min', e.target.value)} type="number" />
-                    <Input value={localLimits.egypt?.delivery?.max || ''} onChange={e => handleLimitsChange('egypt.delivery.max', e.target.value)} type="number" />
+                  <div className="rounded-lg border p-4 space-y-3 bg-card">
+                    <Label className="font-medium">حدود التحويل عبر وصلني البيت</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأدنى</Label>
+                        <Input value={localLimits.egypt?.delivery?.min || ''} onChange={e => handleLimitsChange('egypt.delivery.min', e.target.value)} type="number" />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">الحد الأقصى</Label>
+                        <Input value={localLimits.egypt?.delivery?.max || ''} onChange={e => handleLimitsChange('egypt.delivery.max', e.target.value)} type="number" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="border-t bg-muted/5 pt-6">
             <Button onClick={handleSaveLimits} disabled={isSavingLimits}>
                 {isSavingLimits ? 'جاري الحفظ...' : 'حفظ التغييرات'}
             </Button>
           </CardFooter>
         </Card>
 
-        <Card>
+        {/* Row 2 - Fee Tiers (Wide) */}
+        <Card className="bg-card">
           <CardHeader>
             <CardTitle>رسوم الخدمة</CardTitle>
             <CardDescription>
@@ -298,27 +344,29 @@ export default function SettingsPage() {
             <Separator />
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">رسوم الخدمات (بالجنيه المصري)</h3>
-              <FeeTierManager
-                title="محفظة كاش"
-                currency="ج.م"
-                tiers={localFees.wallet || {}}
-                onTiersChange={(tiers) => setLocalFees(p => ({...p, wallet: tiers}))}
-              />
-              <FeeTierManager
-                title="انستاباي"
-                currency="ج.م"
-                tiers={localFees.instapay || {}}
-                onTiersChange={(tiers) => setLocalFees(p => ({...p, instapay: tiers}))}
-              />
-              <FeeTierManager
-                title="وصلني البيت"
-                currency="ج.م"
-                tiers={localFees.delivery || {}}
-                onTiersChange={(tiers) => setLocalFees(p => ({...p, delivery: tiers}))}
-              />
+              <div className="grid grid-cols-1 gap-6">
+                <FeeTierManager
+                  title="محفظة كاش"
+                  currency="ج.م"
+                  tiers={localFees.wallet || {}}
+                  onTiersChange={(tiers) => setLocalFees(p => ({...p, wallet: tiers}))}
+                />
+                <FeeTierManager
+                  title="انستاباي"
+                  currency="ج.م"
+                  tiers={localFees.instapay || {}}
+                  onTiersChange={(tiers) => setLocalFees(p => ({...p, instapay: tiers}))}
+                />
+                <FeeTierManager
+                  title="وصلني البيت"
+                  currency="ج.م"
+                  tiers={localFees.delivery || {}}
+                  onTiersChange={(tiers) => setLocalFees(p => ({...p, delivery: tiers}))}
+                />
+              </div>
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="border-t bg-muted/5 pt-6">
             <Button onClick={handleSaveFees} disabled={isSavingFees}>
                 {isSavingFees ? 'جاري الحفظ...' : 'حفظ رسوم الخدمة'}
             </Button>
