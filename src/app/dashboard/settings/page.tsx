@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -165,7 +166,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     {['instapay', 'wallet', 'delivery'].map(type => (
                       <div key={type} className={cn("space-y-2", deepInnerCardClass)}>
-                        <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة' : 'توصيل منزلي'}</Label>
+                        <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة كاش' : 'وصلي للبيت'}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} className={inputLevel4Class} />
                           <Input type="number" placeholder="أقصى" value={(localLimits.egypt as any)?.[type]?.max || 0} onChange={e => handleLimitsChange(`egypt.${type}.max`, e.target.value)} className={inputLevel4Class} />
@@ -182,11 +183,36 @@ export default function SettingsPage() {
           <Card className={floatingCardClass}>
             <CardHeader><CardTitle>رسوم الخدمة</CardTitle><CardDescription>إدارة شرائح الرسوم.</CardDescription></CardHeader>
             <CardContent className="space-y-6">
-              <FeeTierManager title="التحويل الداخلي" currency="د.ل" tiers={localFees.internal || {}} onTiersChange={t => setLocalFees(p => ({...p, internal: t}))} showFreeTransactionsInput freeTransactions={localFees.internalFreeTransactions} onFreeTransactionsChange={v => setLocalFees(p => ({...p, internalFreeTransactions: v}))} />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FeeTierManager title="محفظة كاش" currency="ج.م" tiers={localFees.wallet || {}} onTiersChange={t => setLocalFees(p => ({...p, wallet: t}))} />
-                <FeeTierManager title="انستاباي" currency="ج.م" tiers={localFees.instapay || {}} onTiersChange={t => setLocalFees(p => ({...p, instapay: t}))} />
-                <FeeTierManager title="توصيل منزلي" currency="ج.م" tiers={localFees.delivery || {}} onTiersChange={t => setLocalFees(p => ({...p, delivery: t}))} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FeeTierManager 
+                  title="التحويل الداخلي" 
+                  currency="د.ل" 
+                  tiers={localFees.internal || {}} 
+                  onTiersChange={t => setLocalFees(p => ({...p, internal: t}))} 
+                  showFreeTransactionsInput 
+                  freeTransactions={localFees.internalFreeTransactions} 
+                  onFreeTransactionsChange={v => setLocalFees(p => ({...p, internalFreeTransactions: v}))} 
+                />
+                <FeeTierManager 
+                  title="وصلي للبيت" 
+                  currency="ج.م" 
+                  tiers={localFees.delivery || {}} 
+                  onTiersChange={t => setLocalFees(p => ({...p, delivery: t}))} 
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FeeTierManager 
+                  title="محفظة كاش" 
+                  currency="ج.م" 
+                  tiers={localFees.wallet || {}} 
+                  onTiersChange={t => setLocalFees(p => ({...p, wallet: t}))} 
+                />
+                <FeeTierManager 
+                  title="انستاباي" 
+                  currency="ج.م" 
+                  tiers={localFees.instapay || {}} 
+                  onTiersChange={t => setLocalFees(p => ({...p, instapay: t}))} 
+                />
               </div>
             </CardContent>
             <CardFooter className="border-t pt-4"><Button onClick={handleSaveFees} disabled={isSavingFees}>{isSavingFees ? 'جاري الحفظ...' : 'حفظ الرسوم'}</Button></CardFooter>
