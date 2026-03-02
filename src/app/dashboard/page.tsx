@@ -401,7 +401,7 @@ export default function DashboardPage() {
             <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className={cn("text-xs", stats.userCounts.pendingDoc > 0 ? "text-yellow-600 font-bold" : "text-muted-foreground")}>{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
+                        <div><CardTitle>المستخدمون</CardTitle><CardDescription className="text-xs text-yellow-600 font-bold">{(stats.userCounts.pendingDoc)} طلب توثيق</CardDescription></div>
                         <div className="p-3 bg-orange-100 rounded-xl"><Users2 className="h-6 w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
@@ -507,7 +507,10 @@ export default function DashboardPage() {
             <Card className={cn(floatingCardClass, "flex flex-col")}>
                 <CardHeader>
                     <div className="flex items-start justify-between">
-                        <div className="space-y-1"><CardTitle>إيرادات <InlineMonthSelector /></CardTitle><CardDescription className="text-xs">رسوم التحويلات المصرية</CardDescription></div>
+                        <div className="space-y-1">
+                            <CardTitle>رسوم التحويلات المصرية</CardTitle>
+                            <CardDescription className="text-xs font-bold text-primary">إيرادات <InlineMonthSelector /></CardDescription>
+                        </div>
                         <div className="p-3 bg-indigo-100 rounded-xl"><Banknote className="h-6 w-6 text-indigo-600" /></div>
                     </div>
                 </CardHeader>
