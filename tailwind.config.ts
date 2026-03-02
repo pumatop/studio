@@ -20,7 +20,7 @@ export default {
         sans: ['Rubik', 'sans-serif'],
         body: ['Rubik', 'sans-serif'],
         headline: ['Rubik', 'sans-serif'],
-        code: ['monospace'],
+        mono: ['Rubik', 'sans-serif'], // المونو أيضا يستخدم روبيك لضمان توحد شكل الأرقام
       },
       colors: {
         background: 'hsl(var(--background))',

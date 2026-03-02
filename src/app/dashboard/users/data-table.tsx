@@ -220,16 +220,16 @@ function UserDetailsDialog({
                                 <CardContent className="space-y-4">
                                     <div className="flex justify-between items-center p-3 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
                                         <span className="text-sm font-medium">رصيد ليبي (LYD)</span>
-                                        <span className="text-lg font-bold text-green-700 dark:text-green-400">{(user.balanceLYD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-lg font-bold text-green-700 dark:text-green-400 tabular-nums">{(user.balanceLYD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between items-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
                                         <span className="text-sm font-medium">رصيد مصري (EGP)</span>
-                                        <span className="text-lg font-bold text-blue-700 dark:text-blue-400">{(user.balanceEGP || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                        <span className="text-lg font-bold text-blue-700 dark:text-blue-400 tabular-nums">{(user.balanceEGP || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                     </div>
                                     {user.balanceEgyptianPending > 0 && (
                                         <div className="flex justify-between items-center p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/20">
                                             <span className="text-sm font-medium">معلق مصري</span>
-                                            <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">{(user.balanceEgyptianPending || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                            <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400 tabular-nums">{(user.balanceEgyptianPending || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                         </div>
                                     )}
                                 </CardContent>
@@ -317,7 +317,7 @@ function UserDetailsDialog({
                                                         <TableCell colSpan={4} className="h-20 text-center text-muted-foreground text-sm">لا توجد جلسات نشطة حالياً</TableCell>
                                                     </TableRow>
                                                 ) : sessions.map(s => (
-                                                    <TableRow key={s.id} className="text-xs">
+                                                    <TableRow key={s.id} className="text-xs tabular-nums">
                                                         <TableCell>
                                                             <div className="font-medium">{s.activeDevice || 'جهاز غير معروف'}</div>
                                                             <div className="text-[10px] text-muted-foreground">{s.phoneOS}</div>
@@ -509,10 +509,10 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         <TableCell>
                             <div className="flex flex-col">
                                 <span className="font-semibold text-sm">{u.name}</span>
-                                <span className="text-[11px] text-muted-foreground">{u.phone} • {roleMap[u.role]}</span>
+                                <span className="text-[11px] text-muted-foreground tabular-nums">{u.phone} • {roleMap[u.role]}</span>
                             </div>
                         </TableCell>
-                        <TableCell className="font-mono text-sm">{(u.balanceLYD || 0).toLocaleString('en-US')}</TableCell>
+                        <TableCell className="text-sm tabular-nums">{(u.balanceLYD || 0).toLocaleString('en-US')}</TableCell>
                         <TableCell className="text-center">
                             <Badge variant="outline" className={cn("text-[10px] px-2", verificationColors[u.verification])}>
                                 {verificationMap[u.verification]}
@@ -524,7 +524,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                 <span className="text-xs">{u.connectionStatus || 'غير متصل'}</span>
                             </div>
                         </TableCell>
-                        <TableCell className="text-[11px] text-muted-foreground">
+                        <TableCell className="text-[11px] text-muted-foreground tabular-nums">
                             {u.lastSeen ? new Date(u.lastSeen).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '---'}
                         </TableCell>
                         <TableCell className="text-left">

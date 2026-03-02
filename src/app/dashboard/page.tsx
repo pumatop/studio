@@ -17,7 +17,7 @@ import {
   Users2,
   Wallet,
   CreditCard,
-  Coins,
+  PiggyBank
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -58,7 +58,7 @@ const FormattedAmount = ({
     const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
-        <span className="inline-flex items-baseline" dir="ltr">
+        <span className="inline-flex items-baseline tabular-nums" dir="ltr">
             <span className={cn('mr-1', currencyClass)}>{currency}</span>
             <span className={integerClass}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground', fractionClass)}>.{fraction}</span>}
@@ -405,13 +405,13 @@ export default function DashboardPage() {
                         <div className="p-3 bg-green-100 rounded-xl"><Wallet className="h-6 w-6 text-green-600" /></div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center text-sm">
                     <div><h4 className="text-sm font-semibold mb-2"><InlineDaySelector /></h4>
-                        <div className="flex justify-between text-sm"><span>العمليات: {stats.dailyInternalStats.count}</span> <FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" /></div>
+                        <div className="flex justify-between"><span>العمليات: {stats.dailyInternalStats.count}</span> <FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" /></div>
                     </div>
                     <Separator />
                     <div><h4 className="text-sm font-semibold mb-2"><InlineMonthSelector /></h4>
-                        <div className="flex justify-between text-sm"><span>العمليات: {stats.monthlyInternalStats.count}</span> <FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" /></div>
+                        <div className="flex justify-between"><span>العمليات: {stats.monthlyInternalStats.count}</span> <FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" /></div>
                     </div>
                 </CardContent>
             </Card>
@@ -423,13 +423,13 @@ export default function DashboardPage() {
                         <div className="p-3 bg-sky-100 rounded-xl"><CreditCard className="h-6 w-6 text-sky-600" /></div>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4 flex-grow flex flex-col justify-center">
+                <CardContent className="space-y-4 flex-grow flex flex-col justify-center text-sm">
                     <div><h4 className="text-sm font-semibold mb-2"><InlineDaySelector /></h4>
-                        <div className="flex justify-between text-sm"><span>الكروت: {stats.dailyCardStats.count}</span> <FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" /></div>
+                        <div className="flex justify-between"><span>الكروت: {stats.dailyCardStats.count}</span> <FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" /></div>
                     </div>
                     <Separator />
                     <div><h4 className="text-sm font-semibold mb-2"><InlineMonthSelector /></h4>
-                        <div className="flex justify-between text-sm"><span>الكروت: {stats.monthlyCardStats.count}</span> <FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" /></div>
+                        <div className="flex justify-between"><span>الكروت: {stats.monthlyCardStats.count}</span> <FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" /></div>
                     </div>
                 </CardContent>
             </Card>

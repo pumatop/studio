@@ -75,6 +75,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
+    font-feature-settings: "tnum"; /* تمكين الأرقام الجدولية عالمياً */
   }
 }
 
@@ -172,4 +173,9 @@
   align-items: center;
   justify-content: center;
   height: 2.25rem;
+}
+
+/* التأكد من استخدام خط روبيك للأرقام في كل مكان */
+span, div, p, table, td, th, input {
+    font-family: inherit;
 }
