@@ -70,7 +70,7 @@ export function PageHeader({ title }: { title: string }) {
           <GlobalSearch />
         </div>
 
-        <div className="hidden items-center gap-3 rounded-full border bg-card/60 px-3 py-1.5 text-sm lg:flex">
+        <div className="hidden items-center gap-3 rounded-full border bg-card px-3 py-1.5 text-sm lg:flex shadow-sm">
           {isLoading ? (
             <>
               <Skeleton className="h-6 w-24" />
@@ -116,7 +116,7 @@ export function PageHeader({ title }: { title: string }) {
             <Button
               variant="outline"
               size="icon"
-              className="overflow-hidden rounded-full"
+              className="overflow-hidden rounded-full shadow-sm"
             >
               <Image
                 src={avatar.imageUrl}
