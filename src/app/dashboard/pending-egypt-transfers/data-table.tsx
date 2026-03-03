@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpdateStatusForm } from './update-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, User, Truck } from 'lucide-react';
 
 export function PendingEgyptTransfersDataTable() {
   const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');
@@ -47,7 +47,7 @@ export function PendingEgyptTransfersDataTable() {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -56,6 +56,8 @@ export function PendingEgyptTransfersDataTable() {
               <TableHead>المبلغ (ج.م)</TableHead>
               <TableHead>النوع</TableHead>
               <TableHead>رقم المستلم</TableHead>
+              <TableHead>اسم المستلم</TableHead>
+              <TableHead>المندوب</TableHead>
               <TableHead>التاريخ</TableHead>
               <TableHead className="text-left">الإجراء</TableHead>
             </TableRow>
@@ -68,15 +70,36 @@ export function PendingEgyptTransfersDataTable() {
                   <div className="font-medium">{transfer.userName}</div>
                   <div className="text-xs text-muted-foreground">{transfer.userPhone}</div>
                 </TableCell>
-                <TableCell className="font-bold text-primary">
+                <TableCell className="font-bold text-primary whitespace-nowrap">
                   {transfer.amountEGP.toLocaleString('en-US')} ج.م
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{transfer.methodDisplayName || transfer.type}</Badge>
+                  <Badge variant="outline" className="whitespace-nowrap">
+                    {transfer.methodDisplayName || (transfer as any).transferType || transfer.type}
+                  </Badge>
                 </TableCell>
-                <TableCell className="font-mono">{transfer.recipientNumber}</TableCell>
-                <TableCell className="text-xs text-muted-foreground">
-                  {new Date(transfer.timestamp).toLocaleString('ar-EG')}
+                <TableCell className="font-mono text-xs">{transfer.recipientNumber}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 min-w-[120px]">
+                    <User className="h-3 w-3 text-muted-foreground shrink-0" />
+                    <span className="text-sm font-medium">{transfer.recipientName || '-'}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 min-w-[100px]">
+                    <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
+                    <span className="text-xs">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap tabular-nums">
+                  {new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })}
                 </TableCell>
                 <TableCell className="text-left">
                   <Button size="sm" onClick={() => setSelectedUser(transfer)}>
