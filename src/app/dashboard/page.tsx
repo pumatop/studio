@@ -59,7 +59,7 @@ const FormattedAmount = ({
     const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
-        <div className="flex items-baseline tabular-nums justify-center gap-x-1 w-full overflow-hidden whitespace-nowrap" dir="ltr">
+        <div className="flex items-baseline tabular-nums justify-center gap-x-1 w-full whitespace-nowrap" dir="ltr">
             <span className={cn('shrink-0', currencyClass)}>{currency}</span>
             <span className={cn('leading-none', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground opacity-60 shrink-0', fractionClass)}>.{fraction}</span>}
@@ -361,7 +361,7 @@ export default function DashboardPage() {
     <div className="space-y-6 md:space-y-10 pb-10 max-w-full overflow-x-hidden">
         {/* Row 1: Balances */}
         <div className="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden relative">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -373,19 +373,19 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center overflow-hidden">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
                     <div className="w-full min-w-0">
                         <FormattedAmount 
                             amount={stats.totalLibyanBalance} 
                             currency="د.ل" 
-                            integerClass="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-black text-green-600" 
+                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-black text-green-600" 
                             currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-black text-green-600" 
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden relative">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">تداول العملات</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات الناجحة (DG)</CardDescription></div>
@@ -415,7 +415,7 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="floating-card flex flex-col p-1 md:p-2 overflow-hidden relative">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -427,12 +427,12 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center overflow-hidden">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center">
                     <div className="w-full min-w-0">
                         <FormattedAmount 
                             amount={stats.totalEgyptianBalance} 
                             currency="ج.م" 
-                            integerClass="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-black text-purple-600" 
+                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-black text-purple-600" 
                             currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-black text-purple-600" 
                         />
                     </div>
