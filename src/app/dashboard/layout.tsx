@@ -343,19 +343,19 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                               tooltip={{ children: item.label, side: 'left' }}
                               className={cn(
                                 "w-full justify-between rounded-xl md:rounded-2xl transition-all duration-300",
-                                isActive ? "bg-[#E3F2FD] shadow-sm" : "hover:bg-[#E3F2FD]/50"
+                                isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20" : "hover:bg-[#E3F2FD]/50"
                               )}
                               size="lg"
                             >
                               <div className="flex items-center gap-3">
-                                <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', item.bgColor, isActive && "scale-110")}>
-                                  <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', item.iconColor)} />
+                                <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', isActive ? "bg-white/20" : item.bgColor, isActive && "scale-110")}>
+                                  <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-[#1A4B84]" : "text-slate-800")}>{item.label}</span>
+                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-800")}>{item.label}</span>
                                 </div>
                               </div>
-                              <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
+                              <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-slate-400")} />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
@@ -365,11 +365,18 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                 return (
                                   <SidebarMenuSubItem key={subItem.href}>
                                     <Link href={subItem.href} passHref>
-                                      <SidebarMenuSubButton isActive={isSubActive} size="md" className="rounded-lg md:rounded-xl">
-                                        <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', subItem.bgColor)}>
-                                          <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', subItem.iconColor)} />
+                                      <SidebarMenuSubButton 
+                                        isActive={isSubActive} 
+                                        size="md" 
+                                        className={cn(
+                                          "rounded-lg md:rounded-xl transition-all",
+                                          isSubActive ? "bg-[#1A4B84] shadow-sm" : "hover:bg-[#E3F2FD]/50"
+                                        )}
+                                      >
+                                        <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', isSubActive ? "bg-white/20" : subItem.bgColor)}>
+                                          <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', isSubActive ? "text-white" : subItem.iconColor)} />
                                         </div>
-                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-primary" : "text-slate-700")}>{subItem.label}</span>
+                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-slate-700")}>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
                                   </SidebarMenuSubItem>
@@ -391,14 +398,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                           size="lg"
                           className={cn(
                             "rounded-xl md:rounded-2xl transition-all duration-300",
-                            isActive ? "bg-[#E3F2FD] shadow-sm" : "hover:bg-[#E3F2FD]/50"
+                            isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20" : "hover:bg-[#E3F2FD]/50"
                           )}
                         >
-                          <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', item.bgColor, isActive && "scale-110")}>
-                            <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', item.iconColor)} />
+                          <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', isActive ? "bg-white/20" : item.bgColor, isActive && "scale-110")}>
+                            <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-[#1A4B84]" : "text-slate-800")}>{item.label}</span>
+                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-800")}>{item.label}</span>
                           </div>
                         </SidebarMenuButton>
                       </Link>
@@ -410,7 +417,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-3 md:p-4 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-sidebar-border/10">
-          {/* Sidebar Footer empty as requested */}
+          {/* Sidebar Footer empty */}
         </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">
