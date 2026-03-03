@@ -73,7 +73,11 @@ export function PendingEgyptTransfersDataTable() {
               const dateObj = new Date(transfer.timestamp);
               const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
               const timeOnly = dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-              const dateOnly = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+              
+              // استخراج أجزاء التاريخ بشكل منفصل لضمان الترتيب الصحيح في RTL
+              const day = dateObj.getDate().toString().padStart(2, '0');
+              const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+              const year = dateObj.getFullYear();
 
               return (
                 <TableRow key={transfer.id}>
@@ -105,12 +109,18 @@ export function PendingEgyptTransfersDataTable() {
                   </TableCell>
                   <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums text-right font-medium">
                     <div className="flex flex-col gap-0.5">
+                      {/* الصف الأول: الوقت (يمين) ص/م (يسار الوقت) */}
                       <div className="flex items-center justify-start gap-1" dir="rtl">
                         <span className="font-bold">{timeOnly}</span>
                         <span className="text-[10px] opacity-70 font-black">{period}</span>
                       </div>
-                      <div className="text-[10px] opacity-60 text-right">
-                        {dateOnly}
+                      {/* الصف الثاني: اليوم (يمين) / الشهر / السنة (يسار) */}
+                      <div className="text-[10px] opacity-60 flex items-center justify-start gap-0.5" dir="rtl">
+                        <span>{day}</span>
+                        <span>/</span>
+                        <span>{month}</span>
+                        <span>/</span>
+                        <span>{year}</span>
                       </div>
                     </div>
                   </TableCell>
