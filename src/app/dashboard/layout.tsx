@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -46,7 +45,7 @@ import {
   LucideProps,
 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
-import { useUser, FirebaseClientProvider } from '@/firebase';
+import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
 
 // Type definitions for navigation items
@@ -436,8 +435,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <FirebaseClientProvider>
-      <InnerLayout>{children}</InnerLayout>
-    </FirebaseClientProvider>
+    <InnerLayout>{children}</InnerLayout>
   );
 }
