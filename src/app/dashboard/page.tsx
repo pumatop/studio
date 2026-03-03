@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -20,7 +19,8 @@ import {
   ShieldCheck,
   TrendingUp,
   BarChart3,
-  PiggyBank
+  PiggyBank,
+  ArrowRight
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -174,12 +174,6 @@ export default function DashboardPage() {
     const totalLibyanBalance = users.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
     const totalEgyptianBalance = users.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
 
-    const isEgyptType = (t: Transaction) => 
-        t.type === "egypt_transfer" || 
-        t.type === "egypt_home" || 
-        t.type === "egypt_wallets" || 
-        t.type === "egypt_instapay";
-
     const getDisplayType = (t: any): EgyptTransferTransaction['transferType'] => {
         const typeStr = t.transferType || t.methodDisplayName || t.type || '';
         if (typeStr.includes('محفظة') || typeStr.includes('محافظ')) return 'محفظة كاش';
@@ -187,6 +181,12 @@ export default function DashboardPage() {
         if (typeStr.includes('بيت') || typeStr.includes('منزلي')) return 'وصلني البيت';
         return 'محفظة كاش';
     };
+
+    const isEgyptType = (t: Transaction) => 
+        t.type === "egypt_transfer" || 
+        t.type === "egypt_home" || 
+        t.type === "egypt_wallets" || 
+        t.type === "egypt_instapay";
 
     const egyptTransfers = transactions.filter(isEgyptType);
     const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
@@ -292,7 +292,7 @@ export default function DashboardPage() {
         monthlyRevenueByType,
         supervisorSummary
     };
-  }, [isMounted, users, globalPendingTransfers, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
+  }, [isMounted, users, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
 
   const isLoading = usersLoading || pendingLoading || supervisorsLoading || !isMounted;
 

@@ -419,25 +419,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-3 md:p-4 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-sidebar-border/10">
-          <Card className="bg-[#E3F2FD] border-[#1A4B84]/10 shadow-none rounded-2xl md:rounded-[1.5rem]">
-            <CardHeader className="p-3 md:p-4 pb-1 md:pb-2">
-              <CardTitle className="flex items-center gap-2 text-[10px] md:text-xs font-black text-[#1A4B84] uppercase">
-                <DatabaseZap className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                <span>بيانات مباشرة</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 md:p-4 pt-0">
-              <p className="text-[9px] md:text-[10px] text-[#1A4B84]/60 font-bold leading-relaxed">
-                انقر للتحديث ومزامنة آخر البيانات من قاعدة البيانات.
-              </p>
-            </CardContent>
-            <CardFooter className="p-3 md:p-4 pt-0">
-              <Button className="w-full rounded-lg md:rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 text-white font-bold text-[10px] md:text-xs h-9 md:h-10" size="sm" onClick={() => window.location.reload()}>
-                <RefreshCw className="ml-2 h-3 w-3" />
-                تحديث الآن
-              </Button>
-            </CardFooter>
-          </Card>
+          {/* Sidebar Footer empty as requested */}
         </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">
