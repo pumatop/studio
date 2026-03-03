@@ -329,7 +329,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
-                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84]/80 font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
+                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84] font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
@@ -421,7 +421,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">
-        <PageHeader title={getPageTitle()} />
+        <PageHeader title="" />
         <main className="flex-1 overflow-y-auto p-4 sm:p-10">
           <div className="flex flex-col mb-6 md:hidden">
              <h1 className="text-2xl font-black text-[#1A4B84]">{getPageTitle()}</h1>

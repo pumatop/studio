@@ -59,9 +59,9 @@ const FormattedAmount = ({
     const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
-        <div className="flex items-baseline tabular-nums flex-wrap justify-center gap-x-1 w-full overflow-hidden" dir="ltr">
+        <div className="flex items-baseline tabular-nums justify-center gap-x-1 w-full overflow-hidden whitespace-nowrap" dir="ltr">
             <span className={cn('shrink-0', currencyClass)}>{currency}</span>
-            <span className={cn('leading-none break-all', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
+            <span className={cn('leading-none', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground opacity-60 shrink-0', fractionClass)}>.{fraction}</span>}
         </div>
     );
@@ -310,7 +310,7 @@ export default function DashboardPage() {
     <CardContent className="space-y-4 md:space-y-6 pt-6 md:pt-10 flex-grow flex flex-col justify-center px-4 md:px-10 overflow-hidden">
         <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1A4B84]/5 w-full overflow-hidden">
             <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1A4B84]/60 tracking-widest mb-1 md:mb-2">إجمالي الحوالات (ناجح + معلق)</p>
-            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-3xl lg:text-4xl font-black text-[#1A4B84]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" />
+            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1A4B84]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full">
             <div className="p-4 md:p-6 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm text-green-600 overflow-hidden">
@@ -378,8 +378,8 @@ export default function DashboardPage() {
                         <FormattedAmount 
                             amount={stats.totalLibyanBalance} 
                             currency="د.ل" 
-                            integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-green-600" 
-                            currencyClass="text-lg sm:text-lg md:text-xl lg:text-xl xl:text-2xl font-black text-green-600" 
+                            integerClass="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-black text-green-600" 
+                            currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-black text-green-600" 
                         />
                     </div>
                 </CardContent>
@@ -432,8 +432,8 @@ export default function DashboardPage() {
                         <FormattedAmount 
                             amount={stats.totalEgyptianBalance} 
                             currency="ج.م" 
-                            integerClass="text-2xl sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl font-black text-purple-600" 
-                            currencyClass="text-lg sm:text-lg md:text-xl lg:text-xl xl:text-2xl font-black text-purple-600" 
+                            integerClass="text-xl sm:text-2xl md:text-3xl lg:text-3xl font-black text-purple-600" 
+                            currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-black text-purple-600" 
                         />
                     </div>
                 </CardContent>
@@ -521,7 +521,7 @@ export default function DashboardPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-hidden">
                     <div className="text-center py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50 w-full overflow-hidden">
-                        <FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-2xl md:text-3xl font-black text-indigo-600" currencyClass="text-[10px] md:text-sm font-bold" />
+                        <FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-xl md:text-2xl font-black text-indigo-600" currencyClass="text-[10px] md:text-sm font-bold" />
                     </div>
                     <Separator className="bg-slate-100" />
                     <div className="space-y-3 md:space-y-4">
