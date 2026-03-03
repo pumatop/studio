@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRtdbList } from '@/firebase';
 import type { EgyptTransferTransaction } from '@/lib/types';
 import {
@@ -21,6 +21,12 @@ import { CheckCircle2, User, Truck } from 'lucide-react';
 export function PendingEgyptTransfersDataTable() {
   const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');
   const [selectedTransfer, setSelectedUser] = useState<EgyptTransferTransaction | null>(null);
+
+  // ترتيب البيانات: الأحدث أولاً
+  const sortedData = useMemo(() => {
+    if (!data) return [];
+    return [...data].sort((a, b) => b.timestamp - a.timestamp);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -63,7 +69,7 @@ export function PendingEgyptTransfersDataTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((transfer) => (
+            {sortedData.map((transfer) => (
               <TableRow key={transfer.id}>
                 <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
                 <TableCell>
@@ -91,15 +97,15 @@ export function PendingEgyptTransfersDataTable() {
                     <span className="text-xs">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
                   </div>
                 </TableCell>
-                <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap tabular-nums">
-                  {new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", {
+                <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap tabular-nums text-left" dir="ltr">
+                  {new Date(transfer.timestamp).toLocaleString("en-US", {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
                     hour: '2-digit',
                     minute: '2-digit',
                     hour12: true
-                  })}
+                  }).replace('AM', 'ص').replace('PM', 'م')}
                 </TableCell>
                 <TableCell className="text-left">
                   <Button size="sm" onClick={() => setSelectedUser(transfer)}>
