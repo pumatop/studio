@@ -310,7 +310,7 @@ export default function DashboardPage() {
   const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 md:space-y-6 pt-6 md:pt-10 flex-grow flex flex-col justify-center px-4 md:px-10">
         <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1A4B84]/5">
-            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1A4B84]/60 tracking-widest mb-1 md:mb-2">إجمالي المتداول (ناجح + معلق)</p>
+            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1A4B84]/60 tracking-widest mb-1 md:mb-2">إجمالي الحوالات (ناجح + معلق)</p>
             <p><FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-3xl lg:text-4xl font-black text-[#1A4B84]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" /></p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -545,7 +545,7 @@ export default function DashboardPage() {
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <CardTitle className="flex items-center gap-2 md:gap-3 text-[#1A4B84] font-black text-lg md:text-xl">
                                 <TrendingUp className="h-5 w-5 md:h-6 md:w-6" /> 
-                                ملخص الحوالات
+                                ملخص الحوالات المصرية
                             </CardTitle>
                             <TabsList className="bg-slate-100 p-1 rounded-xl md:rounded-2xl h-10 md:h-12 w-full sm:w-auto">
                                 <TabsTrigger value="today" className="flex-1 sm:flex-none rounded-lg md:rounded-xl px-4 md:px-6 font-black text-[10px] md:text-xs uppercase tracking-widest data-[state=active]:bg-white data-[state=active]:shadow-sm">تقرير اليوم</TabsTrigger>
