@@ -53,12 +53,7 @@ export function PageHeader({ title }: { title: string }) {
     <header className="sticky top-0 z-30 flex h-20 md:h-24 items-center justify-between gap-3 md:gap-4 border-b border-[#1A4B84]/5 bg-white/60 backdrop-blur-xl px-4 md:px-10 transition-all">
       <div className="flex items-center gap-3 md:gap-6">
         <SidebarTrigger className="md:hidden text-[#1A4B84] h-11 w-11" />
-        <div className="hidden md:flex flex-col">
-            <h1 className="text-xl md:text-2xl font-black tracking-tight text-[#1A4B84]">
-            {title}
-            </h1>
-            <div className="accent-gradient-line"></div>
-        </div>
+        {/* تم حذف العنوان من هنا لتجنب التكرار مع العناوين داخل الصفحات */}
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-3 md:gap-6">
