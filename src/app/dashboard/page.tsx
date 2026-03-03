@@ -87,10 +87,8 @@ export default function DashboardPage() {
   }, []);
 
   const transactions = useMemo(() => {
-    // استخدام Map لضمان عدم تكرار العمليات بناءً على الـ ID
     const txMap = new Map<string, Transaction>();
     
-    // 1. إضافة المعاملات من سجلات المستخدمين
     if (users) {
         users.forEach(user => {
             if (user.transactions) {
@@ -101,7 +99,6 @@ export default function DashboardPage() {
         });
     }
 
-    // 2. إضافة الحوالات المعلقة من القائمة العامة (مع تجنب التكرار إذا كانت موجودة مسبقاً)
     if (globalPendingTransfers) {
         globalPendingTransfers.forEach(tx => {
             if (!txMap.has(tx.id)) {
@@ -177,7 +174,6 @@ export default function DashboardPage() {
     const totalLibyanBalance = users.reduce((sum, user) => sum + (user.balanceLYD || 0), 0);
     const totalEgyptianBalance = users.reduce((sum, user) => sum + (user.balanceEGP || 0), 0);
 
-    // Egypt transfers can be type 'egypt_transfer' or local types like 'egypt_wallets'
     const isEgyptType = (t: Transaction) => 
         t.type === "egypt_transfer" || 
         t.type === "egypt_home" || 
@@ -572,11 +568,16 @@ export default function DashboardPage() {
         {/* Row 4: Supervisor Table */}
         <Card className="floating-card p-2 md:p-4 overflow-hidden">
             <CardHeader className="pb-4 md:pb-8">
-                <div className="flex items-center gap-3 md:gap-4">
-                    <div className="p-3 md:p-4 bg-[#E3F2FD] rounded-xl md:rounded-[1.5rem] shrink-0"><BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-[#1A4B84]" /></div>
-                    <div>
-                        <CardTitle className="text-[#1A4B84] font-black text-lg md:text-2xl">أداء المندوبين</CardTitle>
-                        <CardDescription className="text-xs font-bold text-slate-400">عرض شامل لمبالغ التحويل والرسوم حسب المندوب</CardDescription>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <div className="p-3 md:p-4 bg-[#E3F2FD] rounded-xl md:rounded-[1.5rem] shrink-0"><BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-[#1A4B84]" /></div>
+                        <div>
+                            <CardTitle className="text-[#1A4B84] font-black text-lg md:text-2xl">أداء المندوبين</CardTitle>
+                            <CardDescription className="text-xs font-bold text-slate-400">عرض شامل لمبالغ التحويل والرسوم حسب المندوب</CardDescription>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <InlineMonthSelector />
                     </div>
                 </div>
             </CardHeader>
