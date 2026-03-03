@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -16,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpdateStatusForm } from './update-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, User, Truck, Receipt } from 'lucide-react';
+import { CheckCircle2, User, Truck } from 'lucide-react';
 
 export function PendingEgyptTransfersDataTable() {
   const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');

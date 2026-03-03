@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRtdbList, useRtdbObject } from "@/firebase";
+import { useRtdbList } from "@/firebase";
 import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction, EgyptLocalTransferTransaction } from "@/lib/types";
 import {
   Card,
@@ -18,9 +19,7 @@ import {
   CreditCard,
   ShieldCheck,
   TrendingUp,
-  BarChart3,
-  PiggyBank,
-  ArrowRight
+  BarChart3
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -24,13 +25,6 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   LayoutDashboard,
   BrainCircuit,
   ArrowRightLeft,
@@ -42,8 +36,6 @@ import {
   ShieldCheck,
   PiggyBank,
   ChevronDown,
-  DatabaseZap,
-  RefreshCw,
   FolderKanban,
   Wallet,
   Landmark,
@@ -55,7 +47,6 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { useUser, FirebaseClientProvider } from '@/firebase';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 // Type definitions for navigation items
@@ -338,7 +329,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
-                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84]/40 font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
+                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84]/70 font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
@@ -361,7 +352,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                   <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', item.iconColor)} />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <span className={cn("font-bold text-xs md:text-sm", isActive ? "text-[#1A4B84]" : "text-slate-600")}>{item.label}</span>
+                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-[#1A4B84]" : "text-slate-800")}>{item.label}</span>
                                 </div>
                               </div>
                               <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
@@ -378,7 +369,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                         <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', subItem.bgColor)}>
                                           <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', subItem.iconColor)} />
                                         </div>
-                                        <span className={cn("text-[11px] md:text-xs font-bold", isSubActive ? "text-primary" : "text-slate-500")}>{subItem.label}</span>
+                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-primary" : "text-slate-700")}>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
                                   </SidebarMenuSubItem>
@@ -407,7 +398,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                             <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', item.iconColor)} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className={cn("font-bold text-xs md:text-sm", isActive ? "text-[#1A4B84]" : "text-slate-600")}>{item.label}</span>
+                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-[#1A4B84]" : "text-slate-800")}>{item.label}</span>
                           </div>
                         </SidebarMenuButton>
                       </Link>
