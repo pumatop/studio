@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { UpdateStatusForm } from './update-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CheckCircle2, User, Truck } from 'lucide-react';
+import { CheckCircle2, User, Truck, Receipt } from 'lucide-react';
 
 export function PendingEgyptTransfersDataTable() {
   const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');
@@ -64,6 +64,7 @@ export function PendingEgyptTransfersDataTable() {
               <TableHead>رقم المستلم</TableHead>
               <TableHead>اسم المستلم</TableHead>
               <TableHead>المندوب</TableHead>
+              <TableHead>رسوم الخدمة</TableHead>
               <TableHead>التاريخ</TableHead>
               <TableHead className="text-left">الإجراء</TableHead>
             </TableRow>
@@ -106,6 +107,9 @@ export function PendingEgyptTransfersDataTable() {
                       <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
                       <span className="text-xs">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
                     </div>
+                  </TableCell>
+                  <TableCell className="font-bold text-xs text-orange-600">
+                    {(transfer.serviceFee || 0).toLocaleString('en-US')} ج.م
                   </TableCell>
                   <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums text-right font-medium">
                     <div className="flex flex-col gap-0.5">
