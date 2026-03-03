@@ -69,51 +69,59 @@ export function PendingEgyptTransfersDataTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedData.map((transfer) => (
-              <TableRow key={transfer.id}>
-                <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{transfer.userName}</div>
-                  <div className="text-xs text-muted-foreground">{transfer.userPhone}</div>
-                </TableCell>
-                <TableCell className="font-bold text-primary whitespace-nowrap">
-                  {transfer.amountEGP.toLocaleString('en-US')} ج.م
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="whitespace-nowrap">
-                    {transfer.methodDisplayName || (transfer as any).transferType || transfer.type}
-                  </Badge>
-                </TableCell>
-                <TableCell className="font-mono text-xs">{transfer.recipientNumber}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 min-w-[120px]">
-                    <User className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="text-sm font-medium">{transfer.recipientName || '-'}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 min-w-[100px]">
-                    <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="text-xs">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-[10px] text-muted-foreground whitespace-nowrap tabular-nums text-left" dir="ltr">
-                  {new Date(transfer.timestamp).toLocaleString("en-US", {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  }).replace('AM', 'ص').replace('PM', 'م')}
-                </TableCell>
-                <TableCell className="text-left">
-                  <Button size="sm" onClick={() => setSelectedUser(transfer)}>
-                    تحديث الحالة
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {sortedData.map((transfer) => {
+              const dateObj = new Date(transfer.timestamp);
+              const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
+              const timeOnly = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).split(' ')[0];
+              const dateOnly = dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+              return (
+                <TableRow key={transfer.id}>
+                  <TableCell className="font-mono text-xs">{transfer.id}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{transfer.userName}</div>
+                    <div className="text-xs text-muted-foreground">{transfer.userPhone}</div>
+                  </TableCell>
+                  <TableCell className="font-bold text-primary whitespace-nowrap">
+                    {transfer.amountEGP.toLocaleString('en-US')} ج.م
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="whitespace-nowrap">
+                      {transfer.methodDisplayName || (transfer as any).transferType || transfer.type}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">{transfer.recipientNumber}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5 min-w-[120px]">
+                      <User className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-medium">{transfer.recipientName || '-'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5 min-w-[100px]">
+                      <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="text-xs">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums text-right font-medium">
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center justify-end gap-1" dir="rtl">
+                        <span className="font-bold">{timeOnly}</span>
+                        <span className="text-[10px] opacity-70 font-black">{period}</span>
+                      </div>
+                      <div className="text-[10px] opacity-60 text-right">
+                        {dateOnly}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <Button size="sm" onClick={() => setSelectedUser(transfer)}>
+                      تحديث الحالة
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
