@@ -329,7 +329,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
-                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84]/70 font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
+                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84]/80 font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
@@ -352,14 +352,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                   <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-800")}>{item.label}</span>
+                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-900")}>{item.label}</span>
                                 </div>
                               </div>
-                              <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-slate-400")} />
+                              <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-slate-500")} />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-                            <SidebarMenuSub className="mt-1 border-r-2 border-l-0 border-slate-100 pr-3 md:pr-4 mr-4 md:mr-6">
+                            <SidebarMenuSub className="mt-1 border-r-2 border-l-0 border-slate-200 pr-3 md:pr-4 mr-4 md:mr-6">
                               {item.subItems.map((subItem: SubItem) => {
                                 const isSubActive = pathname.startsWith(subItem.href);
                                 return (
@@ -376,7 +376,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                         <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', isSubActive ? "bg-white/20" : subItem.bgColor)}>
                                           <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', isSubActive ? "text-white" : subItem.iconColor)} />
                                         </div>
-                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-slate-700")}>{subItem.label}</span>
+                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-slate-800")}>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
                                   </SidebarMenuSubItem>
@@ -405,7 +405,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                             <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-800")}>{item.label}</span>
+                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-900")}>{item.label}</span>
                           </div>
                         </SidebarMenuButton>
                       </Link>

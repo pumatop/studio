@@ -76,7 +76,7 @@ export function PendingEgyptTransfersDataTable() {
               const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
               const timeOnly = dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
               
-              // استخراج أجزاء التاريخ بشكل منفصل لضمان الترتيب الصحيح في RTL
+              // استخراج أجزاء التاريخ بشكل منفصل لضمان الترتيب الصحيح في RTL بالأرقام الإنجليزية
               const day = dateObj.getDate().toString().padStart(2, '0');
               const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
               const year = dateObj.getFullYear();
