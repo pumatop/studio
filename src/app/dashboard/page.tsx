@@ -61,7 +61,7 @@ const FormattedAmount = ({
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
         <div className={cn('flex items-baseline gap-x-1 whitespace-nowrap overflow-visible', className)} dir="ltr">
-            <span className={cn('shrink-0 font-sans font-bold', currencyClass)}>{currency}</span>
+            <span className={cn('shrink-0 font-sans font-bold text-current', currencyClass)}>{currency}</span>
             <span className={cn('leading-none tabular-nums tracking-tighter', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground opacity-60 shrink-0 tabular-nums', fractionClass)}>.{fraction}</span>}
         </div>
@@ -362,7 +362,7 @@ export default function DashboardPage() {
     <div className="space-y-6 md:space-y-10 pb-10 max-w-full overflow-x-hidden">
         {/* Row 1: Balances */}
         <div className="grid gap-4 md:gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="floating-card flex flex-col p-1 md:p-2 relative overflow-hidden">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -374,20 +374,20 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center overflow-visible">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-2 text-center overflow-visible">
                     <div className="w-full overflow-visible">
                         <FormattedAmount 
                             amount={stats.totalLibyanBalance} 
                             currency="د.ل" 
-                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-black text-green-600" 
-                            currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-bold text-green-600" 
+                            integerClass="text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-3xl font-black text-green-600" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm lg:text-xs xl:text-lg font-bold text-green-600" 
                             className="justify-center w-full"
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            <Card className="floating-card flex flex-col p-1 md:p-2 relative">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">تداول العملات</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات الناجحة (DG)</CardDescription></div>
@@ -417,7 +417,7 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            <Card className="floating-card flex flex-col p-1 md:p-2 relative overflow-hidden">
+            <Card className="floating-card flex flex-col p-1 md:p-2 relative overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
@@ -429,13 +429,13 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-4 md:px-6 text-center overflow-visible">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-2 text-center overflow-visible">
                     <div className="w-full overflow-visible">
                         <FormattedAmount 
                             amount={stats.totalEgyptianBalance} 
                             currency="ج.م" 
-                            integerClass="text-xl sm:text-2xl md:text-2xl lg:text-3xl font-black text-purple-600" 
-                            currencyClass="text-sm sm:text-lg md:text-xl lg:text-xl font-bold text-purple-600" 
+                            integerClass="text-lg sm:text-xl md:text-2xl lg:text-xl xl:text-3xl font-black text-purple-600" 
+                            currencyClass="text-[10px] sm:text-xs md:text-sm lg:text-xs xl:text-lg font-bold text-purple-600" 
                             className="justify-center w-full"
                         />
                     </div>
