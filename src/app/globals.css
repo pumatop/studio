@@ -4,26 +4,27 @@
 
 @layer base {
   :root {
+    /* لوحة الألوان الأساسية */
     --background: 203 43% 92%; /* #e1ecf3 */
     --foreground: 215 28% 17%;
     --card: 0 0% 100%;
     --card-foreground: 215 28% 17%;
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
-    --primary: 213 67% 31%; /* #1A4B84 */
+    --primary: 213 67% 31%; /* #1A4B84 - اللون القيادي */
     --primary-foreground: 0 0% 100%;
-    --secondary: 207 90% 94%; /* #E3F2FD */
+    --secondary: 207 90% 94%; /* #E3F2FD - اللون المساعد */
     --secondary-foreground: 213 67% 31%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20% 55%;
-    --accent: 45 93% 47%; /* Yellow-Gold accent */
+    --accent: 45 93% 47%; /* #FFB800 - لون التمييز */
     --accent-foreground: 215 28% 17%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 213 67% 31%;
-    --radius: 2.5rem; /* Large 40px radius for desktop */
+    --radius: 2.5rem; /* الحواف الكبيرة المميزة 40px */
     
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 28% 17%;
@@ -33,27 +34,6 @@
     --sidebar-accent-foreground: 213 67% 31%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 213 67% 31%;
-  }
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 14%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 213 67% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 45 93% 47%;
-    --accent-foreground: 215 28% 17%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 213 67% 31%;
   }
 }
 
@@ -65,12 +45,12 @@
     @apply bg-background text-foreground font-sans leading-relaxed overflow-x-hidden;
     background-image: linear-gradient(180deg, #e1ecf3 0%, #ffffff 100%);
     background-attachment: fixed;
-    font-feature-settings: "tnum";
+    font-feature-settings: "tnum"; /* تفعيل الأرقام المتساوية العرض تلقائياً */
   }
 }
 
 @layer components {
-    /* Responsive Floating Card Style */
+    /* نمط البطاقات العائمة الموحد */
     .floating-card {
         @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(26,75,132,0.05)] border-none transition-all duration-500 rounded-3xl;
     }
@@ -81,7 +61,7 @@
         }
     }
     
-    /* Responsive Accent Line */
+    /* خط التميز المتدرج أسفل العناوين */
     .accent-gradient-line {
         @apply h-0.5 w-16 rounded-full bg-gradient-to-r from-[#1A4B84] to-[#FFB800] mt-1.5;
     }
@@ -92,6 +72,7 @@
         }
     }
 
+    /* تحسين مظهر حقول الأرقام */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -102,60 +83,27 @@
     }
 }
 
-/* --- DataTables Professional Styling --- */
+/* تخصيص مظهر جداول البيانات */
 .dataTables_wrapper .dataTables_info {
-  font-size: 0.75rem;
-  color: hsl(var(--muted-foreground));
-  padding-top: 1rem;
-}
-
-@media (min-width: 768px) {
-  .dataTables_wrapper .dataTables_info {
-    font-size: 0.875rem;
-  }
+  @apply text-xs text-muted-foreground pt-4;
 }
 
 .dataTables_wrapper .dataTables_paginate {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  gap: 0.25rem;
-}
-
-@media (min-width: 768px) {
-  .dataTables_wrapper .dataTables_paginate {
-    gap: 0.5rem;
-  }
+  @apply flex items-center justify-end pt-4 gap-1 md:gap-2;
 }
 
 .dataTables_wrapper .paginate_button {
-  @apply h-9 md:h-10 min-w-[2.25rem] md:min-w-[2.5rem] px-3 md:px-4 rounded-xl border border-border bg-white text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center;
-}
-
-.dataTables_wrapper .paginate_button:hover {
-  @apply bg-secondary text-primary border-primary/20;
+  @apply h-9 md:h-10 min-w-[2.5rem] px-3 rounded-xl border border-border bg-white text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center;
 }
 
 .dataTables_wrapper .paginate_button.current {
   @apply bg-primary text-white border-primary shadow-lg shadow-primary/20;
 }
 
-.dataTables_wrapper .paginate_button.disabled {
-  @apply opacity-40 cursor-not-allowed;
-}
-
-/* Scrollbar styling for a cleaner look */
+/* تخصيص شريط التمرير */
 ::-webkit-scrollbar {
   width: 6px;
 }
-
-@media (min-width: 768px) {
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-}
-
 ::-webkit-scrollbar-track {
   @apply bg-transparent;
 }
