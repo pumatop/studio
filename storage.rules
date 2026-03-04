@@ -2,7 +2,7 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Receipts folder for transaction proof - Explicitly allowing authenticated writes
+    // Receipts folder for transaction proof - Allowed for authenticated users (Admins/Supervisors)
     match /receipts/{allPaths=**} {
       allow read, write: if request.auth != null;
     }
@@ -30,6 +30,6 @@ service firebase.storage {
         allow write: if request.auth != null;
     }
     
-    // Deployment Trigger Comment: Updated at 1772667795894
+    // Deployment Trigger Comment: Force Rules Update 1772668000000
   }
 }

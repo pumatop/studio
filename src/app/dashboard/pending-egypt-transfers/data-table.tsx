@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -25,6 +24,7 @@ export function PendingEgyptTransfersDataTable() {
 
   const sortedData = useMemo(() => {
     if (!data) return [];
+    // ترتيب تنازلي: الأحدث أولاً
     return [...data].sort((a, b) => b.timestamp - a.timestamp);
   }, [data]);
 
@@ -57,24 +57,26 @@ export function PendingEgyptTransfersDataTable() {
         <Table>
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="font-bold text-xs uppercase">رقم العملية</TableHead>
-              <TableHead className="font-bold text-xs">المستخدم</TableHead>
-              <TableHead className="font-bold text-xs">المبلغ (ج.م)</TableHead>
-              <TableHead className="font-bold text-xs">النوع</TableHead>
-              <TableHead className="font-bold text-xs">رقم المستلم</TableHead>
-              <TableHead className="font-bold text-xs">اسم المستلم</TableHead>
-              <TableHead className="font-bold text-xs">المندوب</TableHead>
-              <TableHead className="font-bold text-xs">رسوم الخدمة</TableHead>
-              <TableHead className="font-bold text-xs text-right">التاريخ</TableHead>
+              <TableHead className="font-bold text-xs uppercase text-right">رقم العملية</TableHead>
+              <TableHead className="font-bold text-xs text-right">المستخدم</TableHead>
+              <TableHead className="font-bold text-xs text-right">المبلغ (ج.م)</TableHead>
+              <TableHead className="font-bold text-xs text-right">النوع</TableHead>
+              <TableHead className="font-bold text-xs text-right">رقم المستلم</TableHead>
+              <TableHead className="font-bold text-xs text-right">اسم المستلم</TableHead>
+              <TableHead className="font-bold text-xs text-right">المندوب</TableHead>
+              <TableHead className="font-bold text-xs text-right">رسوم الخدمة</TableHead>
+              <TableHead className="font-bold text-xs text-right">التاريخ والوقت</TableHead>
               <TableHead className="text-left font-bold text-xs">الإجراء</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedData.map((transfer) => {
               const dateObj = new Date(transfer.timestamp);
+              // تنسيق الوقت: 12 ساعة
+              const timeOnly = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
               const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
-              const timeOnly = dateObj.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
               
+              // تنسيق التاريخ: يوم/شهر/سنة (أرقام إنجليزية)
               const day = dateObj.getDate().toString().padStart(2, '0');
               const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
               const year = dateObj.getFullYear();
