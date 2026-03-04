@@ -50,7 +50,7 @@ export const updateTransferStatus = onCall({ region: "asia-southeast1" }, async 
     const updatedTransferData = {
       ...transferData,
       status,
-      receiptUrl: receiptUrl || null,
+      receiptImageUrl: receiptUrl || null,
       processedAt: admin.database.ServerValue.TIMESTAMP,
     };
 

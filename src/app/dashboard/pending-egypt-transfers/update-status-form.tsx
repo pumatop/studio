@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -62,7 +61,7 @@ export function UpdateStatusForm({ transfer, onSuccess }: UpdateStatusFormProps)
       await updateTransferStatus({ 
         transferId: transfer.id, 
         status: data.status, 
-        receiptUrl 
+        receiptUrl // يتم إرسال الرابط للدالة السحابية التي ستقوم بحفظه باسم receiptImageUrl في مسار المستخدم
       });
       
       toast({
