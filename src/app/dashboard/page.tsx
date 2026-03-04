@@ -60,9 +60,9 @@ const FormattedAmount = ({
     const hasFraction = amount % 1 !== 0;
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
-        <div className={cn('flex items-baseline gap-x-1 whitespace-nowrap max-w-full overflow-hidden', className)} dir="ltr">
-            <span className={cn('shrink-0 font-sans', currencyClass)}>{currency}</span>
-            <span className={cn('leading-none tabular-nums tracking-tight', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
+        <div className={cn('flex items-baseline gap-x-1 whitespace-nowrap overflow-visible', className)} dir="ltr">
+            <span className={cn('shrink-0 font-sans font-bold', currencyClass)}>{currency}</span>
+            <span className={cn('leading-none tabular-nums tracking-tighter', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
             {hasFraction && <span className={cn('text-muted-foreground opacity-60 shrink-0 tabular-nums', fractionClass)}>.{fraction}</span>}
         </div>
     );

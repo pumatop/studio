@@ -62,8 +62,6 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
   const { toast } = useToast();
   const tableRef = useRef<HTMLTableElement>(null);
 
-  const receiptPlaceholder = PlaceHolderImages.find(p => p.id === 'receipt-placeholder');
-
   const filteredData = useMemo(() => {
     return data.filter(
       (item) =>
@@ -193,7 +191,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                 <TableCell className="text-xs">{new Date(transfer.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
                 <TableCell>{transfer.executionDuration || '-'}</TableCell>
                 <TableCell>
-                  {transfer.receiptImageUrl && transfer.status === 'completed' && receiptPlaceholder ? (
+                  {transfer.receiptImageUrl && transfer.status === 'completed' ? (
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" size="icon" className="h-8 w-8">
@@ -204,14 +202,14 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                         <DialogHeader>
                           <DialogTitle>إيصال العملية {transfer.id}</DialogTitle>
                         </DialogHeader>
-                        <Image
-                          src={receiptPlaceholder.imageUrl}
-                          alt={`إيصال ${transfer.id}`}
-                          width={600}
-                          height={800}
-                          className="rounded-md"
-                           data-ai-hint={receiptPlaceholder.imageHint}
-                        />
+                        <div className="relative aspect-[3/4] w-full">
+                            <Image
+                            src={transfer.receiptImageUrl}
+                            alt={`إيصال ${transfer.id}`}
+                            fill
+                            className="object-contain rounded-md"
+                            />
+                        </div>
                       </DialogContent>
                     </Dialog>
                   ) : (
