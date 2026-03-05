@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -34,7 +33,6 @@ import {
   Settings,
   History,
   ShieldCheck,
-  PiggyBank,
   ChevronDown,
   FolderKanban,
   Wallet,
@@ -114,15 +112,6 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         match: /^\/dashboard\/exchange-rate/,
         bgColor: 'bg-teal-50',
         iconColor: 'text-teal-600',
-      },
-      {
-        href: '/dashboard/fakka-log',
-        icon: PiggyBank,
-        label: 'حصالة الفكة',
-        description: 'سجل كسور التحويلات',
-        match: /^\/dashboard\/fakka-log/,
-        bgColor: 'bg-pink-50',
-        iconColor: 'text-pink-600',
       },
     ],
   },
@@ -243,7 +232,6 @@ const pageTitles: { [key: string]: string } = {
   '/dashboard/card-transactions': 'شراء الكروت (DC)',
   '/dashboard/dg-transfers': 'التحويل من دينار لجنيه (DG)',
   '/dashboard/supervisors': 'المشرفين والمندوبين',
-  '/dashboard/fakka-log': 'حصالة الفكة',
   '/dashboard/reports': 'تقارير وتحليلات الذكاء الاصطناعي',
   '/dashboard/audit-log': 'سجل التدقيق',
   '/dashboard/settings': 'الإعدادات',
