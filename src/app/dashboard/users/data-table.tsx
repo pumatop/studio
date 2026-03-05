@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -26,7 +25,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/tabs';
+} from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,7 +79,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
 
-// Dynamic imports for nested data tables
 const LibyanTransactionsDataTable = dynamic(
   () => import('../libyan-transactions/data-table').then(m => m.LibyanTransactionsDataTable),
   { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
@@ -137,9 +135,6 @@ const formatDate = (timestamp: number | undefined) => {
     });
 };
 
-/**
- * UserDetailsContent - واجهة عرض التفاصيل الكاملة للمستخدم
- */
 function UserDetailsContent({ 
     user, 
     onClose, 
@@ -191,7 +186,6 @@ function UserDetailsContent({
 
     return (
         <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/10 rounded-2xl">
@@ -228,7 +222,6 @@ function UserDetailsContent({
                 </Button>
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto p-4 md:p-10">
                 <div className="max-w-7xl mx-auto space-y-8 pb-20">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -524,7 +517,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
   return (
     <div className="space-y-6">
-      {/* Controls Bar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
             <div className="relative flex-1 max-w-sm">
@@ -576,7 +568,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </div>
       </div>
 
-      {/* Interactive Scrollable Table with Sticky Header */}
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
             <Table>
@@ -655,7 +646,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </div>
       </div>
 
-      {/* Full-screen Details Overlay */}
       {selectedUser && (
           <UserDetailsContent 
             user={selectedUser} 
@@ -667,7 +657,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
           />
       )}
 
-      {/* Confirmation Dialog */}
       <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
           <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8 max-w-md">
               <AlertDialogHeader>
