@@ -240,8 +240,8 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             'الاسم': s.name,
             'الهاتف': s.phone,
             'التخصص': s.specialization?.join(' - ') || 'غير محدد',
-            'تداول اليوم (ج.م)': stats.daily.toFixed(2),
-            'تداول الشهر (ج.م)': stats.monthly.toFixed(2),
+            'اجمالي اليوم (ج.م)': stats.daily.toFixed(2),
+            'اجمالي الشهر (ج.م)': stats.monthly.toFixed(2),
             'رسوم الشهر (ج.م)': stats.fees.toFixed(2),
             'الحالة': s.status,
             'آخر ظهور': `${parts.day}/${parts.month}/${parts.year}`
@@ -358,8 +358,8 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">تداول اليوم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">تداول الشهر</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
