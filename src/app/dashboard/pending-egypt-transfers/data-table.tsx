@@ -72,8 +72,8 @@ export function PendingEgyptTransfersDataTable() {
           <TableBody>
             {sortedData.map((transfer) => {
               const dateObj = new Date(transfer.timestamp);
-              // تنسيق الوقت: 12 ساعة
-              const timeOnly = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+              // تنسيق الوقت: 12 ساعة بالأرقام الإنجليزية بدون AM/PM لأننا سنضيف ص/م يدوياً
+              const timePart = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
               const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
               
               // تنسيق التاريخ: يوم/شهر/سنة (أرقام إنجليزية)
@@ -115,7 +115,7 @@ export function PendingEgyptTransfersDataTable() {
                   <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums text-right font-medium">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center justify-end gap-1" dir="rtl">
-                        <span className="font-bold text-slate-700">{timeOnly}</span>
+                        <span className="font-bold text-slate-700">{timePart}</span>
                         <span className="text-[10px] opacity-70 font-black">{period}</span>
                       </div>
                       <div className="text-[10px] opacity-60 flex items-center justify-end gap-0.5" dir="rtl">
