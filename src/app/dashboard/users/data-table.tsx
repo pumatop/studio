@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import {
   Table,
   TableHeader,
@@ -61,8 +60,12 @@ import {
   Printer,
   Search,
   Info,
+  CalendarDays,
+  Hash,
+  ArrowRightLeft,
+  Banknote,
 } from 'lucide-react';
-import type { User, Transaction, EgyptTransferTransaction } from '@/lib/types';
+import type { User, Transaction, EgyptTransferTransaction, AccountTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn, exportToCsv } from '@/lib/utils';
@@ -76,18 +79,7 @@ import {
 import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Separator } from '@/components/ui/separator';
-
-const LibyanTransactionsDataTable = dynamic(
-  () => import('../libyan-transactions/data-table').then(m => m.LibyanTransactionsDataTable),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
-);
-
-const EgyptianTransfersDataTable = dynamic(
-  () => import('../egyptian-transactions/data-table').then(m => m.EgyptianTransfersDataTable),
-  { ssr: false, loading: () => <Skeleton className="h-48 w-full" /> }
-);
 
 const roleMap: Record<User['role'], string> = {
     "user": "مستخدم",
@@ -135,6 +127,66 @@ const formatDate = (timestamp: number | undefined) => {
     });
 };
 
+function SimpleTransactionTable({ data, type }: { data: any[], type: 'libyan' | 'egyptian' }) {
+    if (data.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-3xl opacity-30">
+                <AlertCircle className="h-12 w-12 mb-3" />
+                <p className="font-bold text-lg">لا يوجد سجل معاملات لهذا المستخدم</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="rounded-2xl border overflow-hidden bg-white shadow-sm">
+            <div className="max-h-[500px] overflow-y-auto custom-scrollbar relative">
+                <Table>
+                    <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                        <TableRow>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">المعرف</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">التاريخ والوقت</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">{type === 'libyan' ? 'المبلغ (د.ل)' : 'المبلغ (ج.م)'}</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">النوع</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-10">الحالة</TableHead>
+                            {type === 'egyptian' && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">المستلم</TableHead>}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.map((tx, idx) => (
+                            <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
+                                <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
+                                <TableCell className="text-[11px] tabular-nums">{formatDate(tx.timestamp)}</TableCell>
+                                <TableCell className="text-sm font-bold">
+                                    {type === 'libyan' 
+                                        ? (tx.amount || tx.amountLYD || 0).toLocaleString('en-US')
+                                        : (tx.amountEGP || 0).toLocaleString('en-US')}
+                                </TableCell>
+                                <TableCell className="text-[11px] font-bold">
+                                    {tx.methodDisplayName || tx.transferType || tx.type}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge variant="outline" className={cn("text-[10px] font-bold border-none", 
+                                        tx.status === 'completed' ? 'bg-green-50 text-green-700' : 
+                                        tx.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'
+                                    )}>
+                                        {tx.status === 'completed' ? 'ناجح' : tx.status === 'pending' ? 'معلق' : 'مرفوض'}
+                                    </Badge>
+                                </TableCell>
+                                {type === 'egyptian' && (
+                                    <TableCell className="text-[11px]">
+                                        <div className="font-bold">{tx.recipientName || '---'}</div>
+                                        <div className="text-slate-400 tabular-nums">{tx.recipientNumber}</div>
+                                    </TableCell>
+                                )}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
+}
+
 function UserDetailsContent({ 
     user, 
     onClose, 
@@ -166,15 +218,18 @@ function UserDetailsContent({
 
     const frontImageUrl = getImageUrl(user.idImageUrl);
 
-    const userFinancialTransactions = useMemo(() => {
+    const userLibyanTransactions = useMemo(() => {
         return allTransactions.filter(t => 
-            (t.type === 'account_transfer' && ((t as any).senderId === user.id || (t as any).recipientId === user.id)) || 
-            (t.type === 'egypt_transfer' && (t as any).userId === user.id)
-        );
+            (t.userId === user.id || (t as any).senderId === user.id || (t as any).recipientId === user.id) &&
+            (t.type === 'account_transfer' || t.type === 'recharge_purchase' || t.type === 'egypt_transfer')
+        ).sort((a, b) => b.timestamp - a.timestamp);
     }, [user, allTransactions]);
     
     const userEgyptianTransactions = useMemo(() => {
-        return allTransactions.filter((t): t is EgyptTransferTransaction => t.type === 'egypt_transfer' && t.userId === user.id);
+        return allTransactions.filter(t => 
+            t.userId === user.id && 
+            ['egypt_transfer', 'egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(t.type)
+        ).sort((a, b) => b.timestamp - a.timestamp);
     }, [user, allTransactions]);
 
     const sessions = useMemo(() => {
@@ -185,18 +240,19 @@ function UserDetailsContent({
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
     return (
-        <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
-            <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-2xl">
+                    <div className="p-3 bg-primary/5 rounded-2xl border border-primary/10">
                         <ShieldCheck className="h-8 w-8 text-primary" />
                     </div>
                     <div>
                         {isEditingName ? (
                             <div className="flex items-center gap-2">
-                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-[250px] font-bold text-lg"/>
-                                <Button onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم تحديث الاسم بنجاح" }); }}>حفظ</Button>
-                                <Button variant="ghost" onClick={() => setIsEditingName(false)}>إلغاء</Button>
+                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-[250px] font-bold text-lg rounded-xl"/>
+                                <Button size="sm" onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم تحديث الاسم بنجاح" }); }}>حفظ</Button>
+                                <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)}>إلغاء</Button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
@@ -206,8 +262,8 @@ function UserDetailsContent({
                         )}
                         <div className="flex items-center gap-3 mt-1">
                             <span className="text-sm font-bold text-slate-500 flex items-center gap-1.5"><Smartphone className="h-3.5 w-3.5" /> {user.phone}</span>
-                            <Badge className={cn(statusColors[user.status], "font-bold")}>{statusMap[user.status]}</Badge>
-                            <Badge variant="outline" className={cn(verificationColors[user.verification], "font-bold")}>{verificationMap[user.verification]}</Badge>
+                            <Badge className={cn(statusColors[user.status], "font-bold border-none shadow-none")}>{statusMap[user.status]}</Badge>
+                            <Badge variant="outline" className={cn(verificationColors[user.verification], "font-bold border-none shadow-none")}>{verificationMap[user.verification]}</Badge>
                         </div>
                     </div>
                 </div>
@@ -224,241 +280,212 @@ function UserDetailsContent({
 
             <div className="flex-1 overflow-y-auto p-4 md:p-10">
                 <div className="max-w-7xl mx-auto space-y-8 pb-20">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-1 space-y-8">
-                            <Card className="floating-card overflow-hidden">
-                                <CardHeader className="bg-[#E3F2FD]/30 border-b">
-                                    <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                        <Info className="h-5 w-5" /> معلومات الحساب
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6 space-y-4">
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">تاريخ فتح الحساب</p>
-                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.createdAt)}</p>
-                                    </div>
-                                    <Separator className="bg-slate-50" />
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير لكلمة المرور</p>
-                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.lastPasswordChange)}</p>
-                                    </div>
-                                    <Separator className="bg-slate-50" />
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير للرقم السري</p>
-                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.lastPinChange)}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="floating-card overflow-hidden">
-                                <CardHeader className="bg-[#E3F2FD]/30 border-b">
-                                    <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                        <Wallet className="h-5 w-5" /> المحفظة والأرصدة
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6 space-y-4">
-                                    <div className="flex justify-between items-center p-4 rounded-[1.5rem] bg-green-50 border border-green-100">
-                                        <span className="text-sm font-bold text-slate-600">رصيد ليبي (LYD)</span>
+                    
+                    {/* الصف الأول: المحفظة ومعلومات الحساب */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                    <Wallet className="h-5 w-5 text-green-600" /> المحفظة والأرصدة
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="p-4 rounded-2xl bg-green-50/50 border border-green-100 flex flex-col gap-1">
+                                        <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">الرصيد الليبي (LYD)</span>
                                         <span className="text-2xl font-black text-green-700 tabular-nums">{(user.balanceLYD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                     </div>
-                                    <div className="flex justify-between items-center p-4 rounded-[1.5rem] bg-blue-50 border border-blue-100">
-                                        <span className="text-sm font-bold text-slate-600">رصيد مصري (EGP)</span>
+                                    <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 flex flex-col gap-1">
+                                        <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">الرصيد المصري (EGP)</span>
                                         <span className="text-2xl font-black text-blue-700 tabular-nums">{(user.balanceEGP || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                                     </div>
-                                    {user.balanceEgyptianPending > 0 && (
-                                        <div className="flex justify-between items-center p-4 rounded-[1.5rem] bg-yellow-50 border border-yellow-100">
-                                            <span className="text-sm font-bold text-slate-600">معلق مصري</span>
-                                            <span className="text-2xl font-black text-yellow-700 tabular-nums">{(user.balanceEgyptianPending || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                </div>
+                                {user.balanceEgyptianPending > 0 && (
+                                    <div className="mt-4 p-3 rounded-xl bg-yellow-50/50 border border-yellow-100 flex justify-between items-center">
+                                        <span className="text-xs font-bold text-yellow-700">بانتظار التأكيد (ج.م)</span>
+                                        <span className="font-black text-yellow-700 tabular-nums">{(user.balanceEgyptianPending || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                    <Info className="h-5 w-5 text-blue-600" /> معلومات الحساب
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">تاريخ فتح الحساب</p>
+                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.createdAt)}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير لكلمة المرور</p>
+                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.lastPasswordChange)}</p>
+                                </div>
+                                <div className="space-y-1 sm:col-span-2">
+                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير للرقم السري (PIN)</p>
+                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.lastPinChange)}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* الصف الثاني: إثبات الهوية والأجهزة */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                    <FileText className="h-5 w-5 text-purple-600" /> إثبات الهوية وإدارة الرتبة
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-6 flex flex-col sm:flex-row gap-6">
+                                <div className="relative aspect-[3/2] w-full sm:w-48 rounded-2xl overflow-hidden border-2 border-dashed border-slate-200 bg-slate-50 shrink-0">
+                                    {frontImageUrl ? (
+                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer">
+                                            <Image src={frontImageUrl} alt="ID Front" fill className="object-contain p-2" />
+                                        </a>
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground opacity-30">
+                                            <AlertCircle className="h-8 w-8 mb-1" />
+                                            <span className="text-[8px] font-black uppercase">لا توجد صورة</span>
                                         </div>
                                     )}
-                                </CardContent>
-                            </Card>
-
-                            <Card className="floating-card overflow-hidden">
-                                <CardHeader className="bg-[#E3F2FD]/30 border-b">
-                                    <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                        <FileText className="h-5 w-5" /> إثبات الهوية
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6 space-y-6">
-                                    <div className="relative aspect-[3/2] w-full rounded-[1.5rem] overflow-hidden border-2 border-dashed border-slate-200 bg-white shadow-inner">
-                                        {frontImageUrl ? (
-                                            <a href={frontImageUrl} target="_blank" rel="noopener noreferrer">
-                                                <Image src={frontImageUrl} alt="ID Front" fill className="object-contain p-2" />
-                                            </a>
-                                        ) : (
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground">
-                                                <AlertCircle className="h-10 w-10 mb-2 opacity-20" />
-                                                <span className="text-xs font-bold uppercase tracking-widest">لم يتم رفع صورة الهوية</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col gap-3">
-                                        <Button 
-                                            variant="outline" 
-                                            className={cn(
-                                                "w-full h-12 rounded-xl font-black transition-all",
-                                                user.verification === 'verified' 
-                                                    ? "text-red-600 border-red-200 hover:bg-red-50" 
-                                                    : "text-blue-600 border-blue-200 hover:bg-blue-50"
-                                            )}
-                                            onClick={() => {
-                                                const newStatus = user.verification === 'verified' ? 'unverified' : 'verified';
-                                                onUserUpdate(user.id, { verification: newStatus });
-                                                toast({ title: newStatus === 'verified' ? "تم توثيق الحساب" : "تم إلغاء التوثيق" });
-                                            }}
-                                        >
-                                            {user.verification === 'verified' ? (
-                                                <><UserX className="ml-2 h-5 w-5" /> إلغاء التوثيق</>
-                                            ) : (
-                                                <><UserCheck className="ml-2 h-5 w-5" /> توثيق الحساب</>
-                                            )}
-                                        </Button>
-
-                                        <Button 
-                                            variant="outline" 
-                                            className={cn(
-                                                "w-full h-12 rounded-xl font-black transition-all",
-                                                user.role === 'merchant'
-                                                    ? "text-slate-600 border-slate-200 hover:bg-slate-50"
-                                                    : "text-purple-600 border-purple-200 hover:bg-purple-50"
-                                            )}
-                                            onClick={() => {
-                                                const newRole = user.role === 'merchant' ? 'user' : 'merchant';
-                                                const message = newRole === 'merchant' 
-                                                    ? 'هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟' 
-                                                    : 'هل تريد حقاً تحويل هذا التاجر إلى مستخدم عادي؟';
-                                                
-                                                if(window.confirm(message)) {
-                                                    onUserUpdate(user.id, { role: newRole });
-                                                    toast({ title: newRole === 'merchant' ? "تم الترقية لتاجر" : "تم التحويل لمستخدم عادي" });
-                                                }
-                                            }}
-                                        >
-                                            {user.role === 'merchant' ? (
-                                                <><UserCheck className="ml-2 h-5 w-5" /> تحويل لمستخدم</>
-                                            ) : (
-                                                <><ShieldCheck className="ml-2 h-5 w-5" /> تحويل لتاجر</>
-                                            )}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        <div className="lg:col-span-2 space-y-8">
-                            <Card className="floating-card overflow-hidden">
-                                <CardHeader className="bg-[#E3F2FD]/30 border-b flex flex-row items-center justify-between">
-                                    <div>
-                                        <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                            <Smartphone className="h-5 w-5" /> الأجهزة والجلسات
-                                        </CardTitle>
-                                        <CardDescription className="text-xs font-bold text-slate-400">إدارة جلسات الدخول النشطة للمستخدم</CardDescription>
-                                    </div>
+                                </div>
+                                <div className="flex-1 flex flex-col justify-center gap-3">
                                     <Button 
-                                        variant="destructive" 
-                                        size="sm" 
-                                        className="h-10 rounded-xl font-black shadow-lg shadow-destructive/20"
+                                        variant="outline" 
+                                        className={cn(
+                                            "w-full h-11 rounded-xl font-black text-xs transition-all border-2 shadow-sm",
+                                            user.verification === 'verified' 
+                                                ? "text-red-600 border-red-100 hover:bg-red-50 hover:border-red-200" 
+                                                : "text-blue-600 border-blue-100 hover:bg-blue-50 hover:border-blue-200"
+                                        )}
                                         onClick={() => {
-                                            if(window.confirm('هل أنت متأكد من تسجيل خروج المستخدم من جميع الأجهزة؟')) {
-                                                onLogoutAllSessions(user.id);
-                                                toast({ title: "تم إرسال طلب تسجيل الخروج من جميع الأجهزة" });
+                                            const newStatus = user.verification === 'verified' ? 'unverified' : 'verified';
+                                            onUserUpdate(user.id, { verification: newStatus });
+                                            toast({ title: newStatus === 'verified' ? "تم توثيق الحساب" : "تم إلغاء التوثيق" });
+                                        }}
+                                    >
+                                        {user.verification === 'verified' ? (
+                                            <><UserX className="ml-2 h-4 w-4" /> إلغاء التوثيق</>
+                                        ) : (
+                                            <><UserCheck className="ml-2 h-4 w-4" /> توثيق الحساب</>
+                                        )}
+                                    </Button>
+
+                                    <Button 
+                                        variant="outline" 
+                                        className={cn(
+                                            "w-full h-11 rounded-xl font-black text-xs transition-all border-2 shadow-sm",
+                                            user.role === 'merchant'
+                                                ? "text-slate-600 border-slate-100 hover:bg-slate-50 hover:border-slate-200"
+                                                : "text-purple-600 border-purple-100 hover:bg-purple-50 hover:border-purple-200"
+                                        )}
+                                        onClick={() => {
+                                            const newRole = user.role === 'merchant' ? 'user' : 'merchant';
+                                            const message = newRole === 'merchant' 
+                                                ? 'هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟' 
+                                                : 'هل تريد حقاً تحويل هذا التاجر إلى مستخدم عادي؟';
+                                            
+                                            if(window.confirm(message)) {
+                                                onUserUpdate(user.id, { role: newRole });
+                                                toast({ title: newRole === 'merchant' ? "تم الترقية لتاجر" : "تم التحويل لمستخدم عادي" });
                                             }
                                         }}
                                     >
-                                        <LogOut className="ml-2 h-4 w-4" /> خروج من الكل
+                                        {user.role === 'merchant' ? (
+                                            <><UserCheck className="ml-2 h-4 w-4" /> تحويل لمستخدم عادي</>
+                                        ) : (
+                                            <><ShieldCheck className="ml-2 h-4 w-4" /> ترقية لتاجر معتمد</>
+                                        )}
                                     </Button>
-                                </CardHeader>
-                                <CardContent className="p-0">
-                                    <Table>
-                                        <TableHeader className="bg-slate-50">
-                                            <TableRow>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-right">الجهاز / النظام</TableHead>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-right">IP / الموقع</TableHead>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">الحالة</TableHead>
-                                                <TableHead className="text-left text-xs font-black uppercase tracking-widest text-slate-400">إجراء</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {sessions.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={4} className="h-32 text-center text-muted-foreground font-bold italic">لا توجد جلسات نشطة حالياً</TableCell>
-                                                </TableRow>
-                                            ) : sessions.map(s => (
-                                                <TableRow key={s.id} className="hover:bg-slate-50/50">
-                                                    <TableCell>
-                                                        <div className="font-black text-[#1A4B84]">{s.activeDevice || 'جهاز غير معروف'}</div>
-                                                        <div className="text-[10px] font-bold text-slate-400">{s.phoneOS}</div>
-                                                    </TableCell>
-                                                    <TableCell className="tabular-nums font-bold">
-                                                        <div>{s.ipAddress || '---'}</div>
-                                                        <div className="text-[10px] text-slate-400">
-                                                            تحديث: {new Date(s.lastUpdate).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-center">
-                                                        <Badge className={cn("text-[10px] px-2 py-0.5 font-bold", connectionStatusColors[s.connectionStatus])}>
-                                                            {s.connectionStatus}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-left">
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="ghost" 
-                                                            className="h-9 w-9 p-0 text-destructive hover:bg-red-50 hover:text-red-600 rounded-xl"
-                                                            onClick={() => {
-                                                                if(window.confirm('إنهاء هذه الجلسة؟')) {
-                                                                    onDeleteSession(user.id, s.id);
-                                                                    toast({ title: "تم إنهاء الجلسة" });
-                                                                }
-                                                            }}
-                                                        >
-                                                            <UserX className="h-5 w-5" />
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </CardContent>
-                            </Card>
+                                </div>
+                            </CardContent>
+                        </Card>
 
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-between">
+                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                    <Smartphone className="h-5 w-5 text-orange-600" /> الأجهزة والجلسات
+                                </CardTitle>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="h-8 rounded-lg text-[10px] font-black text-red-600 hover:bg-red-50"
+                                    onClick={() => {
+                                        if(window.confirm('إنهاء جميع الجلسات؟')) {
+                                            onLogoutAllSessions(user.id);
+                                            toast({ title: "تم تسجيل الخروج من الكل" });
+                                        }
+                                    }}
+                                >
+                                    خروج من الكل
+                                </Button>
+                            </CardHeader>
+                            <CardContent className="p-0 max-h-[200px] overflow-y-auto custom-scrollbar">
+                                <Table>
+                                    <TableBody>
+                                        {sessions.length === 0 ? (
+                                            <TableRow><TableCell className="h-20 text-center text-slate-400 font-bold italic text-xs">لا توجد أجهزة نشطة</TableCell></TableRow>
+                                        ) : sessions.map(s => (
+                                            <TableRow key={s.id} className="hover:bg-slate-50/50">
+                                                <TableCell className="py-2">
+                                                    <div className="font-bold text-xs text-[#1A4B84]">{s.activeDevice}</div>
+                                                    <div className="text-[10px] text-slate-400">{s.phoneOS}</div>
+                                                </TableCell>
+                                                <TableCell className="py-2 text-center">
+                                                    <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 border-none", connectionStatusColors[s.connectionStatus])}>
+                                                        {s.connectionStatus}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="py-2 text-left">
+                                                    <Button 
+                                                        size="icon" 
+                                                        variant="ghost" 
+                                                        className="h-7 w-7 text-red-400 hover:text-red-600"
+                                                        onClick={() => onDeleteSession(user.id, s.id)}
+                                                    >
+                                                        <UserX className="h-4 w-4" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* الصف الثالث: سجل العمليات بعرض الصفحة */}
+                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 border-b p-6">
+                            <CardTitle className="text-xl font-black text-[#1A4B84] flex items-center gap-3">
+                                <Activity className="h-6 w-6 text-primary" /> سجل عمليات المستخدم بالكامل
+                            </CardTitle>
+                            <CardDescription className="text-xs font-bold text-slate-400">تصفح كافة المعاملات المالية والحوالات المسجلة لهذا الحساب</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-6">
                             <Tabs defaultValue="libyan" dir="rtl" className="w-full">
-                                <TabsList className="grid w-full grid-cols-2 h-14 bg-[#E3F2FD]/20 p-1.5 rounded-2xl border">
-                                    <TabsTrigger value="libyan" className="rounded-xl font-black text-sm data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-[#1A4B84]">
-                                        <Wallet className="ml-2 h-5 w-5" /> سجل المعاملات (د.ل)
+                                <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-slate-100 p-1 rounded-xl mb-6">
+                                    <TabsTrigger value="libyan" className="rounded-lg font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                                        <Wallet className="ml-2 h-4 w-4" /> معاملات الدينار (LYD)
                                     </TabsTrigger>
-                                    <TabsTrigger value="egyptian" className="rounded-xl font-black text-sm data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-[#1A4B84]">
-                                        <Activity className="ml-2 h-5 w-5" /> التحويلات المصرية (ج.م)
+                                    <TabsTrigger value="egyptian" className="rounded-lg font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                                        <Banknote className="ml-2 h-4 w-4" /> التحويلات المصرية (ج.م)
                                     </TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="libyan" className="mt-6 animate-in fade-in-0 duration-500">
-                                    <div className="bg-white rounded-3xl border shadow-sm p-4">
-                                        {userFinancialTransactions.length > 0 ? (
-                                            <LibyanTransactionsDataTable initialData={userFinancialTransactions} showExchangeRate={false} />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-3xl opacity-30">
-                                                <AlertCircle className="h-12 w-12 mb-3" />
-                                                <p className="font-bold text-lg">لا يوجد سجل معاملات مالية لهذا المستخدم</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                <TabsContent value="libyan" className="animate-in fade-in-0 duration-500 m-0">
+                                    <SimpleTransactionTable data={userLibyanTransactions} type="libyan" />
                                 </TabsContent>
-                                <TabsContent value="egyptian" className="mt-6 animate-in fade-in-0 duration-500">
-                                    <div className="bg-white rounded-3xl border shadow-sm p-4">
-                                        {userEgyptianTransactions.length > 0 ? (
-                                            <EgyptianTransfersDataTable initialData={userEgyptianTransactions} />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-3xl opacity-30">
-                                                <Activity className="h-12 w-12 mb-3" />
-                                                <p className="font-bold text-lg">لا توجد طلبات تحويل مصرية مسجلة</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                <TabsContent value="egyptian" className="animate-in fade-in-0 duration-500 m-0">
+                                    <SimpleTransactionTable data={userEgyptianTransactions} type="egyptian" />
                                 </TabsContent>
                             </Tabs>
-                        </div>
-                    </div>
+                        </CardContent>
+                    </Card>
+
                 </div>
             </div>
         </div>
