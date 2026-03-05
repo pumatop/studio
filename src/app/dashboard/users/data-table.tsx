@@ -129,7 +129,7 @@ const verificationColors: Record<User['verification'], string> = {
 };
 
 /**
- * UserDetailsContent - المحتوى الفعلي لصفحة التفاصيل الكاملة
+ * UserDetailsContent - واجهة عرض التفاصيل الكاملة للمستخدم
  */
 function UserDetailsContent({ 
     user, 
@@ -181,7 +181,7 @@ function UserDetailsContent({
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
     return (
-        <div className="flex flex-col h-full bg-background animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
+        <div className="flex flex-col h-full bg-background animate-in fade-in-0 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 sticky top-0 z-50">
                 <div className="flex items-center gap-4">
@@ -267,20 +267,34 @@ function UserDetailsContent({
                                             </div>
                                         )}
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <Button 
+                                                variant="outline" 
+                                                className="w-full h-12 rounded-xl text-blue-600 border-blue-200 hover:bg-blue-50 font-black" 
+                                                onClick={() => onUserUpdate(user.id, { verification: 'verified' })}
+                                            >
+                                                <UserCheck className="ml-2 h-5 w-5" /> توثيق
+                                            </Button>
+                                            <Button 
+                                                variant="outline" 
+                                                className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50 font-black" 
+                                                onClick={() => onUserUpdate(user.id, { verification: 'unverified' })}
+                                            >
+                                                <UserX className="ml-2 h-5 w-5" /> إلغاء
+                                            </Button>
+                                        </div>
                                         <Button 
                                             variant="outline" 
-                                            className="w-full h-12 rounded-xl text-blue-600 border-blue-200 hover:bg-blue-50 font-black" 
-                                            onClick={() => onUserUpdate(user.id, { verification: 'verified' })}
+                                            className="w-full h-12 rounded-xl text-purple-600 border-purple-200 hover:bg-purple-50 font-black" 
+                                            onClick={() => {
+                                                if(window.confirm('هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟')) {
+                                                    onUserUpdate(user.id, { role: 'merchant' });
+                                                    toast({ title: "تم تحويل الرتبة إلى تاجر" });
+                                                }
+                                            }}
                                         >
-                                            <UserCheck className="ml-2 h-5 w-5" /> توثيق
-                                        </Button>
-                                        <Button 
-                                            variant="outline" 
-                                            className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50 font-black" 
-                                            onClick={() => onUserUpdate(user.id, { verification: 'unverified' })}
-                                        >
-                                            <UserX className="ml-2 h-5 w-5" /> إلغاء
+                                            <ShieldCheck className="ml-2 h-5 w-5" /> تحويل إلى تاجر
                                         </Button>
                                     </div>
                                 </CardContent>
@@ -431,7 +445,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     
     // Check if DataTables is already initialized
     // @ts-ignore
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
+    if ($.fn.DataTable && $.fn.DataTable.isDataTable(tableRef.current)) {
         // @ts-ignore
         $(tableRef.current).DataTable().destroy();
     }
@@ -439,25 +453,28 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     const timer = setTimeout(() => {
         if (!tableRef.current) return;
         // @ts-ignore
-        $(tableRef.current).DataTable({
-            responsive: true,
-            dom: "<'flex items-center justify-between gap-4 mb-4'B>rt<'flex items-center justify-between mt-4'ip>",
-            buttons: [
-                { extend: 'copy', text: 'نسخ', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                { extend: 'csv', text: 'CSV', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                { extend: 'excel', text: 'Excel', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                { extend: 'print', text: 'طباعة', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' }
-            ],
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
-            pageLength: 10,
-            searching: false,
-        });
+        if ($.fn.DataTable) {
+            // @ts-ignore
+            $(tableRef.current).DataTable({
+                responsive: true,
+                dom: "<'flex items-center justify-between gap-4 mb-4'B>rt<'flex items-center justify-between mt-4'ip>",
+                buttons: [
+                    { extend: 'copy', text: 'نسخ', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
+                    { extend: 'csv', text: 'CSV', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
+                    { extend: 'excel', text: 'Excel', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
+                    { extend: 'print', text: 'طباعة', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' }
+                ],
+                language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+                pageLength: 10,
+                searching: false,
+            });
+        }
     }, 100);
 
     return () => {
         clearTimeout(timer);
         // @ts-ignore
-        if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+        if (tableRef.current && $.fn.DataTable && $.fn.DataTable.isDataTable(tableRef.current)) {
             // @ts-ignore
             $(tableRef.current).DataTable().destroy();
         }
@@ -583,7 +600,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </Table>
       </div>
 
-      {/* نافذة تفاصيل المستخدم - تم تغييرها لـ div ثابت لتجنب تجميد الصفحة */}
+      {/* واجهة تفاصيل المستخدم بـ div ثابت لتجنب تجميد الصفحة */}
       {selectedUser && (
           <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
               <UserDetailsContent 
