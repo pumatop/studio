@@ -20,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   Card,
@@ -40,7 +39,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -61,12 +59,8 @@ import {
   MoreHorizontal,
   LogOut,
   ShieldCheck,
-  ShieldAlert,
-  Clock,
   UserX,
   UserCheck,
-  CheckCircle2,
-  XCircle,
   AlertCircle,
   Activity,
   Loader2,
@@ -87,6 +81,15 @@ import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
+
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
 
 // Dynamic imports for nested data tables
 const LibyanTransactionsDataTable = dynamic(
@@ -190,9 +193,8 @@ function UserDetailsDialog({
     
     return (
         <Dialog open={open} onOpenChange={(o) => { if (!o) setIsEditingName(false); onOpenChange(o); }}>
-            <DialogContent className="max-w-none w-screen h-screen rounded-none overflow-hidden flex flex-col p-0 gap-0 border-none bg-background">
-                {/* Header Page Style - Close button at top right (RTL context) */}
-                <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10">
+            <DialogContent className="max-w-none w-screen h-screen rounded-none overflow-hidden flex flex-col p-0 gap-0 border-none bg-background/95 backdrop-blur-md">
+                <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 sticky top-0 z-50">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-primary/10 rounded-2xl">
                             <ShieldCheck className="h-8 w-8 text-primary" />
@@ -228,7 +230,7 @@ function UserDetailsDialog({
                     </Button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 md:p-10 bg-background/50">
+                <div className="flex-1 overflow-y-auto p-4 md:p-10">
                     <div className="max-w-7xl mx-auto space-y-8">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-1 space-y-8">
@@ -437,17 +439,17 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter, statusFilter]);
 
   useEffect(() => {
-    import('jquery').then(($) => {
-        if (!tableRef.current) return;
-        // @ts-ignore
-        if ($.default.fn.DataTable.isDataTable(tableRef.current)) {
-            // @ts-ignore
-            $(tableRef.current).DataTable().destroy();
-        }
-        
-        const timer = setTimeout(() => {
-          // @ts-ignore
-          $(tableRef.current!).DataTable({
+    if (!tableRef.current) return;
+    
+    const tableElement = tableRef.current;
+    
+    // Check if DataTables is already initialized
+    if ($.fn.DataTable.isDataTable(tableElement)) {
+        $(tableElement).DataTable().destroy();
+    }
+    
+    const timer = setTimeout(() => {
+        $(tableElement).DataTable({
             responsive: true,
             dom: "<'flex items-center justify-between gap-4 mb-4'B>rt<'flex items-center justify-between mt-4'ip>",
             buttons: [
@@ -458,10 +460,15 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
             language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
             pageLength: 10,
             searching: false,
-          });
-        }, 100);
-        return () => { clearTimeout(timer); };
-    });
+        });
+    }, 100);
+
+    return () => {
+        clearTimeout(timer);
+        if ($.fn.DataTable.isDataTable(tableElement)) {
+            $(tableElement).DataTable().destroy();
+        }
+    };
   }, [filteredData]);
 
   const confirmToggleBan = async () => {
