@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState } from 'react';
@@ -49,6 +50,13 @@ const statusColors: Record<string, string> = {
   'نشط': 'bg-green-100 text-green-800',
   'غير نشط': 'bg-red-100 text-red-800',
 };
+
+const months = [
+    { val: "1", label: "يناير" }, { val: "2", label: "فبراير" }, { val: "3", label: "مارس" },
+    { val: "4", label: "أبريل" }, { val: "5", label: "مايو" }, { val: "6", label: "يونيو" },
+    { val: "7", label: "يوليو" }, { val: "8", label: "أغسطس" }, { val: "9", label: "سبتمبر" },
+    { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
+];
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
@@ -191,17 +199,24 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const [searchTerm, setSearchTerm] = useState("");
   const [specializationFilter, setSpecializationFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
 
-  // حساب الإحصائيات المالية لكل مشرف
+  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار
   const supervisorStats = useMemo(() => {
     if (!allTransactions || !initialData) return {};
     
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const monthIdx = parseInt(selectedMonth) - 1;
+    
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    
+    // حدود الشهر المختار للفلترة
+    const startOfSelectedMonth = new Date(currentYear, monthIdx, 1).getTime();
+    const endOfSelectedMonth = new Date(currentYear, monthIdx + 1, 0, 23, 59, 59, 999).getTime();
 
     const statsMap: Record<string, { daily: number, monthly: number, fees: number }> = {};
 
@@ -215,14 +230,16 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
         );
 
         statsMap[s.id] = {
+            // اجمالي اليوم يبقى لليوم الحالي فعلياً
             daily: supervisorTx.filter(t => t.timestamp >= startOfToday).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
-            monthly: supervisorTx.filter(t => t.timestamp >= startOfThisMonth).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
-            fees: supervisorTx.filter(t => t.timestamp >= startOfThisMonth).reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
+            // اجمالي الشهر والرسوم يعتمدان على الفلتر المختار
+            monthly: supervisorTx.filter(t => t.timestamp >= startOfSelectedMonth && t.timestamp <= endOfSelectedMonth).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
+            fees: supervisorTx.filter(t => t.timestamp >= startOfSelectedMonth && t.timestamp <= endOfSelectedMonth).reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
         };
     });
 
     return statsMap;
-  }, [allTransactions, initialData]);
+  }, [allTransactions, initialData, selectedMonth]);
 
   const filteredData = useMemo(() => {
     return (initialData || []).filter(s => 
@@ -233,7 +250,8 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
   const handleCsvExport = () => {
-    exportToCsv('supervisors_finance_report.csv', filteredData.map(s => {
+    const monthName = months.find(m => m.val === selectedMonth)?.label || "";
+    exportToCsv(`supervisors_finance_${monthName}.csv`, filteredData.map(s => {
         const parts = formatDateParts(s.lastSeen);
         const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
         return {
@@ -241,8 +259,8 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             'الهاتف': s.phone,
             'التخصص': s.specialization?.join(' - ') || 'غير محدد',
             'اجمالي اليوم (ج.م)': stats.daily.toFixed(2),
-            'اجمالي الشهر (ج.م)': stats.monthly.toFixed(2),
-            'رسوم الشهر (ج.م)': stats.fees.toFixed(2),
+            [`اجمالي شهر ${monthName} (ج.م)`]: stats.monthly.toFixed(2),
+            [`رسوم شهر ${monthName} (ج.م)`]: stats.fees.toFixed(2),
             'الحالة': s.status,
             'آخر ظهور': `${parts.day}/${parts.month}/${parts.year}`
         };
@@ -318,6 +336,14 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                         <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
                     </SelectContent>
                 </Select>
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="الشهر" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl max-h-[300px]">
+                        {months.map(m => (
+                            <SelectItem key={m.val} value={m.val}>{m.label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-[120px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
@@ -326,7 +352,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                         <SelectItem value="غير نشط">غير نشط</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:text-primary" onClick={() => { setSearchTerm(""); setSpecializationFilter("all"); setStatusFilter("all"); }}>
+                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:text-primary" onClick={() => { setSearchTerm(""); setSpecializationFilter("all"); setStatusFilter("all"); setSelectedMonth((new Date().getMonth() + 1).toString()); }}>
                     <FilterX className="h-5 w-5" />
                 </Button>
             </div>
@@ -359,7 +385,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر ({months.find(m => m.val === selectedMonth)?.label})</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
