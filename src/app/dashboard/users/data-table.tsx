@@ -64,6 +64,7 @@ import {
   Hash,
   ArrowRightLeft,
   Banknote,
+  ChevronLeft,
 } from 'lucide-react';
 import type { User, Transaction, EgyptTransferTransaction, AccountTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -138,17 +139,17 @@ function SimpleTransactionTable({ data, type }: { data: any[], type: 'libyan' | 
     }
 
     return (
-        <div className="rounded-2xl border overflow-hidden bg-white shadow-sm">
+        <div className="rounded-3xl border overflow-hidden bg-white shadow-sm">
             <div className="max-h-[500px] overflow-y-auto custom-scrollbar relative">
                 <Table>
                     <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                         <TableRow>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">المعرف</TableHead>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">التاريخ والوقت</TableHead>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">{type === 'libyan' ? 'المبلغ (د.ل)' : 'المبلغ (ج.م)'}</TableHead>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">النوع</TableHead>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-10">الحالة</TableHead>
-                            {type === 'egyptian' && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-10">المستلم</TableHead>}
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المعرف</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التاريخ والوقت</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">{type === 'libyan' ? 'المبلغ (د.ل)' : 'المبلغ (ج.م)'}</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                            {type === 'egyptian' && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -217,6 +218,7 @@ function UserDetailsContent({
     }
 
     const frontImageUrl = getImageUrl(user.idImageUrl);
+    const backImageUrl = getImageUrl(user.idImageBackUrl);
 
     const userLibyanTransactions = useMemo(() => {
         return allTransactions.filter(t => 
@@ -240,30 +242,28 @@ function UserDetailsContent({
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-50 flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div className="fixed inset-0 z-[100] bg-slate-100 flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
+            {/* Top Bar */}
+            <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white sticky top-0 z-50 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/5 rounded-2xl border border-primary/10">
-                        <ShieldCheck className="h-8 w-8 text-primary" />
+                    <div className="p-2.5 bg-primary/10 rounded-2xl">
+                        <ShieldCheck className="h-7 w-7 text-primary" />
                     </div>
                     <div>
                         {isEditingName ? (
                             <div className="flex items-center gap-2">
-                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-10 w-[250px] font-bold text-lg rounded-xl"/>
-                                <Button size="sm" onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم تحديث الاسم بنجاح" }); }}>حفظ</Button>
-                                <Button size="sm" variant="ghost" onClick={() => setIsEditingName(false)}>إلغاء</Button>
+                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9 w-[200px] font-bold rounded-xl"/>
+                                <Button size="sm" onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم التحديث" }); }}>حفظ</Button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <h1 className="text-2xl font-black text-[#1A4B84]">{user.name}</h1>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-50 hover:opacity-100" onClick={() => setIsEditingName(true)}><Pencil className="h-4 w-4" /></Button>
+                                <h1 className="text-xl font-black text-[#1A4B84]">{user.name}</h1>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-40 hover:opacity-100" onClick={() => setIsEditingName(true)}><Pencil className="h-3.5 w-3.5" /></Button>
                             </div>
                         )}
-                        <div className="flex items-center gap-3 mt-1">
-                            <span className="text-sm font-bold text-slate-500 flex items-center gap-1.5"><Smartphone className="h-3.5 w-3.5" /> {user.phone}</span>
-                            <Badge className={cn(statusColors[user.status], "font-bold border-none shadow-none")}>{statusMap[user.status]}</Badge>
-                            <Badge variant="outline" className={cn(verificationColors[user.verification], "font-bold border-none shadow-none")}>{verificationMap[user.verification]}</Badge>
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-slate-400 tabular-nums">{user.phone}</span>
+                            <Badge className={cn(statusColors[user.status], "text-[9px] font-black h-5 border-none shadow-none")}>{statusMap[user.status]}</Badge>
                         </div>
                     </div>
                 </div>
@@ -271,215 +271,227 @@ function UserDetailsContent({
                 <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="rounded-full h-12 w-12 hover:bg-red-50 hover:text-red-600 transition-colors" 
+                    className="rounded-full h-10 w-10 hover:bg-red-50 hover:text-red-600 transition-colors" 
                     onClick={onClose}
                 >
-                    <X className="h-6 w-6" />
+                    <X className="h-5 w-5" />
                 </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 md:p-10">
-                <div className="max-w-7xl mx-auto space-y-8 pb-20">
+            <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* الصف الأول: المحفظة ومعلومات الحساب */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                    {/* Row 1: Account Info & Balances */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        {/* Account Information (Large) */}
+                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <Wallet className="h-5 w-5 text-green-600" /> المحفظة والأرصدة
+                                <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
+                                    معلومات الحساب <ShieldCheck className="h-5 w-5 text-primary" />
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="p-4 rounded-2xl bg-green-50/50 border border-green-100 flex flex-col gap-1">
-                                        <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">الرصيد الليبي (LYD)</span>
-                                        <span className="text-2xl font-black text-green-700 tabular-nums">{(user.balanceLYD || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 flex flex-col gap-1">
-                                        <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">الرصيد المصري (EGP)</span>
-                                        <span className="text-2xl font-black text-blue-700 tabular-nums">{(user.balanceEGP || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                                    </div>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.createdAt)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:تاريخ فتح الحساب</span>
                                 </div>
-                                {user.balanceEgyptianPending > 0 && (
-                                    <div className="mt-4 p-3 rounded-xl bg-yellow-50/50 border border-yellow-100 flex justify-between items-center">
-                                        <span className="text-xs font-bold text-yellow-700">بانتظار التأكيد (ج.م)</span>
-                                        <span className="font-black text-yellow-700 tabular-nums">{(user.balanceEgyptianPending || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPasswordChange)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير لكلمة المرور</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPinChange)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير للرقم السري</span>
+                                </div>
                             </CardContent>
                         </Card>
 
+                        {/* Balances (Small) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <Info className="h-5 w-5 text-blue-600" /> معلومات الحساب
+                                <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
+                                    الأرصدة <Wallet className="h-5 w-5 text-primary" />
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">تاريخ فتح الحساب</p>
-                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.createdAt)}</p>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد الليبي</span>
+                                    <div className="flex items-baseline gap-1.5" dir="ltr">
+                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-[#1A4B84]">د.ل</span>
+                                    </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير لكلمة المرور</p>
-                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.lastPasswordChange)}</p>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد المصري</span>
+                                    <div className="flex items-baseline gap-1.5" dir="ltr">
+                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
+                                    </div>
                                 </div>
-                                <div className="space-y-1 sm:col-span-2">
-                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير للرقم السري (PIN)</p>
-                                    <p className="font-bold text-xs text-[#1A4B84] tabular-nums">{formatDate(user.lastPinChange)}</p>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">المصري المعلق</span>
+                                    <div className="flex items-baseline gap-1.5" dir="ltr">
+                                        <span className="text-2xl font-black text-slate-300 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-slate-300">ج.م</span>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* الصف الثاني: إثبات الهوية والأجهزة */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Row 2: Sessions & Verification */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        {/* Sessions & Devices (Large) */}
+                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
+                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                                <div className="flex flex-col items-end">
+                                    <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                        الجلسات والأجهزة <Smartphone className="h-5 w-5 text-primary" />
+                                    </CardTitle>
+                                    <CardDescription className="text-[10px] font-bold text-slate-400">عرض وإدارة الجلسات النشطة للمستخدم</CardDescription>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-0 flex-1 flex flex-col">
+                                <div className="overflow-x-auto p-4 flex-1">
+                                    <Table className="min-w-[600px]">
+                                        <TableHeader>
+                                            <TableRow className="border-none hover:bg-transparent">
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">إجراء</TableHead>
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">IP</TableHead>
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">آخر ظهور</TableHead>
+                                                <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sessions.length === 0 ? (
+                                                <TableRow><TableCell colSpan={5} className="h-32 text-center text-slate-300 font-bold italic text-sm">لا توجد أجهزة نشطة حالياً</TableCell></TableRow>
+                                            ) : sessions.map(s => (
+                                                <TableRow key={s.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                                                    <TableCell className="text-center">
+                                                        <Button variant="ghost" size="sm" className="h-8 text-slate-400 hover:text-red-600 gap-1.5" onClick={() => onDeleteSession(user.id, s.id)}>
+                                                            <LogOut className="h-3.5 w-3.5" /> <span className="text-[10px] font-black uppercase">إنهاء</span>
+                                                        </Button>
+                                                    </TableCell>
+                                                    <TableCell className="text-center text-[11px] font-mono text-slate-500 tabular-nums">{s.ipAddress || '---'}</TableCell>
+                                                    <TableCell className="text-center">
+                                                        <Badge variant="outline" className={cn("text-[9px] font-black h-6 border-none px-2.5", connectionStatusColors[s.connectionStatus])}>
+                                                            {s.connectionStatus}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-center">
+                                                        <div className="flex flex-col text-[10px] font-bold text-slate-500 tabular-nums">
+                                                            <span>{new Date(s.lastUpdate).toLocaleDateString('ar-EG-u-nu-latn')}</span>
+                                                            <span className="opacity-60">{new Date(s.lastUpdate).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-right py-4">
+                                                        <div className="font-black text-xs text-[#1A4B84]">{s.activeDevice}</div>
+                                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{s.phoneOS}</div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <div className="p-6 border-t mt-auto">
+                                    <Button 
+                                        variant="destructive" 
+                                        className="w-full h-14 rounded-[1.5rem] font-black text-sm shadow-xl shadow-red-500/20 gap-3"
+                                        onClick={() => { if(window.confirm('إنهاء جميع الجلسات النشطة؟')) onLogoutAllSessions(user.id); }}
+                                    >
+                                        <LogOut className="h-5 w-5" /> تسجيل الخروج من جميع الأجهزة
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Identity Verification (Small) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <FileText className="h-5 w-5 text-purple-600" /> إثبات الهوية وإدارة الرتبة
+                                <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
+                                    التوثيق <FileText className="h-5 w-5 text-primary" />
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 flex flex-col sm:flex-row gap-6">
-                                <div className="relative aspect-[3/2] w-full sm:w-48 rounded-2xl overflow-hidden border-2 border-dashed border-slate-200 bg-slate-50 shrink-0">
-                                    {frontImageUrl ? (
-                                        <a href={frontImageUrl} target="_blank" rel="noopener noreferrer">
-                                            <Image src={frontImageUrl} alt="ID Front" fill className="object-contain p-2" />
-                                        </a>
-                                    ) : (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground opacity-30">
-                                            <AlertCircle className="h-8 w-8 mb-1" />
-                                            <span className="text-[8px] font-black uppercase">لا توجد صورة</span>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1 flex flex-col justify-center gap-3">
-                                    <Button 
-                                        variant="outline" 
-                                        className={cn(
-                                            "w-full h-11 rounded-xl font-black text-xs transition-all border-2 shadow-sm",
-                                            user.verification === 'verified' 
-                                                ? "text-red-600 border-red-100 hover:bg-red-50 hover:border-red-200" 
-                                                : "text-blue-600 border-blue-100 hover:bg-blue-50 hover:border-blue-200"
-                                        )}
-                                        onClick={() => {
-                                            const newStatus = user.verification === 'verified' ? 'unverified' : 'verified';
-                                            onUserUpdate(user.id, { verification: newStatus });
-                                            toast({ title: newStatus === 'verified' ? "تم توثيق الحساب" : "تم إلغاء التوثيق" });
-                                        }}
-                                    >
-                                        {user.verification === 'verified' ? (
-                                            <><UserX className="ml-2 h-4 w-4" /> إلغاء التوثيق</>
+                            <CardContent className="p-6 space-y-6">
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-black text-slate-400 block text-right">صورة الهوية (الأمامية)</span>
+                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                        {frontImageUrl ? (
+                                            <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full">
+                                                <Image src={frontImageUrl} alt="Front" fill className="object-cover p-1 rounded-2xl" />
+                                            </a>
                                         ) : (
-                                            <><UserCheck className="ml-2 h-4 w-4" /> توثيق الحساب</>
+                                            <span className="text-xs font-bold text-slate-300">غير متوفرة</span>
                                         )}
-                                    </Button>
-
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <span className="text-[10px] font-black text-slate-400 block text-right">صورة الهوية (الخلفية)</span>
+                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                        {backImageUrl ? (
+                                            <a href={backImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full">
+                                                <Image src={backImageUrl} alt="Back" fill className="object-cover p-1 rounded-2xl" />
+                                            </a>
+                                        ) : (
+                                            <span className="text-xs font-bold text-slate-300">غير متوفرة</span>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="pt-4 grid grid-cols-1 gap-3">
                                     <Button 
                                         variant="outline" 
                                         className={cn(
-                                            "w-full h-11 rounded-xl font-black text-xs transition-all border-2 shadow-sm",
-                                            user.role === 'merchant'
-                                                ? "text-slate-600 border-slate-100 hover:bg-slate-50 hover:border-slate-200"
-                                                : "text-purple-600 border-purple-100 hover:bg-purple-50 hover:border-purple-200"
+                                            "w-full h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all",
+                                            user.verification === 'verified' ? "text-red-600 border-red-50 hover:bg-red-50" : "text-blue-600 border-blue-50 hover:bg-blue-50"
+                                        )}
+                                        onClick={() => onUserUpdate(user.id, { verification: user.verification === 'verified' ? 'unverified' : 'verified' })}
+                                    >
+                                        {user.verification === 'verified' ? "إلغاء التوثيق" : "توثيق الحساب"}
+                                    </Button>
+                                    <Button 
+                                        variant="outline" 
+                                        className={cn(
+                                            "w-full h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all",
+                                            user.role === 'merchant' ? "text-slate-600 border-slate-50" : "text-purple-600 border-purple-50 hover:bg-purple-50"
                                         )}
                                         onClick={() => {
                                             const newRole = user.role === 'merchant' ? 'user' : 'merchant';
-                                            const message = newRole === 'merchant' 
-                                                ? 'هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟' 
-                                                : 'هل تريد حقاً تحويل هذا التاجر إلى مستخدم عادي؟';
-                                            
-                                            if(window.confirm(message)) {
+                                            if(window.confirm(`هل تريد ${newRole === 'merchant' ? 'تحويله لتاجر' : 'إرجاعه لمستخدم'}؟`)) {
                                                 onUserUpdate(user.id, { role: newRole });
-                                                toast({ title: newRole === 'merchant' ? "تم الترقية لتاجر" : "تم التحويل لمستخدم عادي" });
                                             }
                                         }}
                                     >
-                                        {user.role === 'merchant' ? (
-                                            <><UserCheck className="ml-2 h-4 w-4" /> تحويل لمستخدم عادي</>
-                                        ) : (
-                                            <><ShieldCheck className="ml-2 h-4 w-4" /> ترقية لتاجر معتمد</>
-                                        )}
+                                        {user.role === 'merchant' ? "تحويل لمستخدم عادي" : "تحويل لتاجر معتمد"}
                                     </Button>
                                 </div>
                             </CardContent>
                         </Card>
-
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-between">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <Smartphone className="h-5 w-5 text-orange-600" /> الأجهزة والجلسات
-                                </CardTitle>
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    className="h-8 rounded-lg text-[10px] font-black text-red-600 hover:bg-red-50"
-                                    onClick={() => {
-                                        if(window.confirm('إنهاء جميع الجلسات؟')) {
-                                            onLogoutAllSessions(user.id);
-                                            toast({ title: "تم تسجيل الخروج من الكل" });
-                                        }
-                                    }}
-                                >
-                                    خروج من الكل
-                                </Button>
-                            </CardHeader>
-                            <CardContent className="p-0 max-h-[200px] overflow-y-auto custom-scrollbar">
-                                <Table>
-                                    <TableBody>
-                                        {sessions.length === 0 ? (
-                                            <TableRow><TableCell className="h-20 text-center text-slate-400 font-bold italic text-xs">لا توجد أجهزة نشطة</TableCell></TableRow>
-                                        ) : sessions.map(s => (
-                                            <TableRow key={s.id} className="hover:bg-slate-50/50">
-                                                <TableCell className="py-2">
-                                                    <div className="font-bold text-xs text-[#1A4B84]">{s.activeDevice}</div>
-                                                    <div className="text-[10px] text-slate-400">{s.phoneOS}</div>
-                                                </TableCell>
-                                                <TableCell className="py-2 text-center">
-                                                    <Badge variant="outline" className={cn("text-[9px] px-1.5 py-0 border-none", connectionStatusColors[s.connectionStatus])}>
-                                                        {s.connectionStatus}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="py-2 text-left">
-                                                    <Button 
-                                                        size="icon" 
-                                                        variant="ghost" 
-                                                        className="h-7 w-7 text-red-400 hover:text-red-600"
-                                                        onClick={() => onDeleteSession(user.id, s.id)}
-                                                    >
-                                                        <UserX className="h-4 w-4" />
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل العمليات بعرض الصفحة */}
+                    {/* Row 3: Transaction Log (Full Width) */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b p-6">
-                            <CardTitle className="text-xl font-black text-[#1A4B84] flex items-center gap-3">
-                                <Activity className="h-6 w-6 text-primary" /> سجل عمليات المستخدم بالكامل
-                            </CardTitle>
-                            <CardDescription className="text-xs font-bold text-slate-400">تصفح كافة المعاملات المالية والحوالات المسجلة لهذا الحساب</CardDescription>
+                        <CardHeader className="bg-slate-50/50 border-b p-8">
+                            <div className="flex flex-col items-end">
+                                <CardTitle className="text-xl font-black text-[#1A4B84] flex items-center gap-3">
+                                    سجل عمليات المستخدم بالكامل <Activity className="h-6 w-6 text-primary" />
+                                </CardTitle>
+                                <CardDescription className="text-xs font-bold text-slate-400">تصفح كافة المعاملات المالية والحوالات المسجلة لهذا الحساب</CardDescription>
+                            </div>
                         </CardHeader>
-                        <CardContent className="p-6">
+                        <CardContent className="p-8">
                             <Tabs defaultValue="libyan" dir="rtl" className="w-full">
-                                <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-slate-100 p-1 rounded-xl mb-6">
-                                    <TabsTrigger value="libyan" className="rounded-lg font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                                        <Wallet className="ml-2 h-4 w-4" /> معاملات الدينار (LYD)
-                                    </TabsTrigger>
-                                    <TabsTrigger value="egyptian" className="rounded-lg font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                                        <Banknote className="ml-2 h-4 w-4" /> التحويلات المصرية (ج.م)
-                                    </TabsTrigger>
+                                <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-slate-100 p-1 rounded-2xl mb-8">
+                                    <TabsTrigger value="libyan" className="rounded-xl font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">معاملات الدينار</TabsTrigger>
+                                    <TabsTrigger value="egyptian" className="rounded-xl font-black text-xs data-[state=active]:bg-white data-[state=active]:shadow-sm">الحوالات المصرية</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="libyan" className="animate-in fade-in-0 duration-500 m-0">
+                                <TabsContent value="libyan" className="m-0 animate-in fade-in-0 duration-500">
                                     <SimpleTransactionTable data={userLibyanTransactions} type="libyan" />
                                 </TabsContent>
-                                <TabsContent value="egyptian" className="animate-in fade-in-0 duration-500 m-0">
+                                <TabsContent value="egyptian" className="m-0 animate-in fade-in-0 duration-500">
                                     <SimpleTransactionTable data={userEgyptianTransactions} type="egyptian" />
                                 </TabsContent>
                             </Tabs>
