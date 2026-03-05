@@ -342,7 +342,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                               tooltip={{ children: item.label, side: 'left' }}
                               className={cn(
                                 "w-full justify-between rounded-xl md:rounded-2xl transition-all duration-300",
-                                isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20" : "hover:bg-[#E3F2FD]/50"
+                                isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
                               )}
                               size="lg"
                             >
@@ -369,7 +369,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                         size="md" 
                                         className={cn(
                                           "rounded-lg md:rounded-xl transition-all",
-                                          isSubActive ? "bg-[#1A4B84] shadow-sm" : "hover:bg-[#E3F2FD]/50"
+                                          isSubActive ? "bg-[#1A4B84] shadow-sm text-white" : "hover:bg-[#E3F2FD]/50"
                                         )}
                                       >
                                         <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', isSubActive ? "bg-white/20" : subItem.bgColor)}>
@@ -397,7 +397,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                           size="lg"
                           className={cn(
                             "rounded-xl md:rounded-2xl transition-all duration-300",
-                            isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20" : "hover:bg-[#E3F2FD]/50"
+                            isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
                           )}
                         >
                           <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', isActive ? "bg-white/20" : item.bgColor, isActive && "scale-110")}>
