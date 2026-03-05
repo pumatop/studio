@@ -2,7 +2,7 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Deployment Update ID: 1772670000015 - FORCING RE-DEPLOYMENT FOR PERMISSIONS
+    // Deployment Update ID: 1772670000016 - FORCING RE-DEPLOYMENT FOR PERMISSIONS
     
     // Banners are publicly readable.
     match /banners/{allPaths=**} {

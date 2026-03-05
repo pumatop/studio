@@ -95,7 +95,7 @@ const roleMap: Record<User['role'], string> = {
 
 const statusMap: Record<User['status'], string> = {
     "active": "نشط",
-    "banned": "محظور",
+    "banned": "مجمد",
 };
 
 const verificationMap: Record<User['verification'], string> = {
@@ -442,7 +442,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
   const handleToggleBan = async (user: User) => {
       const newStatus = user.status === 'active' ? 'banned' : 'active';
-      const action = newStatus === 'active' ? 'فك حظر' : 'حظر';
+      const action = newStatus === 'active' ? 'إلغاء التجميد' : 'تجميد';
       if(window.confirm(`هل أنت متأكد من ${action} المستخدم ${user.name}؟`)) {
           try {
               await updateRtdb(database, `/users/${user.id}`, { status: newStatus });
@@ -480,7 +480,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                 <SelectContent>
                     <SelectItem value="all">كل الحالات</SelectItem>
                     <SelectItem value="active">نشط</SelectItem>
-                    <SelectItem value="banned">محظور</SelectItem>
+                    <SelectItem value="banned">مجمد</SelectItem>
                 </SelectContent>
             </Select>
         </div>
@@ -543,11 +543,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleToggleBan(u)} className={cn(u.status === 'active' ? "text-destructive" : "text-green-600")}>
                                         {u.status === 'active' ? <UserX className="ml-2 h-4 w-4" /> : <UserCheck className="ml-2 h-4 w-4" />}
-                                        {u.status === 'active' ? 'حظر المستخدم' : 'إلغاء الحظر'}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-destructive opacity-50 cursor-not-allowed">
-                                        <LogOut className="ml-2 h-4 w-4" /> إنهاء الجلسات
+                                        {u.status === 'active' ? 'تجميد المستخدم' : 'إلغاء التجميد'}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
