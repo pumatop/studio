@@ -106,13 +106,19 @@ const verificationColors: Record<User['verification'], string> = {
     "unverified": "bg-gray-100 text-gray-800",
 };
 
+/**
+ * تنسيق التاريخ والوقت ليكون من اليمين لليسار (RTL)
+ * بحيث يظهر التاريخ أولاً ثم الوقت ثم ص/م جهة اليسار.
+ */
 const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return '---';
     const date = new Date(timestamp);
+    // استخراج أجزاء الوقت واليوم بالأرقام الإنجليزية (Latin)
     const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     const datePart = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
+    // إرجاع السلسلة بترتيب (تاريخ وقت فترة) ومع اتجاه RTL سيظهر ص/م في أقصى اليسار
     return `${datePart} ${timePart} ${period}`;
 };
 
@@ -125,9 +131,6 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
-/**
- * مكون لعرض المبالغ مع العملة جهة اليسار
- */
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
@@ -168,7 +171,7 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                             return (
                                 <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
-                                    <TableCell className="text-[11px] tabular-nums whitespace-nowrap">{formatDate(tx.timestamp)}</TableCell>
+                                    <TableCell className="text-[11px] tabular-nums whitespace-nowrap" dir="rtl">{formatDate(tx.timestamp)}</TableCell>
                                     <TableCell className="text-sm font-bold">
                                         <CurrencyDisplay amount={amount} currency={currency} />
                                     </TableCell>
@@ -345,15 +348,15 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.createdAt)}</span>
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.createdAt)}</span>
                                 </div>
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPasswordChange)}</span>
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.lastPasswordChange)}</span>
                                 </div>
                                 <div className="flex items-center justify-between pb-2">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPinChange)}</span>
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.lastPinChange)}</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -686,7 +689,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right">
+                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right" dir="rtl">
                                     {u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : '---'}
                                 </TableCell>
                                 <TableCell className="text-left">
