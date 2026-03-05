@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
@@ -88,12 +87,23 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
   const [searchTerm, setSearchTerm] = useState('');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
+  const [selectedCardType, setSelectedCardType] = useState('all');
   const tableRef = useRef<HTMLTableElement>(null);
+
+  // استخراج قائمة أنواع الكروت الفريدة من البيانات
+  const cardTypes = useMemo(() => {
+    const types = new Set<string>();
+    initialData.forEach(item => {
+      if (item.cardType) types.add(item.cardType);
+    });
+    return Array.from(types).sort();
+  }, [initialData]);
 
   const filteredData = useMemo(() => {
     return initialData.filter(item => {
       const itemDate = new Date(item.timestamp);
       
+      // فلتر التاريخ (اليوم)
       if (date) {
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
@@ -101,17 +111,22 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
         endOfDay.setHours(23, 59, 59, 999);
         if (itemDate < startOfDay || itemDate > endOfDay) return false;
       } else {
+        // فلتر الشهر (يعمل فقط إذا لم يتم اختيار يوم محدد)
         const itemMonth = (itemDate.getMonth() + 1).toString();
         if (itemMonth !== selectedMonth) return false;
       }
 
+      // فلتر نوع الكرت
+      if (selectedCardType !== 'all' && item.cardType !== selectedCardType) return false;
+
+      // بحث عام
       return (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
        item.cardType.toLowerCase().includes(searchTerm.toLowerCase()) ||
        (item.serialNumber && item.serialNumber.includes(searchTerm)) ||
        (item.code && item.code.includes(searchTerm)) ||
        item.id.includes(searchTerm));
     }).sort((a, b) => b.timestamp - a.timestamp);
-  }, [initialData, searchTerm, date, selectedMonth]);
+  }, [initialData, searchTerm, date, selectedMonth, selectedCardType]);
 
   useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -147,6 +162,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
     setSearchTerm('');
     setDate(undefined);
     setSelectedMonth((new Date().getMonth() + 1).toString());
+    setSelectedCardType('all');
   };
 
   const currentMonthVal = (new Date().getMonth() + 1).toString();
@@ -162,6 +178,18 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
             className="w-full max-w-sm h-11 rounded-xl"
           />
           
+          <Select value={selectedCardType} onValueChange={setSelectedCardType}>
+            <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white">
+              <SelectValue placeholder="نوع الكرت" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-none shadow-2xl">
+              <SelectItem value="all">كل الكروت</SelectItem>
+              {cardTypes.map(type => (
+                <SelectItem key={type} value={type}>{type}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                 <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
@@ -208,7 +236,11 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {filteredData.map((tx, index) => (
+                    {filteredData.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد عمليات تطابق البحث</TableCell>
+                      </TableRow>
+                    ) : filteredData.map((tx, index) => (
                     <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
                         <TableCell className="text-xs font-mono text-slate-500 font-bold">{tx.id}</TableCell>
                         <TableCell className="font-bold text-sm text-slate-700">{tx.userName}</TableCell>
