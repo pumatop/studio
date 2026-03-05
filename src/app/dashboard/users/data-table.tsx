@@ -156,8 +156,8 @@ function UserDetailsDialog({
     const userFinancialTransactions = useMemo(() => {
         if (!user) return [];
         return allTransactions.filter(t => 
-            (t.type === 'account_transfer' && (t.senderId === user.id || t.recipientId === user.id)) || 
-            (t.type === 'egypt_transfer' && t.userId === user.id)
+            (t.type === 'account_transfer' && ((t as any).senderId === user.id || (t as any).recipientId === user.id)) || 
+            (t.type === 'egypt_transfer' && (t as any).userId === user.id)
         );
     }, [user, allTransactions]);
     
@@ -178,7 +178,7 @@ function UserDetailsDialog({
     return (
         <Dialog open={open} onOpenChange={(o) => { if (!o) setIsEditingName(false); onOpenChange(o); }}>
             <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden flex flex-col p-0 gap-0">
-                <DialogHeader className="p-6 pb-2">
+                <DialogHeader className="p-6 pb-2 text-right">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             {isEditingName ? (
@@ -193,7 +193,7 @@ function UserDetailsDialog({
                                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsEditingName(true)}><Pencil className="h-4 w-4" /></Button>
                                 </div>
                             )}
-                            <DialogDescription className="text-base mt-1 flex items-center gap-2">
+                            <DialogDescription className="text-base mt-1 flex items-center gap-2 justify-start">
                                 <Smartphone className="h-4 w-4" /> {user.phone}
                                 <Badge className={cn("mr-2", statusColors[user.status])}>{statusMap[user.status]}</Badge>
                             </DialogDescription>
@@ -209,7 +209,6 @@ function UserDetailsDialog({
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Sidebar: Balances and ID */}
                         <div className="lg:col-span-1 space-y-6">
                             <Card className="shadow-sm">
                                 <CardHeader className="pb-3">
@@ -276,7 +275,6 @@ function UserDetailsDialog({
                             </Card>
                         </div>
 
-                        {/* Main Content: Sessions and Transactions */}
                         <div className="lg:col-span-2 space-y-6">
                             <Card className="shadow-sm">
                                 <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -400,7 +398,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
   const { database } = useDatabase();
-  const functions = useFunctions();
   const tableRef = useRef<HTMLTableElement>(null);
   const { toast } = useToast();
   
@@ -494,7 +491,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
           <TableHeader className="bg-muted/30">
             <TableRow>
               <TableHead className="font-bold">المستخدم</TableHead>
-              <TableHead className="font-bold">الرصيد (د.ل)</TableHead>
+              <TableHead className="font-bold">نوع الحساب</TableHead>
               <TableHead className="font-bold text-center">التوثيق</TableHead>
               <TableHead className="font-bold">الاتصال</TableHead>
               <TableHead className="font-bold">آخر ظهور</TableHead>
@@ -509,10 +506,12 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         <TableCell>
                             <div className="flex flex-col">
                                 <span className="font-semibold text-sm">{u.name}</span>
-                                <span className="text-[11px] text-muted-foreground tabular-nums">{u.phone} • {roleMap[u.role]}</span>
+                                <span className="text-[11px] text-muted-foreground tabular-nums">{u.phone}</span>
                             </div>
                         </TableCell>
-                        <TableCell className="text-sm tabular-nums">{(u.balanceLYD || 0).toLocaleString('en-US')}</TableCell>
+                        <TableCell className="text-sm font-bold text-primary">
+                            {roleMap[u.role]}
+                        </TableCell>
                         <TableCell className="text-center">
                             <Badge variant="outline" className={cn("text-[10px] px-2", verificationColors[u.verification])}>
                                 {verificationMap[u.verification]}
