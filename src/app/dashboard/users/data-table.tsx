@@ -60,14 +60,9 @@ import {
   FileDown,
   Printer,
   Search,
-  Info,
   CalendarDays,
-  Hash,
-  ArrowRightLeft,
-  Banknote,
-  ChevronLeft,
 } from 'lucide-react';
-import type { User, Transaction, EgyptTransferTransaction, AccountTransferTransaction } from '@/lib/types';
+import type { User, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn, exportToCsv } from '@/lib/utils';
@@ -81,7 +76,6 @@ import {
 import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Separator } from '@/components/ui/separator';
 
 const roleMap: Record<User['role'], string> = {
     "user": "مستخدم",
@@ -119,14 +113,13 @@ const verificationColors: Record<User['verification'], string> = {
 
 const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return '---';
-    return new Date(timestamp).toLocaleString('ar-EG-u-nu-latn', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-    });
+    const date = new Date(timestamp);
+    // تنسيق الأرقام بالإنجليزية مع الحفاظ على ص/م بالعربية
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
+    const period = date.getHours() >= 12 ? 'م' : 'ص';
+    const datePart = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    
+    return `${datePart} ${timePart} ${period}`;
 };
 
 function SimpleTransactionTable({ data, type }: { data: any[], type: 'libyan' | 'egyptian' }) {
@@ -157,7 +150,7 @@ function SimpleTransactionTable({ data, type }: { data: any[], type: 'libyan' | 
                         {data.map((tx, idx) => (
                             <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
                                 <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
-                                <TableCell className="text-[11px] tabular-nums">{formatDate(tx.timestamp)}</TableCell>
+                                <TableCell className="text-[11px] tabular-nums whitespace-nowrap">{formatDate(tx.timestamp)}</TableCell>
                                 <TableCell className="text-sm font-bold">
                                     {type === 'libyan' 
                                         ? (tx.amount || tx.amountLYD || 0).toLocaleString('en-US')
@@ -281,58 +274,56 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* Row 1: Balances (Right) & Account Info (Left) */}
+                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
-                        {/* Balances (Right Side) */}
+                        {/* الأرصدة (جهة اليمين) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <Wallet className="h-5 w-5 text-primary" /> الأرصدة
-                                </CardTitle>
+                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                                <Wallet className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد الليبي</span>
                                     <div className="flex items-baseline gap-1.5" dir="ltr">
-                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
-                                        <span className="text-sm font-bold text-[#1A4B84]">د.ل</span>
+                                        <span className="text-sm font-bold text-green-600">د.ل</span>
+                                        <span className="text-2xl font-black text-green-600 tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد المصري</span>
                                     <div className="flex items-baseline gap-1.5" dir="ltr">
-                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
                                         <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
+                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">المصري المعلق</span>
                                     <div className="flex items-baseline gap-1.5" dir="ltr">
-                                        <span className="text-2xl font-black text-slate-300 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
-                                        <span className="text-sm font-bold text-slate-300">ج.م</span>
+                                        <span className="text-sm font-bold text-slate-400">ج.م</span>
+                                        <span className="text-2xl font-black text-slate-400 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Account Info (Left Side - 2/3) */}
+                        {/* معلومات الحساب (جهة اليسار - مساحة أكبر) */}
                         <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <ShieldCheck className="h-5 w-5 text-primary" /> معلومات الحساب
-                                </CardTitle>
+                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                                <CalendarDays className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب:</span>
                                     <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.createdAt)}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور:</span>
                                     <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPasswordChange)}</span>
                                 </div>
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between pb-2">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري:</span>
                                     <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPinChange)}</span>
                                 </div>
@@ -340,26 +331,28 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* Row 2: Verification (Right) & Sessions (Left) - Equal Width */}
+                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
-                        {/* Verification (Right Side) */}
+                        {/* التوثيق (جهة اليمين) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <FileText className="h-5 w-5 text-primary" /> التوثيق
-                                </CardTitle>
+                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                                <FileText className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base text-[#1A4B84] font-black">التوثيق</CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6">
                                 <div className="space-y-2">
-                                    <span className="text-[10px] font-black text-slate-400 block">صورة الهوية</span>
+                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة إثبات الهوية</span>
                                     <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
-                                            <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full">
+                                            <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
                                                 <Image src={frontImageUrl} alt="Identity Front" fill className="object-cover p-1 rounded-2xl" />
                                             </a>
                                         ) : (
-                                            <span className="text-xs font-bold text-slate-300">غير متوفرة</span>
+                                            <div className="flex flex-col items-center gap-2">
+                                                <AlertCircle className="h-8 w-8 text-slate-200" />
+                                                <span className="text-xs font-bold text-slate-300 italic">الصورة غير متوفرة</span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -394,12 +387,11 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* Sessions (Left Side) */}
+                        {/* الجلسات والأجهزة (جهة اليسار) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                    <Smartphone className="h-5 w-5 text-primary" /> الجلسات والأجهزة
-                                </CardTitle>
+                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                                <Smartphone className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col">
                                 <div className="overflow-x-auto p-4 flex-1">
@@ -448,13 +440,14 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* Row 3: Transaction Log (Full Width) */}
+                    {/* الصف الثالث: سجل العمليات (كامل العرض) */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b p-8">
-                            <CardTitle className="text-xl font-black text-[#1A4B84] flex items-center gap-3">
-                                <Activity className="h-6 w-6 text-primary" /> سجل عمليات المستخدم
-                            </CardTitle>
-                            <CardDescription className="text-xs font-bold text-slate-400">تصفح كافة المعاملات المالية والحوالات المسجلة لهذا الحساب</CardDescription>
+                        <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-row items-center justify-start gap-3">
+                            <Activity className="h-6 w-6 text-primary" />
+                            <div>
+                                <CardTitle className="text-xl font-black text-[#1A4B84]">سجل عمليات المستخدم</CardTitle>
+                                <CardDescription className="text-xs font-bold text-slate-400 mt-1">تصفح كافة المعاملات المالية والحوالات المسجلة لهذا الحساب</CardDescription>
+                            </div>
                         </CardHeader>
                         <CardContent className="p-8">
                             <Tabs defaultValue="libyan" dir="rtl" className="w-full">
@@ -507,7 +500,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         'النوع': roleMap[u.role],
         'الحالة': statusMap[u.status],
         'التوثيق': verificationMap[u.verification],
-        'آخر ظهور': u.lastSeen ? new Date(u.lastSeen).toLocaleString() : 'غير معروف'
+        'آخر ظهور': u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : 'غير معروف'
     })));
   };
 
@@ -629,7 +622,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums">
+                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap">
                                     {u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : '---'}
                                 </TableCell>
                                 <TableCell className="text-left">
