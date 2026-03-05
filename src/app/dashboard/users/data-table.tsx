@@ -111,6 +111,12 @@ const statusMap: Record<User['status'], string> = {
     "banned": "مجمد",
 };
 
+const verificationMap: Record<User['verification'], string> = {
+    "verified": "موثق",
+    "pending": "قيد المراجعة",
+    "unverified": "غير موثق",
+};
+
 const connectionStatusColors: Record<string, string> = {
   "متصل": "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   "غير متصل": "bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-400",
@@ -185,7 +191,7 @@ function UserDetailsDialog({
     return (
         <Dialog open={open} onOpenChange={(o) => { if (!o) setIsEditingName(false); onOpenChange(o); }}>
             <DialogContent className="max-w-none w-screen h-screen rounded-none overflow-hidden flex flex-col p-0 gap-0 border-none bg-background">
-                {/* Header Page Style */}
+                {/* Header Page Style - Close button at top right (RTL context) */}
                 <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-10">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-primary/10 rounded-2xl">
