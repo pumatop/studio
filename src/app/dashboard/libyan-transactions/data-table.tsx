@@ -105,12 +105,14 @@ export function LibyanTransactionsDataTable({
   initialData, 
   showExchangeRate = true,
   showDelegate = true,
-  showFee = false
+  showFee = false,
+  showReceivedAmount = true
 }: { 
   initialData: Transaction[], 
   showExchangeRate?: boolean,
   showDelegate?: boolean,
-  showFee?: boolean
+  showFee?: boolean,
+  showReceivedAmount?: boolean
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -255,7 +257,7 @@ export function LibyanTransactionsDataTable({
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المرسل</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>
+                        {showReceivedAmount && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>}
                         {showFee && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
                         {showDelegate && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
                     </TableRow>
@@ -289,12 +291,14 @@ export function LibyanTransactionsDataTable({
                                         {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
                                     </div>
                                 </TableCell>
-                                <TableCell>
-                                    <CurrencyDisplay 
-                                        amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
-                                        currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
-                                    />
-                                </TableCell>
+                                {showReceivedAmount && (
+                                    <TableCell>
+                                        <CurrencyDisplay 
+                                            amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
+                                            currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
+                                        />
+                                    </TableCell>
+                                )}
                                 {showFee && (
                                     <TableCell>
                                         <div className="flex items-center gap-1.5">

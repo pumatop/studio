@@ -80,6 +80,10 @@ export default function TransfersByPrefixPage() {
     return <div className="text-red-500">Error loading transactions: {error.message}</div>;
   }
 
+  const p = prefix.toLowerCase();
+  const isEgyptService = ['ec', 'ei', 'ew', 'el'].includes(p);
+  const isDD = p === 'dd';
+
   return (
      <Card>
         <CardHeader>
@@ -89,9 +93,10 @@ export default function TransfersByPrefixPage() {
         <CardContent>
             <LibyanTransactionsDataTable 
               initialData={filteredTransactions || []} 
-              showExchangeRate={['dg'].includes(prefix.toLowerCase())} 
-              showDelegate={prefix.toLowerCase() !== 'dd'}
-              showFee={prefix.toLowerCase() === 'dd'}
+              showExchangeRate={['dg'].includes(p)} 
+              showDelegate={!isDD}
+              showFee={isDD || isEgyptService}
+              showReceivedAmount={!isEgyptService}
             />
         </CardContent>
      </Card>
