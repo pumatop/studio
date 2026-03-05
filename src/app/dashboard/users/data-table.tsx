@@ -131,7 +131,7 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
-// مكون لعرض العملة يسار الرقم
+// مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="rtl">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
@@ -327,8 +327,9 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) */}
+                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) بنسبة 50/50 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                        {/* بطاقة الأرصدة - يمين */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
@@ -350,6 +351,7 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
+                        {/* بطاقة معلومات الحساب - يسار */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
@@ -387,8 +389,9 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) */}
+                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) بنسبة 50/50 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                        {/* بطاقة التوثيق - يمين */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
@@ -425,6 +428,7 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
+                        {/* بطاقة الجلسات - يسار (بنفس الارتفاع ومع سكرول) */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
@@ -477,7 +481,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل العمليات */}
+                    {/* الصف الثالث: سجل العمليات (عرض كامل) */}
                     <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -598,7 +602,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
             <div className="relative flex-1 max-sm:w-full">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute right-3 top-1/2 h-4 w-4 text-slate-400" />
                 <Input 
                     placeholder="بحث بالاسم أو الهاتف..." 
                     value={searchTerm} 
