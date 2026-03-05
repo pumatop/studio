@@ -493,6 +493,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
               <TableHead className="font-bold">المستخدم</TableHead>
               <TableHead className="font-bold">نوع الحساب</TableHead>
               <TableHead className="font-bold text-center">التوثيق</TableHead>
+              <TableHead className="font-bold text-center">حالة الحساب</TableHead>
               <TableHead className="font-bold">الاتصال</TableHead>
               <TableHead className="font-bold">آخر ظهور</TableHead>
               <TableHead className="font-bold text-left">إجراءات</TableHead>
@@ -515,6 +516,11 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         <TableCell className="text-center">
                             <Badge variant="outline" className={cn("text-[10px] px-2", verificationColors[u.verification])}>
                                 {verificationMap[u.verification]}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                            <Badge className={cn("text-[10px] px-2", statusColors[u.status])}>
+                                {statusMap[u.status]}
                             </Badge>
                         </TableCell>
                         <TableCell>
