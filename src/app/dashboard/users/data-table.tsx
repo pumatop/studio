@@ -161,8 +161,9 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                                     <TableCell className="text-[11px] tabular-nums whitespace-nowrap">{formatDate(tx.timestamp)}</TableCell>
                                     <TableCell className="text-sm font-bold">
                                         <div className="flex items-center gap-1 justify-start">
-                                            <span className="text-[10px] text-slate-400 font-bold">{currency}</span>
+                                            {/* العملة يسار الرقم */}
                                             <span className="tabular-nums">{amount.toLocaleString('en-US')}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold">{currency}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-[11px] font-bold">
@@ -305,9 +306,10 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
+                    {/* الصف الأول */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* الأرصدة (اليمين) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1 lg:order-2">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة</CardTitle>
@@ -315,30 +317,30 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد الليبي</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
-                                        <span className="text-sm font-bold text-green-600">د.ل</span>
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
                                         <span className="text-2xl font-black text-green-600 tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-green-600">د.ل</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد المصري</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
-                                        <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
                                         <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">المصري المعلق</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
-                                        <span className="text-sm font-bold text-slate-400">ج.م</span>
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
                                         <span className="text-2xl font-black text-slate-400 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
+                                        <span className="text-sm font-bold text-slate-400">ج.م</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* معلومات الحساب (اليسار) */}
-                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-2 lg:order-1">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
@@ -360,16 +362,17 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
+                    {/* الصف الثاني */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* التوثيق (اليمين) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">التوثيق</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 space-y-6">
+                            <CardContent className="p-6 space-y-6 text-right">
                                 <div className="space-y-2">
-                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase text-right">صورة إثبات الهوية</span>
+                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة إثبات الهوية</span>
                                     <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
@@ -415,7 +418,7 @@ function UserDetailsContent({
                         </Card>
 
                         {/* الجلسات والأجهزة (اليسار) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-2">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة</CardTitle>
@@ -424,7 +427,7 @@ function UserDetailsContent({
                                 <div className="overflow-x-auto p-4 flex-1">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-none hover:bg-transparent">
+                                            <TableRow className="border-none hover:bg-transparent text-right">
                                                 <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
                                                 <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
                                                 <TableHead className="text-left font-black text-slate-400 text-[10px] uppercase">إجراء</TableHead>
@@ -472,7 +475,7 @@ function UserDetailsContent({
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
                                 <Activity className="h-6 w-6 text-primary" />
-                                <div>
+                                <div className="text-right">
                                     <CardTitle className="text-xl font-black text-[#1A4B84]">سجل عمليات المستخدم</CardTitle>
                                     <CardDescription className="text-xs font-bold text-slate-400 mt-1">إدارة وبحث وتصفية كافة العمليات المالية</CardDescription>
                                 </div>
@@ -486,12 +489,12 @@ function UserDetailsContent({
                                         placeholder="بحث برقم العملية أو المستلم..." 
                                         value={txSearch} 
                                         onChange={(e) => setTxSearch(e.target.value)} 
-                                        className="pr-10 h-10 rounded-xl bg-white border-slate-200 text-xs" 
+                                        className="pr-10 h-10 rounded-xl bg-white border-slate-200 text-xs text-right" 
                                     />
                                 </div>
                                 <Select value={txType} onValueChange={setTxType}>
                                     <SelectTrigger className="w-[130px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الأنواع</SelectItem>
                                         <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
                                         <SelectItem value="recharge_purchase">شراء كروت</SelectItem>
@@ -503,7 +506,7 @@ function UserDetailsContent({
                                 </Select>
                                 <Select value={txStatus} onValueChange={setTxStatus}>
                                     <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الحالة" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الحالات</SelectItem>
                                         <SelectItem value="completed">ناجحة</SelectItem>
                                         <SelectItem value="pending">قيد الانتظار</SelectItem>
@@ -512,7 +515,7 @@ function UserDetailsContent({
                                 </Select>
                                 <Select value={txMonth} onValueChange={setTxMonth}>
                                     <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الشهر" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الأشهر</SelectItem>
                                         {months.map(m => (
                                             <SelectItem key={m.val} value={m.val}>{m.label}</SelectItem>
@@ -595,7 +598,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                     placeholder="بحث بالاسم أو الهاتف..." 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    className="pr-10 h-11 rounded-xl bg-white border-slate-200" 
+                    className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
                 />
             </div>
             <div className="flex gap-2">
@@ -661,13 +664,13 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         const isOnline = u.connectionStatus === 'متصل';
                         return (
                             <TableRow key={u.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", u.status === 'banned' && "bg-red-50/20")}>
-                                <TableCell>
+                                <TableCell className="text-right">
                                     <div className="flex flex-col">
                                         <span className="font-bold text-sm text-slate-700">{u.name || 'مستخدم بدون اسم'}</span>
                                         <span className="text-[11px] text-slate-400 font-mono tabular-nums">{u.phone}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-sm font-black text-[#1A4B84]">
+                                <TableCell className="text-sm font-black text-[#1A4B84] text-right">
                                     {roleMap[u.role] || u.role}
                                 </TableCell>
                                 <TableCell className="text-center">
@@ -680,13 +683,13 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                         {statusMap[u.status] || u.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-1.5">
+                                <TableCell className="text-right">
+                                    <div className="flex items-center gap-1.5 justify-start">
                                         <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap">
+                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right">
                                     {u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : '---'}
                                 </TableCell>
                                 <TableCell className="text-left">
