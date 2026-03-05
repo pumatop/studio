@@ -1,25 +1,14 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import Image from 'next/image';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
-  DialogDescription, DialogFooter
-} from '@/components/ui/dialog';
-import {
-  Eye, FilterX, Calendar as CalendarIcon, ShieldCheck, User,
-  Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft,
-  Landmark, Receipt, Wallet, Save, Share2, Image as ImageIcon, Search
-} from 'lucide-react';
+import { FilterX, Calendar as CalendarIcon, Search } from 'lucide-react';
 import type { EgyptTransferTransaction } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -91,7 +80,6 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   const [statusFilter, setStatusFilter] = useState<'all' | EgyptTransferTransaction['status']>('all');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
-  const { toast } = useToast();
   const tableRef = useRef<HTMLTableElement>(null);
 
   const filteredData = useMemo(() => {
@@ -112,7 +100,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
       return (
         (item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.userPhone.includes(searchTerm) ||
-          item.recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (item.recipientName && item.recipientName.toLowerCase().includes(searchTerm.toLowerCase())) ||
           item.recipientNumber.includes(searchTerm)) &&
         (statusFilter === 'all' || item.status === statusFilter)
       );
@@ -132,7 +120,6 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
@@ -216,11 +203,11 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبالغ (د.ل / ج.م)</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
-                        <TableHead className="text-left font-black text-[#1A4B84] text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -231,12 +218,14 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                             <div className="font-bold text-sm text-slate-700">{transfer.userName}</div>
                             <div className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.userPhone}</div>
                         </TableCell>
-                        <TableCell className="text-xs font-bold">{transfer.transferType}</TableCell>
+                        <TableCell className="text-sm font-black text-[#1A4B84] tabular-nums" dir="ltr">
+                            x {transfer.exchangeRate.toFixed(2)}
+                        </TableCell>
                         <TableCell>
-                            <div className="flex flex-col gap-1">
-                                <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" colorClass="text-green-600 text-sm" />
-                                <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-[10px]" />
-                            </div>
+                            <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" colorClass="text-green-600 text-sm" />
+                        </TableCell>
+                        <TableCell>
+                            <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-sm" />
                         </TableCell>
                         <TableCell className="text-center">
                             <Badge className={cn("text-[10px] font-bold border-none shadow-none", statusColors[transfer.status])}>
@@ -245,52 +234,6 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                         </TableCell>
                         <TableCell className="text-[11px] whitespace-nowrap">
                             <DateTimeDisplay timestamp={transfer.timestamp} />
-                        </TableCell>
-                        <TableCell className="text-left">
-                            <div className="flex items-center gap-2 justify-end">
-                                {transfer.status === 'completed' && (
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><Eye className="h-4 w-4 text-primary" /></Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="max-w-md rounded-[2rem]" dir="rtl">
-                                            <DialogHeader>
-                                                <DialogTitle className="flex items-center gap-2 text-2xl font-black text-primary">حولّي كاش</DialogTitle>
-                                                <DialogDescription className="font-bold">إيصال تحويل إلكتروني</DialogDescription>
-                                            </DialogHeader>
-                                            <div className="p-6 border rounded-3xl bg-muted/20 space-y-4">
-                                                <div className="space-y-2 text-sm">
-                                                    <div className="flex justify-between font-bold"><span>رقم العملية:</span> <span className="font-mono text-primary">{transfer.id}</span></div>
-                                                    <div className="flex justify-between"><span>التاريخ:</span> <DateTimeDisplay timestamp={transfer.timestamp} /></div>
-                                                </div>
-                                                <Separator />
-                                                <div className="space-y-3">
-                                                    <h3 className="font-black text-xs text-slate-400 uppercase tracking-widest">تفاصيل المبلغ</h3>
-                                                    <div className="space-y-2 border rounded-2xl p-4 bg-white shadow-sm">
-                                                        <div className="flex justify-between items-center text-sm font-bold"><span>المبلغ بالدينار</span> <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" /></div>
-                                                        <div className="flex justify-between items-center text-sm font-bold text-slate-400"><span>سعر الصرف</span> <span dir="ltr" className="tabular-nums">x {transfer.exchangeRate.toFixed(2)}</span></div>
-                                                        <Separator />
-                                                        <div className="flex justify-between items-center text-lg font-black text-primary"><span>الإجمالي المستلم</span> <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-xl" /></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-                                )}
-                                {transfer.receiptImageUrl && (
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><ImageIcon className="h-4 w-4 text-slate-400" /></Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="max-w-md rounded-[2rem]">
-                                            <DialogHeader><DialogTitle className="font-black">صورة إثبات التحويل</DialogTitle></DialogHeader>
-                                            <div className="relative aspect-[3/4] w-full mt-4">
-                                                <Image src={transfer.receiptImageUrl} alt="Proof" fill className="object-contain rounded-2xl border bg-slate-50" />
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-                                )}
-                            </div>
                         </TableCell>
                     </TableRow>
                     ))}
