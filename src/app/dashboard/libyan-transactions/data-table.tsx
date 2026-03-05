@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { FilterX, Calendar as CalendarIcon, Truck } from 'lucide-react';
+import { FilterX, Calendar as CalendarIcon, Truck, Banknote } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -101,7 +101,17 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     );
 };
 
-export function LibyanTransactionsDataTable({ initialData, showExchangeRate = true }: { initialData: Transaction[], showExchangeRate?: boolean }) {
+export function LibyanTransactionsDataTable({ 
+  initialData, 
+  showExchangeRate = true,
+  showDelegate = true,
+  showFee = false
+}: { 
+  initialData: Transaction[], 
+  showExchangeRate?: boolean,
+  showDelegate?: boolean,
+  showFee?: boolean
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [date, setDate] = useState<Date | undefined>();
@@ -246,50 +256,68 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>
+                        {showFee && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
+                        {showDelegate && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {filteredData.map((tx: any, index) => (
-                        <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
-                            <TableCell className="text-xs font-mono text-slate-500 font-bold">{tx.id}</TableCell>
-                            <TableCell className="text-xs font-bold">{typeMap[tx.type] || tx.type}</TableCell>
-                            <TableCell className="text-center">
-                                <Badge className={cn("text-[10px] font-bold border-none", statusColors[tx.status])}>
-                                    {statusMap[tx.status] || tx.status}
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="text-[11px] whitespace-nowrap">
-                                <DateTimeDisplay timestamp={tx.timestamp} />
-                            </TableCell>
-                            <TableCell className="text-[11px] font-bold text-slate-600">{getSenderPhone(tx)}</TableCell>
-                            <TableCell>
-                                <CurrencyDisplay 
-                                    amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || 0)} 
-                                    currency={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "ج.م" : "د.ل"}
-                                    colorClass={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "text-primary" : "text-green-600"}
-                                />
-                            </TableCell>
-                            <TableCell className="text-[11px]">
-                                <div className="font-bold text-slate-700">{tx.recipientName || tx.userName || '-'}</div>
-                                <div className="text-slate-400 font-mono tabular-nums">
-                                    {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <CurrencyDisplay 
-                                    amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
-                                    currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
-                                />
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
-                                    <Truck className="h-3 w-3 opacity-40" />
-                                    <span>{tx.agentInfo || tx.delegateName || '-'}</span>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    ))}
+                    {filteredData.map((tx: any, index) => {
+                        const currency = ['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "ج.م" : "د.ل";
+                        return (
+                            <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                                <TableCell className="text-xs font-mono text-slate-500 font-bold">{tx.id}</TableCell>
+                                <TableCell className="text-xs font-bold">{typeMap[tx.type] || tx.type}</TableCell>
+                                <TableCell className="text-center">
+                                    <Badge className={cn("text-[10px] font-bold border-none", statusColors[tx.status])}>
+                                        {statusMap[tx.status] || tx.status}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-[11px] whitespace-nowrap">
+                                    <DateTimeDisplay timestamp={tx.timestamp} />
+                                </TableCell>
+                                <TableCell className="text-[11px] font-bold text-slate-600">{getSenderPhone(tx)}</TableCell>
+                                <TableCell>
+                                    <CurrencyDisplay 
+                                        amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || 0)} 
+                                        currency={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "ج.م" : "د.ل"}
+                                        colorClass={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "text-primary" : "text-green-600"}
+                                    />
+                                </TableCell>
+                                <TableCell className="text-[11px]">
+                                    <div className="font-bold text-slate-700">{tx.recipientName || tx.userName || '-'}</div>
+                                    <div className="text-slate-400 font-mono tabular-nums">
+                                        {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <CurrencyDisplay 
+                                        amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
+                                        currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
+                                    />
+                                </TableCell>
+                                {showFee && (
+                                    <TableCell>
+                                        <div className="flex items-center gap-1.5">
+                                            <Banknote className="h-3 w-3 text-orange-500 opacity-40" />
+                                            <CurrencyDisplay 
+                                                amount={tx.fee || tx.serviceFee || 0} 
+                                                currency={currency}
+                                                colorClass="text-orange-600 text-xs"
+                                            />
+                                        </div>
+                                    </TableCell>
+                                )}
+                                {showDelegate && (
+                                    <TableCell>
+                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500">
+                                            <Truck className="h-3 w-3 opacity-40" />
+                                            <span>{tx.agentInfo || tx.delegateName || '-'}</span>
+                                        </div>
+                                    </TableCell>
+                                )}
+                            </TableRow>
+                        )
+                    })}
                 </TableBody>
             </Table>
         </div>
