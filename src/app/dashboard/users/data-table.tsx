@@ -125,6 +125,16 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
+/**
+ * مكون لعرض المبالغ مع العملة جهة اليسار
+ */
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
+        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+);
+
 function SimpleTransactionTable({ data }: { data: any[] }) {
     if (data.length === 0) {
         return (
@@ -160,11 +170,7 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
                                     <TableCell className="text-[11px] tabular-nums whitespace-nowrap">{formatDate(tx.timestamp)}</TableCell>
                                     <TableCell className="text-sm font-bold">
-                                        <div className="flex items-center gap-1 justify-start">
-                                            {/* العملة يسار الرقم */}
-                                            <span className="tabular-nums">{amount.toLocaleString('en-US')}</span>
-                                            <span className="text-[10px] text-slate-400 font-bold">{currency}</span>
-                                        </div>
+                                        <CurrencyDisplay amount={amount} currency={currency} />
                                     </TableCell>
                                     <TableCell className="text-[11px] font-bold">
                                         {tx.methodDisplayName || tx.transferType || typeLabelMap[tx.type] || tx.type}
@@ -286,7 +292,7 @@ function UserDetailsContent({
                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-40 hover:opacity-100" onClick={() => setIsEditingName(true)}><Pencil className="h-3.5 w-3.5" /></Button>
                             </div>
                         )}
-                        <div className="flex items-center gap-3 justify-end">
+                        <div className="flex items-center gap-3 justify-start">
                             <Badge className={cn(statusColors[user.status], "text-[9px] font-black h-5 border-none shadow-none")}>{statusMap[user.status]}</Badge>
                             <span className="text-xs font-bold text-slate-400 tabular-nums">{user.phone}</span>
                         </div>
@@ -309,7 +315,7 @@ function UserDetailsContent({
                     {/* الصف الأول */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* الأرصدة (اليمين) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1 lg:order-2">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة</CardTitle>
@@ -317,30 +323,21 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد الليبي</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
-                                        <span className="text-2xl font-black text-green-600 tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
-                                        <span className="text-sm font-bold text-green-600">د.ل</span>
-                                    </div>
+                                    <CurrencyDisplay amount={user.balanceLYD} currency="د.ل" colorClass="text-green-600 text-2xl" />
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد المصري</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
-                                        <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
-                                        <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
-                                    </div>
+                                    <CurrencyDisplay amount={user.balanceEGP} currency="ج.م" colorClass="text-[#1A4B84] text-2xl" />
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">المصري المعلق</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="rtl">
-                                        <span className="text-2xl font-black text-slate-400 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
-                                        <span className="text-sm font-bold text-slate-400">ج.م</span>
-                                    </div>
+                                    <CurrencyDisplay amount={user.balanceEgyptianPending} currency="ج.م" colorClass="text-slate-400 text-2xl" />
                                 </div>
                             </CardContent>
                         </Card>
 
                         {/* معلومات الحساب (اليسار) */}
-                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-2 lg:order-1">
+                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
@@ -365,7 +362,7 @@ function UserDetailsContent({
                     {/* الصف الثاني */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* التوثيق (اليمين) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">التوثيق</CardTitle>
@@ -418,7 +415,7 @@ function UserDetailsContent({
                         </Card>
 
                         {/* الجلسات والأجهزة (اليسار) */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-2">
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة</CardTitle>
@@ -482,7 +479,7 @@ function UserDetailsContent({
                             </div>
                             
                             {/* Filter Bar */}
-                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto relative z-50">
+                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                                 <div className="relative flex-1 min-w-[200px] md:max-w-xs">
                                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input 
