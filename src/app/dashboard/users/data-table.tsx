@@ -56,6 +56,7 @@ import {
   Search,
   CalendarDays,
   FilterX,
+  ArrowRightLeft,
 } from 'lucide-react';
 import type { User, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -422,6 +423,13 @@ function UserDetailsContent({
                                         onClick={() => onUserUpdate(user.id, { verification: user.verification === 'verified' ? 'unverified' : 'verified' })}
                                     >
                                         {user.verification === 'verified' ? "إلغاء التوثيق" : "توثيق الحساب"}
+                                    </Button>
+                                    <Button 
+                                        className="flex-1 h-12 rounded-2xl font-black text-xs bg-primary text-white shadow-xl shadow-primary/20 gap-2"
+                                        onClick={() => toast({ title: "خاصية قيد التطوير", description: "سيتم إضافة ميزة التحويل المباشر قريباً." })}
+                                    >
+                                        <ArrowRightLeft className="h-4 w-4" />
+                                        تحويل لتاجر أو مستخدم
                                     </Button>
                                 </div>
                             </CardContent>
