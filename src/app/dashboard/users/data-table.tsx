@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -57,7 +58,6 @@ import {
   Loader2,
   X,
   LogOut,
-  Copy,
   FileDown,
   Printer,
   Search,
@@ -176,7 +176,7 @@ function UserDetailsContent({
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
     return (
-        <div className="flex flex-col h-full bg-background animate-in fade-in-0 duration-300">
+        <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden animate-in fade-in-0 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="flex items-center gap-4">
@@ -301,7 +301,7 @@ function UserDetailsContent({
                                 <CardHeader className="bg-[#E3F2FD]/30 border-b flex flex-row items-center justify-between">
                                     <div>
                                         <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                            <Smartphone className="h-5 w-5" /> الأجهزة والجلسات
+                                            <Smartphone className="h-5 w-5" /> האجهزة والجلسات
                                         </CardTitle>
                                         <CardDescription className="text-xs font-bold text-slate-400">إدارة جلسات الدخول النشطة للمستخدم</CardDescription>
                                     </div>
@@ -417,6 +417,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [verificationFilter, setVerificationFilter] = useState("all");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToToggleBan, setUserToToggleBan] = useState<User | null>(null);
   const [isToggling, setIsToggling] = useState(false);
@@ -429,15 +430,10 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     return initialData.filter(u => 
         (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || u.phone?.includes(searchTerm)) && 
         (roleFilter === 'all' || u.role === roleFilter) &&
-        (statusFilter === 'all' || u.status === statusFilter)
+        (statusFilter === 'all' || u.status === statusFilter) &&
+        (verificationFilter === 'all' || u.verification === verificationFilter)
     );
-  }, [initialData, searchTerm, roleFilter, statusFilter]);
-
-  const handleCopy = () => {
-    const text = filteredData.map(u => `${u.name} | ${u.phone} | ${roleMap[u.role]}`).join('\n');
-    navigator.clipboard.writeText(text);
-    toast({ title: "تم نسخ البيانات إلى الحافظة" });
-  };
+  }, [initialData, searchTerm, roleFilter, statusFilter, verificationFilter]);
 
   const handleCsvExport = () => {
     exportToCsv('users_list.csv', filteredData.map(u => ({
@@ -485,10 +481,19 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
                     <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="النوع" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
-                        <SelectItem value="all">كل الرتب</SelectItem>
+                        <SelectItem value="all">كل الانواع</SelectItem>
                         <SelectItem value="user">مستخدم</SelectItem>
                         <SelectItem value="merchant">تاجر</SelectItem>
                         <SelectItem value="admin">مسؤول</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={verificationFilter} onValueChange={setVerificationFilter}>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="التوثيق" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="all">كل الحالات</SelectItem>
+                        <SelectItem value="verified">موثق</SelectItem>
+                        <SelectItem value="pending">قيد المراجعة</SelectItem>
+                        <SelectItem value="unverified">غير موثق</SelectItem>
                     </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -503,9 +508,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </div>
 
         <div className="flex gap-2 w-full md:w-auto">
-            <Button variant="outline" size="sm" onClick={handleCopy} className="h-10 rounded-xl bg-white border-slate-200">
-                <Copy className="ml-2 h-4 w-4 text-slate-400" /> نسخ
-            </Button>
             <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-10 rounded-xl bg-white border-slate-200">
                 <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير
             </Button>
@@ -596,16 +598,14 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
       {/* Full-screen Details Overlay */}
       {selectedUser && (
-          <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
-              <UserDetailsContent 
-                user={selectedUser} 
-                onClose={() => setSelectedUser(null)} 
-                onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
-                onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
-                onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
-                allTransactions={allTransactions} 
-              />
-          </div>
+          <UserDetailsContent 
+            user={selectedUser} 
+            onClose={() => setSelectedUser(null)} 
+            onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
+            onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
+            onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
+            allTransactions={allTransactions} 
+          />
       )}
 
       {/* Confirmation Dialog */}
