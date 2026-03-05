@@ -2,7 +2,7 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // تحديث رقم: 1772671000001 - إصلاح شامل للأذونات وإضافة مجلد الإيصالات
+    // تحديث رقم: 1772671000002 - تأكيد أذونات مجلد الإيصالات
     
     // البانرات الإعلانية متاحة للقراءة للجميع والكتابة للمسؤولين
     match /banners/{allPaths=**} {
@@ -27,7 +27,7 @@ service firebase.storage {
         allow write: if request.auth != null;
     }
 
-    // مجلد الإيصالات - ضروري جداً لعملية تأكيد التحويل
+    // مجلد الإيصالات - السماح صراحة بالكتاب والقراءة
     match /receipts/{allPaths=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;

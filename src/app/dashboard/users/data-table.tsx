@@ -43,10 +43,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  Dialog,
-  DialogContent,
-} from '@/components/ui/dialog';
-import {
   Eye,
   Wallet,
   FileText,
@@ -133,7 +129,7 @@ const verificationColors: Record<User['verification'], string> = {
 };
 
 /**
- * UserDetailsContent - المحتوى الفعلي لصفحة التفاصيل
+ * UserDetailsContent - المحتوى الفعلي لصفحة التفاصيل الكاملة
  */
 function UserDetailsContent({ 
     user, 
@@ -587,19 +583,18 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </Table>
       </div>
 
+      {/* نافذة تفاصيل المستخدم - تم تغييرها لـ div ثابت لتجنب تجميد الصفحة */}
       {selectedUser && (
-          <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
-              <DialogContent className="max-w-none w-screen h-screen p-0 m-0 border-none rounded-none bg-background">
-                  <UserDetailsContent 
-                    user={selectedUser} 
-                    onClose={() => setSelectedUser(null)} 
-                    onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
-                    onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
-                    onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
-                    allTransactions={allTransactions} 
-                  />
-              </DialogContent>
-          </Dialog>
+          <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
+              <UserDetailsContent 
+                user={selectedUser} 
+                onClose={() => setSelectedUser(null)} 
+                onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
+                onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
+                onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
+                allTransactions={allTransactions} 
+              />
+          </div>
       )}
 
       <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
