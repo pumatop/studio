@@ -3,33 +3,32 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Deployment Update ID: 1772670000035 - FORCING RE-DEPLOYMENT FOR PERMISSIONS
+    // تحديث رقم: 1772671000000 - إضافة قاعدة الإيصالات وحل مشكلة الأذونات
     
-    // Banners are publicly readable.
+    // البانرات الإعلانية متاحة للقراءة للجميع والكتابة للمسؤولين
     match /banners/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // App update files are publicly readable.
+    // ملفات تحديث التطبيق
     match /app_updates/{allPaths=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // User-specific verification files.
+    // ملفات توثيق المستخدمين
     match /verification/{uid}/{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
-    // Notification images are publicly readable.
+    // صور الإشعارات
     match /notification-images/{allPaths=**} {
         allow read: if true;
         allow write: if request.auth != null;
     }
 
-    // Receipts folder for transaction proof - MANDATORY FOR CONFIRMATION
-    // This allows authenticated users (Admins/Supervisors) to upload and read receipts
+    // مجلد الإيصالات - ضروري جداً لعملية تأكيد التحويل
     match /receipts/{allPaths=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
