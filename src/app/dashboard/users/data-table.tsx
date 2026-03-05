@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -218,7 +219,6 @@ function UserDetailsContent({
     }
 
     const frontImageUrl = getImageUrl(user.idImageUrl);
-    const backImageUrl = getImageUrl(user.idImageBackUrl);
 
     const userLibyanTransactions = useMemo(() => {
         return allTransactions.filter(t => 
@@ -281,35 +281,12 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* Row 1: Account Info & Balances */}
+                    {/* Row 1: Balances (Right) & Account Information (Left) */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
-                        {/* Account Information (Large) */}
-                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
-                                    معلومات الحساب <ShieldCheck className="h-5 w-5 text-primary" />
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.createdAt)}</span>
-                                    <span className="text-sm font-bold text-slate-500">:تاريخ فتح الحساب</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPasswordChange)}</span>
-                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير لكلمة المرور</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPinChange)}</span>
-                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير للرقم السري</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Balances (Small) */}
+                        {/* Balances (Right Side) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                            <CardHeader className="bg-slate-50/50 border-b py-4 text-right">
                                 <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
                                     الأرصدة <Wallet className="h-5 w-5 text-primary" />
                                 </CardTitle>
@@ -338,87 +315,45 @@ function UserDetailsContent({
                                 </div>
                             </CardContent>
                         </Card>
-                    </div>
 
-                    {/* Row 2: Sessions & Verification */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        
-                        {/* Sessions & Devices (Large) */}
-                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
-                                <div className="flex flex-col items-end">
-                                    <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
-                                        الجلسات والأجهزة <Smartphone className="h-5 w-5 text-primary" />
-                                    </CardTitle>
-                                    <CardDescription className="text-[10px] font-bold text-slate-400">عرض وإدارة الجلسات النشطة للمستخدم</CardDescription>
-                                </div>
+                        {/* Account Information (Left Side - Larger) */}
+                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 border-b py-4 text-right">
+                                <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
+                                    معلومات الحساب <ShieldCheck className="h-5 w-5 text-primary" />
+                                </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-0 flex-1 flex flex-col">
-                                <div className="overflow-x-auto p-4 flex-1">
-                                    <Table className="min-w-[600px]">
-                                        <TableHeader>
-                                            <TableRow className="border-none hover:bg-transparent">
-                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">إجراء</TableHead>
-                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">IP</TableHead>
-                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
-                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">آخر ظهور</TableHead>
-                                                <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {sessions.length === 0 ? (
-                                                <TableRow><TableCell colSpan={5} className="h-32 text-center text-slate-300 font-bold italic text-sm">لا توجد أجهزة نشطة حالياً</TableCell></TableRow>
-                                            ) : sessions.map(s => (
-                                                <TableRow key={s.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                                                    <TableCell className="text-center">
-                                                        <Button variant="ghost" size="sm" className="h-8 text-slate-400 hover:text-red-600 gap-1.5" onClick={() => onDeleteSession(user.id, s.id)}>
-                                                            <LogOut className="h-3.5 w-3.5" /> <span className="text-[10px] font-black uppercase">إنهاء</span>
-                                                        </Button>
-                                                    </TableCell>
-                                                    <TableCell className="text-center text-[11px] font-mono text-slate-500 tabular-nums">{s.ipAddress || '---'}</TableCell>
-                                                    <TableCell className="text-center">
-                                                        <Badge variant="outline" className={cn("text-[9px] font-black h-6 border-none px-2.5", connectionStatusColors[s.connectionStatus])}>
-                                                            {s.connectionStatus}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-center">
-                                                        <div className="flex flex-col text-[10px] font-bold text-slate-500 tabular-nums">
-                                                            <span>{new Date(s.lastUpdate).toLocaleDateString('ar-EG-u-nu-latn')}</span>
-                                                            <span className="opacity-60">{new Date(s.lastUpdate).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-right py-4">
-                                                        <div className="font-black text-xs text-[#1A4B84]">{s.activeDevice}</div>
-                                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{s.phoneOS}</div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.createdAt)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:تاريخ فتح الحساب</span>
                                 </div>
-                                <div className="p-6 border-t mt-auto">
-                                    <Button 
-                                        variant="destructive" 
-                                        className="w-full h-14 rounded-[1.5rem] font-black text-sm shadow-xl shadow-red-500/20 gap-3"
-                                        onClick={() => { if(window.confirm('إنهاء جميع الجلسات النشطة؟')) onLogoutAllSessions(user.id); }}
-                                    >
-                                        <LogOut className="h-5 w-5" /> تسجيل الخروج من جميع الأجهزة
-                                    </Button>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPasswordChange)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير لكلمة المرور</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="ltr">{formatDate(user.lastPinChange)}</span>
+                                    <span className="text-sm font-bold text-slate-500">:آخر تغيير للرقم السري</span>
                                 </div>
                             </CardContent>
                         </Card>
+                    </div>
 
-                        {/* Identity Verification (Small) */}
+                    {/* Row 2: Verification (Right) & Sessions (Left) - Equal Width */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        {/* Identity Verification (Right Side) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4">
+                            <CardHeader className="bg-slate-50/50 border-b py-4 text-right">
                                 <CardTitle className="text-base flex items-center justify-end gap-2 text-[#1A4B84] font-black">
                                     التوثيق <FileText className="h-5 w-5 text-primary" />
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6">
                                 <div className="space-y-2">
-                                    <span className="text-[10px] font-black text-slate-400 block text-right">صورة الهوية (الأمامية)</span>
-                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                    <span className="text-[10px] font-black text-slate-400 block text-right">صورة الهوية</span>
+                                    <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full">
                                                 <Image src={frontImageUrl} alt="Front" fill className="object-cover p-1 rounded-2xl" />
@@ -428,20 +363,8 @@ function UserDetailsContent({
                                         )}
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <span className="text-[10px] font-black text-slate-400 block text-right">صورة الهوية (الخلفية)</span>
-                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
-                                        {backImageUrl ? (
-                                            <a href={backImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full">
-                                                <Image src={backImageUrl} alt="Back" fill className="object-cover p-1 rounded-2xl" />
-                                            </a>
-                                        ) : (
-                                            <span className="text-xs font-bold text-slate-300">غير متوفرة</span>
-                                        )}
-                                    </div>
-                                </div>
                                 
-                                <div className="pt-4 grid grid-cols-1 gap-3">
+                                <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <Button 
                                         variant="outline" 
                                         className={cn(
@@ -456,7 +379,7 @@ function UserDetailsContent({
                                         variant="outline" 
                                         className={cn(
                                             "w-full h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all",
-                                            user.role === 'merchant' ? "text-slate-600 border-slate-50" : "text-purple-600 border-purple-50 hover:bg-purple-50"
+                                            user.role === 'merchant' ? "text-slate-600 border-slate-50 hover:bg-slate-50" : "text-purple-600 border-purple-50 hover:bg-purple-50"
                                         )}
                                         onClick={() => {
                                             const newRole = user.role === 'merchant' ? 'user' : 'merchant';
@@ -465,7 +388,63 @@ function UserDetailsContent({
                                             }
                                         }}
                                     >
-                                        {user.role === 'merchant' ? "تحويل لمستخدم عادي" : "تحويل لتاجر معتمد"}
+                                        {user.role === 'merchant' ? "تحويل لمستخدم" : "تحويل لتاجر"}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Sessions & Devices (Left Side) */}
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
+                            <CardHeader className="bg-slate-50/50 border-b py-4 text-right">
+                                <div className="flex flex-col items-end">
+                                    <CardTitle className="text-base flex items-center gap-2 text-[#1A4B84] font-black">
+                                        الجلسات والأجهزة <Smartphone className="h-5 w-5 text-primary" />
+                                    </CardTitle>
+                                    <CardDescription className="text-[10px] font-bold text-slate-400">عرض وإدارة الجلسات النشطة للمستخدم</CardDescription>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-0 flex-1 flex flex-col">
+                                <div className="overflow-x-auto p-4 flex-1">
+                                    <Table className="min-w-[400px]">
+                                        <TableHeader>
+                                            <TableRow className="border-none hover:bg-transparent">
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">إجراء</TableHead>
+                                                <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
+                                                <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {sessions.length === 0 ? (
+                                                <TableRow><TableCell colSpan={3} className="h-32 text-center text-slate-300 font-bold italic text-sm">لا توجد أجهزة نشطة حالياً</TableCell></TableRow>
+                                            ) : sessions.map(s => (
+                                                <TableRow key={s.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                                                    <TableCell className="text-center">
+                                                        <Button variant="ghost" size="sm" className="h-8 text-slate-400 hover:text-red-600 gap-1.5" onClick={() => onDeleteSession(user.id, s.id)}>
+                                                            <LogOut className="h-3.5 w-3.5" /> <span className="text-[10px] font-black uppercase">إنهاء</span>
+                                                        </Button>
+                                                    </TableCell>
+                                                    <TableCell className="text-center">
+                                                        <Badge variant="outline" className={cn("text-[9px] font-black h-6 border-none px-2.5", connectionStatusColors[s.connectionStatus])}>
+                                                            {s.connectionStatus}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-right py-4">
+                                                        <div className="font-black text-xs text-[#1A4B84]">{s.activeDevice}</div>
+                                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{s.phoneOS}</div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <div className="p-6 border-t mt-auto">
+                                    <Button 
+                                        variant="destructive" 
+                                        className="w-full h-12 rounded-[1.2rem] font-black text-xs shadow-xl shadow-red-500/20 gap-3"
+                                        onClick={() => { if(window.confirm('إنهاء جميع الجلسات النشطة؟')) onLogoutAllSessions(user.id); }}
+                                    >
+                                        <LogOut className="h-4 w-4" /> تسجيل الخروج من كل الأجهزة
                                     </Button>
                                 </div>
                             </CardContent>
@@ -474,7 +453,7 @@ function UserDetailsContent({
 
                     {/* Row 3: Transaction Log (Full Width) */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b p-8">
+                        <CardHeader className="bg-slate-50/50 border-b p-8 text-right">
                             <div className="flex flex-col items-end">
                                 <CardTitle className="text-xl font-black text-[#1A4B84] flex items-center gap-3">
                                     سجل عمليات المستخدم بالكامل <Activity className="h-6 w-6 text-primary" />
