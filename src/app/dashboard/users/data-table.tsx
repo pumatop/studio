@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -108,17 +107,14 @@ const verificationColors: Record<User['verification'], string> = {
 
 /**
  * تنسيق التاريخ والوقت ليكون من اليمين لليسار (RTL)
- * بحيث يظهر التاريخ أولاً ثم الوقت ثم ص/م جهة اليسار.
  */
 const formatDate = (timestamp: number | undefined) => {
     if (!timestamp) return '---';
     const date = new Date(timestamp);
-    // استخراج أجزاء الوقت واليوم بالأرقام الإنجليزية (Latin)
     const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     const datePart = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
-    // إرجاع السلسلة بترتيب (تاريخ وقت فترة) ومع اتجاه RTL سيظهر ص/م في أقصى اليسار
     return `${datePart} ${timePart} ${period}`;
 };
 
@@ -154,7 +150,7 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                 <Table>
                     <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                         <TableRow>
-                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المعرف</TableHead>
+                            <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
                             <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التاريخ والوقت</TableHead>
                             <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ</TableHead>
                             <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
@@ -317,7 +313,6 @@ function UserDetailsContent({
                     
                     {/* الصف الأول */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* الأرصدة (اليمين) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
@@ -339,7 +334,6 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* معلومات الحساب (اليسار) */}
                         <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
@@ -364,7 +358,6 @@ function UserDetailsContent({
 
                     {/* الصف الثاني */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* التوثيق (اليمين) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
@@ -417,7 +410,6 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* الجلسات والأجهزة (اليسار) */}
                         <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
@@ -470,7 +462,6 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل العمليات */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -481,7 +472,6 @@ function UserDetailsContent({
                                 </div>
                             </div>
                             
-                            {/* Filter Bar */}
                             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                                 <div className="relative flex-1 min-w-[200px] md:max-w-xs">
                                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -592,7 +582,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative flex-1 max-sm:w-full">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input 
                     placeholder="بحث بالاسم أو الهاتف..." 
