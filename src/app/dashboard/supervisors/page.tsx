@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import { useRtdbList } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Supervisor } from "@/lib/types";
+import type { Supervisor, User, Transaction } from "@/lib/types";
+import { useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -19,10 +20,23 @@ const SupervisorsDataTable = dynamic(
 );
 
 export default function SupervisorsPage() {
-  const { data: supervisors, isLoading, error } = useRtdbList<Supervisor>("/supervisors");
+  const { data: supervisors, isLoading: supervisorsLoading, error: supervisorsError } = useRtdbList<Supervisor>("/supervisors");
+  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
 
-  if (error) {
-    return <div className="text-red-500">Error loading supervisors: {error.message}</div>;
+  // تجميع كافة المعاملات من جميع المستخدمين لحساب إحصائيات المناديب
+  const allTransactions = useMemo(() => {
+    if (!users) return [];
+    return users.flatMap(user => 
+        user.transactions 
+            ? Object.entries(user.transactions).map(([id, tx]) => ({ ...(tx as object), id })) 
+            : []
+    ) as Transaction[];
+  }, [users]);
+
+  const isLoading = supervisorsLoading || usersLoading;
+
+  if (supervisorsError) {
+    return <div className="text-red-500">Error loading supervisors: {supervisorsError.message}</div>;
   }
 
   return (
@@ -30,7 +44,7 @@ export default function SupervisorsPage() {
       <CardHeader>
         <CardTitle>قائمة المشرفين والمندوبين</CardTitle>
         <CardDescription>
-          عرض وإدارة جميع المشرفين والمندوبين المسجلين في النظام.
+          عرض وإدارة المشرفين والمناديب مع ملخص الأداء المالي المباشر.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -49,7 +63,7 @@ export default function SupervisorsPage() {
             </div>
           </div>
         ) : (
-          <SupervisorsDataTable initialData={supervisors || []} />
+          <SupervisorsDataTable initialData={supervisors || []} allTransactions={allTransactions} />
         )}
       </CardContent>
     </Card>

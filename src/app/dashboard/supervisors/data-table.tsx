@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState } from 'react';
@@ -31,9 +30,10 @@ import {
 } from '@/components/ui/dialog';
 import {
   PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2,
-  Search, FileDown, Printer, UserCog, Activity, ShieldCheck, Phone, Pencil, LogOut
+  Search, FileDown, Printer, UserCog, Activity, ShieldCheck, Phone, Pencil, LogOut,
+  TrendingUp, Banknote, Landmark
 } from 'lucide-react';
-import type { Supervisor } from '@/lib/types';
+import type { Supervisor, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn, exportToCsv } from '@/lib/utils';
@@ -44,21 +44,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRtdbList, useDatabase, setRtdb, updateRtdb, useAuth, useFunctions } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
-import { Skeleton } from '@/components/ui/skeleton';
-
-const connectionStatusColors: Record<string, string> = {
-  'متصل': 'bg-green-100 text-green-800',
-  'غير متصل': 'bg-stone-100 text-stone-800',
-};
 
 const statusColors: Record<string, string> = {
   'نشط': 'bg-green-100 text-green-800',
   'غير نشط': 'bg-red-100 text-red-800',
 };
 
-/**
- * وظيفة مساعدة لتحويل الوقت إلى أجزاء منفصلة لدعم العرض العربي الدقيق
- */
+// مكون لعرض المبالغ مع العملة جهة اليسار
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
+        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+);
+
 const formatDateParts = (timestamp: number | string | undefined) => {
     if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
     const date = new Date(timestamp);
@@ -139,7 +138,7 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
         </div>
       </div>
        <div className="space-y-2">
-            <Label htmlFor="password" title="كلمة المرور">كلمة المرور</Label>
+            <Label htmlFor="password">كلمة المرور</Label>
             <div className="relative">
                 <Input id="password" name="password" type="password" value={formData.password || ''} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : '••••••••'} disabled={isSaving} className="rounded-xl h-11 pl-10" />
                 <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -175,7 +174,7 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
 
       <DialogFooter className="gap-2">
         <DialogClose asChild><Button type="button" variant="ghost" className="rounded-xl" disabled={isSaving}>إلغاء</Button></DialogClose>
-        <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1A4B84] hover:bg-[#1A4B84]/90">
+        <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1A4B84] hover:bg-[#1A4B84]/90 text-white">
             {isSaving ? 'جاري الحفظ...' : 'حفظ بيانات المشرف'}
         </Button>
       </DialogFooter>
@@ -183,7 +182,7 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
   );
 }
 
-export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[] }) {
+export function SupervisorsDataTable({ initialData, allTransactions }: { initialData: Supervisor[], allTransactions: Transaction[] }) {
   const { database } = useDatabase();
   const auth = useAuth();
   const functions = useFunctions();
@@ -196,6 +195,35 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
 
+  // حساب الإحصائيات المالية لكل مشرف
+  const supervisorStats = useMemo(() => {
+    if (!allTransactions || !initialData) return {};
+    
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    const statsMap: Record<string, { daily: number, monthly: number, fees: number }> = {};
+
+    initialData.forEach(s => {
+        const sName = s.name;
+        // فلترة العمليات الناجحة المرتبطة بالمشرف (حسب الاسم المسجل في العملية)
+        const supervisorTx = allTransactions.filter(t => 
+            t.status === 'completed' && 
+            (t.type === 'egypt_transfer' || t.type === 'egypt_home' || t.type === 'egypt_wallets' || t.type === 'egypt_instapay') &&
+            ((t as any).delegateName === sName || (t as any).agentInfo === sName)
+        );
+
+        statsMap[s.id] = {
+            daily: supervisorTx.filter(t => t.timestamp >= startOfToday).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
+            monthly: supervisorTx.filter(t => t.timestamp >= startOfThisMonth).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
+            fees: supervisorTx.filter(t => t.timestamp >= startOfThisMonth).reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
+        };
+    });
+
+    return statsMap;
+  }, [allTransactions, initialData]);
+
   const filteredData = useMemo(() => {
     return (initialData || []).filter(s => 
         (s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || s.phone?.includes(searchTerm)) && 
@@ -205,15 +233,18 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
   const handleCsvExport = () => {
-    exportToCsv('supervisors_list.csv', filteredData.map(s => {
+    exportToCsv('supervisors_finance_report.csv', filteredData.map(s => {
         const parts = formatDateParts(s.lastSeen);
+        const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
         return {
             'الاسم': s.name,
             'الهاتف': s.phone,
             'التخصص': s.specialization?.join(' - ') || 'غير محدد',
-            'تعديل الصرف': s.canEditExchangeRate ? 'نعم' : 'لا',
+            'تداول اليوم (ج.م)': stats.daily.toFixed(2),
+            'تداول الشهر (ج.م)': stats.monthly.toFixed(2),
+            'رسوم الشهر (ج.م)': stats.fees.toFixed(2),
             'الحالة': s.status,
-            'آخر ظهور': `${parts.day}/${parts.month}/${parts.year} ${parts.time}`
+            'آخر ظهور': `${parts.day}/${parts.month}/${parts.year}`
         };
     }));
   };
@@ -266,7 +297,6 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
 
   return (
     <div className="space-y-6" dir="rtl">
-      {/* رأس الصفحة التفاعلي */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
             <div className="relative flex-1 max-sm:w-full">
@@ -304,11 +334,11 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
 
         <div className="flex gap-2 w-full md:w-auto">
             <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-11 rounded-xl bg-white border-slate-200 px-4">
-                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير
+                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير مالي
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) setEditingSupervisor(undefined); setDialogOpen(open); }}>
                 <DialogTrigger asChild>
-                    <Button className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6">
+                    <Button className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6 text-white">
                         <PlusCircle className="ml-2 h-4 w-4" /> إضافة مشرف
                     </Button>
                 </DialogTrigger>
@@ -322,28 +352,29 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
         </div>
       </div>
 
-      {/* جدول البيانات */}
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">التخصصات</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">تعديل الصرف</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">الاتصال</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">آخر ظهور</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="text-left font-black text-[#1A4B84] text-xs uppercase tracking-widest h-12">إجراءات</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">تداول اليوم</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">تداول الشهر</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="text-left font-black text-[#1A4B84] text-[10px] uppercase tracking-widest h-12">إجراءات</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {filteredData.length === 0 ? (
                         <TableRow>
-                            <TableCell colSpan={7} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد نتائج مطابقة</TableCell>
+                            <TableCell colSpan={8} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد نتائج مطابقة</TableCell>
                         </TableRow>
                     ) : filteredData.map(s => {
                         const isOnline = s.connectionStatus === 'متصل';
+                        const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
                         return (
                             <TableRow key={s.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", s.status === 'غير نشط' && "bg-red-50/20")}>
                                 <TableCell className="text-right py-4">
@@ -352,6 +383,15 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                                         <span className="text-[11px] text-slate-400 font-mono tabular-nums">{s.phone}</span>
                                     </div>
                                 </TableCell>
+                                <TableCell>
+                                    <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 text-xs" />
+                                </TableCell>
+                                <TableCell>
+                                    <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1A4B84] text-xs" />
+                                </TableCell>
+                                <TableCell>
+                                    <CurrencyDisplay amount={stats.fees} currency="ج.م" colorClass="text-orange-600 text-xs" />
+                                </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex flex-wrap gap-1">
                                         {s.specialization?.map(spec => (
@@ -359,20 +399,14 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                                         )) || <span className="text-[10px] text-slate-300 italic">غير محدد</span>}
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-center">
-                                    {s.canEditExchangeRate ? <CheckCircle className="h-4 w-4 text-green-500 mx-auto" /> : <XCircle className="h-4 w-4 text-red-300 mx-auto" />}
-                                </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex items-center gap-1.5 justify-start">
                                         <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{s.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-[11px] text-slate-500 font-medium">
-                                    <DateTimeDisplay timestamp={s.lastSeen} />
-                                </TableCell>
                                 <TableCell className="text-center">
-                                    <Badge className={cn("text-[10px] font-bold border-none", statusColors[s.status])}>{s.status}</Badge>
+                                    <Badge className={cn("text-[10px] font-bold border-none shadow-none", statusColors[s.status])}>{s.status}</Badge>
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <DropdownMenu>
