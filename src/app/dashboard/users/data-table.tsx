@@ -301,7 +301,7 @@ function UserDetailsContent({
                                 <CardHeader className="bg-[#E3F2FD]/30 border-b flex flex-row items-center justify-between">
                                     <div>
                                         <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
-                                            <Smartphone className="h-5 w-5" /> האجهزة والجلسات
+                                            <Smartphone className="h-5 w-5" /> الأجهزة والجلسات
                                         </CardTitle>
                                         <CardDescription className="text-xs font-bold text-slate-400">إدارة جلسات الدخول النشطة للمستخدم</CardDescription>
                                     </div>
@@ -342,7 +342,9 @@ function UserDetailsContent({
                                                     </TableCell>
                                                     <TableCell className="tabular-nums font-bold">
                                                         <div>{s.ipAddress || '---'}</div>
-                                                        <div className="text-[10px] text-slate-400">تحديث: {new Date(s.lastUpdate).toLocaleTimeString('ar-EG')}</div>
+                                                        <div className="text-[10px] text-slate-400">
+                                                            تحديث: {new Date(s.lastUpdate).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Badge className={cn("text-[10px] px-2 py-0.5 font-bold", connectionStatusColors[s.connectionStatus])}>
@@ -479,7 +481,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
             </div>
             <div className="flex gap-2">
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="النوع" /></SelectTrigger>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="كل الانواع" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الانواع</SelectItem>
                         <SelectItem value="user">مستخدم</SelectItem>
@@ -567,7 +569,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums">
-                                    {u.lastSeen ? new Date(u.lastSeen).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '---'}
+                                    {u.lastSeen ? new Date(u.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true }) : '---'}
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <DropdownMenu>
