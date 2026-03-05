@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -12,7 +13,7 @@ import {
 import {
   Eye, FilterX, Calendar as CalendarIcon, ShieldCheck, User,
   Phone, CalendarDays, Hash, Info, Database, ArrowRightLeft,
-  Landmark, Receipt, Wallet, Save, Share2, Image as ImageIcon
+  Landmark, Receipt, Wallet, Save, Share2, Image as ImageIcon, Search
 } from 'lucide-react';
 import type { EgyptTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -45,25 +46,69 @@ const statusMap: Record<EgyptTransferTransaction['status'], string> = {
   pending: 'قيد التحويل',
 };
 
+const months = [
+    { val: "1", label: "يناير" }, { val: "2", label: "فبراير" }, { val: "3", label: "مارس" },
+    { val: "4", label: "أبريل" }, { val: "5", label: "مايو" }, { val: "6", label: "يونيو" },
+    { val: "7", label: "يوليو" }, { val: "8", label: "أغسطس" }, { val: "9", label: "سبتمبر" },
+    { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
+];
+
+// مكون لعرض المبالغ مع العملة جهة اليسار
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
+        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+    </div>
+);
+
+/**
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق
+ */
+const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
+    if (!timestamp) return <span className="text-slate-300">---</span>;
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
+    const period = date.getHours() >= 12 ? 'م' : 'ص';
+    
+    return (
+        <div className="flex items-center justify-start gap-0.5 tabular-nums" dir="rtl">
+            <span>{day}</span>
+            <span className="opacity-40">/</span>
+            <span>{month}</span>
+            <span className="opacity-40">/</span>
+            <span>{year}</span>
+            <span className="mx-2"></span>
+            <span className="font-bold">{timePart}</span>
+            <span className="text-[10px] font-black mr-1">{period}</span>
+        </div>
+    );
+};
+
 export function EgyptianTransfersDataTable({ initialData }: { initialData: EgyptTransferTransaction[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [transferTypeFilter, setTransferTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState<'all' | EgyptTransferTransaction['status']>('all');
   const [date, setDate] = useState<Date | undefined>();
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
   const { toast } = useToast();
   const tableRef = useRef<HTMLTableElement>(null);
 
   const filteredData = useMemo(() => {
     return initialData.filter((item) => {
       const itemDate = new Date(item.timestamp);
+      
       if (date) {
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date(date);
         endOfDay.setHours(23, 59, 59, 999);
-        if (itemDate < startOfDay || itemDate > endOfDay) {
-          return false;
-        }
+        if (itemDate < startOfDay || itemDate > endOfDay) return false;
+      } else {
+        const itemMonth = (itemDate.getMonth() + 1).toString();
+        if (itemMonth !== selectedMonth) return false;
       }
 
       return (
@@ -74,22 +119,15 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
         (transferTypeFilter === 'all' || item.transferType === transferTypeFilter) &&
         (statusFilter === 'all' || item.status === statusFilter)
       );
-    });
-  }, [initialData, searchTerm, transferTypeFilter, statusFilter, date]);
+    }).sort((a, b) => b.timestamp - a.timestamp);
+  }, [initialData, searchTerm, transferTypeFilter, statusFilter, date, selectedMonth]);
 
   useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
-      return;
-    }
-
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-    }
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
           dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
@@ -100,21 +138,17 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           pageLength: 10,
           lengthMenu: [10, 25, 50, 100],
-          searching: false, // We use our custom search input
+          searching: false,
           pagingType: 'full_numbers',
         });
     }, 100);
 
     return () => {
         clearTimeout(timer);
-        if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
-            $(tableRef.current).DataTable().destroy();
-        }
+        if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     };
   }, [filteredData]);
 
@@ -123,173 +157,160 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
     setTransferTypeFilter('all');
     setStatusFilter('all');
     setDate(undefined);
+    setSelectedMonth((new Date().getMonth() + 1).toString());
   };
 
-  const handleSaveAsPng = () => {
-    toast({
-      title: 'خاصية قيد التطوير',
-      description: 'سيتم إضافة إمكانية حفظ الإيصال كصورة PNG قريبًا.',
-    });
-  };
-
-  const handleShare = () => {
-    toast({
-      title: 'خاصية قيد التطوير',
-      description: 'سيتم إضافة إمكانية مشاركة الإيصال قريبًا. يمكنك حفظ الصورة ومشاركتها يدويًا.',
-    });
-  };
+  const currentMonthVal = (new Date().getMonth() + 1).toString();
 
   return (
-    <div className="space-y-4">
-      {/* Filter controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="space-y-4" dir="rtl">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 flex-grow">
             <Input
               placeholder="ابحث بالاسم أو الرقم..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm flex-grow"/>
+              className="max-w-sm h-11 rounded-xl flex-grow"/>
+            
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
+                    {months.map(m => (
+                        <SelectItem key={m.val} value={m.val} className="rounded-xl font-bold">
+                            {m.val === currentMonthVal ? `هذا الشهر (${m.label})` : m.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
             <Popover>
               <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant={'outline'}
-                  className={cn('w-full sm:w-[200px] justify-start text-left font-normal', !date && 'text-muted-foreground')}>
+                <Button variant={'outline'} className={cn('h-11 rounded-xl justify-start text-left font-normal', !date && 'text-muted-foreground')}>
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {date ? format(date, 'dd/MM/y', { locale: arEG }) : <span>اختر يوماً</span>}
+                  {date ? format(date, 'dd/MM/y', { locale: arEG }) : <span>فلتر باليوم</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}/>
+                <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} />
               </PopoverContent>
             </Popover>
+
             <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
-              <SelectTrigger className="w-full sm:w-auto md:w-[180px]"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="w-[140px] h-11 rounded-xl"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
+              <SelectContent className="rounded-xl border-none shadow-2xl">
                 <SelectItem value="all">كل الأنواع</SelectItem>
                 <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
                 <SelectItem value="انستاباي">انستاباي</SelectItem>
                 <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
               </SelectContent>
             </Select>
+
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="w-full sm:w-auto md:w-[180px]"><SelectValue placeholder="حالة الطلب" /></SelectTrigger>
-              <SelectContent>
+              <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>
+              <SelectContent className="rounded-xl border-none shadow-2xl">
                 <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="completed">ناجح</SelectItem>
                 <SelectItem value="failed">مرفوض</SelectItem>
                 <SelectItem value="pending">قيد التحويل</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="ghost" onClick={handleClearFilters}><FilterX className="ml-2 h-4 w-4" />مسح</Button>
+
+            <Button variant="ghost" size="icon" onClick={handleClearFilters} className="h-11 w-11 rounded-xl text-slate-400">
+                <FilterX className="h-5 w-5" />
+            </Button>
           </div>
       </div>
       
-      {/* Table */}
-      <div className="rounded-lg border">
-        <Table ref={tableRef} className="w-full">
-          <TableHeader>
-            <TableRow>
-                <TableHead>رقم العملية</TableHead>
-                <TableHead>اسم المستخدم</TableHead>
-                <TableHead>نوع التحويل</TableHead>
-                <TableHead>المبلغ (د.ل)</TableHead>
-                <TableHead>المبلغ (ج.م)</TableHead>
-                <TableHead>حالة الطلب</TableHead>
-                <TableHead>توقيت الطلب</TableHead>
-                <TableHead>الإيصال</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map((transfer, index) => (
-              <TableRow key={`${transfer.id}-${index}`} className={cn('even:bg-muted/20', transfer.status === 'pending' && 'bg-yellow-500/10')}>
-                <TableCell className="text-xs font-mono">{transfer.id}</TableCell>
-                <TableCell>
-                    <div className="font-medium">{transfer.userName}</div>
-                    <div className="text-muted-foreground text-xs">{transfer.userPhone}</div>
-                </TableCell>
-                <TableCell>{transfer.transferType}</TableCell>
-                 <TableCell className="font-semibold">
-                    {transfer.amountLYD.toLocaleString('en-US')} د.ل
-                </TableCell>
-                <TableCell>
-                    <div className="font-semibold">{transfer.amountEGP.toLocaleString('en-US')} ج.م</div>
-                    <div className="text-xs text-muted-foreground">الرسوم: {(transfer.serviceFee || 0).toLocaleString('en-US')} ج.م</div>
-                </TableCell>
-                <TableCell>
-                  <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>
-                    {statusMap[transfer.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs">{new Date(transfer.timestamp).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {transfer.status === 'completed' && (
-                        <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="h-8 w-8" title="عرض الإيصال الإلكتروني"><Eye className="h-4 w-4" /></Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-md">
-                            <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                                <ShieldCheck className="h-8 w-8 text-primary" />
-                                <span className="text-2xl font-bold text-primary">حولّي كاش</span>
-                            </DialogTitle>
-                            <DialogDescription>إيصال تحويل إلكتروني</DialogDescription>
-                            </DialogHeader>
-                            <div className="p-4 border rounded-lg bg-muted/20" dir="rtl">
-                            <div className="space-y-2 text-sm mb-4">
-                                <div className="flex justify-between"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><Hash size={14} />رقم العملية:</span> <span className="font-mono">{transfer.id}</span></div>
-                                <div className="flex justify-between"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><CalendarDays size={14} />التاريخ:</span> <span>{new Date(transfer.timestamp).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</span></div>
-                                <div className="flex justify-between items-center"> <span className="font-semibold text-muted-foreground flex items-center gap-2"><Info size={14} />الحالة:</span> <Badge className={cn(statusColors[transfer.status], `hover:${statusColors[transfer.status]}`)}>{statusMap[transfer.status]}</Badge></div>
+      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+            <Table ref={tableRef}>
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                    <TableRow className="hover:bg-transparent">
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبالغ (د.ل / ج.م)</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
+                        <TableHead className="text-left font-black text-[#1A4B84] text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredData.map((transfer, index) => (
+                    <TableRow key={`${transfer.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                        <TableCell className="text-xs font-mono text-slate-500 font-bold">{transfer.id}</TableCell>
+                        <TableCell>
+                            <div className="font-bold text-sm text-slate-700">{transfer.userName}</div>
+                            <div className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.userPhone}</div>
+                        </TableCell>
+                        <TableCell className="text-xs font-bold">{transfer.transferType}</TableCell>
+                        <TableCell>
+                            <div className="flex flex-col gap-1">
+                                <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" colorClass="text-green-600 text-sm" />
+                                <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-[10px]" />
                             </div>
-                            <Separator className="my-4" />
-                            <div className="grid grid-cols-1 gap-4 my-4 text-sm">
-                                <div>
-                                    <h3 className="font-bold mb-2 flex items-center gap-2"><User className="text-muted-foreground" size={16}/> من (المرسل)</h3>
-                                    <p className="flex items-center gap-2"><User size={14} className="opacity-70"/> {transfer.userName}</p>
-                                    <p className="text-muted-foreground flex items-center gap-2"><Phone size={14} className="opacity-70"/> {transfer.userPhone}</p>
-                                </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                            <Badge className={cn("text-[10px] font-bold border-none shadow-none", statusColors[transfer.status])}>
+                                {statusMap[transfer.status]}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-[11px] whitespace-nowrap">
+                            <DateTimeDisplay timestamp={transfer.timestamp} />
+                        </TableCell>
+                        <TableCell className="text-left">
+                            <div className="flex items-center gap-2 justify-end">
+                                {transfer.status === 'completed' && (
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><Eye className="h-4 w-4 text-primary" /></Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-md rounded-[2rem]" dir="rtl">
+                                            <DialogHeader>
+                                                <DialogTitle className="flex items-center gap-2 text-2xl font-black text-primary">حولّي كاش</DialogTitle>
+                                                <DialogDescription className="font-bold">إيصال تحويل إلكتروني</DialogDescription>
+                                            </DialogHeader>
+                                            <div className="p-6 border rounded-3xl bg-muted/20 space-y-4">
+                                                <div className="space-y-2 text-sm">
+                                                    <div className="flex justify-between font-bold"><span>رقم العملية:</span> <span className="font-mono text-primary">{transfer.id}</span></div>
+                                                    <div className="flex justify-between"><span>التاريخ:</span> <DateTimeDisplay timestamp={transfer.timestamp} /></div>
+                                                </div>
+                                                <Separator />
+                                                <div className="space-y-3">
+                                                    <h3 className="font-black text-xs text-slate-400 uppercase tracking-widest">تفاصيل المبلغ</h3>
+                                                    <div className="space-y-2 border rounded-2xl p-4 bg-white shadow-sm">
+                                                        <div className="flex justify-between items-center text-sm font-bold"><span>المبلغ بالدينار</span> <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" /></div>
+                                                        <div className="flex justify-between items-center text-sm font-bold text-slate-400"><span>سعر الصرف</span> <span dir="ltr" className="tabular-nums">x {transfer.exchangeRate.toFixed(2)}</span></div>
+                                                        <Separator />
+                                                        <div className="flex justify-between items-center text-lg font-black text-primary"><span>الإجمالي المستلم</span> <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-xl" /></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                )}
+                                {transfer.receiptImageUrl && (
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><ImageIcon className="h-4 w-4 text-slate-400" /></Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-md rounded-[2rem]">
+                                            <DialogHeader><DialogTitle className="font-black">صورة إثبات التحويل</DialogTitle></DialogHeader>
+                                            <div className="relative aspect-[3/4] w-full mt-4">
+                                                <Image src={transfer.receiptImageUrl} alt="Proof" fill className="object-contain rounded-2xl border bg-slate-50" />
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
+                                )}
                             </div>
-                            <div className="border rounded-lg text-sm bg-background/50">
-                                <Table><TableBody>
-                                    <TableRow><TableCell className="font-semibold flex items-center gap-2"><Database className="text-muted-foreground" size={14} /> المبلغ بالدينار</TableCell><TableCell className="text-left font-mono">{transfer.amountLYD.toLocaleString('en-US', {minimumFractionDigits: 2})} د.ل</TableCell></TableRow>
-                                    <TableRow><TableCell className="font-semibold flex items-center gap-2"><ArrowRightLeft className="text-muted-foreground" size={14} /> سعر الصرف</TableCell><TableCell className="text-left font-mono">x {transfer.exchangeRate.toFixed(2)}</TableCell></TableRow>
-                                    <TableRow><TableCell className="font-semibold flex items-center gap-2"><Landmark className="text-muted-foreground" size={14} /> المبلغ بالجنيه</TableCell><TableCell className="text-left font-mono">{transfer.amountEGP.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell></TableRow>
-                                    <TableRow><TableCell className="font-semibold flex items-center gap-2"><Receipt className="text-muted-foreground" size={14} /> رسوم الخدمة</TableCell><TableCell className="text-left font-mono">{(transfer.serviceFee || 0).toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell></TableRow>
-                                    <TableRow className="bg-muted/50"><TableCell className="font-bold flex items-center gap-2"><Wallet className="text-primary" size={14} /> الإجمالي المستلم</TableCell><TableCell className="text-left font-bold font-mono">{transfer.amountEGP.toLocaleString('en-US', {minimumFractionDigits: 2})} ج.م</TableCell></TableRow>
-                                </TableBody></Table>
-                            </div>
-                            <div className="text-center text-xs text-muted-foreground mt-6">شكراً لاستخدامكم خدمات حولّي كاش</div>
-                            </div>
-                            <DialogFooter className="pt-4 gap-2 sm:justify-start">
-                            <Button variant="outline" onClick={handleShare}><Share2 className="ml-2 h-4 w-4" />مشاركة الإيصال</Button>
-                            <Button onClick={handleSaveAsPng}><Save className="ml-2 h-4 w-4" />حفظ كصورة</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                        </Dialog>
-                    )}
-                    {transfer.receiptImageUrl && (
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button variant="secondary" size="icon" className="h-8 w-8" title="عرض صورة إثبات التحويل"><ImageIcon className="h-4 w-4" /></Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>صورة إثبات التحويل</DialogTitle>
-                                </DialogHeader>
-                                <div className="relative aspect-[3/4] w-full">
-                                    <Image src={transfer.receiptImageUrl} alt="Proof of Transfer" fill className="object-contain rounded-lg" />
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
       </div>
     </div>
   );

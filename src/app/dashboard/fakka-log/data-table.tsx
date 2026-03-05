@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
@@ -13,11 +14,12 @@ import { Input } from '@/components/ui/input';
 import type { FakkaLog } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { FilterX, Calendar as CalendarIcon } from 'lucide-react';
+import { FilterX, Calendar as CalendarIcon, PiggyBank } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { arEG } from 'date-fns/locale';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Datatables imports
 import $ from 'jquery';
@@ -28,23 +30,67 @@ import 'datatables.net-buttons/js/buttons.html5.js';
 import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 
+const months = [
+    { val: "1", label: "يناير" }, { val: "2", label: "فبراير" }, { val: "3", label: "مارس" },
+    { val: "4", label: "أبريل" }, { val: "5", label: "مايو" }, { val: "6", label: "يونيو" },
+    { val: "7", label: "يوليو" }, { val: "8", label: "أغسطس" }, { val: "9", label: "سبتمبر" },
+    { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
+];
+
+// مكون لعرض المبالغ مع العملة جهة اليسار
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
+        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 4 })}</span>
+    </div>
+);
+
+/**
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق
+ */
+const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
+    if (!timestamp) return <span className="text-slate-300">---</span>;
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
+    const period = date.getHours() >= 12 ? 'م' : 'ص';
+    
+    return (
+        <div className="flex items-center justify-start gap-0.5 tabular-nums" dir="rtl">
+            <span>{day}</span>
+            <span className="opacity-40">/</span>
+            <span>{month}</span>
+            <span className="opacity-40">/</span>
+            <span>{year}</span>
+            <span className="mx-2"></span>
+            <span className="font-bold">{timePart}</span>
+            <span className="text-[10px] font-black mr-1">{period}</span>
+        </div>
+    );
+};
+
 export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [date, setDate] = useState<Date | undefined>();
+  const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
   const tableRef = useRef<HTMLTableElement>(null);
 
   const filteredData = useMemo(() => {
     return initialData.filter(
       (item) => {
         const itemDate = new Date(item.timestamp);
+        
         if (date) {
             const startOfDay = new Date(date);
             startOfDay.setHours(0, 0, 0, 0);
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
-            if (itemDate < startOfDay || itemDate > endOfDay) {
-                return false;
-            }
+            if (itemDate < startOfDay || itemDate > endOfDay) return false;
+        } else {
+            const itemMonth = (itemDate.getMonth() + 1).toString();
+            if (itemMonth !== selectedMonth) return false;
         }
         
         return (searchTerm === '' ||
@@ -53,22 +99,14 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
           item.userPhone.includes(searchTerm));
       }
     ).sort((a, b) => b.timestamp - a.timestamp);
-  }, [initialData, searchTerm, date]);
+  }, [initialData, searchTerm, date, selectedMonth]);
 
   useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
-      return;
-    }
-
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-    }
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
-
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
           dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
@@ -76,98 +114,105 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           pageLength: 10,
           lengthMenu: [10, 25, 50, 100],
-          searching: false, // We use our custom search input
+          searching: false,
           pagingType: 'full_numbers',
         });
     }, 100);
 
     return () => {
       clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     };
   }, [filteredData]);
   
   const handleClearFilters = () => {
     setSearchTerm('');
     setDate(undefined);
+    setSelectedMonth((new Date().getMonth() + 1).toString());
   };
 
+  const currentMonthVal = (new Date().getMonth() + 1).toString();
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="space-y-4" dir="rtl">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2 flex-grow">
           <Input
-            placeholder="ابحث برقم المعاملة، الاسم أو الهاتف..."
+            placeholder="ابحث بالمعرف، الاسم أو الهاتف..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm"
+            className="w-full max-w-sm h-11 rounded-xl"
           />
+          
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
+                    {months.map(m => (
+                        <SelectItem key={m.val} value={m.val} className="rounded-xl font-bold">
+                            {m.val === currentMonthVal ? `هذا الشهر (${m.label})` : m.label}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
           <Popover>
             <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant={"outline"}
-                className={cn(
-                  "w-full sm:w-[200px] justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
-                )}
-              >
+              <Button variant={"outline"} className={cn("h-11 rounded-xl justify-start text-left font-normal", !date && "text-muted-foreground")}>
                 <CalendarIcon className="ml-2 h-4 w-4" />
-                {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>اختر يوماً</span>}
+                {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>فلتر باليوم</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                locale={arEG}
-                formatters={{ formatDay: (day) => new Intl.NumberFormat('en-US').format(day.getDate()) }}
-              />
+              <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} />
             </PopoverContent>
           </Popover>
 
-          <Button variant="ghost" onClick={handleClearFilters} className="w-full sm:w-auto">
-            <FilterX className="ml-2 h-4 w-4" />
-            مسح
+          <Button variant="ghost" size="icon" onClick={handleClearFilters} className="h-11 w-11 rounded-xl text-slate-400">
+            <FilterX className="h-5 w-5" />
           </Button>
         </div>
       </div>
-      <div className="rounded-lg border">
-        <Table ref={tableRef} className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead>رقم المعاملة الأصلية</TableHead>
-              <TableHead>اسم المستخدم</TableHead>
-              <TableHead>المبلغ (ج.م)</TableHead>
-              <TableHead>وقت العملية</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map((log) => (
-              <TableRow key={log.id} className="even:bg-muted/20">
-                <TableCell className="text-xs font-mono">{log.transactionId}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{log.userName}</div>
-                  <div className="text-muted-foreground text-xs">{log.userPhone}</div>
-                </TableCell>
-                <TableCell className="font-semibold">{log.amount.toFixed(4)} ج.م</TableCell>
-                <TableCell className="text-xs">{new Date(log.timestamp).toLocaleString("ar-EG-u-nu-latn", { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+
+      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+            <Table ref={tableRef}>
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                    <TableRow className="hover:bg-transparent">
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم المعاملة الأصلية</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اسم المستخدم</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المقتطع</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">وقت العملية</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredData.map((log, index) => (
+                    <TableRow key={`${log.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                        <TableCell className="text-xs font-mono text-slate-500 font-bold">{log.transactionId}</TableCell>
+                        <TableCell>
+                            <div className="font-bold text-sm text-slate-700">{log.userName}</div>
+                            <div className="text-[11px] text-slate-400 font-mono tabular-nums">{log.userPhone}</div>
+                        </TableCell>
+                        <TableCell>
+                            <div className="flex items-center gap-2">
+                                <PiggyBank className="h-3.5 w-3.5 text-orange-500" />
+                                <CurrencyDisplay amount={log.amount} currency="ج.م" colorClass="text-orange-600 text-sm" />
+                            </div>
+                        </TableCell>
+                        <TableCell className="text-[11px] whitespace-nowrap">
+                            <DateTimeDisplay timestamp={log.timestamp} />
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
       </div>
     </div>
   );
