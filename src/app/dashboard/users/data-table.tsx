@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
@@ -57,11 +57,15 @@ import {
   Loader2,
   X,
   LogOut,
+  Copy,
+  FileDown,
+  Printer,
+  Search,
 } from 'lucide-react';
 import type { User, Transaction, EgyptTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, exportToCsv } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -73,15 +77,6 @@ import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
-
-// Datatables imports
-import $ from 'jquery';
-import 'datatables.net-responsive-dt';
-import 'datatables.net-buttons-dt';
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'jszip';
 
 // Dynamic imports for nested data tables
 const LibyanTransactionsDataTable = dynamic(
@@ -183,7 +178,7 @@ function UserDetailsContent({
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in-0 duration-300">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 sticky top-0 z-50">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/10 rounded-2xl">
                         <ShieldCheck className="h-8 w-8 text-primary" />
@@ -294,7 +289,7 @@ function UserDetailsContent({
                                                 }
                                             }}
                                         >
-                                            <ShieldCheck className="ml-2 h-5 w-5" /> تحويل إلى تاجر
+                                            <ShieldCheck className="ml-2 h-5 w-5" /> ترقية لتاجر
                                         </Button>
                                     </div>
                                 </CardContent>
@@ -420,17 +415,15 @@ function UserDetailsContent({
 
 export function UsersDataTable({ initialData, allTransactions }: { initialData: User[], allTransactions: Transaction[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToToggleBan, setUserToToggleBan] = useState<User | null>(null);
   const [isToggling, setIsToggling] = useState(false);
   
   const { database } = useDatabase();
-  const tableRef = useRef<HTMLTableElement>(null);
   const { toast } = useToast();
   const functions = useFunctions();
-  
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
 
   const filteredData = useMemo(() => {
     return initialData.filter(u => 
@@ -440,46 +433,22 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     );
   }, [initialData, searchTerm, roleFilter, statusFilter]);
 
-  useEffect(() => {
-    if (!tableRef.current) return;
-    
-    // Check if DataTables is already initialized
-    // @ts-ignore
-    if ($.fn.DataTable && $.fn.DataTable.isDataTable(tableRef.current)) {
-        // @ts-ignore
-        $(tableRef.current).DataTable().destroy();
-    }
-    
-    const timer = setTimeout(() => {
-        if (!tableRef.current) return;
-        // @ts-ignore
-        if ($.fn.DataTable) {
-            // @ts-ignore
-            $(tableRef.current).DataTable({
-                responsive: true,
-                dom: "<'flex items-center justify-between gap-4 mb-4'B>rt<'flex items-center justify-between mt-4'ip>",
-                buttons: [
-                    { extend: 'copy', text: 'نسخ', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                    { extend: 'csv', text: 'CSV', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                    { extend: 'excel', text: 'Excel', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' },
-                    { extend: 'print', text: 'طباعة', className: 'px-3 py-1.5 text-xs bg-muted hover:bg-accent rounded-md' }
-                ],
-                language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
-                pageLength: 10,
-                searching: false,
-            });
-        }
-    }, 100);
+  const handleCopy = () => {
+    const text = filteredData.map(u => `${u.name} | ${u.phone} | ${roleMap[u.role]}`).join('\n');
+    navigator.clipboard.writeText(text);
+    toast({ title: "تم نسخ البيانات إلى الحافظة" });
+  };
 
-    return () => {
-        clearTimeout(timer);
-        // @ts-ignore
-        if (tableRef.current && $.fn.DataTable && $.fn.DataTable.isDataTable(tableRef.current)) {
-            // @ts-ignore
-            $(tableRef.current).DataTable().destroy();
-        }
-    };
-  }, [filteredData]);
+  const handleCsvExport = () => {
+    exportToCsv('users_list.csv', filteredData.map(u => ({
+        'الاسم': u.name,
+        'الهاتف': u.phone,
+        'النوع': roleMap[u.role],
+        'الحالة': statusMap[u.status],
+        'التوثيق': verificationMap[u.verification],
+        'آخر ظهور': u.lastSeen ? new Date(u.lastSeen).toLocaleString() : 'غير معروف'
+    })));
+  };
 
   const confirmToggleBan = async () => {
       if (!userToToggleBan) return;
@@ -499,108 +468,133 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-            <Input 
-                placeholder="بحث بالاسم أو رقم الهاتف..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
-                className="max-w-md pr-10" 
-            />
-            <Eye className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+    <div className="space-y-6">
+      {/* Controls Bar */}
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
+            <div className="relative flex-1 max-w-sm">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                    placeholder="بحث بالاسم أو الهاتف..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    className="pr-10 h-11 rounded-xl bg-white border-slate-200" 
+                />
+            </div>
+            <div className="flex gap-2">
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="النوع" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="all">كل الرتب</SelectItem>
+                        <SelectItem value="user">مستخدم</SelectItem>
+                        <SelectItem value="merchant">تاجر</SelectItem>
+                        <SelectItem value="admin">مسؤول</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="all">كل الحالات</SelectItem>
+                        <SelectItem value="active">نشط</SelectItem>
+                        <SelectItem value="banned">مجمد</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
-        <div className="flex gap-2">
-            <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-[140px]"><SelectValue placeholder="النوع" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">كل الرتب</SelectItem>
-                    <SelectItem value="user">مستخدم</SelectItem>
-                    <SelectItem value="merchant">تاجر</SelectItem>
-                    <SelectItem value="admin">مسؤول</SelectItem>
-                </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px]"><SelectValue placeholder="الحالة" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">كل الحالات</SelectItem>
-                    <SelectItem value="active">نشط</SelectItem>
-                    <SelectItem value="banned">مجمد</SelectItem>
-                </SelectContent>
-            </Select>
+
+        <div className="flex gap-2 w-full md:w-auto">
+            <Button variant="outline" size="sm" onClick={handleCopy} className="h-10 rounded-xl bg-white border-slate-200">
+                <Copy className="ml-2 h-4 w-4 text-slate-400" /> نسخ
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-10 rounded-xl bg-white border-slate-200">
+                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-10 rounded-xl bg-white border-slate-200">
+                <Printer className="ml-2 h-4 w-4 text-slate-400" /> طباعة
+            </Button>
         </div>
       </div>
 
-      <div className="rounded-xl border shadow-sm overflow-hidden bg-card">
-        <Table ref={tableRef}>
-          <TableHeader className="bg-muted/30">
-            <TableRow>
-              <TableHead className="font-bold">المستخدم</TableHead>
-              <TableHead className="font-bold">نوع الحساب</TableHead>
-              <TableHead className="font-bold text-center">التوثيق</TableHead>
-              <TableHead className="font-bold text-center">حالة الحساب</TableHead>
-              <TableHead className="font-bold">الاتصال</TableHead>
-              <TableHead className="font-bold">آخر ظهور</TableHead>
-              <TableHead className="font-bold text-left">إجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map(u => {
-                const isOnline = u.connectionStatus === 'متصل';
-                return (
-                    <TableRow key={u.id} className={cn(u.status === 'banned' && 'bg-red-50/30 opacity-70')}>
-                        <TableCell>
-                            <div className="flex flex-col">
-                                <span className="font-semibold text-sm">{u.name}</span>
-                                <span className="text-[11px] text-muted-foreground tabular-nums">{u.phone}</span>
-                            </div>
-                        </TableCell>
-                        <TableCell className="text-sm font-bold text-primary">
-                            {roleMap[u.role] || u.role}
-                        </TableCell>
-                        <TableCell className="text-center">
-                            <Badge variant="outline" className={cn("text-[10px] px-2", verificationColors[u.verification])}>
-                                {verificationMap[u.verification] || u.verification}
-                            </Badge>
-                        </TableCell>
-                        <TableCell className="text-center">
-                            <Badge className={cn("text-[10px] px-2", statusColors[u.status])}>
-                                {statusMap[u.status] || u.status}
-                            </Badge>
-                        </TableCell>
-                        <TableCell>
-                            <div className="flex items-center gap-1.5">
-                                <span className={cn("h-2 w-2 rounded-full", isOnline ? "bg-green-500 animate-pulse" : "bg-gray-400")} />
-                                <span className="text-xs">{u.connectionStatus || 'غير متصل'}</span>
-                            </div>
-                        </TableCell>
-                        <TableCell className="text-[11px] text-muted-foreground tabular-nums">
-                            {u.lastSeen ? new Date(u.lastSeen).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '---'}
-                        </TableCell>
-                        <TableCell className="text-left">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-[160px]">
-                                    <DropdownMenuItem onClick={() => setSelectedUser(u)}>
-                                        <Eye className="ml-2 h-4 w-4" /> عرض التفاصيل
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setUserToToggleBan(u)} className={cn(u.status === 'active' ? "text-destructive" : "text-green-600")}>
-                                        {u.status === 'active' ? <UserX className="ml-2 h-4 w-4" /> : <UserCheck className="ml-2 h-4 w-4" />}
-                                        {u.status === 'active' ? 'تجميد المستخدم' : 'إلغاء التجميد'}
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </TableCell>
+      {/* Interactive Scrollable Table with Sticky Header */}
+      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+        <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
+            <Table>
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                    <TableRow className="hover:bg-transparent">
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">نوع الحساب</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">التوثيق</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">آخر ظهور</TableHead>
+                        <TableHead className="text-left font-black text-[#1A4B84] text-xs uppercase tracking-widest h-12">إجراءات</TableHead>
                     </TableRow>
-                )
-            })}
-          </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {filteredData.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={7} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد نتائج مطابقة للبحث</TableCell>
+                        </TableRow>
+                    ) : filteredData.map(u => {
+                        const isOnline = u.connectionStatus === 'متصل';
+                        return (
+                            <TableRow key={u.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", u.status === 'banned' && "bg-red-50/20")}>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-sm text-slate-700">{u.name || 'مستخدم بدون اسم'}</span>
+                                        <span className="text-[11px] text-slate-400 font-mono tabular-nums">{u.phone}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-sm font-black text-[#1A4B84]">
+                                    {roleMap[u.role] || u.role}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge variant="outline" className={cn("text-[10px] px-2 py-0 font-bold border-none", verificationColors[u.verification])}>
+                                        {verificationMap[u.verification] || u.verification}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge className={cn("text-[10px] px-2 py-0 font-bold", statusColors[u.status], `hover:${statusColors[u.status]}`)}>
+                                        {statusMap[u.status] || u.status}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                                        <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums">
+                                    {u.lastSeen ? new Date(u.lastSeen).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '---'}
+                                </TableCell>
+                                <TableCell className="text-left">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
+                                            <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" onClick={() => setSelectedUser(u)}>
+                                                <Eye className="ml-2 h-4 w-4 text-[#1A4B84]" /> عرض الملف الشخصي
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem 
+                                                className={cn("rounded-xl px-3 py-2 cursor-pointer font-bold text-sm", u.status === 'active' ? "text-destructive focus:text-destructive" : "text-green-600 focus:text-green-600")}
+                                                onClick={() => setUserToToggleBan(u)}
+                                            >
+                                                {u.status === 'active' ? <UserX className="ml-2 h-4 w-4" /> : <UserCheck className="ml-2 h-4 w-4" />}
+                                                {u.status === 'active' ? 'تجميد المستخدم' : 'إلغاء التجميد'}
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })}
+                </TableBody>
+            </Table>
+        </div>
       </div>
 
-      {/* واجهة تفاصيل المستخدم بـ div ثابت لتجنب تجميد الصفحة */}
+      {/* Full-screen Details Overlay */}
       {selectedUser && (
           <div className="fixed inset-0 z-[100] bg-background flex flex-col overflow-hidden">
               <UserDetailsContent 
@@ -614,25 +608,26 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
           </div>
       )}
 
+      {/* Confirmation Dialog */}
       <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
-          <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+          <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8 max-w-md">
               <AlertDialogHeader>
-                  <AlertDialogTitle className="text-xl font-black text-[#1A4B84]">
-                      {userToToggleBan?.status === 'active' ? 'تجميد حساب المستخدم' : 'إلغاء تجميد الحساب'}
+                  <AlertDialogTitle className="text-2xl font-black text-[#1A4B84] text-center">
+                      {userToToggleBan?.status === 'active' ? 'تجميد الحساب' : 'إلغاء التجميد'}
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="font-bold text-sm">
+                  <AlertDialogDescription className="font-bold text-slate-500 text-center mt-2 leading-relaxed">
                       {userToToggleBan?.status === 'active' 
-                        ? `هل أنت متأكد من رغبتك في تجميد حساب "${userToToggleBan?.name}"؟ لن يتمكن من إجراء أي عمليات حتى إلغاء التجميد.`
-                        : `هل تريد إعادة تفعيل حساب "${userToToggleBan?.name}" وإلغاء التجميد؟`
+                        ? `هل أنت متأكد من تجميد حساب "${userToToggleBan?.name}"؟ سيتم منعه من استخدام التطبيق فوراً.`
+                        : `هل تريد إعادة تفعيل حساب "${userToToggleBan?.name}"؟ سيتمكن من الدخول واستئناف نشاطه.`
                       }
                   </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter className="gap-2 pt-4">
-                  <AlertDialogCancel className="rounded-xl font-bold border-slate-200">إلغاء</AlertDialogCancel>
+              <AlertDialogFooter className="gap-3 pt-6 flex flex-col sm:flex-row">
+                  <AlertDialogCancel className="rounded-xl font-bold border-slate-200 flex-1 h-12">تراجع</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={confirmToggleBan} 
                     className={cn(
-                        "rounded-xl font-black text-sm shadow-lg",
+                        "rounded-xl font-black text-sm shadow-lg flex-1 h-12",
                         userToToggleBan?.status === 'active' ? "bg-destructive hover:bg-destructive/90" : "bg-green-600 hover:bg-green-700"
                     )}
                     disabled={isToggling}
