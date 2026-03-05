@@ -160,7 +160,7 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
                                     <TableCell className="text-[11px] tabular-nums whitespace-nowrap">{formatDate(tx.timestamp)}</TableCell>
                                     <TableCell className="text-sm font-bold">
-                                        <div className="flex items-center gap-1 flex-row-reverse justify-end" dir="ltr">
+                                        <div className="flex items-center gap-1 justify-start">
                                             <span className="text-[10px] text-slate-400 font-bold">{currency}</span>
                                             <span className="tabular-nums">{amount.toLocaleString('en-US')}</span>
                                         </div>
@@ -215,7 +215,6 @@ function UserDetailsContent({
     const [isEditingName, setIsEditingName] = useState(false);
     const [name, setName] = useState(user.name || "");
 
-    // Transaction Filtering States
     const [txSearch, setTxSearch] = useState("");
     const [txType, setTxType] = useState("all");
     const [txStatus, setTxStatus] = useState("all");
@@ -246,17 +245,16 @@ function UserDetailsContent({
 
             const matchesType = txType === "all" || t.type === txType;
             const matchesStatus = txStatus === "all" || t.status === txStatus;
-            
             const matchesMonth = txMonth === "all" || (new Date(t.timestamp).getMonth() + 1).toString() === txMonth;
 
             return matchesSearch && matchesType && matchesStatus && matchesMonth;
         }).sort((a, b) => b.timestamp - a.timestamp);
-    }, [user, allTransactions, txSearch, txType, txStatus, txMonth]);
+    }, [user.id, allTransactions, txSearch, txType, txStatus, txMonth]);
 
     const sessions = useMemo(() => {
         if (!user.sessions) return [];
         return Object.entries(user.sessions).map(([id, s]) => ({ id, ...s })).sort((a, b) => b.lastUpdate - a.lastUpdate);
-    }, [user]);
+    }, [user.sessions]);
 
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
@@ -317,21 +315,21 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد الليبي</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="ltr">
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
                                         <span className="text-sm font-bold text-green-600">د.ل</span>
                                         <span className="text-2xl font-black text-green-600 tabular-nums">{(user.balanceLYD || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد المصري</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="ltr">
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
                                         <span className="text-sm font-bold text-[#1A4B84]">ج.م</span>
                                         <span className="text-2xl font-black text-[#1A4B84] tabular-nums">{(user.balanceEGP || 0).toFixed(2)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start text-right w-full">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">المصري المعلق</span>
-                                    <div className="flex items-baseline gap-1.5 justify-start w-full" dir="ltr">
+                                    <div className="flex items-baseline gap-1.5 justify-start w-full">
                                         <span className="text-sm font-bold text-slate-400">ج.م</span>
                                         <span className="text-2xl font-black text-slate-400 tabular-nums">{(user.balanceEgyptianPending || 0).toFixed(2)}</span>
                                     </div>
@@ -469,7 +467,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل العمليات مع فلاتر متقدمة */}
+                    {/* الصف الثالث: سجل العمليات */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -481,7 +479,7 @@ function UserDetailsContent({
                             </div>
                             
                             {/* Filter Bar */}
-                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto relative z-50">
                                 <div className="relative flex-1 min-w-[200px] md:max-w-xs">
                                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                     <Input 
@@ -493,7 +491,7 @@ function UserDetailsContent({
                                 </div>
                                 <Select value={txType} onValueChange={setTxType}>
                                     <SelectTrigger className="w-[130px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
                                         <SelectItem value="all">كل الأنواع</SelectItem>
                                         <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
                                         <SelectItem value="recharge_purchase">شراء كروت</SelectItem>
@@ -505,7 +503,7 @@ function UserDetailsContent({
                                 </Select>
                                 <Select value={txStatus} onValueChange={setTxStatus}>
                                     <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الحالة" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
                                         <SelectItem value="all">كل الحالات</SelectItem>
                                         <SelectItem value="completed">ناجحة</SelectItem>
                                         <SelectItem value="pending">قيد الانتظار</SelectItem>
@@ -514,7 +512,7 @@ function UserDetailsContent({
                                 </Select>
                                 <Select value={txMonth} onValueChange={setTxMonth}>
                                     <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الشهر" /></SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                    <SelectContent className="rounded-2xl border-none shadow-2xl z-[150]">
                                         <SelectItem value="all">كل الأشهر</SelectItem>
                                         {months.map(m => (
                                             <SelectItem key={m.val} value={m.val}>{m.label}</SelectItem>
