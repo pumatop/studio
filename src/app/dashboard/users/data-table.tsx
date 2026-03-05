@@ -133,7 +133,7 @@ const typeLabelMap: Record<string, string> = {
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
-    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="rtl">
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
     </div>
@@ -177,8 +177,8 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                                         <div className="flex items-center justify-start gap-1">
                                             <span>{txTime.date}</span>
                                             <span className="mx-2"></span>
-                                            <span className="text-[10px] font-bold">{txTime.period}</span>
                                             <span>{txTime.time}</span>
+                                            <span className="text-[10px] font-bold">{txTime.period}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-sm font-bold">
@@ -363,8 +363,8 @@ function UserDetailsContent({
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{createdAtFormatted.date}</span>
                                         <span className="mx-2"></span>
-                                        <span className="text-[10px] font-bold">{createdAtFormatted.period}</span>
                                         <span>{createdAtFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{createdAtFormatted.period}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
@@ -372,8 +372,8 @@ function UserDetailsContent({
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{lastPassFormatted.date}</span>
                                         <span className="mx-2"></span>
-                                        <span className="text-[10px] font-bold">{lastPassFormatted.period}</span>
                                         <span>{lastPassFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{lastPassFormatted.period}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between pb-2">
@@ -381,8 +381,8 @@ function UserDetailsContent({
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{lastPinFormatted.date}</span>
                                         <span className="mx-2"></span>
-                                        <span className="text-[10px] font-bold">{lastPinFormatted.period}</span>
                                         <span>{lastPinFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{lastPinFormatted.period}</span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -481,7 +481,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل العمليات (عرض كامل) */}
+                    {/* سجل العمليات (عرض كامل) */}
                     <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -703,8 +703,8 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                     <div className="flex items-center justify-start gap-1">
                                         <span>{lastSeenData.date}</span>
                                         <span className="mx-2"></span>
-                                        <span className="text-[10px] font-bold">{lastSeenData.period}</span>
                                         <span>{lastSeenData.time}</span>
+                                        <span className="text-[10px] font-bold">{lastSeenData.period}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-left">
