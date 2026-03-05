@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
@@ -104,7 +103,6 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
 
 export function LibyanTransactionsDataTable({ initialData, showExchangeRate = true }: { initialData: Transaction[], showExchangeRate?: boolean }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [operationTypeFilter, setOperationTypeFilter] = useState<'all' | keyof typeof typeMap>('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
@@ -139,11 +137,10 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
           recipientPhone.includes(searchTerm) ||
           recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           agentInfo.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (operationTypeFilter === 'all' || tx.type === operationTypeFilter) &&
         (statusFilter === 'all' || tx.status === statusFilter);
       }
     ).sort((a, b) => b.timestamp - a.timestamp);
-  }, [initialData, searchTerm, operationTypeFilter, statusFilter, date, selectedMonth]);
+  }, [initialData, searchTerm, statusFilter, date, selectedMonth]);
 
   useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -177,7 +174,6 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
   
   const handleClearFilters = () => {
     setSearchTerm('');
-    setOperationTypeFilter('all');
     setStatusFilter('all');
     setDate(undefined);
     setSelectedMonth((new Date().getMonth() + 1).toString());
@@ -220,19 +216,6 @@ export function LibyanTransactionsDataTable({ initialData, showExchangeRate = tr
                 <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} />
               </PopoverContent>
             </Popover>
-
-            <Select value={operationTypeFilter} onValueChange={(value) => setOperationTypeFilter(value as any)}>
-              <SelectTrigger className="w-[140px] h-11 rounded-xl"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
-              <SelectContent className="rounded-xl border-none shadow-2xl">
-                <SelectItem value="all">كل العمليات</SelectItem>
-                <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
-                <SelectItem value="egypt_transfer">تحويل للجنيه</SelectItem>
-                <SelectItem value="recharge_purchase">شراء كروت</SelectItem>
-                <SelectItem value="egypt_home">وصلي للبيت</SelectItem>
-                <SelectItem value="egypt_wallets">محفظة كاش</SelectItem>
-                <SelectItem value="egypt_instapay">انستاباي</SelectItem>
-              </SelectContent>
-            </Select>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>

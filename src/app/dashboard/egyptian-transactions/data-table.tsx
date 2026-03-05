@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -89,7 +88,6 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
 
 export function EgyptianTransfersDataTable({ initialData }: { initialData: EgyptTransferTransaction[] }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [transferTypeFilter, setTransferTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState<'all' | EgyptTransferTransaction['status']>('all');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
@@ -116,11 +114,10 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           item.userPhone.includes(searchTerm) ||
           item.recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.recipientNumber.includes(searchTerm)) &&
-        (transferTypeFilter === 'all' || item.transferType === transferTypeFilter) &&
         (statusFilter === 'all' || item.status === statusFilter)
       );
     }).sort((a, b) => b.timestamp - a.timestamp);
-  }, [initialData, searchTerm, transferTypeFilter, statusFilter, date, selectedMonth]);
+  }, [initialData, searchTerm, statusFilter, date, selectedMonth]);
 
   useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -154,7 +151,6 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
 
   const handleClearFilters = () => {
     setSearchTerm('');
-    setTransferTypeFilter('all');
     setStatusFilter('all');
     setDate(undefined);
     setSelectedMonth((new Date().getMonth() + 1).toString());
@@ -196,16 +192,6 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                 <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} />
               </PopoverContent>
             </Popover>
-
-            <Select value={transferTypeFilter} onValueChange={setTransferTypeFilter}>
-              <SelectTrigger className="w-[140px] h-11 rounded-xl"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
-              <SelectContent className="rounded-xl border-none shadow-2xl">
-                <SelectItem value="all">كل الأنواع</SelectItem>
-                <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
-                <SelectItem value="انستاباي">انستاباي</SelectItem>
-                <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
-              </SelectContent>
-            </Select>
 
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
               <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>
