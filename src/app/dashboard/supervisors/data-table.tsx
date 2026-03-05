@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Table,
@@ -204,7 +204,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
 
-  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار
+  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار - محسن للأداء
   const supervisorStats = useMemo(() => {
     if (!allTransactions || !initialData) return {};
     
@@ -213,29 +213,37 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
     const monthIdx = parseInt(selectedMonth) - 1;
     
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-    
-    // حدود الشهر المختار للفلترة
     const startOfSelectedMonth = new Date(currentYear, monthIdx, 1).getTime();
     const endOfSelectedMonth = new Date(currentYear, monthIdx + 1, 0, 23, 59, 59, 999).getTime();
 
     const statsMap: Record<string, { daily: number, monthly: number, fees: number }> = {};
+    const nameToIdMap: Record<string, string> = {};
 
-    initialData.forEach(s => {
-        const sName = s.name;
-        // فلترة العمليات الناجحة المرتبطة بالمشرف (حسب الاسم المسجل في العملية)
-        const supervisorTx = allTransactions.filter(t => 
-            t.status === 'completed' && 
-            (t.type === 'egypt_transfer' || t.type === 'egypt_home' || t.type === 'egypt_wallets' || t.type === 'egypt_instapay') &&
-            ((t as any).delegateName === sName || (t as any).agentInfo === sName)
-        );
+    initialData.forEach(s => { 
+        statsMap[s.id] = { daily: 0, monthly: 0, fees: 0 }; 
+        nameToIdMap[s.name] = s.id;
+    });
 
-        statsMap[s.id] = {
-            // اجمالي اليوم يبقى لليوم الحالي فعلياً
-            daily: supervisorTx.filter(t => t.timestamp >= startOfToday).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
-            // اجمالي الشهر والرسوم يعتمدان على الفلتر المختار
-            monthly: supervisorTx.filter(t => t.timestamp >= startOfSelectedMonth && t.timestamp <= endOfSelectedMonth).reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
-            fees: supervisorTx.filter(t => t.timestamp >= startOfSelectedMonth && t.timestamp <= endOfSelectedMonth).reduce((sum, t) => sum + ((t as any).serviceFee || 0), 0),
-        };
+    allTransactions.forEach(t => {
+        if (t.status !== 'completed') return;
+        
+        const delegateName = (t as any).delegateName || (t as any).agentInfo;
+        if (!delegateName) return;
+
+        const sId = nameToIdMap[delegateName];
+        if (!sId) return;
+
+        const ts = t.timestamp;
+        const amount = (t as any).amountEGP || 0;
+        const fee = (t as any).serviceFee || 0;
+
+        if (ts >= startOfToday) {
+            statsMap[sId].daily += amount;
+        }
+        if (ts >= startOfSelectedMonth && ts <= endOfSelectedMonth) {
+            statsMap[sId].monthly += amount;
+            statsMap[sId].fees += fee;
+        }
     });
 
     return statsMap;
@@ -372,7 +380,8 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-black text-[#1A4B84]">{editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}</DialogTitle>
                     </DialogHeader>
-                    <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
+                    {/* استخدام key لضمان إعادة تهيئة النموذج بالكامل عند تغيير المشرف أو الإضافة */}
+                    <SupervisorForm key={editingSupervisor?.id || 'new'} onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
                 </DialogContent>
             </Dialog>
         </div>
@@ -440,7 +449,11 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
-                                            <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" onClick={() => { setEditingSupervisor(s); setDialogOpen(true); }}>
+                                            <DropdownMenuItem 
+                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" 
+                                                onSelect={(e) => e.preventDefault()} // منع تجميد الصفحة عن طريق منع تعارض التركيز
+                                                onClick={() => { setEditingSupervisor(s); setDialogOpen(true); }}
+                                            >
                                                 <Pencil className="ml-2 h-4 w-4 text-[#1A4B84]" /> تعديل البيانات
                                             </DropdownMenuItem>
                                             <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm">
