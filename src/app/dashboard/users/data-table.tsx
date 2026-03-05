@@ -263,33 +263,54 @@ function UserDetailsContent({
                                         )}
                                     </div>
                                     <div className="flex flex-col gap-3">
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <Button 
-                                                variant="outline" 
-                                                className="w-full h-12 rounded-xl text-blue-600 border-blue-200 hover:bg-blue-50 font-black" 
-                                                onClick={() => onUserUpdate(user.id, { verification: 'verified' })}
-                                            >
-                                                <UserCheck className="ml-2 h-5 w-5" /> توثيق
-                                            </Button>
-                                            <Button 
-                                                variant="outline" 
-                                                className="w-full h-12 rounded-xl text-red-600 border-red-200 hover:bg-red-50 font-black" 
-                                                onClick={() => onUserUpdate(user.id, { verification: 'unverified' })}
-                                            >
-                                                <UserX className="ml-2 h-5 w-5" /> إلغاء
-                                            </Button>
-                                        </div>
+                                        {/* زر توثيق / إلغاء توثيق ذكي */}
                                         <Button 
                                             variant="outline" 
-                                            className="w-full h-12 rounded-xl text-purple-600 border-purple-200 hover:bg-purple-50 font-black" 
+                                            className={cn(
+                                                "w-full h-12 rounded-xl font-black transition-all",
+                                                user.verification === 'verified' 
+                                                    ? "text-red-600 border-red-200 hover:bg-red-50" 
+                                                    : "text-blue-600 border-blue-200 hover:bg-blue-50"
+                                            )}
                                             onClick={() => {
-                                                if(window.confirm('هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟')) {
-                                                    onUserUpdate(user.id, { role: 'merchant' });
-                                                    toast({ title: "تم تحويل الرتبة إلى تاجر" });
+                                                const newStatus = user.verification === 'verified' ? 'unverified' : 'verified';
+                                                onUserUpdate(user.id, { verification: newStatus });
+                                                toast({ title: newStatus === 'verified' ? "تم توثيق الحساب" : "تم إلغاء التوثيق" });
+                                            }}
+                                        >
+                                            {user.verification === 'verified' ? (
+                                                <><UserX className="ml-2 h-5 w-5" /> إلغاء التوثيق</>
+                                            ) : (
+                                                <><UserCheck className="ml-2 h-5 w-5" /> توثيق الحساب</>
+                                            )}
+                                        </Button>
+
+                                        {/* زر تحويل لتاجر / مستخدم عادي ذكي */}
+                                        <Button 
+                                            variant="outline" 
+                                            className={cn(
+                                                "w-full h-12 rounded-xl font-black transition-all",
+                                                user.role === 'merchant'
+                                                    ? "text-slate-600 border-slate-200 hover:bg-slate-50"
+                                                    : "text-purple-600 border-purple-200 hover:bg-purple-50"
+                                            )}
+                                            onClick={() => {
+                                                const newRole = user.role === 'merchant' ? 'user' : 'merchant';
+                                                const message = newRole === 'merchant' 
+                                                    ? 'هل تريد حقاً تحويل هذا المستخدم إلى تاجر؟' 
+                                                    : 'هل تريد حقاً تحويل هذا التاجر إلى مستخدم عادي؟';
+                                                
+                                                if(window.confirm(message)) {
+                                                    onUserUpdate(user.id, { role: newRole });
+                                                    toast({ title: newRole === 'merchant' ? "تم الترقية لتاجر" : "تم التحويل لمستخدم عادي" });
                                                 }
                                             }}
                                         >
-                                            <ShieldCheck className="ml-2 h-5 w-5" /> ترقية لتاجر
+                                            {user.role === 'merchant' ? (
+                                                <><UserCheck className="ml-2 h-5 w-5" /> تحويل لمستخدم</>
+                                            ) : (
+                                                <><ShieldCheck className="ml-2 h-5 w-5" /> تحويل لتاجر</>
+                                            )}
                                         </Button>
                                     </div>
                                 </CardContent>
