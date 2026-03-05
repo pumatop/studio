@@ -25,14 +25,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
 import {
-  PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2,
-  Search, FileDown, Printer, UserCog, Activity, ShieldCheck, Phone, Pencil, LogOut,
-  TrendingUp, Banknote, Landmark
+  PlusCircle, FileClock, KeyRound, FilterX, MoreHorizontal, Trash2,
+  Search, FileDown, ShieldCheck, Phone, Pencil, LogOut,
+  Activity, Truck
 } from 'lucide-react';
 import type { Supervisor, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -66,6 +65,9 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
     </div>
 );
 
+/**
+ * تنسيق التاريخ: يوم شهر سنة من اليمين لليسار، ص/م يسار الوقت
+ */
 const formatDateParts = (timestamp: number | string | undefined) => {
     if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
     const date = new Date(timestamp);
@@ -81,20 +83,24 @@ const formatDateParts = (timestamp: number | string | undefined) => {
 const DateTimeDisplay = ({ timestamp, className }: { timestamp: string | undefined, className?: string }) => {
     const parts = formatDateParts(timestamp);
     return (
-        <div className={cn("flex items-center justify-start gap-0.5 tabular-nums", className)} dir="rtl">
-            <span>{parts.day}</span>
-            <span className="opacity-40">/</span>
-            <span>{parts.month}</span>
-            <span className="opacity-40">/</span>
-            <span>{parts.year}</span>
-            <span className="mx-2"></span>
-            <span className="font-bold">{parts.time}</span>
-            <span className="text-[10px] font-black mr-1">{parts.period}</span>
+        <div className={cn("flex items-center justify-start gap-1 tabular-nums", className)} dir="rtl">
+            <div className="flex items-center gap-0.5">
+                <span>{parts.day}</span>
+                <span className="opacity-30">/</span>
+                <span>{parts.month}</span>
+                <span className="opacity-30">/</span>
+                <span>{parts.year}</span>
+            </div>
+            <span className="mx-2 opacity-20">|</span>
+            <div className="flex items-center">
+                <span className="text-[10px] font-black ml-1">{parts.period}</span>
+                <span className="font-bold">{parts.time}</span>
+            </div>
         </div>
     );
 };
 
-function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervisor; onSave: (s: Partial<Supervisor>) => void; isSaving: boolean; }) {
+function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervisor | null; onSave: (s: Partial<Supervisor>) => void; isSaving: boolean; }) {
   const [formData, setFormData] = useState<Partial<Supervisor>>(
     supervisor || {
       name: '',
@@ -201,10 +207,10 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
+  const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار - محسن للأداء
+  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار
   const supervisorStats = useMemo(() => {
     if (!allTransactions || !initialData) return {};
     
@@ -260,7 +266,6 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const handleCsvExport = () => {
     const monthName = months.find(m => m.val === selectedMonth)?.label || "";
     exportToCsv(`supervisors_finance_${monthName}.csv`, filteredData.map(s => {
-        const parts = formatDateParts(s.lastSeen);
         const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
         return {
             'الاسم': s.name,
@@ -269,8 +274,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             'اجمالي اليوم (ج.م)': stats.daily.toFixed(2),
             [`اجمالي شهر ${monthName} (ج.م)`]: stats.monthly.toFixed(2),
             [`رسوم شهر ${monthName} (ج.م)`]: stats.fees.toFixed(2),
-            'الحالة': s.status,
-            'آخر ظهور': `${parts.day}/${parts.month}/${parts.year}`
+            'الحالة': s.status
         };
     }));
   };
@@ -302,7 +306,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             toast({ title: 'تمت إضافة المشرف الجديد بنجاح' });
         }
         setDialogOpen(false);
-        setEditingSupervisor(undefined);
+        setEditingSupervisor(null);
     } catch(error: any) {
         toast({ title: 'حدث خطأ', description: error.message, variant: 'destructive' });
     } finally {
@@ -370,20 +374,12 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-11 rounded-xl bg-white border-slate-200 px-4">
                 <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير مالي
             </Button>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) setEditingSupervisor(undefined); setDialogOpen(open); }}>
-                <DialogTrigger asChild>
-                    <Button className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6 text-white">
-                        <PlusCircle className="ml-2 h-4 w-4" /> إضافة مشرف
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl font-black text-[#1A4B84]">{editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}</DialogTitle>
-                    </DialogHeader>
-                    {/* استخدام key لضمان إعادة تهيئة النموذج بالكامل عند تغيير المشرف أو الإضافة */}
-                    <SupervisorForm key={editingSupervisor?.id || 'new'} onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
-                </DialogContent>
-            </Dialog>
+            <Button 
+                onClick={() => { setEditingSupervisor(null); setDialogOpen(true); }}
+                className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6 text-white"
+            >
+                <PlusCircle className="ml-2 h-4 w-4" /> إضافة مشرف
+            </Button>
         </div>
       </div>
 
@@ -394,7 +390,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر ({months.find(m => m.val === selectedMonth)?.label})</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
@@ -451,8 +447,10 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                         <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
                                             <DropdownMenuItem 
                                                 className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" 
-                                                onSelect={(e) => e.preventDefault()} // منع تجميد الصفحة عن طريق منع تعارض التركيز
-                                                onClick={() => { setEditingSupervisor(s); setDialogOpen(true); }}
+                                                onSelect={() => {
+                                                    setEditingSupervisor(s);
+                                                    setDialogOpen(true);
+                                                }}
                                             >
                                                 <Pencil className="ml-2 h-4 w-4 text-[#1A4B84]" /> تعديل البيانات
                                             </DropdownMenuItem>
@@ -476,6 +474,23 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             </Table>
         </div>
       </div>
+
+      {/* النافذة المنبثقة خارج الجدول تماماً لمنع التجميد */}
+      <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
+              <DialogHeader>
+                  <DialogTitle className="text-2xl font-black text-[#1A4B84]">
+                      {editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}
+                  </DialogTitle>
+              </DialogHeader>
+              <SupervisorForm 
+                  key={editingSupervisor ? `edit-${editingSupervisor.id}` : 'new'} 
+                  onSave={handleSave} 
+                  supervisor={editingSupervisor} 
+                  isSaving={isSaving} 
+              />
+          </DialogContent>
+      </Dialog>
     </div>
   );
 }
