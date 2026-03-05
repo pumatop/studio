@@ -21,8 +21,8 @@
       }
     },
     "admin": {
-      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
-      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin')",
+      ".read": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin' || root.child('users').child(auth.uid).child('role').val() == 'merchant' || root.child('supervisors').child(auth.uid).exists())",
+      ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() == 'admin' || root.child('users').child(auth.uid).child('role').val() == 'superadmin' || root.child('users').child(auth.uid).child('role').val() == 'merchant' || root.child('supervisors').child(auth.uid).exists())",
       "pending_egypt_transfers": {
         ".indexOn": ["status", "timestamp", "transferMethod", "userId"]
       }

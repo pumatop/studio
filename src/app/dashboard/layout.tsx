@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -422,10 +423,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">
         <PageHeader title="" />
         <main className="flex-1 overflow-y-auto p-4 sm:p-10">
-          <div className="flex flex-col mb-6 md:hidden">
-             <h1 className="text-2xl font-black text-[#1A4B84]">{getPageTitle()}</h1>
-             <div className="accent-gradient-line"></div>
-          </div>
           {children}
         </main>
       </div>
