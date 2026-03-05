@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Table,
@@ -29,38 +30,61 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import {
-  PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2
+  PlusCircle, UserX, FileClock, CheckCircle, XCircle, KeyRound, FilterX, MoreHorizontal, Trash2,
+  Search, FileDown, Printer, UserCog, Activity, ShieldCheck, Phone, Pencil, LogOut
 } from 'lucide-react';
 import type { Supervisor } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, exportToCsv } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRtdbList, useDatabase, setRtdb, updateRtdb, useAuth, useFunctions } from '@/firebase';
-import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Datatables imports
-import $ from 'jquery';
-import 'datatables.net-responsive-dt';
-import 'datatables.net-buttons-dt';
-import 'datatables.net-buttons/js/buttons.colVis.js';
-import 'datatables.net-buttons/js/buttons.html5.js';
-import 'datatables.net-buttons/js/buttons.print.js';
-import 'jszip';
-
-const connectionStatusColors: Record<Supervisor["connectionStatus"], string> = {
+const connectionStatusColors: Record<string, string> = {
   'متصل': 'bg-green-100 text-green-800',
   'غير متصل': 'bg-stone-100 text-stone-800',
 };
 
-const statusColors: Record<Supervisor["status"], string> = {
+const statusColors: Record<string, string> = {
   'نشط': 'bg-green-100 text-green-800',
   'غير نشط': 'bg-red-100 text-red-800',
+};
+
+/**
+ * وظيفة مساعدة لتحويل الوقت إلى أجزاء منفصلة لدعم العرض العربي الدقيق
+ */
+const formatDateParts = (timestamp: number | string | undefined) => {
+    if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
+    const period = date.getHours() >= 12 ? 'م' : 'ص';
+    
+    return { day, month, year, time: timePart, period };
+};
+
+const DateTimeDisplay = ({ timestamp, className }: { timestamp: string | undefined, className?: string }) => {
+    const parts = formatDateParts(timestamp);
+    return (
+        <div className={cn("flex items-center justify-start gap-0.5 tabular-nums", className)} dir="rtl">
+            <span>{parts.day}</span>
+            <span className="opacity-40">/</span>
+            <span>{parts.month}</span>
+            <span className="opacity-40">/</span>
+            <span>{parts.year}</span>
+            <span className="mx-2"></span>
+            <span className="font-bold">{parts.time}</span>
+            <span className="text-[10px] font-black mr-1">{parts.period}</span>
+        </div>
+    );
 };
 
 function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervisor; onSave: (s: Partial<Supervisor>) => void; isSaving: boolean; }) {
@@ -103,159 +127,112 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6 pt-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-            <Label htmlFor="name">الاسم</Label>
-            <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required disabled={isSaving} />
+            <Label htmlFor="name" className="font-bold">اسم المشرف</Label>
+            <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11" />
         </div>
         <div className="space-y-2">
-            <Label htmlFor="phone">رقم الهاتف</Label>
-            <Input id="phone" name="phone" value={formData.phone || ''} onChange={handleChange} required disabled={isSaving}/>
+            <Label htmlFor="phone" className="font-bold">رقم الهاتف</Label>
+            <Input id="phone" name="phone" value={formData.phone || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11" />
         </div>
       </div>
        <div className="space-y-2">
-            <Label htmlFor="password">كلمة المرور</Label>
+            <Label htmlFor="password" title="كلمة المرور">كلمة المرور</Label>
             <div className="relative">
-                <Input id="password" name="password" type="password" value={formData.password || ''} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : '••••••••'} disabled={isSaving} />
-                <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="password" name="password" type="password" value={formData.password || ''} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : '••••••••'} disabled={isSaving} className="rounded-xl h-11 pl-10" />
+                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-            <Label>التخصص</Label>
-            <div className="space-y-2 rounded-lg border p-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="space-y-3">
+            <Label className="font-bold">تخصص المندوب</Label>
+            <div className="space-y-2 rounded-2xl border p-4 bg-slate-50/50">
                 {specializations.map(spec => (
-                    <div key={spec} className="flex items-center gap-2">
+                    <div key={spec} className="flex items-center gap-3">
                         <Checkbox id={`spec-${spec}`} checked={formData.specialization?.includes(spec)} onCheckedChange={(checked) => handleSpecializationChange(spec, !!checked)} disabled={isSaving}/>
-                        <Label htmlFor={`spec-${spec}`} className="font-normal">{spec}</Label>
+                        <Label htmlFor={`spec-${spec}`} className="font-medium cursor-pointer">{spec}</Label>
                     </div>
                 ))}
             </div>
         </div>
-        <div className="space-y-2">
-            <Label htmlFor="status">حالة الحساب</Label>
+        <div className="space-y-3">
+            <Label htmlFor="status" className="font-bold text-slate-500">حالة الحساب</Label>
             <Select name="status" value={formData.status} onValueChange={(v) => setFormData(p => ({...p, status: v as any}))} disabled={isSaving}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="نشط">نشط</SelectItem>
-                    <SelectItem value="غير نشط">غير نشط</SelectItem>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectContent className="rounded-xl border-none shadow-2xl">
+                    <SelectItem value="نشط">نشط (فعال)</SelectItem>
+                    <SelectItem value="غير نشط">غير نشط (معطل)</SelectItem>
                 </SelectContent>
             </Select>
+            <div className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm mt-4">
+                <Label htmlFor="canEditExchangeRate" className="font-bold text-slate-600">تعديل سعر الصرف</Label>
+                <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} disabled={isSaving} />
+            </div>
         </div>
       </div>
-      <div className="flex items-center justify-between rounded-lg border p-3">
-          <div className="space-y-0.5">
-              <Label htmlFor="canEditExchangeRate">السماح بتعديل سعر الصرف</Label>
-          </div>
-          <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} disabled={isSaving} />
-      </div>
 
-      <DialogFooter>
-        <DialogClose asChild><Button type="button" variant="secondary" disabled={isSaving}>إلغاء</Button></DialogClose>
-        <Button type="submit" disabled={isSaving}>{isSaving ? 'جاري الحفظ...' : 'حفظ'}</Button>
+      <DialogFooter className="gap-2">
+        <DialogClose asChild><Button type="button" variant="ghost" className="rounded-xl" disabled={isSaving}>إلغاء</Button></DialogClose>
+        <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1A4B84] hover:bg-[#1A4B84]/90">
+            {isSaving ? 'جاري الحفظ...' : 'حفظ بيانات المشرف'}
+        </Button>
       </DialogFooter>
     </form>
   );
 }
 
 export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[] }) {
-  const { data: supervisors, isLoading } = useRtdbList<Supervisor>('/supervisors');
   const { database } = useDatabase();
   const auth = useAuth();
   const functions = useFunctions();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
   const { toast } = useToast();
-  const tableRef = useRef<HTMLTableElement>(null);
 
-  const [specializationFilter, setSpecializationFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [specializationFilter, setSpecializationFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | undefined>(undefined);
+  const [isSaving, setIsSaving] = useState(false);
 
   const filteredData = useMemo(() => {
-    if (!initialData) return [];
-    return initialData.filter(
-      (item) =>
-        (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.phone.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (specializationFilter === 'all' || item.specialization?.includes(specializationFilter as any)) &&
-        (statusFilter === 'all' || item.status === statusFilter)
+    return (initialData || []).filter(s => 
+        (s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || s.phone?.includes(searchTerm)) && 
+        (specializationFilter === 'all' || s.specialization?.includes(specializationFilter as any)) &&
+        (statusFilter === 'all' || s.status === statusFilter)
     );
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
-  useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
-      return;
-    }
+  const handleCsvExport = () => {
+    exportToCsv('supervisors_list.csv', filteredData.map(s => {
+        const parts = formatDateParts(s.lastSeen);
+        return {
+            'الاسم': s.name,
+            'الهاتف': s.phone,
+            'التخصص': s.specialization?.join(' - ') || 'غير محدد',
+            'تعديل الصرف': s.canEditExchangeRate ? 'نعم' : 'لا',
+            'الحالة': s.status,
+            'آخر ظهور': `${parts.day}/${parts.month}/${parts.year} ${parts.time}`
+        };
+    }));
+  };
 
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-    }
-    
-    const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
-
-        $(tableRef.current).DataTable({
-          responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
-          buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
-          ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
-          pageLength: 10,
-          lengthMenu: [10, 25, 50, 100],
-          searching: false, // We use our custom search input
-          pagingType: 'full_numbers',
-        });
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-    };
-  }, [filteredData]);
-  
   const handleSave = async (supervisorData: Partial<Supervisor>) => {
     setIsSaving(true);
     try {
         if (editingSupervisor) {
             const path = `/supervisors/${editingSupervisor.id}`;
             const dataToUpdate = { ...supervisorData };
-
-            if (supervisorData.password) {
-                toast({ title: 'ملاحظة', description: 'تحديث كلمة المرور من هنا غير مدعوم. يمكن للمشرف تغييرها بنفسه.', variant: 'default' });
-            }
             delete dataToUpdate.password;
-            
             await updateRtdb(database, path, dataToUpdate);
-            toast({ title: 'تم تحديث البيانات بنجاح' });
+            toast({ title: 'تم تحديث بيانات المشرف بنجاح' });
         } else {
-            // Creating a new supervisor
-            if (!supervisorData.phone || !supervisorData.password) {
-                throw new Error("رقم الهاتف وكلمة المرور مطلوبان لإنشاء مشرف جديد.");
-            }
+            if (!supervisorData.phone || !supervisorData.password) throw new Error("الهاتف وكلمة المرور مطلوبان.");
             const email = `${supervisorData.phone.replace(/\s+/g, '')}@hawelly.app`;
-
-            // 1. Create user in Firebase Auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, supervisorData.password);
-            const newUserId = userCredential.user.uid;
-
-            // 2. Save supervisor data to RTDB using the new UID as the key.
-            const path = `/supervisors/${newUserId}`;
-            
-            const newSupervisorData: Omit<Supervisor, 'id' | 'password'> = {
+            const path = `/supervisors/${userCredential.user.uid}`;
+            const newSupervisorData = {
                 name: supervisorData.name || '',
                 phone: supervisorData.phone || '',
                 canEditExchangeRate: supervisorData.canEditExchangeRate || false,
@@ -264,195 +241,167 @@ export function SupervisorsDataTable({ initialData }: { initialData: Supervisor[
                 connectionStatus: 'غير متصل',
                 lastSeen: new Date().toISOString(),
             };
-
             await setRtdb(database, path, newSupervisorData);
-            toast({ title: 'تمت إضافة المشرف بنجاح' });
+            toast({ title: 'تمت إضافة المشرف الجديد بنجاح' });
         }
         setDialogOpen(false);
         setEditingSupervisor(undefined);
     } catch(error: any) {
-        let errorMessage = error.message;
-        if (error.code) {
-            switch(error.code) {
-                case 'auth/email-already-in-use':
-                    errorMessage = 'رقم الهاتف هذا مستخدم بالفعل لمشرف آخر.';
-                    break;
-                case 'auth/weak-password':
-                    errorMessage = 'كلمة المرور ضعيفة جدًا. يجب أن تكون 6 أحرف على الأقل.';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage = 'رقم الهاتف غير صالح لإنشاء حساب.';
-                    break;
-                default:
-                    errorMessage = `خطأ في المصادقة: ${error.code}`;
-            }
-        }
-        toast({ title: 'حدث خطأ', description: errorMessage, variant: 'destructive' });
+        toast({ title: 'حدث خطأ', description: error.message, variant: 'destructive' });
     } finally {
         setIsSaving(false);
     }
   };
-  
-  const handleKick = async (id: string) => {
-    if (!window.confirm('هل أنت متأكد من تعطيل هذا الحساب؟')) return;
-      try {
-        await updateRtdb(database, `/supervisors/${id}`, { status: 'غير نشط' });
-        toast({ title: 'تم تعطيل حساب المستخدم' });
-      } catch(e: any) {
-        toast({ title: 'حدث خطأ', description: e.message, variant: 'destructive' });
-      }
-  }
 
   const handleDelete = async (id: string, name: string) => {
-      if (!window.confirm(`هل أنت متأكد من حذف المشرف '${name}' بشكل نهائي؟ هذا الإجراء سيقوم بحذفه من نظام المصادقة وقاعدة البيانات.`)) return;
-  
+      if (!window.confirm(`حذف المشرف '${name}' نهائياً؟`)) return;
       const deleteSupervisorFn = httpsCallable(functions, 'deleteSupervisor');
-      
-      toast({ title: 'جاري حذف المشرف...', description: 'يرجى الانتظار.' });
-
       try {
-          const result = await deleteSupervisorFn({ uid: id });
-          if (result.data.success) {
-              toast({ title: 'تم الحذف بنجاح', description: `تم حذف المشرف ${name} نهائياً.` });
-          } else {
-              throw new Error((result.data as any).message || 'فشل حذف المشرف.');
-          }
+          await deleteSupervisorFn({ uid: id });
+          toast({ title: 'تم الحذف بنجاح' });
       } catch (error: any) {
-          console.error("Error deleting supervisor:", error);
-          toast({ title: 'حدث خطأ أثناء الحذف', description: error.message, variant: 'destructive' });
+          toast({ title: 'فشل الحذف', description: error.message, variant: 'destructive' });
       }
-  }
-
-  const handleClearFilters = () => {
-    setSearchTerm('');
-    setSpecializationFilter('all');
-    setStatusFilter('all');
-  };
-  
-  if (!supervisors && isLoading) {
-    return (
-       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-2">
-            <Skeleton className="h-10 w-full max-w-xs" />
-            <Skeleton className="h-10 w-[150px]" />
-            <Skeleton className="h-10 w-[150px]" />
-            <Skeleton className="h-10 w-[100px]" />
-        </div>
-        <div className="rounded-lg border p-4 space-y-2">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-        </div>
-      </div>
-    );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-2 flex-grow">
-            <Input
-              placeholder="ابحث بالاسم أو رقم الهاتف..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs"
-            />
-            <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="التخصص" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">كل التخصصات</SelectItem>
-                    <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
-                    <SelectItem value="انستاباي">انستاباي</SelectItem>
-                    <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
-                </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-auto md:w-[150px]"><SelectValue placeholder="حالة الحساب" /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">الكل</SelectItem>
-                    <SelectItem value="نشط">نشط</SelectItem>
-                    <SelectItem value="غير نشط">غير نشط</SelectItem>
-                </SelectContent>
-            </Select>
-            <Button variant="ghost" onClick={handleClearFilters}>
-              <FilterX className="ml-2 h-4 w-4" />
-              مسح
-            </Button>
+    <div className="space-y-6" dir="rtl">
+      {/* رأس الصفحة التفاعلي */}
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
+            <div className="relative flex-1 max-sm:w-full">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                    placeholder="بحث باسم المشرف أو رقم هاتفه..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
+                />
+            </div>
+            <div className="flex gap-2">
+                <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
+                    <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="all">كل التخصصات</SelectItem>
+                        <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
+                        <SelectItem value="انستاباي">انستاباي</SelectItem>
+                        <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[120px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                    <SelectContent className="rounded-xl border-none shadow-2xl">
+                        <SelectItem value="all">كل الحالات</SelectItem>
+                        <SelectItem value="نشط">نشط</SelectItem>
+                        <SelectItem value="غير نشط">غير نشط</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:text-primary" onClick={() => { setSearchTerm(""); setSpecializationFilter("all"); setStatusFilter("all"); }}>
+                    <FilterX className="h-5 w-5" />
+                </Button>
+            </div>
         </div>
-        <div className="flex items-center gap-2 self-end">
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-                if(!open) setEditingSupervisor(undefined);
-                setDialogOpen(open);
-            }}>
+
+        <div className="flex gap-2 w-full md:w-auto">
+            <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-11 rounded-xl bg-white border-slate-200 px-4">
+                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير
+            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) setEditingSupervisor(undefined); setDialogOpen(open); }}>
                 <DialogTrigger asChild>
-                    <Button className="w-full sm:w-auto">
-                        <PlusCircle className="ml-2 h-4 w-4" />
-                        إضافة مستخدم
+                    <Button className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6">
+                        <PlusCircle className="ml-2 h-4 w-4" /> إضافة مشرف
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                    <DialogHeader><DialogTitle>{editingSupervisor ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</DialogTitle></DialogHeader>
+                <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black text-[#1A4B84]">{editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}</DialogTitle>
+                    </DialogHeader>
                     <SupervisorForm onSave={handleSave} supervisor={editingSupervisor} isSaving={isSaving} />
                 </DialogContent>
             </Dialog>
         </div>
       </div>
-      <div className="rounded-lg border">
-        <Table ref={tableRef} className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead>الاسم</TableHead>
-              <TableHead>التخصص</TableHead>
-              <TableHead>تعديل السعر</TableHead>
-              <TableHead>حالة الاتصال</TableHead>
-              <TableHead>آخر ظهور</TableHead>
-              <TableHead>حالة الحساب</TableHead>
-              <TableHead className="text-left">الإجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map((supervisor) => (
-              <TableRow key={supervisor.id} className={cn('even:bg-muted/20', supervisor.status === 'غير نشط' && 'bg-red-50/50 opacity-60')}>
-                <TableCell>
-                    <div className="font-medium">{supervisor.name}</div>
-                    <div className="text-muted-foreground text-xs">{supervisor.phone}</div>
-                </TableCell>
-                <TableCell>{supervisor.specialization?.join(', ') || 'غير محدد'}</TableCell>
-                 <TableCell className="text-center">
-                    {supervisor.canEditExchangeRate ? <CheckCircle className="text-green-500 mx-auto"/> : <XCircle className="text-red-500 mx-auto"/>}
-                 </TableCell>
-                <TableCell>
-                  <Badge className={cn('flex items-center gap-1.5 w-fit', connectionStatusColors[supervisor.connectionStatus], `hover:${connectionStatusColors[supervisor.connectionStatus]}`)}>
-                    <span className={cn('h-2 w-2 rounded-full', supervisor.connectionStatus === 'متصل' ? 'bg-green-600' : 'bg-stone-500')}></span>
-                    {supervisor.connectionStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs">{new Date(supervisor.lastSeen).toLocaleString('ar-EG-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</TableCell>
-                <TableCell>
-                  <Badge className={cn(statusColors[supervisor.status], `hover:${statusColors[supervisor.status]}`)}>
-                      {supervisor.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-left">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0"><span className="sr-only">فتح القائمة</span><MoreHorizontal className="h-4 w-4" /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => { setEditingSupervisor(supervisor); setDialogOpen(true); }}>تعديل</DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/supervisors/${supervisor.id}/log`}><FileClock className="ml-2 h-4 w-4" /><span>السجل</span></Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleKick(supervisor.id)} disabled={supervisor.status === 'غير نشط'} className="text-destructive"><UserX className="ml-2 h-4 w-4"/><span>تعطيل</span></DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleDelete(supervisor.id, supervisor.name)} className="text-destructive focus:text-destructive"><Trash2 className="ml-2 h-4 w-4"/><span>حذف نهائي</span></DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+
+      {/* جدول البيانات */}
+      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+            <Table>
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                    <TableRow className="hover:bg-transparent">
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">التخصصات</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">تعديل الصرف</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">آخر ظهور</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="text-left font-black text-[#1A4B84] text-xs uppercase tracking-widest h-12">إجراءات</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredData.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={7} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد نتائج مطابقة</TableCell>
+                        </TableRow>
+                    ) : filteredData.map(s => {
+                        const isOnline = s.connectionStatus === 'متصل';
+                        return (
+                            <TableRow key={s.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", s.status === 'غير نشط' && "bg-red-50/20")}>
+                                <TableCell className="text-right py-4">
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-sm text-slate-700">{s.name}</span>
+                                        <span className="text-[11px] text-slate-400 font-mono tabular-nums">{s.phone}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex flex-wrap gap-1">
+                                        {s.specialization?.map(spec => (
+                                            <Badge key={spec} variant="outline" className="text-[9px] font-bold bg-slate-50 border-slate-200">{spec}</Badge>
+                                        )) || <span className="text-[10px] text-slate-300 italic">غير محدد</span>}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    {s.canEditExchangeRate ? <CheckCircle className="h-4 w-4 text-green-500 mx-auto" /> : <XCircle className="h-4 w-4 text-red-300 mx-auto" />}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex items-center gap-1.5 justify-start">
+                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                                        <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{s.connectionStatus || 'غير متصل'}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-[11px] text-slate-500 font-medium">
+                                    <DateTimeDisplay timestamp={s.lastSeen} />
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <Badge className={cn("text-[10px] font-bold border-none", statusColors[s.status])}>{s.status}</Badge>
+                                </TableCell>
+                                <TableCell className="text-left">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
+                                            <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" onClick={() => { setEditingSupervisor(s); setDialogOpen(true); }}>
+                                                <Pencil className="ml-2 h-4 w-4 text-[#1A4B84]" /> تعديل البيانات
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm">
+                                                <Link href={`/dashboard/supervisors/${s.id}/log`}><FileClock className="ml-2 h-4 w-4 text-blue-500" /> سجل العمليات</Link>
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator className="bg-slate-100" />
+                                            <DropdownMenuItem 
+                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm text-destructive focus:text-destructive"
+                                                onClick={() => handleDelete(s.id, s.name)}
+                                            >
+                                                <Trash2 className="ml-2 h-4 w-4" /> حذف الحساب
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        )
+                    })}
+                </TableBody>
+            </Table>
+        </div>
       </div>
     </div>
   );
