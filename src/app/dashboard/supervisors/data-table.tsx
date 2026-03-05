@@ -65,9 +65,6 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
     </div>
 );
 
-/**
- * تنسيق التاريخ: يوم شهر سنة من اليمين لليسار، ص/م يسار الوقت
- */
 const formatDateParts = (timestamp: number | string | undefined) => {
     if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
     const date = new Date(timestamp);
@@ -325,10 +322,13 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
       }
   }
 
+  const now = new Date();
+  const currentMonthVal = (now.getMonth() + 1).toString();
+
   return (
     <div className="space-y-6" dir="rtl">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto flex-1">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 items-center">
             <div className="relative flex-1 max-sm:w-full">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input 
@@ -338,7 +338,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                     className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
                 />
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
                 <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
                     <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="التخصص" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
@@ -348,14 +348,20 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                         <SelectItem value="وصلني البيت">وصلني البيت</SelectItem>
                     </SelectContent>
                 </Select>
+
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="الشهر" /></SelectTrigger>
-                    <SelectContent className="rounded-xl border-none shadow-2xl max-h-[300px]">
+                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
                         {months.map(m => (
-                            <SelectItem key={m.val} value={m.val}>{m.label}</SelectItem>
+                            <SelectItem key={m.val} value={m.val} className="rounded-xl font-bold">
+                                {m.val === currentMonthVal ? `هذا الشهر (${m.label})` : m.label}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
+
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-[120px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
@@ -364,7 +370,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                         <SelectItem value="غير نشط">غير نشط</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:text-primary" onClick={() => { setSearchTerm(""); setSpecializationFilter("all"); setStatusFilter("all"); setSelectedMonth((new Date().getMonth() + 1).toString()); }}>
+                <Button variant="ghost" size="icon" className="h-11 w-11 rounded-xl text-slate-400 hover:text-primary" onClick={() => { setSearchTerm(""); setSpecializationFilter("all"); setStatusFilter("all"); setSelectedMonth(currentMonthVal); }}>
                     <FilterX className="h-5 w-5" />
                 </Button>
             </div>
@@ -475,7 +481,6 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
         </div>
       </div>
 
-      {/* النافذة المنبثقة خارج الجدول تماماً لمنع التجميد */}
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
               <DialogHeader>
