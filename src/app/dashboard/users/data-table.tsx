@@ -131,10 +131,11 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
+// مكون لعرض العملة يسار الرقم
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
-    <div className={cn("flex items-baseline gap-1 justify-start font-black flex-row-reverse", colorClass)}>
-        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="rtl">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
     </div>
 );
 
@@ -175,8 +176,9 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                                     <TableCell className="text-[11px] tabular-nums whitespace-nowrap" dir="rtl">
                                         <div className="flex items-center justify-start gap-1">
                                             <span>{txTime.date}</span>
-                                            <span className="mx-1">{txTime.time}</span>
+                                            <span className="mx-2"></span>
                                             <span className="text-[10px] font-bold">{txTime.period}</span>
+                                            <span>{txTime.time}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-sm font-bold">
@@ -325,72 +327,77 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
+                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden">
+                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة والمحفظة</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-8 space-y-6">
-                                <div className="flex flex-col items-start text-right w-full">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد الليبي</span>
-                                    <CurrencyDisplay amount={user.balanceLYD} currency="د.ل" colorClass="text-green-600 text-2xl" />
+                            <CardContent className="p-8 space-y-6 text-right">
+                                <div className="flex flex-col items-start w-full">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد الليبي</span>
+                                    <CurrencyDisplay amount={user.balanceLYD} currency="د.ل" colorClass="text-green-600 text-3xl" />
                                 </div>
-                                <div className="flex flex-col items-start text-right w-full">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">الرصيد المصري</span>
-                                    <CurrencyDisplay amount={user.balanceEGP} currency="ج.م" colorClass="text-[#1A4B84] text-2xl" />
+                                <div className="flex flex-col items-start w-full">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">الرصيد المصري</span>
+                                    <CurrencyDisplay amount={user.balanceEGP} currency="ج.م" colorClass="text-[#1A4B84] text-3xl" />
                                 </div>
-                                <div className="flex flex-col items-start text-right w-full">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 w-full">المصري المعلق</span>
-                                    <CurrencyDisplay amount={user.balanceEgyptianPending} currency="ج.م" colorClass="text-slate-400 text-2xl" />
+                                <div className="flex flex-col items-start w-full">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">المصري المعلق</span>
+                                    <CurrencyDisplay amount={user.balanceEgyptianPending} currency="ج.م" colorClass="text-slate-400 text-3xl" />
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden">
+                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
-                                    <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب:</span>
+                                    <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب</span>
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{createdAtFormatted.date}</span>
-                                        <span className="mx-1">{createdAtFormatted.time}</span>
+                                        <span className="mx-2"></span>
                                         <span className="text-[10px] font-bold">{createdAtFormatted.period}</span>
+                                        <span>{createdAtFormatted.time}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
-                                    <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور:</span>
+                                    <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور</span>
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{lastPassFormatted.date}</span>
-                                        <span className="mx-1">{lastPassFormatted.time}</span>
+                                        <span className="mx-2"></span>
                                         <span className="text-[10px] font-bold">{lastPassFormatted.period}</span>
+                                        <span>{lastPassFormatted.time}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between pb-2">
-                                    <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري:</span>
+                                    <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري</span>
                                     <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
                                         <span>{lastPinFormatted.date}</span>
-                                        <span className="mx-1">{lastPinFormatted.time}</span>
+                                        <span className="mx-2"></span>
                                         <span className="text-[10px] font-bold">{lastPinFormatted.period}</span>
+                                        <span>{lastPinFormatted.time}</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
+                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden flex flex-col">
+                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">إثبات الهوية</CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6 text-right flex-1 flex flex-col justify-between">
                                 <div className="space-y-2 flex-1">
-                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة الهوية الأمامية</span>
-                                    <div className="relative h-[240px] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة الهوية الرسمية</span>
+                                    <div className="relative h-[280px] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
                                                 <Image src={frontImageUrl} alt="Identity Front" fill className="object-contain p-1 rounded-2xl" />
@@ -418,13 +425,13 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden flex flex-col">
+                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة النشطة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
-                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar max-h-[320px]">
+                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" style={{ maxHeight: '320px' }}>
                                     <Table>
                                         <TableHeader className="sticky top-0 bg-white z-10">
                                             <TableRow className="border-none hover:bg-transparent text-right">
@@ -470,6 +477,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
+                    {/* الصف الثالث: سجل العمليات */}
                     <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -690,8 +698,9 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                 <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right" dir="rtl">
                                     <div className="flex items-center justify-start gap-1">
                                         <span>{lastSeenData.date}</span>
-                                        <span className="mx-1">{lastSeenData.time}</span>
+                                        <span className="mx-2"></span>
                                         <span className="text-[10px] font-bold">{lastSeenData.period}</span>
+                                        <span>{lastSeenData.time}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-left">
