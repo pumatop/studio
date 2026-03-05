@@ -26,7 +26,7 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '@/components/ui/tabs';
+} from '@/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +61,7 @@ import {
   FileDown,
   Printer,
   Search,
+  Info,
 } from 'lucide-react';
 import type { User, Transaction, EgyptTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -77,6 +78,7 @@ import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 // Dynamic imports for nested data tables
 const LibyanTransactionsDataTable = dynamic(
@@ -121,6 +123,18 @@ const verificationColors: Record<User['verification'], string> = {
     "verified": "bg-blue-100 text-blue-800",
     "pending": "bg-yellow-100 text-yellow-800",
     "unverified": "bg-gray-100 text-gray-800",
+};
+
+const formatDate = (timestamp: number | undefined) => {
+    if (!timestamp) return '---';
+    return new Date(timestamp).toLocaleString('ar-EG-u-nu-latn', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
 };
 
 /**
@@ -222,6 +236,30 @@ function UserDetailsContent({
                             <Card className="floating-card overflow-hidden">
                                 <CardHeader className="bg-[#E3F2FD]/30 border-b">
                                     <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
+                                        <Info className="h-5 w-5" /> معلومات الحساب
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-6 space-y-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">تاريخ فتح الحساب</p>
+                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.createdAt)}</p>
+                                    </div>
+                                    <Separator className="bg-slate-50" />
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير لكلمة المرور</p>
+                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.lastPasswordChange)}</p>
+                                    </div>
+                                    <Separator className="bg-slate-50" />
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">آخر تغيير للرقم السري</p>
+                                        <p className="font-bold text-sm text-[#1A4B84] tabular-nums">{formatDate(user.lastPinChange)}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="floating-card overflow-hidden">
+                                <CardHeader className="bg-[#E3F2FD]/30 border-b">
+                                    <CardTitle className="text-lg flex items-center gap-2 text-[#1A4B84] font-black">
                                         <Wallet className="h-5 w-5" /> المحفظة والأرصدة
                                     </CardTitle>
                                 </CardHeader>
@@ -263,7 +301,6 @@ function UserDetailsContent({
                                         )}
                                     </div>
                                     <div className="flex flex-col gap-3">
-                                        {/* زر توثيق / إلغاء توثيق ذكي */}
                                         <Button 
                                             variant="outline" 
                                             className={cn(
@@ -285,7 +322,6 @@ function UserDetailsContent({
                                             )}
                                         </Button>
 
-                                        {/* زر تحويل لتاجر / مستخدم عادي ذكي */}
                                         <Button 
                                             variant="outline" 
                                             className={cn(
@@ -344,9 +380,9 @@ function UserDetailsContent({
                                     <Table>
                                         <TableHeader className="bg-slate-50">
                                             <TableRow>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400">الجهاز / النظام</TableHead>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400">IP / الموقع</TableHead>
-                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400">الحالة</TableHead>
+                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-right">الجهاز / النظام</TableHead>
+                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-right">IP / الموقع</TableHead>
+                                                <TableHead className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">الحالة</TableHead>
                                                 <TableHead className="text-left text-xs font-black uppercase tracking-widest text-slate-400">إجراء</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -367,7 +403,7 @@ function UserDetailsContent({
                                                             تحديث: {new Date(s.lastUpdate).toLocaleTimeString('ar-EG-u-nu-latn', { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="text-center">
                                                         <Badge className={cn("text-[10px] px-2 py-0.5 font-bold", connectionStatusColors[s.connectionStatus])}>
                                                             {s.connectionStatus}
                                                         </Badge>
