@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
@@ -35,6 +36,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 import {
   Eye,
   Wallet,
@@ -115,6 +122,8 @@ const formatDate = (timestamp: number | undefined) => {
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     const datePart = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
+    // الترتيب: التاريخ [مسافة] الوقت [مسافة] ص/م
+    // في حاوية RTL سيظهر ص/م في أقصى اليسار
     return `${datePart} ${timePart} ${period}`;
 };
 
@@ -314,9 +323,10 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-                        <Card className="lg:col-span-1 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1 lg:order-2">
+                    {/* Row 1: Balances (Right) and Account Info (Left) - 50/50 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                        {/* Balances Card - Right */}
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة</CardTitle>
@@ -337,7 +347,8 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        <Card className="lg:col-span-2 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-2 lg:order-1">
+                        {/* Account Info Card - Left */}
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-2">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
@@ -359,17 +370,18 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-1 lg:order-2">
+                    {/* Row 2: Verification (Right) and Sessions (Left) - 50/50 Same Height */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                        {/* Verification Card - Right */}
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-1">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">التوثيق</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 space-y-6 text-right flex-1 flex flex-col justify-center">
-                                <div className="space-y-2">
+                            <CardContent className="p-6 space-y-6 text-right flex-1 flex flex-col justify-between">
+                                <div className="space-y-2 flex-1">
                                     <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة إثبات الهوية</span>
-                                    <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                    <div className="relative h-[240px] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
                                                 <Image src={frontImageUrl} alt="Identity Front" fill className="object-contain p-1 rounded-2xl" />
@@ -413,13 +425,14 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-2 lg:order-1">
+                        {/* Sessions Card - Left */}
+                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-2">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
-                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar max-h-[350px]">
+                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar max-h-[320px]">
                                     <Table>
                                         <TableHeader className="sticky top-0 bg-white z-10">
                                             <TableRow className="border-none hover:bg-transparent text-right">
@@ -465,7 +478,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثالث: سجل عمليات المستخدم */}
+                    {/* Row 3: Full Width Transactions */}
                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
