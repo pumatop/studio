@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -44,6 +43,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
+import {
   Eye,
   Wallet,
   FileText,
@@ -57,6 +60,7 @@ import {
   Activity,
   Loader2,
   X,
+  LogOut,
 } from 'lucide-react';
 import type { User, Transaction, EgyptTransferTransaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -129,10 +133,9 @@ const verificationColors: Record<User['verification'], string> = {
 };
 
 /**
- * UserDetailsPage - A full-screen overlay component to show user details
- * This avoids Radix UI body locks that could freeze the page.
+ * UserDetailsContent - المحتوى الفعلي لصفحة التفاصيل
  */
-function UserDetailsPage({ 
+function UserDetailsContent({ 
     user, 
     onClose, 
     onUserUpdate, 
@@ -140,7 +143,7 @@ function UserDetailsPage({
     onLogoutAllSessions, 
     allTransactions 
 }: { 
-    user: User | null, 
+    user: User, 
     onClose: () => void, 
     onUserUpdate: (userId: string, updates: Partial<User>) => void, 
     onDeleteSession: (userId: string, sessionId: string) => void, 
@@ -149,7 +152,7 @@ function UserDetailsPage({
 }) {
     const { toast } = useToast();
     const [isEditingName, setIsEditingName] = useState(false);
-    const [name, setName] = useState(user?.name || "");
+    const [name, setName] = useState(user.name || "");
 
     const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
 
@@ -161,10 +164,9 @@ function UserDetailsPage({
         return null;
     }
 
-    const frontImageUrl = getImageUrl(user?.idImageUrl);
+    const frontImageUrl = getImageUrl(user.idImageUrl);
 
     const userFinancialTransactions = useMemo(() => {
-        if (!user) return [];
         return allTransactions.filter(t => 
             (t.type === 'account_transfer' && ((t as any).senderId === user.id || (t as any).recipientId === user.id)) || 
             (t.type === 'egypt_transfer' && (t as any).userId === user.id)
@@ -172,21 +174,18 @@ function UserDetailsPage({
     }, [user, allTransactions]);
     
     const userEgyptianTransactions = useMemo(() => {
-        if (!user) return [];
         return allTransactions.filter((t): t is EgyptTransferTransaction => t.type === 'egypt_transfer' && t.userId === user.id);
     }, [user, allTransactions]);
 
     const sessions = useMemo(() => {
-        if (!user?.sessions) return [];
+        if (!user.sessions) return [];
         return Object.entries(user.sessions).map(([id, s]) => ({ id, ...s })).sort((a, b) => b.lastUpdate - a.lastUpdate);
     }, [user]);
 
     useEffect(() => { if (user) setName(user.name); }, [user]);
 
-    if (!user) return null;
-    
     return (
-        <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-md overflow-hidden flex flex-col animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
+        <div className="flex flex-col h-full bg-background animate-in fade-in-0 slide-in-from-bottom-4 duration-300">
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b bg-white/80 sticky top-0 z-50">
                 <div className="flex items-center gap-4">
@@ -435,12 +434,15 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     if (!tableRef.current) return;
     
     // Check if DataTables is already initialized
+    // @ts-ignore
     if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        // @ts-ignore
         $(tableRef.current).DataTable().destroy();
     }
     
     const timer = setTimeout(() => {
         if (!tableRef.current) return;
+        // @ts-ignore
         $(tableRef.current).DataTable({
             responsive: true,
             dom: "<'flex items-center justify-between gap-4 mb-4'B>rt<'flex items-center justify-between mt-4'ip>",
@@ -458,7 +460,9 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
     return () => {
         clearTimeout(timer);
+        // @ts-ignore
         if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+            // @ts-ignore
             $(tableRef.current).DataTable().destroy();
         }
     };
@@ -468,7 +472,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
       if (!userToToggleBan) return;
       setIsToggling(true);
       const newStatus = userToToggleBan.status === 'active' ? 'banned' : 'active';
-      const action = newStatus === 'active' ? 'إلغاء تجميد' : 'تجميد';
+      const action = newStatus === 'active' ? 'تنشيط' : 'تجميد';
       
       try {
           await updateRtdb(database, `/users/${userToToggleBan.id}`, { status: newStatus });
@@ -584,14 +588,18 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
       </div>
 
       {selectedUser && (
-          <UserDetailsPage 
-            user={selectedUser} 
-            onClose={() => setSelectedUser(null)} 
-            onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
-            onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
-            onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
-            allTransactions={allTransactions} 
-          />
+          <Dialog open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+              <DialogContent className="max-w-none w-screen h-screen p-0 m-0 border-none rounded-none bg-background">
+                  <UserDetailsContent 
+                    user={selectedUser} 
+                    onClose={() => setSelectedUser(null)} 
+                    onUserUpdate={(id, up) => updateRtdb(database, `/users/${id}`, up)} 
+                    onDeleteSession={(uid, sid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, sessionId: sid })} 
+                    onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
+                    allTransactions={allTransactions} 
+                  />
+              </DialogContent>
+          </Dialog>
       )}
 
       <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
