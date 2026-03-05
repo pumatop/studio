@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -42,6 +43,16 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Eye,
   Wallet,
   FileText,
@@ -58,6 +69,7 @@ import {
   XCircle,
   AlertCircle,
   Activity,
+  Loader2,
 } from 'lucide-react';
 import type { User, Transaction, EgyptTransferTransaction, UserSession } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -397,9 +409,13 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
+  const [userToToggleBan, setUserToToggleBan] = useState<User | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
+  
   const { database } = useDatabase();
   const tableRef = useRef<HTMLTableElement>(null);
   const { toast } = useToast();
+  const functions = useFunctions();
   
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -440,16 +456,20 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     });
   }, [filteredData]);
 
-  const handleToggleBan = async (user: User) => {
-      const newStatus = user.status === 'active' ? 'banned' : 'active';
+  const confirmToggleBan = async () => {
+      if (!userToToggleBan) return;
+      setIsToggling(true);
+      const newStatus = userToToggleBan.status === 'active' ? 'banned' : 'active';
       const action = newStatus === 'active' ? 'إلغاء التجميد' : 'تجميد';
-      if(window.confirm(`هل أنت متأكد من ${action} المستخدم ${user.name}؟`)) {
-          try {
-              await updateRtdb(database, `/users/${user.id}`, { status: newStatus });
-              toast({ title: `تم ${action} المستخدم بنجاح` });
-          } catch(e: any) {
-              toast({ title: "فشل تحديث الحالة", description: e.message, variant: 'destructive' });
-          }
+      
+      try {
+          await updateRtdb(database, `/users/${userToToggleBan.id}`, { status: newStatus });
+          toast({ title: `تم ${action} المستخدم بنجاح` });
+      } catch(e: any) {
+          toast({ title: "فشل تحديث الحالة", description: e.message, variant: 'destructive' });
+      } finally {
+          setIsToggling(false);
+          setUserToToggleBan(null);
       }
   };
 
@@ -541,7 +561,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                     <DropdownMenuItem onClick={() => { setSelectedUser(u); setDetailsOpen(true); }}>
                                         <Eye className="ml-2 h-4 w-4" /> عرض التفاصيل
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleToggleBan(u)} className={cn(u.status === 'active' ? "text-destructive" : "text-green-600")}>
+                                    <DropdownMenuItem onClick={() => setUserToToggleBan(u)} className={cn(u.status === 'active' ? "text-destructive" : "text-green-600")}>
                                         {u.status === 'active' ? <UserX className="ml-2 h-4 w-4" /> : <UserCheck className="ml-2 h-4 w-4" />}
                                         {u.status === 'active' ? 'تجميد المستخدم' : 'إلغاء التجميد'}
                                     </DropdownMenuItem>
@@ -564,6 +584,37 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         onLogoutAllSessions={(uid) => httpsCallable(functions, 'manageUserSessions')({ userId: uid, action: 'deleteAll' })} 
         allTransactions={allTransactions} 
       />
+
+      {/* AlertDialog for Freeze/Unfreeze Confirmation */}
+      <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
+          <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+              <AlertDialogHeader>
+                  <AlertDialogTitle className="text-xl font-black text-[#1A4B84]">
+                      {userToToggleBan?.status === 'active' ? 'تجميد حساب المستخدم' : 'إلغاء تجميد الحساب'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="font-bold text-sm">
+                      {userToToggleBan?.status === 'active' 
+                        ? `هل أنت متأكد من رغبتك في تجميد حساب "${userToToggleBan?.name}"؟ لن يتمكن من إجراء أي عمليات حتى إلغاء التجميد.`
+                        : `هل تريد إعادة تفعيل حساب "${userToToggleBan?.name}" وإلغاء التجميد؟`
+                      }
+                  </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="gap-2 pt-4">
+                  <AlertDialogCancel className="rounded-xl font-bold border-slate-200">إلغاء</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={confirmToggleBan} 
+                    className={cn(
+                        "rounded-xl font-black text-sm shadow-lg",
+                        userToToggleBan?.status === 'active' ? "bg-destructive hover:bg-destructive/90" : "bg-green-600 hover:bg-green-700"
+                    )}
+                    disabled={isToggling}
+                  >
+                      {isToggling && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                      تأكيد العملية
+                  </AlertDialogAction>
+              </AlertDialogFooter>
+          </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
