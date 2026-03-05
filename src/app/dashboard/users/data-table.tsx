@@ -37,12 +37,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
-import {
   Eye,
   Wallet,
   FileText,
@@ -112,19 +106,20 @@ const verificationColors: Record<User['verification'], string> = {
     "unverified": "bg-gray-100 text-gray-800",
 };
 
-/**
- * تنسيق التاريخ والوقت ليكون من اليمين لليسار (RTL) مع ص/م يسار الوقت
- */
 const formatDate = (timestamp: number | undefined) => {
-    if (!timestamp) return '---';
+    if (!timestamp) return { date: '---', time: '', period: '' };
     const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
     const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
     const period = date.getHours() >= 12 ? 'م' : 'ص';
-    const datePart = date.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
-    // الترتيب: التاريخ [مسافة] الوقت [مسافة] ص/م
-    // في حاوية RTL سيظهر ص/م في أقصى اليسار
-    return `${datePart} ${timePart} ${period}`;
+    return {
+        date: `${day}/${month}/${year}`,
+        time: timePart,
+        period: period
+    };
 };
 
 const typeLabelMap: Record<string, string> = {
@@ -136,11 +131,8 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
-/**
- * عرض العملة مع جعل الرمز يسار الرقم
- */
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
-    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)}>
+    <div className={cn("flex items-baseline gap-1 justify-start font-black flex-row-reverse", colorClass)}>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
     </div>
@@ -175,11 +167,18 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                             const isLibyan = tx.type === 'account_transfer' || tx.type === 'recharge_purchase';
                             const currency = isLibyan ? 'د.ل' : 'ج.م';
                             const amount = tx.amount || tx.amountEGP || tx.amountLYD || 0;
+                            const txTime = formatDate(tx.timestamp);
                             
                             return (
                                 <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
-                                    <TableCell className="text-[11px] tabular-nums whitespace-nowrap" dir="rtl">{formatDate(tx.timestamp)}</TableCell>
+                                    <TableCell className="text-[11px] tabular-nums whitespace-nowrap" dir="rtl">
+                                        <div className="flex items-center justify-start gap-1">
+                                            <span>{txTime.date}</span>
+                                            <span className="mx-1">{txTime.time}</span>
+                                            <span className="text-[10px] font-bold">{txTime.period}</span>
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-sm font-bold">
                                         <CurrencyDisplay amount={amount} currency={currency} />
                                     </TableCell>
@@ -283,9 +282,12 @@ function UserDetailsContent({
         { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
     ];
 
+    const createdAtFormatted = formatDate(user.createdAt);
+    const lastPassFormatted = formatDate(user.lastPasswordChange);
+    const lastPinFormatted = formatDate(user.lastPinChange);
+
     return (
         <div className="fixed inset-0 z-[100] bg-slate-100 flex flex-col overflow-hidden animate-in fade-in-0 duration-300" dir="rtl">
-            {/* Top Bar */}
             <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white sticky top-0 z-50 shadow-sm">
                 <div className="flex items-center gap-4">
                     <div className="p-2.5 bg-primary/10 rounded-2xl">
@@ -323,13 +325,11 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* Row 1: Balances (Right) and Account Info (Left) - 50/50 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        {/* Balances Card - Right */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-1">
+                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة</CardTitle>
+                                <CardTitle className="text-base text-[#1A4B84] font-black">الأرصدة والمحفظة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex flex-col items-start text-right w-full">
@@ -347,8 +347,7 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* Account Info Card - Left */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden order-2">
+                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
                                 <CardTitle className="text-base text-[#1A4B84] font-black">معلومات الحساب</CardTitle>
@@ -356,31 +355,41 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.createdAt)}</span>
+                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
+                                        <span>{createdAtFormatted.date}</span>
+                                        <span className="mx-1">{createdAtFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{createdAtFormatted.period}</span>
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.lastPasswordChange)}</span>
+                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
+                                        <span>{lastPassFormatted.date}</span>
+                                        <span className="mx-1">{lastPassFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{lastPassFormatted.period}</span>
+                                    </div>
                                 </div>
                                 <div className="flex items-center justify-between pb-2">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري:</span>
-                                    <span className="text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">{formatDate(user.lastPinChange)}</span>
+                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
+                                        <span>{lastPinFormatted.date}</span>
+                                        <span className="mx-1">{lastPinFormatted.time}</span>
+                                        <span className="text-[10px] font-bold">{lastPinFormatted.period}</span>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* Row 2: Verification (Right) and Sessions (Left) - 50/50 Same Height */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        {/* Verification Card - Right */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-1">
+                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden flex flex-col">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#1A4B84] font-black">التوثيق</CardTitle>
+                                <CardTitle className="text-base text-[#1A4B84] font-black">إثبات الهوية</CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6 text-right flex-1 flex flex-col justify-between">
                                 <div className="space-y-2 flex-1">
-                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة إثبات الهوية</span>
+                                    <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة الهوية الأمامية</span>
                                     <div className="relative h-[240px] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
@@ -394,7 +403,6 @@ function UserDetailsContent({
                                         )}
                                     </div>
                                 </div>
-                                
                                 <div className="pt-4 flex flex-col sm:flex-row gap-3">
                                     <Button 
                                         variant="outline" 
@@ -406,30 +414,14 @@ function UserDetailsContent({
                                     >
                                         {user.verification === 'verified' ? "إلغاء التوثيق" : "توثيق الحساب"}
                                     </Button>
-                                    <Button 
-                                        variant="outline" 
-                                        className={cn(
-                                            "flex-1 h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all",
-                                            user.role === 'merchant' ? "text-slate-600 border-slate-50 hover:bg-slate-50" : "text-purple-600 border-purple-50 hover:bg-purple-50"
-                                        )}
-                                        onClick={() => {
-                                            const newRole = user.role === 'merchant' ? 'user' : 'merchant';
-                                            if(window.confirm(`هل تريد ${newRole === 'merchant' ? 'تحويله لتاجر' : 'إرجاعه لمستخدم'}؟`)) {
-                                                onUserUpdate(user.id, { role: newRole });
-                                            }
-                                        }}
-                                    >
-                                        {user.role === 'merchant' ? "تحويل لمستخدم" : "تحويل لتاجر"}
-                                    </Button>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        {/* Sessions Card - Left */}
-                        <Card className="rounded-[2rem] border-none shadow-sm bg-white overflow-hidden flex flex-col order-2">
+                        <Card className="rounded-[2rem] border shadow-sm bg-white overflow-hidden flex flex-col">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة</CardTitle>
+                                <CardTitle className="text-base text-[#1A4B84] font-black">الجلسات والأجهزة النشطة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
                                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar max-h-[320px]">
@@ -478,8 +470,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* Row 3: Full Width Transactions */}
-                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
+                    <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
                                 <Activity className="h-6 w-6 text-primary" />
@@ -538,7 +529,6 @@ function UserDetailsContent({
                             <SimpleTransactionTable data={filteredUserTransactions} />
                         </CardContent>
                     </Card>
-
                 </div>
             </div>
         </div>
@@ -574,7 +564,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         'النوع': roleMap[u.role],
         'الحالة': statusMap[u.status],
         'التوثيق': verificationMap[u.verification],
-        'آخر ظهور': u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : 'غير معروف'
+        'آخر ظهور': u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()).date : 'غير معروف'
     })));
   };
 
@@ -669,6 +659,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         </TableRow>
                     ) : filteredData.map(u => {
                         const isOnline = u.connectionStatus === 'متصل';
+                        const lastSeenData = formatDate(u.lastSeen ? new Date(u.lastSeen).getTime() : undefined);
                         return (
                             <TableRow key={u.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", u.status === 'banned' && "bg-red-50/20")}>
                                 <TableCell className="text-right">
@@ -697,7 +688,11 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right" dir="rtl">
-                                    {u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()) : '---'}
+                                    <div className="flex items-center justify-start gap-1">
+                                        <span>{lastSeenData.date}</span>
+                                        <span className="mx-1">{lastSeenData.time}</span>
+                                        <span className="text-[10px] font-bold">{lastSeenData.period}</span>
+                                    </div>
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <DropdownMenu>
