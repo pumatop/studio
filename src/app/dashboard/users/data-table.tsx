@@ -106,17 +106,22 @@ const verificationColors: Record<User['verification'], string> = {
     "unverified": "bg-gray-100 text-gray-800",
 };
 
-const formatDate = (timestamp: number | undefined) => {
-    if (!timestamp) return { date: '---', time: '', period: '' };
+/**
+ * وظيفة مساعدة لتحويل الوقت إلى أجزاء منفصلة لدعم العرض العربي الدقيق
+ */
+const formatDateParts = (timestamp: number | undefined) => {
+    if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
     const date = new Date(timestamp);
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
+    const year = date.getFullYear().toString();
     const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     
     return {
-        date: `${day}/${month}/${year}`,
+        day,
+        month,
+        year,
         time: timePart,
         period: period
     };
@@ -138,6 +143,25 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
     </div>
 );
+
+/**
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق (يوم/شهر/سنة من اليمين، ص/م يسار الوقت)
+ */
+const DateTimeDisplay = ({ timestamp, className }: { timestamp: number | undefined, className?: string }) => {
+    const parts = formatDateParts(timestamp);
+    return (
+        <div className={cn("flex items-center justify-start gap-0.5 tabular-nums", className)} dir="rtl">
+            <span>{parts.day}</span>
+            <span className="opacity-40">/</span>
+            <span>{parts.month}</span>
+            <span className="opacity-40">/</span>
+            <span>{parts.year}</span>
+            <span className="mx-2"></span>
+            <span className="font-bold">{parts.time}</span>
+            <span className="text-[10px] font-black mr-1">{parts.period}</span>
+        </div>
+    );
+};
 
 function SimpleTransactionTable({ data }: { data: any[] }) {
     if (data.length === 0) {
@@ -168,18 +192,12 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                             const isLibyan = tx.type === 'account_transfer' || tx.type === 'recharge_purchase';
                             const currency = isLibyan ? 'د.ل' : 'ج.م';
                             const amount = tx.amount || tx.amountEGP || tx.amountLYD || 0;
-                            const txTime = formatDate(tx.timestamp);
                             
                             return (
                                 <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
-                                    <TableCell className="text-[11px] tabular-nums whitespace-nowrap" dir="rtl">
-                                        <div className="flex items-center justify-start gap-1">
-                                            <span>{txTime.date}</span>
-                                            <span className="mx-2"></span>
-                                            <span>{txTime.time}</span>
-                                            <span className="text-[10px] font-bold">{txTime.period}</span>
-                                        </div>
+                                    <TableCell className="text-[11px] whitespace-nowrap">
+                                        <DateTimeDisplay timestamp={tx.timestamp} />
                                     </TableCell>
                                     <TableCell className="text-sm font-bold">
                                         <CurrencyDisplay amount={amount} currency={currency} />
@@ -284,10 +302,6 @@ function UserDetailsContent({
         { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
     ];
 
-    const createdAtFormatted = formatDate(user.createdAt);
-    const lastPassFormatted = formatDate(user.lastPasswordChange);
-    const lastPinFormatted = formatDate(user.lastPinChange);
-
     return (
         <div className="fixed inset-0 z-[100] bg-slate-100 flex flex-col overflow-hidden animate-in fade-in-0 duration-300" dir="rtl">
             <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white sticky top-0 z-50 shadow-sm">
@@ -360,30 +374,15 @@ function UserDetailsContent({
                             <CardContent className="p-8 space-y-6">
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب</span>
-                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
-                                        <span>{createdAtFormatted.date}</span>
-                                        <span className="mx-2"></span>
-                                        <span>{createdAtFormatted.time}</span>
-                                        <span className="text-[10px] font-bold">{createdAtFormatted.period}</span>
-                                    </div>
+                                    <DateTimeDisplay timestamp={user.createdAt} className="text-sm font-bold text-[#1A4B84]" />
                                 </div>
                                 <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور</span>
-                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
-                                        <span>{lastPassFormatted.date}</span>
-                                        <span className="mx-2"></span>
-                                        <span>{lastPassFormatted.time}</span>
-                                        <span className="text-[10px] font-bold">{lastPassFormatted.period}</span>
-                                    </div>
+                                    <DateTimeDisplay timestamp={user.lastPasswordChange} className="text-sm font-bold text-[#1A4B84]" />
                                 </div>
                                 <div className="flex items-center justify-between pb-2">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير للرقم السري</span>
-                                    <div className="flex items-center gap-1 text-sm font-bold text-[#1A4B84] tabular-nums" dir="rtl">
-                                        <span>{lastPinFormatted.date}</span>
-                                        <span className="mx-2"></span>
-                                        <span>{lastPinFormatted.time}</span>
-                                        <span className="text-[10px] font-bold">{lastPinFormatted.period}</span>
-                                    </div>
+                                    <DateTimeDisplay timestamp={user.lastPinChange} className="text-sm font-bold text-[#1A4B84]" />
                                 </div>
                             </CardContent>
                         </Card>
@@ -570,14 +569,17 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter, statusFilter, verificationFilter]);
 
   const handleCsvExport = () => {
-    exportToCsv('users_list.csv', filteredData.map(u => ({
-        'الاسم': u.name,
-        'الهاتف': u.phone,
-        'النوع': roleMap[u.role],
-        'الحالة': statusMap[u.status],
-        'التوثيق': verificationMap[u.verification],
-        'آخر ظهور': u.lastSeen ? formatDate(new Date(u.lastSeen).getTime()).date : 'غير معروف'
-    })));
+    exportToCsv('users_list.csv', filteredData.map(u => {
+        const parts = formatDateParts(u.lastSeen ? new Date(u.lastSeen).getTime() : undefined);
+        return {
+            'الاسم': u.name,
+            'الهاتف': u.phone,
+            'النوع': roleMap[u.role],
+            'الحالة': statusMap[u.status],
+            'التوثيق': verificationMap[u.verification],
+            'آخر ظهور': u.lastSeen ? `${parts.day}/${parts.month}/${parts.year}` : 'غير معروف'
+        };
+    }));
   };
 
   const confirmToggleBan = async () => {
@@ -671,7 +673,6 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                         </TableRow>
                     ) : filteredData.map(u => {
                         const isOnline = u.connectionStatus === 'متصل';
-                        const lastSeenData = formatDate(u.lastSeen ? new Date(u.lastSeen).getTime() : undefined);
                         return (
                             <TableRow key={u.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", u.status === 'banned' && "bg-red-50/20")}>
                                 <TableCell className="text-right">
@@ -699,13 +700,8 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap text-right" dir="rtl">
-                                    <div className="flex items-center justify-start gap-1">
-                                        <span>{lastSeenData.date}</span>
-                                        <span className="mx-2"></span>
-                                        <span>{lastSeenData.time}</span>
-                                        <span className="text-[10px] font-bold">{lastSeenData.period}</span>
-                                    </div>
+                                <TableCell className="text-[11px] text-slate-500 font-medium tabular-nums whitespace-nowrap">
+                                    <DateTimeDisplay timestamp={u.lastSeen ? new Date(u.lastSeen).getTime() : undefined} />
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <DropdownMenu>
