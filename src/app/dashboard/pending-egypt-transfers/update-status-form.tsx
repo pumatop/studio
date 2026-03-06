@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { EgyptTransferTransaction } from '@/lib/types';
+import type { EgyptLocalTransferTransaction } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,7 @@ const updateStatusSchema = z.object({
 });
 
 interface UpdateStatusFormProps {
-  transfer: EgyptTransferTransaction;
+  transfer: EgyptLocalTransferTransaction;
   onSuccess: () => void;
 }
 

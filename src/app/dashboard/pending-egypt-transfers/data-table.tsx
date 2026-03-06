@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { useRtdbList } from '@/firebase';
-import type { EgyptTransferTransaction } from '@/lib/types';
+import type { EgyptLocalTransferTransaction } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -21,8 +20,8 @@ import { CheckCircle2, User, Truck } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export function PendingEgyptTransfersDataTable() {
-  const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');
-  const [selectedTransfer, setSelectedTransfer] = useState<EgyptTransferTransaction | null>(null);
+  const { data, isLoading, error } = useRtdbList<EgyptLocalTransferTransaction>('/admin/pending_egypt_transfers');
+  const [selectedTransfer, setSelectedTransfer] = useState<EgyptLocalTransferTransaction | null>(null);
 
   const sortedData = useMemo(() => {
     if (!data) return [];
@@ -93,7 +92,7 @@ export function PendingEgyptTransfersDataTable() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="whitespace-nowrap text-[10px] font-bold px-2 py-0">
-                      {transfer.methodDisplayName || (transfer as any).transferType || transfer.type}
+                      {transfer.methodDisplayName || transfer.transferType || transfer.type}
                     </Badge>
                   </TableCell>
                   <TableCell className="font-mono text-xs tabular-nums dark:text-foreground">{transfer.recipientNumber}</TableCell>
@@ -106,7 +105,7 @@ export function PendingEgyptTransfersDataTable() {
                   <TableCell>
                     <div className="flex items-center gap-1.5 min-w-[100px]">
                       <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="text-[10px] font-bold dark:text-foreground">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
+                      <span className="text-[10px] font-bold dark:text-foreground">{transfer.agentInfo || transfer.delegateName || '-'}</span>
                     </div>
                   </TableCell>
                   <TableCell className="font-black text-xs text-orange-600 tabular-nums">

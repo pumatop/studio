@@ -39,6 +39,7 @@ export type User = {
   fcmToken?: string;
   fcmTokens?: { [key: string]: string };
   lastTokenUpdate?: number;
+  notifications?: { [key: string]: any };
   transactions?: { [transactionId: string]: any };
 };
 
@@ -104,20 +105,24 @@ export type EgyptTransferTransaction = BaseTransaction & {
 };
 
 export type EgyptLocalTransferTransaction = BaseTransaction & {
-  type: 'egypt_home' | 'egypt_wallets' | 'egypt_instapay';
+  type: 'egypt_home' | 'egypt_wallets' | 'egypt_instapay' | 'egypt_transfer';
   amountEGP: number;
-  balanceEGPAfter: number;
-  balanceEGPBefore: number;
-  methodDisplayName: string;
+  balanceEGPAfter?: number;
+  balanceEGPBefore?: number;
+  methodDisplayName?: string;
   recipientName?: string;
-  recipientNumber: string;
-  serviceFee: number;
-  totalDeduction: number;
-  transferMethod: string;
+  recipientNumber?: string;
+  serviceFee?: number;
+  totalDeduction?: number;
+  transferMethod?: string;
   userId: string;
   userName: string;
   userPhone: string;
   agentInfo?: string;
+  delegateId?: string;
+  delegateName?: string;
+  receiptImageUrl?: string;
+  transferType?: string;
 };
 
 export type Transaction = 
@@ -263,7 +268,7 @@ export type ExchangeControlSettings = {
     timezone: string;
 };
 
-export type NotificationType = 'standard' | 'popup' | 'banner';
+export type NotificationType = 'standard' | 'popup' | 'banner' | 'banner-ad' | 'popup-ad' | 'image-only';
 
 export type Notification = {
   id: string;
