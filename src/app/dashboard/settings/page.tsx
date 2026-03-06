@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -24,9 +23,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
-const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
-const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
-const inputLevel4Class = "bg-white/80 border-black/5 focus:bg-white transition-colors tabular-nums";
+const innerCardClass = "bg-[#dbe3ea] dark:bg-slate-900/50 shadow-sm rounded-xl border border-black/5 dark:border-white/5";
+const deepInnerCardClass = "bg-card border border-black/10 dark:border-white/10 rounded-lg p-3";
+const inputLevel4Class = "bg-background border-black/5 dark:border-white/10 focus:bg-card transition-colors tabular-nums";
 
 function FeeTierManager({
   title,
@@ -88,11 +87,11 @@ function FeeTierManager({
             <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">من ({currency})</Label><Input type="number" value={tier.from} onChange={(e) => handleTierChange(tier.id, "from", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
             <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">إلى ({currency})</Label><Input type="number" value={tier.to} onChange={(e) => handleTierChange(tier.id, "to", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
             <div className="flex-1 space-y-1"><Label className="text-[10px] font-bold">الرسوم ({currency})</Label><Input type="number" value={tier.fee} onChange={(e) => handleTierChange(tier.id, "fee", e.target.value)} className={cn("h-8", inputLevel4Class)} /></div>
-            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hover:bg-red-50" onClick={() => handleDeleteTier(tier.id)}><Trash2 className="h-4 w-4" /></Button>
+            <Button variant="ghost" size="icon" className="text-destructive h-8 w-8 hover:bg-red-50 dark:hover:bg-red-500/10" onClick={() => handleDeleteTier(tier.id)}><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
-      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs bg-card border-black/10"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
+      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs bg-card border-black/10 dark:border-white/10"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
     </div>
   );
 }
@@ -140,18 +139,18 @@ export default function SettingsPage() {
     };
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10" dir="rtl">
       {limitsLoading || feesLoading ? <Skeleton className="h-[600px] w-full rounded-2xl" /> : (
         <div className="grid grid-cols-1 gap-6">
           <Card className={floatingCardClass}>
-            <CardHeader><CardTitle>حدود المعاملات والتحويلات</CardTitle><CardDescription>إدارة الحدود الدنيا والقصوى للعمليات.</CardDescription></CardHeader>
+            <CardHeader className="text-right"><CardTitle>حدود المعاملات والتحويلات</CardTitle><CardDescription>إدارة الحدود الدنيا والقصوى للعمليات.</CardDescription></CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className={cn("space-y-4 p-4", innerCardClass)}>
-                  <h3 className="font-bold text-primary">التحويل الداخلي (د.ل)</h3>
+                  <h3 className="font-bold text-primary text-right">التحويل الداخلي (د.ل)</h3>
                   <div className="space-y-4">
                     {['unverified', 'verified', 'merchant'].map(role => (
-                      <div key={role} className={cn("space-y-2", deepInnerCardClass)}>
+                      <div key={role} className={cn("space-y-2 text-right", deepInnerCardClass)}>
                         <Label className="text-xs font-bold uppercase">{role === 'unverified' ? 'غير موثق' : role === 'verified' ? 'موثق' : 'تاجر'}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" placeholder="أدنى" value={(localLimits.internal as any)?.[role]?.min || 0} onChange={e => handleLimitsChange(`internal.${role}.min`, e.target.value)} className={inputLevel4Class} />
@@ -162,10 +161,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className={cn("space-y-4 p-4", innerCardClass)}>
-                  <h3 className="font-bold text-primary">التحويلات إلى مصر (ج.م)</h3>
+                  <h3 className="font-bold text-primary text-right">التحويلات إلى مصر (ج.م)</h3>
                   <div className="space-y-4">
                     {['instapay', 'wallet', 'delivery'].map(type => (
-                      <div key={type} className={cn("space-y-2", deepInnerCardClass)}>
+                      <div key={type} className={cn("space-y-2 text-right", deepInnerCardClass)}>
                         <Label className="text-xs font-bold uppercase">{type === 'instapay' ? 'انستاباي' : type === 'wallet' ? 'محفظة كاش' : 'وصلي للبيت'}</Label>
                         <div className="grid grid-cols-2 gap-2">
                           <Input type="number" placeholder="أدنى" value={(localLimits.egypt as any)?.[type]?.min || 0} onChange={e => handleLimitsChange(`egypt.${type}.min`, e.target.value)} className={inputLevel4Class} />
@@ -181,7 +180,7 @@ export default function SettingsPage() {
           </Card>
 
           <Card className={floatingCardClass}>
-            <CardHeader><CardTitle>رسوم الخدمة</CardTitle><CardDescription>إدارة شرائح الرسوم.</CardDescription></CardHeader>
+            <CardHeader className="text-right"><CardTitle>رسوم الخدمة</CardTitle><CardDescription>إدارة شرائح الرسوم.</CardDescription></CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FeeTierManager 

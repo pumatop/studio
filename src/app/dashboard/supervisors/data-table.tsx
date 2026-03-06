@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -55,8 +54,8 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 
 const statusColors: Record<string, string> = {
-  'نشط': 'bg-green-100 text-green-800',
-  'غير نشط': 'bg-red-100 text-red-800',
+  'نشط': 'bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400',
+  'غير نشط': 'bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400',
 };
 
 const months = [
@@ -123,30 +122,30 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+    <form onSubmit={handleSubmit} className="space-y-6 pt-4 text-right" dir="rtl">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
             <Label htmlFor="name" className="font-bold">اسم المشرف</Label>
-            <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11" />
+            <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11 bg-background dark:bg-slate-950" />
         </div>
         <div className="space-y-2">
             <Label htmlFor="phone" className="font-bold">رقم الهاتف</Label>
-            <Input id="phone" name="phone" value={formData.phone || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11" />
+            <Input id="phone" name="phone" value={formData.phone || ''} onChange={handleChange} required disabled={isSaving} className="rounded-xl h-11 bg-background dark:bg-slate-950" />
         </div>
       </div>
        <div className="space-y-2">
             <Label htmlFor="password">كلمة المرور</Label>
             <div className="relative">
-                <Input id="password" name="password" type="password" value={formData.password || ''} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : '••••••••'} disabled={isSaving} className="rounded-xl h-11 pl-10" />
-                <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input id="password" name="password" type="password" value={formData.password || ''} onChange={handleChange} required={!supervisor} placeholder={supervisor ? 'اتركه فارغاً لعدم التغيير' : '••••••••'} disabled={isSaving} className="rounded-xl h-11 pr-10 bg-background dark:bg-slate-950" />
+                <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="space-y-3">
             <Label className="font-bold">تخصص المندوب</Label>
-            <div className="space-y-2 rounded-2xl border p-4 bg-slate-50/50">
+            <div className="space-y-2 rounded-2xl border p-4 bg-slate-50/50 dark:bg-slate-900/50">
                 {specializations.map(spec => (
-                    <div key={spec} className="flex items-center gap-3">
+                    <div key={spec} className="flex items-center gap-3 flex-row-reverse">
                         <Checkbox id={`spec-${spec}`} checked={formData.specialization?.includes(spec)} onCheckedChange={(checked) => handleSpecializationChange(spec, !!checked)} disabled={isSaving}/>
                         <Label htmlFor={`spec-${spec}`} className="font-medium cursor-pointer">{spec}</Label>
                     </div>
@@ -156,20 +155,20 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
         <div className="space-y-3">
             <Label htmlFor="status" className="font-bold text-slate-500">حالة الحساب</Label>
             <Select name="status" value={formData.status} onValueChange={(v) => setFormData(p => ({...p, status: v as any}))} disabled={isSaving}>
-                <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl bg-background dark:bg-slate-950"><SelectValue /></SelectTrigger>
                 <SelectContent className="rounded-xl border-none shadow-2xl">
                     <SelectItem value="نشط">نشط (فعال)</SelectItem>
                     <SelectItem value="غير نشط">غير نشط (معطل)</SelectItem>
                 </SelectContent>
             </Select>
-            <div className="flex items-center justify-between rounded-2xl border p-4 bg-white shadow-sm mt-4">
+            <div className="flex items-center justify-between rounded-2xl border p-4 bg-card shadow-sm mt-4 flex-row-reverse">
                 <Label htmlFor="canEditExchangeRate" className="font-bold text-slate-600">تعديل سعر الصرف</Label>
                 <Switch id="canEditExchangeRate" checked={formData.canEditExchangeRate} onCheckedChange={handleSwitchChange} disabled={isSaving} />
             </div>
         </div>
       </div>
 
-      <DialogFooter className="gap-2">
+      <DialogFooter className="gap-2 flex-row-reverse">
         <DialogClose asChild><Button type="button" variant="ghost" className="rounded-xl" disabled={isSaving}>إلغاء</Button></DialogClose>
         <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1B69FF] hover:bg-[#1B69FF]/90 text-white">
             {isSaving ? 'جاري الحفظ...' : 'حفظ بيانات المشرف'}
@@ -340,12 +339,12 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                     placeholder="بحث باسم المشرف أو رقم هاتفه..." 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
+                    className="pr-10 h-11 rounded-xl bg-card border-slate-200 dark:border-white/10 text-right" 
                 />
             </div>
             <div className="flex items-center gap-2">
                 <Select value={specializationFilter} onValueChange={setSpecializationFilter}>
-                    <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="التخصص" /></SelectTrigger>
+                    <SelectTrigger className="w-[140px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="التخصص" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل التخصصات</SelectItem>
                         <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -355,7 +354,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                 </Select>
 
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -368,7 +367,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                 </Select>
 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[120px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                    <SelectTrigger className="w-[120px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="الحالة" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الحالات</SelectItem>
                         <SelectItem value="نشط">نشط</SelectItem>
@@ -391,19 +390,19 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="text-left font-black text-[#001F3D] text-[10px] uppercase tracking-widest h-12">إجراءات</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="text-left font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest h-12">إجراءات</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -415,15 +414,15 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                         const isOnline = s.connectionStatus === 'متصل';
                         const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
                         return (
-                            <TableRow key={s.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", s.status === 'غير نشط' && "bg-red-50/20")}>
+                            <TableRow key={s.id} className={cn("hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b last:border-0", s.status === 'غير نشط' && "bg-red-50/20 dark:bg-red-500/5")}>
                                 <TableCell className="text-right py-4">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-slate-700">{s.name}</span>
+                                        <span className="font-bold text-sm text-foreground">{s.name}</span>
                                         <span className="text-[11px] text-slate-400 font-mono tabular-nums">{s.phone}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 text-xs" decimals={0} />
+                                    <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 dark:text-slate-400 text-xs" decimals={0} />
                                 </TableCell>
                                 <TableCell>
                                     <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1B69FF] text-xs" decimals={0} />
@@ -432,15 +431,15 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                     <CurrencyDisplay amount={stats.fees} currency="ج.م" colorClass="text-orange-600 text-xs" decimals={0} />
                                 </TableCell>
                                 <TableCell className="text-right">
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-wrap gap-1 justify-end">
                                         {s.specialization?.map(spec => (
-                                            <Badge key={spec} variant="outline" className="text-[9px] font-bold bg-slate-50 border-slate-200">{spec}</Badge>
+                                            <Badge key={spec} variant="outline" className="text-[9px] font-bold bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-white/5">{spec}</Badge>
                                         )) || <span className="text-[10px] text-slate-300 italic">غير محدد</span>}
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex items-center gap-1.5 justify-start">
-                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300 dark:bg-slate-700")} />
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{s.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
@@ -450,27 +449,27 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                 <TableCell className="text-left">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><MoreHorizontal className="h-4 w-4" /></Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
+                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2 bg-card">
                                             <DropdownMenuItem 
-                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" 
+                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm text-right flex-row-reverse gap-2" 
                                                 onSelect={() => {
                                                     setEditingSupervisor(s);
                                                     setDialogOpen(true);
                                                 }}
                                             >
-                                                <Pencil className="ml-2 h-4 w-4 text-[#1B69FF]" /> تعديل البيانات
+                                                <Pencil className="h-4 w-4 text-[#1B69FF]" /> تعديل البيانات
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm">
-                                                <Link href={`/dashboard/supervisors/${s.id}/log`}><FileClock className="ml-2 h-4 w-4 text-blue-500" /> سجل العمليات</Link>
+                                            <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm text-right flex-row-reverse gap-2">
+                                                <Link href={`/dashboard/supervisors/${s.id}/log`}><FileClock className="h-4 w-4 text-blue-500" /> سجل العمليات</Link>
                                             </DropdownMenuItem>
-                                            <DropdownMenuSeparator className="bg-slate-100" />
+                                            <DropdownMenuSeparator className="bg-slate-100 dark:bg-slate-800" />
                                             <DropdownMenuItem 
-                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm text-destructive focus:text-destructive"
+                                                className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm text-destructive focus:text-destructive text-right flex-row-reverse gap-2"
                                                 onClick={() => handleDelete(s.id, s.name)}
                                             >
-                                                <Trash2 className="ml-2 h-4 w-4" /> حذف الحساب
+                                                <Trash2 className="h-4 w-4" /> حذف الحساب
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -484,9 +483,9 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
+          <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8 bg-card">
               <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-[#001F3D]">
+                  <DialogTitle className="text-2xl font-black text-foreground text-right">
                       {editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}
                   </DialogTitle>
               </DialogHeader>

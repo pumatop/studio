@@ -24,11 +24,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
-const innerCardClass = "bg-[#dbe3ea] shadow-sm rounded-xl border border-black/5";
-const deepInnerCardClass = "bg-card border border-black/10 rounded-lg p-3";
-const inputLevel4Class = "bg-white/80 border-black/5 focus:bg-white transition-colors font-mono";
+const innerCardClass = "bg-[#dbe3ea] dark:bg-slate-900/50 shadow-sm rounded-xl border border-black/5 dark:border-white/5";
+const deepInnerCardClass = "bg-card border border-black/10 dark:border-white/10 rounded-lg p-3";
+const inputLevel4Class = "bg-background border-black/5 dark:border-white/10 focus:bg-card transition-colors font-mono";
 
-// Helper component to render banner content (image or video)
 function BannerContent({ url }: { url: string }) {
     const isVideo = ['.mp4', '.webm', '.ogg'].some(ext => url.toLowerCase().includes(ext));
 
@@ -50,7 +49,7 @@ function BannerContent({ url }: { url: string }) {
 export function AppSettingsCard() {
     const { data: settings, isLoading } = useRtdbObject<AppSettings>('/settings/app');
     const { database } = useDatabase();
-    const storage = useStorage(); // Get storage instance
+    const storage = useStorage();
     const { toast } = useToast();
 
     const [localSettings, setLocalSettings] = useState<Partial<AppSettings>>({ banners: [] });
@@ -62,7 +61,6 @@ export function AppSettingsCard() {
 
     useEffect(() => {
         if (settings) {
-            // Filter out any null/empty values from banners array, handles both array and object-like array from Firebase
             const validBanners = (Array.isArray(settings.banners) ? settings.banners : Object.values(settings.banners || {})).filter(Boolean);
             setLocalSettings({...settings, banners: validBanners});
         }
@@ -128,7 +126,6 @@ export function AppSettingsCard() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // Ensure banners are saved correctly, filtering any potential bad data
             const settingsToSave = {
                 ...localSettings,
                 banners: (localSettings.banners || []).filter(Boolean)
@@ -174,7 +171,7 @@ export function AppSettingsCard() {
         } finally {
             setIsUploading(false);
             if (e.target) {
-                e.target.value = ''; // Reset file input
+                e.target.value = '';
             }
         }
     };
@@ -192,13 +189,9 @@ export function AppSettingsCard() {
         }
 
         try {
-            // Create a reference from the HTTPS download URL
             const fileRef = storageRef(storage, bannerUrlToDelete);
-
-            // Delete the file from Firebase Storage
             await deleteObject(fileRef);
             
-            // If Storage deletion is successful, update the Realtime Database
             const newBanners = banners.filter((_, i) => i !== index);
             await updateRtdb(database, '/settings/app', { banners: newBanners });
 
@@ -211,7 +204,6 @@ export function AppSettingsCard() {
         } catch (error: any) {
             console.error("Error deleting banner:", error);
             if (error.code === 'storage/object-not-found') {
-                // If file doesn't exist in storage, just remove it from RTDB
                 toast({
                     title: "الملف غير موجود بالتخزين",
                     description: "سيتم حذفه من قاعدة البيانات فقط.",
@@ -241,8 +233,8 @@ export function AppSettingsCard() {
     }
 
     return (
-        <Card className={cn(floatingCardClass, "w-full")}>
-            <CardHeader>
+        <Card className={cn(floatingCardClass, "w-full")} dir="rtl">
+            <CardHeader className="text-right">
                 <CardTitle>إعدادات التطبيق</CardTitle>
                 <CardDescription>إدارة الإعدادات العامة واللوحة الدعائية وبيانات الدعم.</CardDescription>
             </CardHeader>
@@ -255,11 +247,11 @@ export function AppSettingsCard() {
                     accept="image/*,video/*"
                     disabled={isUploading}
                 />
-                {/* Promotional Banners */}
-                <div className={cn("space-y-4 p-4", innerCardClass)}>
-                    <div className="flex items-center justify-between">
+                
+                <div className={cn("space-y-4 p-4 text-right", innerCardClass)}>
+                    <div className="flex items-center justify-between flex-row-reverse">
                          <h3 className="font-semibold text-lg">اللوحة الدعائية للتطبيق</h3>
-                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="bg-card border-black/10">
+                         <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="bg-card border-black/10 dark:border-white/10">
                             {isUploading ? (
                                 <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                             ) : (
@@ -273,7 +265,7 @@ export function AppSettingsCard() {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {(localSettings.banners || []).map((bannerUrl, index) => (
-                            <div key={index} className="relative group aspect-video rounded-md border border-black/10 bg-card overflow-hidden">
+                            <div key={index} className="relative group aspect-video rounded-md border border-black/10 dark:border-white/10 bg-card overflow-hidden">
                                 <BannerContent url={bannerUrl} />
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteBanner(index)} disabled={isUploading || deletingIndex !== null}>
@@ -287,7 +279,7 @@ export function AppSettingsCard() {
                             </div>
                         ))}
                          {isUploading && (
-                             <div className="relative aspect-video rounded-md border-2 border-dashed border-black/10 flex items-center justify-center bg-card overflow-hidden">
+                             <div className="relative aspect-video rounded-md border-2 border-dashed border-black/10 dark:border-white/10 flex items-center justify-center bg-card overflow-hidden">
                                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                     <Loader2 className="h-8 w-8 animate-spin" />
                                     <span className="text-sm">جاري الرفع...</span>
@@ -304,29 +296,27 @@ export function AppSettingsCard() {
                 
                 <Separator />
 
-                {/* Agents & Support */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Wallet Charging Agents */}
-                    <div className={cn("space-y-4 p-4", innerCardClass)}>
-                        <div className="flex items-center justify-between">
+                    <div className={cn("space-y-4 p-4 text-right", innerCardClass)}>
+                        <div className="flex items-center justify-between flex-row-reverse">
                             <h3 className="font-semibold text-lg">صفحة شحن المحفظة (الوكلاء)</h3>
-                             <Button variant="outline" size="sm" onClick={handleAddRegion} className="bg-card border-black/10">
+                             <Button variant="outline" size="sm" onClick={handleAddRegion} className="bg-card border-black/10 dark:border-white/10">
                                 <PlusCircle className="ml-2 h-4 w-4" />
                                 إضافة منطقة
                             </Button>
                         </div>
-                        <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+                        <div className="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                              {!localSettings.regions || Object.keys(localSettings.regions).length === 0 ? <p className="text-sm text-muted-foreground text-center py-4">لا توجد مناطق حالياً.</p> :
                              <Accordion type="multiple" className="w-full">
                                 {Object.entries(localSettings.regions).map(([regionId, region]) => (
                                     <AccordionItem value={regionId} key={regionId} className="border-b-0 mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <AccordionTrigger className="border border-black/10 rounded-md px-3 hover:no-underline flex-1 bg-card">
+                                        <div className="flex items-center gap-2 flex-row-reverse">
+                                            <AccordionTrigger className="border border-black/10 dark:border-white/10 rounded-md px-3 hover:no-underline flex-1 bg-card">
                                                 <Input
                                                     value={region.name}
                                                     onChange={e => handleRegionNameChange(regionId, e.target.value)}
                                                     placeholder="اسم المنطقة"
-                                                    className={cn("font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent", inputLevel4Class.split(' ')[0])}
+                                                    className={cn("font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent text-right", inputLevel4Class.split(' ')[0])}
                                                     onClick={e => e.stopPropagation()}
                                                 />
                                             </AccordionTrigger>
@@ -335,16 +325,16 @@ export function AppSettingsCard() {
                                             </Button>
                                         </div>
                                         <AccordionContent className="pt-2">
-                                          <div className="space-y-3 border-r border-black/5 pr-4 mr-4">
+                                          <div className="space-y-3 border-l border-black/5 dark:border-white/5 pl-4 ml-4">
                                             {!region.agents || Object.keys(region.agents).length === 0 ? <p className="text-sm text-muted-foreground text-center py-2">لا يوجد وكلاء في هذه المنطقة.</p> :
                                             Object.entries(region.agents).map(([agentId, agent]) => (
                                                  <div key={agentId} className={cn("flex flex-col gap-2", deepInnerCardClass)}>
-                                                     <div className="flex items-center justify-between">
+                                                     <div className="flex items-center justify-between flex-row-reverse">
                                                         <Input
                                                             value={agent.name}
                                                             onChange={e => handleAgentChange(regionId, agentId, 'name', e.target.value)}
                                                             placeholder="اسم الوكيل"
-                                                            className="font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent"
+                                                            className="font-bold border-0 shadow-none focus-visible:ring-0 p-0 h-auto bg-transparent text-right"
                                                         />
                                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={() => handleDeleteAgent(regionId, agentId)}>
                                                             <Trash2 className="h-4 w-4" />
@@ -352,17 +342,17 @@ export function AppSettingsCard() {
                                                      </div>
                                                       <div className="space-y-2">
                                                         <div className="relative">
-                                                            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                             <Input value={agent.phone} onChange={e => handleAgentChange(regionId, agentId, 'phone', e.target.value)} placeholder="رقم الهاتف" className={cn("pl-10 h-9", inputLevel4Class)} />
+                                                            <Phone className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                             <Input value={agent.phone} onChange={e => handleAgentChange(regionId, agentId, 'phone', e.target.value)} placeholder="رقم الهاتف" className={cn("pr-10 h-9 text-right", inputLevel4Class)} />
                                                         </div>
                                                          <div className="relative">
-                                                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                                            <Input value={agent.address} onChange={e => handleAgentChange(regionId, agentId, 'address', e.target.value)} placeholder="العنوان" className={cn("pl-10 h-9", inputLevel4Class)} />
+                                                            <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                            <Input value={agent.address} onChange={e => handleAgentChange(regionId, agentId, 'address', e.target.value)} placeholder="العنوان" className={cn("pr-10 h-9 text-right", inputLevel4Class)} />
                                                         </div>
                                                       </div>
                                                  </div>
                                             ))}
-                                            <Button variant="outline" size="sm" onClick={() => handleAddAgent(regionId)} className="mt-2 bg-card border-black/10">
+                                            <Button variant="outline" size="sm" onClick={() => handleAddAgent(regionId)} className="mt-2 bg-card border-black/10 dark:border-white/10 w-full">
                                                 <PlusCircle className="ml-2 h-4 w-4" />
                                                 إضافة وكيل
                                             </Button>
@@ -375,17 +365,16 @@ export function AppSettingsCard() {
                         </div>
                     </div>
 
-                    {/* Technical Support */}
-                     <div className={cn("space-y-4 p-4", innerCardClass)}>
+                     <div className={cn("space-y-4 p-4 text-right", innerCardClass)}>
                         <h3 className="font-semibold text-lg">صفحة الدعم الفني</h3>
                         <div className="space-y-4">
                             <div className={cn("space-y-2", deepInnerCardClass)}>
                                 <Label htmlFor="support-ly" className="font-bold">رقم الهاتف الليبي</Label>
-                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} className={inputLevel4Class} />
+                                <Input id="support-ly" name="libyan" value={localSettings.supportNumbers?.libyan || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, libyan: e.target.value})} className={cn("text-right", inputLevel4Class)} />
                             </div>
                             <div className={cn("space-y-2", deepInnerCardClass)}>
                                 <Label htmlFor="support-eg" className="font-bold">رقم الهاتف المصري</Label>
-                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} className={inputLevel4Class} />
+                                <Input id="support-eg" name="egyptian" value={localSettings.supportNumbers?.egyptian || ''} onChange={(e) => handleSettingChange('supportNumbers', {...localSettings.supportNumbers, egyptian: e.target.value})} className={cn("text-right", inputLevel4Class)} />
                             </div>
                         </div>
                     </div>
