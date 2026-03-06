@@ -252,7 +252,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                                     amount={transfer.fakkaAmount || 0} 
                                     currency="ج.م" 
                                     colorClass="text-orange-600 text-[11px]" 
-                                    decimals={2}
+                                    decimals={0}
                                 />
                             </div>
                         </TableCell>

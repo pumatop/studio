@@ -167,7 +167,6 @@ export function LibyanTransactionsDataTable({
   }, [initialData, searchTerm, statusFilter, typeFilter, date, selectedMonth]);
 
   useEffect(() => {
-    // Force remount of table when data changes to prevent removeChild error
     setTableKey(prev => prev + 1);
   }, [filteredData]);
 
@@ -294,7 +293,7 @@ export function LibyanTransactionsDataTable({
                 </TableHeader>
                 <TableBody>
                     {filteredData.map((tx: any, index) => {
-                        const isEgyptLocal = ['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type);
+                        const isEgyptLocal = ['egypt_home', 'egypt_wallets', 'egypt_instapay', 'egypt_transfer'].includes(tx.type);
                         const currency = isEgyptLocal ? "ج.م" : "د.ل";
                         return (
                             <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
@@ -344,6 +343,7 @@ export function LibyanTransactionsDataTable({
                                         <CurrencyDisplay 
                                             amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
                                             currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
+                                            decimals={tx.type === 'account_transfer' ? 2 : 0}
                                         />
                                     </TableCell>
                                 )}
@@ -355,6 +355,7 @@ export function LibyanTransactionsDataTable({
                                                 amount={tx.fee || tx.serviceFee || 0} 
                                                 currency={currency}
                                                 colorClass="text-orange-600 text-xs"
+                                                decimals={isEgyptLocal ? 0 : 2}
                                             />
                                         </div>
                                     </TableCell>

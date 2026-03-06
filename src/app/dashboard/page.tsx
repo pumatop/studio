@@ -58,12 +58,17 @@ const FormattedAmount = ({
     currencyClass?: string;
     className?: string;
 }) => {
-    const [integer, fraction] = (amount || 0).toFixed(2).split('.');
+    const isEGP = currency === "ج.م";
+    // إذا كانت العملة مصرية، نلغي الكسور تماماً
+    const [integer, fraction] = (amount || 0).toFixed(isEGP ? 0 : 2).split('.');
+    
     return (
         <div className={cn('flex items-baseline gap-x-1 whitespace-nowrap leading-none', className)} dir="ltr">
             <span className={cn('shrink-0 font-bold text-[#1B69FF] font-sans', currencyClass)}>{currency}</span>
             <span className={cn('tabular-nums tracking-tighter font-bold', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
-            <span className={cn('text-muted-foreground opacity-60 shrink-0 tabular-nums text-[0.7em]', fractionClass)}>.{fraction}</span>
+            {!isEGP && fraction && (
+                <span className={cn('text-muted-foreground opacity-60 shrink-0 tabular-nums text-[0.7em]', fractionClass)}>.{fraction}</span>
+            )}
         </div>
     );
 };

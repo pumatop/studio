@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -65,10 +66,20 @@ const months = [
     { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
 ];
 
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ 
+    amount, 
+    currency, 
+    colorClass = "text-[#1B69FF]",
+    decimals = 2
+}: { 
+    amount: number, 
+    currency: string, 
+    colorClass?: string,
+    decimals?: number
+}) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
-        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
 
@@ -412,13 +423,13 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 text-xs" />
+                                    <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 text-xs" decimals={0} />
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1B69FF] text-xs" />
+                                    <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1B69FF] text-xs" decimals={0} />
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay amount={stats.fees} currency="ج.م" colorClass="text-orange-600 text-xs" />
+                                    <CurrencyDisplay amount={stats.fees} currency="ج.م" colorClass="text-orange-600 text-xs" decimals={0} />
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex flex-wrap gap-1">

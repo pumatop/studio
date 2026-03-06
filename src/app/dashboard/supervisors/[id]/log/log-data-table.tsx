@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from "react";
@@ -61,10 +62,10 @@ const months = [
 ];
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]", decimals = 2 }: { amount: number, currency: string, colorClass?: string, decimals?: number }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
-        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
 
@@ -256,10 +257,10 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col gap-1">
-                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-green-600 text-sm" />
+                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-green-600 text-sm" decimals={0} />
                                     <div className="flex items-center gap-1 opacity-50">
                                         <span className="text-[9px] font-bold">الرسوم:</span>
-                                        <CurrencyDisplay amount={transfer.serviceFee || 0} currency="ج.م" colorClass="text-orange-600 text-[10px]" />
+                                        <CurrencyDisplay amount={transfer.serviceFee || 0} currency="ج.م" colorClass="text-orange-600 text-[10px]" decimals={0} />
                                     </div>
                                 </div>
                             </TableCell>

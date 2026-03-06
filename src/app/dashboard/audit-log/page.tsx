@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
@@ -63,7 +64,7 @@ export default function AuditLogPage() {
           successRate: ((successful.length / allTransactions.length) * 100).toFixed(1),
           failedCount: failed.length,
           pendingCount: pending.length,
-          totalVolumeEGP
+          totalVolumeEGP: Math.round(totalVolumeEGP) // جعل إجمالي الحجم رقماً صحيحاً
       };
   }, [allTransactions]);
 
