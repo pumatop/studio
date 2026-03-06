@@ -177,7 +177,6 @@ export function LibyanTransactionsDataTable({
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
@@ -288,7 +287,12 @@ export function LibyanTransactionsDataTable({
                                 <TableCell className="text-[11px] whitespace-nowrap">
                                     <DateTimeDisplay timestamp={tx.timestamp} />
                                 </TableCell>
-                                <TableCell className="text-[11px] font-bold text-slate-600">{getSenderPhone(tx)}</TableCell>
+                                <TableCell className="text-[11px]">
+                                    <div className="flex flex-col">
+                                        <div className="font-bold text-slate-700">{tx.senderName || tx.userName || '-'}</div>
+                                        <div className="text-slate-400 font-mono tabular-nums">{getSenderPhone(tx)}</div>
+                                    </div>
+                                </TableCell>
                                 <TableCell>
                                     <CurrencyDisplay 
                                         amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
