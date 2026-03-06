@@ -191,9 +191,9 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
       </div>
 
       <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+        <div className="relative overflow-x-auto">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم المعاملة الأصلية</TableHead>
                         <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">اسم المستخدم</TableHead>

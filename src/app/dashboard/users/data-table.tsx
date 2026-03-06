@@ -173,9 +173,9 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
 
     return (
         <div className="rounded-3xl border overflow-hidden bg-card shadow-sm">
-            <div className="max-h-[600px] overflow-y-auto custom-scrollbar relative">
+            <div className="relative overflow-x-auto">
                 <Table>
-                    <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
+                    <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
                         <TableRow>
                             <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
                             <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">التاريخ والوقت</TableHead>
@@ -433,9 +433,9 @@ function UserDetailsContent({
                                 <CardTitle className="text-base text-[#001F3D] dark:text-foreground font-black">الجلسات والأجهزة النشطة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
-                                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" style={{ maxHeight: '320px' }}>
+                                <div className="flex-1 p-4">
                                     <Table>
-                                        <TableHeader className="sticky top-0 bg-card z-10">
+                                        <TableHeader className="bg-card z-10">
                                             <TableRow className="border-none hover:bg-transparent text-right">
                                                 <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
                                                 <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
@@ -664,9 +664,9 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
       </div>
 
       <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-        <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
+        <div className="relative overflow-x-auto">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">نوع الحساب</TableHead>

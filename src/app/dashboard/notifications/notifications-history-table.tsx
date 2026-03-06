@@ -59,11 +59,11 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
                 <span className="text-[10px] font-black text-slate-400">{period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
-                <span>{parts.day}</span>
+                <span>{day}</span>
                 <span className="mx-0.5 opacity-40">/</span>
-                <span>{parts.month}</span>
+                <span>{month}</span>
                 <span className="mx-0.5 opacity-40">/</span>
-                <span>{parts.year}</span>
+                <span>{year}</span>
             </div>
         </div>
     );
@@ -215,9 +215,9 @@ export function NotificationsHistoryTable({ notifications, users }: { notificati
 
       {/* Modern Data Table */}
       <div className="rounded-[2rem] border bg-card shadow-sm overflow-hidden">
-        <div className="max-h-[calc(100vh-400px)] overflow-y-auto custom-scrollbar relative">
+        <div className="relative overflow-x-auto">
           <Table key={tableKey} ref={tableRef}>
-            <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
+            <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
               <TableRow className="hover:bg-transparent">
                 <TableHead className="font-black text-[#1B69FF] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">محتوى الإشعار</TableHead>
                 <TableHead className="font-black text-[#1B69FF] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المرسل إليه</TableHead>

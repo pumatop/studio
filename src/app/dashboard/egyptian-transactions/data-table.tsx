@@ -218,9 +218,9 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
       </div>
       
       <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+        <div className="relative overflow-x-auto">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>

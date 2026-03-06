@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -391,9 +392,9 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
       </div>
 
       <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
-        <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
+        <div className="relative overflow-x-auto">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
                         <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
