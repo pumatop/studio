@@ -318,9 +318,9 @@ export default function DashboardPage() {
 
   const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 md:space-y-6 pt-6 md:pt-10 flex-grow flex flex-col justify-center px-4 md:px-10">
-        <div className="text-right p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1B69FF]/5 w-full">
-            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1B69FF]/60 tracking-widest mb-1 md:mb-2 text-right">إجمالي الحوالات (ناجح + معلق)</p>
-            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1B69FF]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" className="justify-start w-full" decimals={0} />
+        <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1B69FF]/5 w-full">
+            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1B69FF]/60 tracking-widest mb-1 md:mb-2 text-center">إجمالي الحوالات (ناجح + معلق)</p>
+            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1B69FF]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" className="justify-center w-full" decimals={0} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full">
             <div className="p-4 md:p-6 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm text-green-600">
