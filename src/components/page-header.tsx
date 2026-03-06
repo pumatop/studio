@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -53,17 +54,17 @@ export function PageHeader({ title }: { title: string }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-20 md:h-24 items-center justify-between gap-3 md:gap-4 border-b border-border/10 bg-background/60 backdrop-blur-xl px-4 md:px-10 transition-all">
-      <div className="flex items-center gap-3 md:gap-6">
-        <SidebarTrigger className="md:hidden text-primary h-11 w-11" />
+    <header className="sticky top-0 z-30 flex h-20 md:h-24 items-center justify-between gap-2 md:gap-4 border-b border-border/10 bg-background/60 backdrop-blur-xl px-3 md:px-10 transition-all">
+      <div className="flex items-center gap-2 md:gap-6">
+        <SidebarTrigger className="md:hidden text-primary h-10 w-10 shrink-0" />
       </div>
 
-      <div className="flex flex-1 items-center justify-end gap-3 md:gap-6">
-        <div className="w-full max-w-[180px] sm:max-w-sm lg:max-w-md">
+      <div className="flex flex-1 items-center justify-end gap-2 md:gap-6">
+        <div className="w-full max-w-[140px] sm:max-w-sm lg:max-w-md">
           <GlobalSearch />
         </div>
 
-        <div className="hidden items-center gap-3 md:gap-4 rounded-full md:rounded-3xl border border-border/40 bg-card/80 px-3 md:px-5 py-1.5 md:py-2 text-xs md:text-sm lg:flex shadow-sm hover:shadow-md transition-all">
+        <div className="hidden items-center gap-3 md:gap-4 rounded-full md:rounded-3xl border border-border/40 bg-card/80 px-3 md:px-5 py-1.5 md:py-2 text-xs md:sm lg:flex shadow-sm hover:shadow-md transition-all">
           {isLoading ? (
             <div className="flex gap-2">
               <Skeleton className="h-5 w-20 md:h-6 md:w-24 rounded-full" />
@@ -103,7 +104,8 @@ export function PageHeader({ title }: { title: string }) {
           </div>
         </div>
 
-        <div className="hidden sm:block">
+        {/* زر الوضع الليلي - متاح الآن على كافة أحجام الشاشات */}
+        <div className="flex items-center">
           <ThemeToggle />
         </div>
         
@@ -112,7 +114,7 @@ export function PageHeader({ title }: { title: string }) {
             <Button
               variant="outline"
               size="icon"
-              className="overflow-hidden rounded-xl md:rounded-2xl shadow-sm bg-white dark:bg-slate-200 border-border/40 hover:scale-105 h-11 w-11 md:h-12 md:w-12 transition-all p-1.5"
+              className="overflow-hidden rounded-xl md:rounded-2xl shadow-sm bg-white dark:bg-slate-200 border-border/40 hover:scale-105 h-10 w-10 md:h-12 md:w-12 transition-all p-1.5 shrink-0"
             >
               <div className="relative h-full w-full">
                 <Image 
