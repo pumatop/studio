@@ -1,0 +1,238 @@
+
+"use client";
+
+import { useUser, useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import type { User } from "@/lib/types";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ShieldCheck, Wallet, CalendarDays, FileText, ArrowRight, User as UserIcon, Smartphone, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { cn } from "@/lib/utils";
+
+const roleMap: Record<string, string> = {
+    "user": "مستخدم",
+    "merchant": "تاجر",
+    "admin": "مسؤول",
+    "superadmin": "مسؤول خارق",
+};
+
+const statusMap: Record<string, string> = {
+    "active": "نشط",
+    "banned": "مجمد",
+};
+
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#001F3D]" }: { amount: number, currency: string, colorClass?: string }) => (
+    <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
+        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+    </div>
+);
+
+const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
+    if (!timestamp) return <span className="text-slate-300">---</span>;
+    const date = new Date(timestamp);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString();
+    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
+    const period = date.getHours() >= 12 ? 'م' : 'ص';
+    
+    return (
+        <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
+            <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
+                <span className="text-[10px] font-black text-slate-400">{period}</span>
+            </div>
+            <div className="text-[10px] text-slate-400 font-medium">
+                <span>{day}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{month}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{year}</span>
+            </div>
+        </div>
+    );
+};
+
+export default function ProfilePage() {
+    const { user: authUser, isUserLoading: isAuthLoading } = useUser();
+    const { data: user, isLoading: isUserLoading } = useRtdbObject<User>(authUser ? `/users/${authUser.uid}` : null);
+    const { toast } = useToast();
+
+    const isLoading = isAuthLoading || isUserLoading;
+    const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
+
+    if (isLoading) {
+        return (
+            <div className="space-y-8 animate-pulse" dir="rtl">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="h-16 w-16 rounded-2xl" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Skeleton className="h-64 rounded-[2.5rem]" />
+                    <Skeleton className="h-64 rounded-[2.5rem]" />
+                </div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center" dir="rtl">
+                <AlertCircle className="h-16 w-16 text-slate-200 mb-4" />
+                <h2 className="text-xl font-black text-slate-400">عذراً، لم يتم العثور على بيانات الملف الشخصي.</h2>
+                <Link href="/dashboard" className="mt-6 text-primary font-bold flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4" /> العودة للرئيسية
+                </Link>
+            </div>
+        );
+    }
+
+    const frontImageUrl = user.idImageUrl === 'id-card-placeholder' ? idCardPlaceholder?.imageUrl : user.idImageUrl;
+
+    return (
+        <div className="max-w-6xl mx-auto space-y-10 pb-10" dir="rtl">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-card p-8 rounded-[2.5rem] shadow-sm border border-border/10">
+                <div className="flex items-center gap-6 text-right w-full">
+                    <div className="p-4 bg-primary/10 rounded-[2rem]">
+                        <ShieldCheck className="h-10 w-10 text-primary" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black text-[#001F3D] dark:text-foreground">{user.name}</h1>
+                        <div className="flex items-center gap-3 mt-2 justify-start">
+                            <Badge className="bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-black text-[10px] px-3 py-0.5 border-none">
+                                {roleMap[user.role] || user.role}
+                            </Badge>
+                            <span className="text-sm font-bold text-slate-400 tabular-nums">{user.phone}</span>
+                        </div>
+                    </div>
+                </div>
+                <Button asChild variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 shrink-0 max-md:w-full">
+                    <Link href="/dashboard">
+                        <ArrowRight className="h-4 w-4" /> العودة للوحة التحكم
+                    </Link>
+                </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Column 1: Financial & Basic Info */}
+                <div className="lg:col-span-2 space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
+                                <Wallet className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base font-black">المحفظة المالية</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">الرصيد الليبي</span>
+                                    <CurrencyDisplay amount={user.balanceLYD} currency="د.ل" colorClass="text-green-600 text-3xl" />
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">الرصيد المصري</span>
+                                    <CurrencyDisplay amount={user.balanceEGP} currency="ج.م" colorClass="text-[#1B69FF] text-3xl" />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
+                                <CalendarDays className="h-5 w-5 text-primary" />
+                                <CardTitle className="text-base font-black">تواريخ هامة</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-8 space-y-6">
+                                <div className="flex items-center justify-between border-b border-slate-50 dark:border-white/5 pb-4">
+                                    <span className="text-sm font-bold text-slate-500">تاريخ الانضمام</span>
+                                    <DateTimeDisplay timestamp={user.createdAt} />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-bold text-slate-500">آخر تحديث للملف</span>
+                                    <DateTimeDisplay timestamp={user.lastUpdate} />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
+                            <Smartphone className="h-5 w-5 text-primary" />
+                            <CardTitle className="text-base font-black">الجلسات النشطة</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8">
+                            {user.sessions ? (
+                                <div className="space-y-4">
+                                    {Object.entries(user.sessions).map(([id, session]) => (
+                                        <div key={id} className="flex items-center justify-between p-4 rounded-2xl border dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
+                                            <div className="flex items-center gap-4 text-right">
+                                                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                                                    <Smartphone className="h-5 w-5 text-slate-400" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-sm text-[#001F3D] dark:text-foreground">{session.activeDevice}</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{session.phoneOS} • {session.ipAddress}</p>
+                                                </div>
+                                            </div>
+                                            <Badge className={cn(
+                                                "text-[9px] font-black border-none px-3",
+                                                session.connectionStatus === 'متصل' ? "bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400" : "bg-slate-50 dark:bg-slate-800 text-slate-400"
+                                            )}>
+                                                {session.connectionStatus}
+                                            </Badge>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-center text-sm text-slate-400 font-bold italic py-10">لا توجد سجلات جلسات حالية.</p>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Column 2: ID & Verification */}
+                <div className="space-y-8">
+                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
+                            <FileText className="h-5 w-5 text-primary" />
+                            <CardTitle className="text-base font-black">إثبات الهوية</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden border-2 border-dashed dark:border-white/10 border-slate-100 bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+                                {frontImageUrl ? (
+                                    <Image 
+                                        src={frontImageUrl} 
+                                        alt="Identity Front" 
+                                        fill 
+                                        className="object-contain p-2 rounded-2xl"
+                                        data-ai-hint="ID card"
+                                    />
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2 opacity-30">
+                                        <UserIcon className="h-12 w-12" />
+                                        <span className="text-xs font-bold">الصورة غير متوفرة</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="mt-6 p-4 bg-blue-50 dark:bg-primary/10 rounded-2xl text-center">
+                                <p className="text-[10px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest mb-1">حالة التوثيق</p>
+                                <p className="text-lg font-black text-[#001F3D] dark:text-foreground">
+                                    {user.verification === 'verified' ? "حساب موثق وآمن" : "قيد انتظار التوثيق"}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    );
+}

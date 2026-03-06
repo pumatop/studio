@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -104,7 +105,6 @@ export function PageHeader({ title }: { title: string }) {
           </div>
         </div>
 
-        {/* زر الوضع الليلي - متاح الآن على كافة أحجام الشاشات */}
         <div className="flex items-center">
           <ThemeToggle />
         </div>
@@ -130,9 +130,11 @@ export function PageHeader({ title }: { title: string }) {
           <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-2xl p-2 min-w-[180px] md:min-w-[200px] bg-card text-right">
             <DropdownMenuLabel className="font-black text-foreground px-4 py-2 md:py-3 text-sm md:text-base">حسابي</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border/10" />
-            <DropdownMenuItem className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-xs md:text-sm flex-row-reverse gap-3">
-              <UserIcon className="w-4 h-4 text-primary/60" />
-              <span className="font-bold">الملف الشخصي</span>
+            <DropdownMenuItem asChild className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-xs md:text-sm flex-row-reverse gap-3">
+              <Link href="/dashboard/profile">
+                <UserIcon className="w-4 h-4 text-primary/60" />
+                <span className="font-bold">الملف الشخصي</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-border/10" />
             <DropdownMenuItem onClick={handleLogout} className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-destructive focus:text-destructive text-xs md:text-sm flex-row-reverse gap-3">
