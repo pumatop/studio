@@ -146,7 +146,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           searching: false,
-          pageLength: 10,
+          pageLength: 100,
           lengthMenu: [10, 25, 50, 100],
           pagingType: 'full_numbers',
         });

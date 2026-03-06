@@ -123,7 +123,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
-          pageLength: 10,
+          pageLength: 100,
           lengthMenu: [10, 25, 50, 100],
           searching: false,
           pagingType: 'full_numbers',

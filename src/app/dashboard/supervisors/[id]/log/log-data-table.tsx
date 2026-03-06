@@ -1,5 +1,4 @@
-
-"use client";
+'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import Image from "next/image";
@@ -156,7 +155,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
           language: {
             url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
           },
-          pageLength: 10,
+          pageLength: 100,
           lengthMenu: [10, 25, 50, 100],
           searching: false,
           pagingType: 'full_numbers',
