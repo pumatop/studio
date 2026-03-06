@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
   Table,
@@ -13,13 +13,6 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,8 +44,6 @@ import {
   Loader2,
   X,
   LogOut,
-  FileDown,
-  Printer,
   Search,
   CalendarDays,
   FilterX,
@@ -61,7 +52,7 @@ import {
 import type { User, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { cn, exportToCsv } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -72,6 +63,15 @@ import {
 import { useDatabase, updateRtdb, useFunctions } from '@/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
 
 const roleMap: Record<User['role'], string> = {
     "user": "مستخدم",
@@ -107,9 +107,6 @@ const verificationColors: Record<User['verification'], string> = {
     "unverified": "bg-gray-100 text-gray-800",
 };
 
-/**
- * وظيفة مساعدة لتحويل الوقت إلى أجزاء منفصلة لدعم العرض العربي الدقيق
- */
 const formatDateParts = (timestamp: number | undefined) => {
     if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
     const date = new Date(timestamp);
@@ -137,7 +134,6 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
-// مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
@@ -145,9 +141,6 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
     </div>
 );
 
-/**
- * مكون لعرض التاريخ والوقت بنمط عربي دقيق (يوم/شهر/سنة من اليمين، ص/م يسار الوقت)
- */
 const DateTimeDisplay = ({ timestamp, className }: { timestamp: number | undefined, className?: string }) => {
     const parts = formatDateParts(timestamp);
     return (
@@ -342,9 +335,7 @@ function UserDetailsContent({
             <div className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
-                    {/* الصف الأول: الأرصدة (يمين) ومعلومات الحساب (يسار) بنسبة 50/50 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        {/* بطاقة الأرصدة - يمين */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
@@ -366,7 +357,6 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* بطاقة معلومات الحساب - يسار */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
@@ -389,9 +379,7 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* الصف الثاني: التوثيق (يمين) والجلسات (يسار) بنسبة 50/50 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        {/* بطاقة التوثيق - يمين */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
@@ -435,7 +423,6 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        {/* بطاقة الجلسات - يسار (بنفس الارتفاع ومع سكرول) */}
                         <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
                             <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
@@ -488,7 +475,6 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    {/* سجل العمليات (عرض كامل) */}
                     <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
                         <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
@@ -501,7 +487,7 @@ function UserDetailsContent({
                             
                             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
                                 <div className="relative flex-1 min-w-[200px] md:max-w-xs">
-                                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Search className="absolute right-3 top-1/2 h-4 w-4 text-slate-400" />
                                     <Input 
                                         placeholder="بحث برقم العملية أو المستلم..." 
                                         value={txSearch} 
@@ -563,12 +549,13 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [userToToggleBan, setUserToToggleBan] = useState<User | null>(null);
   const [isToggling, setIsToggling] = useState(false);
   
+  const tableRef = useRef<HTMLTableElement>(null);
   const { database } = useDatabase();
   const { toast } = useToast();
   const functions = useFunctions();
 
   const filteredData = useMemo(() => {
-    return initialData.filter(u => 
+    return (initialData || []).filter(u => 
         (u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || u.phone?.includes(searchTerm)) && 
         (roleFilter === 'all' || u.role === roleFilter) &&
         (statusFilter === 'all' || u.status === statusFilter) &&
@@ -576,19 +563,34 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
     );
   }, [initialData, searchTerm, roleFilter, statusFilter, verificationFilter]);
 
-  const handleCsvExport = () => {
-    exportToCsv('users_list.csv', filteredData.map(u => {
-        const parts = formatDateParts(u.lastSeen ? new Date(u.lastSeen).getTime() : undefined);
-        return {
-            'الاسم': u.name,
-            'الهاتف': u.phone,
-            'النوع': roleMap[u.role],
-            'الحالة': statusMap[u.status],
-            'التوثيق': verificationMap[u.verification],
-            'آخر ظهور': u.lastSeen ? `${parts.day}/${parts.month}/${parts.year}` : 'غير معروف'
-        };
-    }));
-  };
+  useEffect(() => {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
+          ],
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+          pageLength: 100,
+          lengthMenu: [10, 25, 50, 100],
+          searching: false,
+          pagingType: 'full_numbers',
+        });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    };
+  }, [filteredData]);
 
   const confirmToggleBan = async () => {
       if (!userToToggleBan) return;
@@ -649,20 +651,11 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                 </Select>
             </div>
         </div>
-
-        <div className="flex gap-2 w-full md:w-auto">
-            <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-10 rounded-xl bg-white border-slate-200">
-                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => window.print()} className="h-10 rounded-xl bg-white border-slate-200">
-                <Printer className="ml-2 h-4 w-4 text-slate-400" /> طباعة
-            </Button>
-        </div>
       </div>
 
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
-            <Table>
+            <Table ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>

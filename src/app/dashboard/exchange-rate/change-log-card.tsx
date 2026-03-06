@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useRef, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -17,12 +19,19 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { ExchangeRateLog } from "@/lib/types";
-import { ArrowDown, ArrowUp, History, FileDown, Printer, XCircle } from "lucide-react";
+import { ArrowDown, ArrowUp, History, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { exportToCsv, cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 rounded-2xl";
 
@@ -37,34 +46,43 @@ export function ChangeLogCard({
     selectedDate: string | null,
     onClearSelection: () => void,
 }) {
-  const { toast } = useToast();
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
   };
   
-  const cardTitle = selectedDate ? `سجل تغييرات يوم: ${new Date(selectedDate).toLocaleDateString("ar-EG-u-nu-latn", { day: 'numeric', month: 'long' })}` : "آخر 10 تغييرات";
+  const cardTitle = selectedDate ? `سجل تغييرات يوم: ${new Date(selectedDate).toLocaleDateString("ar-EG-u-nu-latn", { day: 'numeric', month: 'long' })}` : "آخر التغييرات";
   const cardDescription = selectedDate ? "عرض جميع التغييرات التي تمت على سعر الصرف في هذا اليوم." : "آخر التغييرات التي تمت على أسعار الصرف.";
 
-  const handleExport = (format: 'csv' | 'excel' | 'pdf') => {
-      if (!logs || logs.length === 0) {
-        toast({ title: "لا توجد بيانات للتصدير", variant: "destructive" });
-        return;
-      }
-      if (format === 'csv') {
-        exportToCsv('exchange-rate-logs.csv', logs);
-      } else {
-        toast({
-            title: "خاصية قيد التطوير",
-            description: `سيتم إضافة تصدير الملفات بصيغة ${format.toUpperCase()} قريباً.`,
+  useEffect(() => {
+    if (!tableRef.current || !document.body.contains(tableRef.current) || !logs || logs.length === 0) return;
+    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
+          ],
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+          pageLength: 10,
+          searching: false,
+          pagingType: 'full_numbers',
         });
-      }
-  };
+    }, 100);
 
-  const handlePrint = () => {
-      window.print();
-  };
-  
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    };
+  }, [logs]);
+
   if (isLoading) {
       return (
           <Card className={cn(floatingCardClass, "hover:translate-y-0")}>
@@ -103,28 +121,11 @@ export function ChangeLogCard({
                     <span className="sr-only">Clear selection</span>
                 </Button>
             )}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="bg-card border-black/10">
-                        <FileDown className="ml-2 h-4 w-4" />
-                        تصدير
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleExport('csv')}>CSV</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('excel')}>Excel</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('pdf')}>PDF</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-            <Button variant="outline" size="sm" className="bg-card border-black/10" onClick={handlePrint}>
-                <Printer className="ml-2 h-4 w-4" />
-                طباعة
-            </Button>
         </div>
       </CardHeader>
       <CardContent>
         <div className="border rounded-xl overflow-hidden bg-background/50">
-        <Table>
+        <Table ref={tableRef}>
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="w-[150px] font-bold">الوقت</TableHead>

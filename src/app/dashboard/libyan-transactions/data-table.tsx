@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from 'react';
@@ -67,7 +68,6 @@ const getSenderPhone = (transaction: Transaction): string | null => {
     return null;
 }
 
-// مكون لعرض المبالغ مع العملة جهة اليسار وخيار التحكم في الكسور العشرية
 const CurrencyDisplay = ({ 
     amount, 
     currency, 
@@ -85,9 +85,6 @@ const CurrencyDisplay = ({
     </div>
 );
 
-/**
- * مكون لعرض التاريخ والوقت بنمط عربي دقيق
- */
 const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     if (!timestamp) return <span className="text-slate-300">---</span>;
     const date = new Date(timestamp);
@@ -172,12 +169,12 @@ export function LibyanTransactionsDataTable({
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           pageLength: 100,

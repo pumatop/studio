@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Table,
@@ -30,13 +30,13 @@ import {
 } from '@/components/ui/dialog';
 import {
   PlusCircle, FileClock, KeyRound, FilterX, MoreHorizontal, Trash2,
-  Search, FileDown, ShieldCheck, Phone, Pencil, LogOut,
+  Search, ShieldCheck, Phone, Pencil, LogOut,
   Activity, Truck
 } from 'lucide-react';
 import type { Supervisor, Transaction } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { cn, exportToCsv } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -44,6 +44,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRtdbList, useDatabase, setRtdb, updateRtdb, useAuth, useFunctions } from '@/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
+
+// Datatables imports
+import $ from 'jquery';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.colVis.js';
+import 'datatables.net-buttons/js/buttons.html5.js';
+import 'datatables.net-buttons/js/buttons.print.js';
+import 'jszip';
 
 const statusColors: Record<string, string> = {
   'نشط': 'bg-green-100 text-green-800',
@@ -57,45 +66,12 @@ const months = [
     { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
 ];
 
-// مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
     </div>
 );
-
-const formatDateParts = (timestamp: number | string | undefined) => {
-    if (!timestamp) return { day: '--', month: '--', year: '----', time: '--:--', period: '' };
-    const date = new Date(timestamp);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear().toString();
-    const timePart = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
-    const period = date.getHours() >= 12 ? 'م' : 'ص';
-    
-    return { day, month, year, time: timePart, period };
-};
-
-const DateTimeDisplay = ({ timestamp, className }: { timestamp: string | undefined, className?: string }) => {
-    const parts = formatDateParts(timestamp);
-    return (
-        <div className={cn("flex items-center justify-start gap-1 tabular-nums", className)} dir="rtl">
-            <div className="flex items-center gap-0.5">
-                <span>{parts.day}</span>
-                <span className="opacity-30">/</span>
-                <span>{parts.month}</span>
-                <span className="opacity-30">/</span>
-                <span>{parts.year}</span>
-            </div>
-            <span className="mx-2 opacity-20">|</span>
-            <div className="flex items-center">
-                <span className="text-[10px] font-black ml-1">{parts.period}</span>
-                <span className="font-bold">{parts.time}</span>
-            </div>
-        </div>
-    );
-};
 
 function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervisor | null; onSave: (s: Partial<Supervisor>) => void; isSaving: boolean; }) {
   const [formData, setFormData] = useState<Partial<Supervisor>>(
@@ -198,6 +174,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const auth = useAuth();
   const functions = useFunctions();
   const { toast } = useToast();
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [specializationFilter, setSpecializationFilter] = useState("all");
@@ -207,7 +184,6 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // حساب الإحصائيات المالية لكل مشرف بناءً على الشهر المختار
   const supervisorStats = useMemo(() => {
     if (!allTransactions || !initialData) return {};
     
@@ -260,21 +236,34 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
     );
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
-  const handleCsvExport = () => {
-    const monthName = months.find(m => m.val === selectedMonth)?.label || "";
-    exportToCsv(`supervisors_finance_${monthName}.csv`, filteredData.map(s => {
-        const stats = supervisorStats[s.id] || { daily: 0, monthly: 0, fees: 0 };
-        return {
-            'الاسم': s.name,
-            'الهاتف': s.phone,
-            'التخصص': s.specialization?.join(' - ') || 'غير محدد',
-            'اجمالي اليوم (ج.م)': stats.daily.toFixed(2),
-            [`اجمالي شهر ${monthName} (ج.م)`]: stats.monthly.toFixed(2),
-            [`رسوم شهر ${monthName} (ج.م)`]: stats.fees.toFixed(2),
-            'الحالة': s.status
-        };
-    }));
-  };
+  useEffect(() => {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
+          ],
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+          pageLength: 100,
+          lengthMenu: [10, 25, 50, 100],
+          searching: false,
+          pagingType: 'full_numbers',
+        });
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+    };
+  }, [filteredData]);
 
   const handleSave = async (supervisorData: Partial<Supervisor>) => {
     setIsSaving(true);
@@ -377,9 +366,6 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
         </div>
 
         <div className="flex gap-2 w-full md:w-auto">
-            <Button variant="outline" size="sm" onClick={handleCsvExport} className="h-11 rounded-xl bg-white border-slate-200 px-4">
-                <FileDown className="ml-2 h-4 w-4 text-slate-400" /> تصدير مالي
-            </Button>
             <Button 
                 onClick={() => { setEditingSupervisor(null); setDialogOpen(true); }}
                 className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6 text-white"
@@ -391,7 +377,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
 
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
-            <Table>
+            <Table ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
