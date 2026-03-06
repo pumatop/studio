@@ -236,7 +236,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                             <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" colorClass="text-green-600 text-sm" />
                         </TableCell>
                         <TableCell>
-                            <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-sm" />
+                            <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-sm" decimals={0} />
                         </TableCell>
                         <TableCell>
                             <div className="flex items-center gap-1.5">
@@ -245,7 +245,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                                     amount={transfer.fakkaAmount || 0} 
                                     currency="ج.م" 
                                     colorClass="text-orange-600 text-[11px]" 
-                                    decimals={3}
+                                    decimals={2}
                                 />
                             </div>
                         </TableCell>
