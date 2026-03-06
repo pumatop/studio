@@ -92,19 +92,19 @@ const verificationMap: Record<User['verification'], string> = {
 };
 
 const connectionStatusColors: Record<string, string> = {
-  "متصل": "bg-green-100 text-green-800",
-  "غير متصل": "bg-stone-100 text-stone-800",
+  "متصل": "bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400",
+  "غير متصل": "bg-stone-100 dark:bg-slate-800 text-stone-800 dark:text-slate-400",
 };
 
 const statusColors: Record<User['status'], string> = {
-  "active": "bg-green-100 text-green-800",
-  "banned": "bg-red-100 text-red-800",
+  "active": "bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400",
+  "banned": "bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400",
 };
 
 const verificationColors: Record<User['verification'], string> = {
-    "verified": "bg-blue-100 text-blue-800",
-    "pending": "bg-yellow-100 text-yellow-800",
-    "unverified": "bg-gray-100 text-gray-800",
+    "verified": "bg-blue-100 dark:bg-blue-500/10 text-blue-800 dark:text-blue-400",
+    "pending": "bg-yellow-100 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-400",
+    "unverified": "bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-400",
 };
 
 const formatDateParts = (timestamp: number | undefined) => {
@@ -147,7 +147,7 @@ const DateTimeDisplay = ({ timestamp, className }: { timestamp: number | undefin
     return (
         <div className={cn("flex flex-col items-start gap-0.5 tabular-nums", className)} dir="rtl">
             <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-700">{parts.time}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{parts.time}</span>
                 <span className="text-[10px] font-black text-slate-400">{parts.period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
@@ -172,10 +172,10 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
     }
 
     return (
-        <div className="rounded-3xl border overflow-hidden bg-white shadow-sm">
+        <div className="rounded-3xl border overflow-hidden bg-card shadow-sm">
             <div className="max-h-[600px] overflow-y-auto custom-scrollbar relative">
                 <Table>
-                    <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                    <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b shadow-sm">
                         <TableRow>
                             <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
                             <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">التاريخ والوقت</TableHead>
@@ -192,21 +192,21 @@ function SimpleTransactionTable({ data }: { data: any[] }) {
                             const amount = tx.amount || tx.amountEGP || tx.amountLYD || 0;
                             
                             return (
-                                <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 border-b last:border-0">
+                                <TableRow key={tx.id || idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-b dark:border-white/5 last:border-0">
                                     <TableCell className="font-mono text-[10px] text-slate-500">{tx.id}</TableCell>
                                     <TableCell className="text-[11px] whitespace-nowrap">
                                         <DateTimeDisplay timestamp={tx.timestamp} />
                                     </TableCell>
                                     <TableCell className="text-sm font-bold">
-                                        <CurrencyDisplay amount={amount} currency={currency} />
+                                        <CurrencyDisplay amount={amount} currency={currency} colorClass="text-foreground" />
                                     </TableCell>
                                     <TableCell className="text-[11px] font-bold">
                                         {tx.methodDisplayName || tx.transferType || typeLabelMap[tx.type] || tx.type}
                                     </TableCell>
                                     <TableCell className="text-center">
                                         <Badge variant="outline" className={cn("text-[10px] font-bold border-none", 
-                                            tx.status === 'completed' ? 'bg-green-50 text-green-700' : 
-                                            tx.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'
+                                            tx.status === 'completed' ? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400' : 
+                                            tx.status === 'pending' ? 'bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' : 'bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400'
                                         )}>
                                             {tx.status === 'completed' ? 'ناجح' : tx.status === 'pending' ? 'معلق' : 'مرفوض'}
                                         </Badge>
@@ -301,8 +301,8 @@ function UserDetailsContent({
     ];
 
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-100 flex flex-col overflow-hidden animate-in fade-in-0 duration-300" dir="rtl">
-            <div className="flex items-center justify-between p-4 md:px-10 border-b bg-white sticky top-0 z-50 shadow-sm">
+        <div className="fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-950 flex flex-col overflow-hidden animate-in fade-in-0 duration-300" dir="rtl">
+            <div className="flex items-center justify-between p-4 md:px-10 border-b dark:border-white/5 bg-white dark:bg-card sticky top-0 z-50 shadow-sm">
                 <div className="flex items-center gap-4">
                     <div className="p-2.5 bg-primary/10 rounded-2xl">
                         <ShieldCheck className="h-7 w-7 text-primary" />
@@ -310,12 +310,12 @@ function UserDetailsContent({
                     <div className="text-right">
                         {isEditingName ? (
                             <div className="flex items-center gap-2">
-                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9 w-[200px] font-bold rounded-xl"/>
+                                <Input value={name} onChange={(e) => setName(e.target.value)} className="h-9 w-[200px] font-bold rounded-xl bg-background dark:bg-slate-900"/>
                                 <Button size="sm" onClick={() => { onUserUpdate(user.id, { name }); setIsEditingName(false); toast({ title: "تم التحديث" }); }}>حفظ</Button>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
-                                <h1 className="text-xl font-black text-[#001F3D]">{user.name}</h1>
+                                <h1 className="text-xl font-black text-[#001F3D] dark:text-foreground">{user.name}</h1>
                                 <Button variant="ghost" size="icon" className="h-7 w-7 opacity-40 hover:opacity-100" onClick={() => setIsEditingName(true)}><Pencil className="h-3.5 w-3.5" /></Button>
                             </div>
                         )}
@@ -329,7 +329,7 @@ function UserDetailsContent({
                 <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="rounded-full h-10 w-10 hover:bg-red-50 hover:text-red-600 transition-colors" 
+                    className="rounded-full h-10 w-10 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 transition-colors" 
                     onClick={onClose}
                 >
                     <X className="h-5 w-5" />
@@ -340,10 +340,10 @@ function UserDetailsContent({
                 <div className="max-w-[1400px] mx-auto space-y-6">
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                        <Card className="rounded-[2.5rem] border dark:border-white/5 shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-white/5 py-4 flex flex-row items-center justify-start gap-2">
                                 <Wallet className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#001F3D] font-black">الأرصدة والمحفظة</CardTitle>
+                                <CardTitle className="text-base text-[#001F3D] dark:text-foreground font-black">الأرصدة والمحفظة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6 text-right">
                                 <div className="flex flex-col items-start w-full">
@@ -361,17 +361,17 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                        <Card className="rounded-[2.5rem] border dark:border-white/5 shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-white/5 py-4 flex flex-row items-center justify-start gap-2">
                                 <CalendarDays className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#001F3D] font-black">معلومات الحساب</CardTitle>
+                                <CardTitle className="text-base text-[#001F3D] dark:text-foreground font-black">معلومات الحساب</CardTitle>
                             </CardHeader>
                             <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                                <div className="flex items-center justify-between border-b dark:border-white/5 border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">تاريخ فتح الحساب</span>
                                     <DateTimeDisplay timestamp={user.createdAt} className="text-sm font-bold text-[#1B69FF]" />
                                 </div>
-                                <div className="flex items-center justify-between border-b border-slate-50 pb-4">
+                                <div className="flex items-center justify-between border-b dark:border-white/5 border-slate-50 pb-4">
                                     <span className="text-sm font-bold text-slate-500">آخر تغيير لكلمة المرور</span>
                                     <DateTimeDisplay timestamp={user.lastPasswordChange} className="text-sm font-bold text-[#1B69FF]" />
                                 </div>
@@ -384,23 +384,23 @@ function UserDetailsContent({
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
-                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                        <Card className="rounded-[2.5rem] border dark:border-white/5 shadow-sm bg-card overflow-hidden flex flex-col h-full">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-white/5 py-4 flex flex-row items-center justify-start gap-2">
                                 <FileText className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#001F3D] font-black">إثبات الهوية</CardTitle>
+                                <CardTitle className="text-base text-[#001F3D] dark:text-foreground font-black">إثبات الهوية</CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6 text-right flex-1 flex flex-col justify-between">
                                 <div className="space-y-2 flex-1">
                                     <span className="text-[10px] font-black text-slate-400 block mb-2 uppercase">صورة الهوية الرسمية</span>
-                                    <div className="relative h-[280px] w-full rounded-2xl overflow-hidden border-2 border-dashed border-slate-100 bg-slate-50 flex items-center justify-center">
+                                    <div className="relative h-[280px] w-full rounded-2xl overflow-hidden border-2 border-dashed dark:border-white/10 border-slate-100 bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
                                         {frontImageUrl ? (
                                             <a href={frontImageUrl} target="_blank" rel="noopener noreferrer" className="relative w-full h-full block">
                                                 <Image src={frontImageUrl} alt="Identity Front" fill className="object-contain p-1 rounded-2xl" />
                                             </a>
                                         ) : (
                                             <div className="flex flex-col items-center gap-2">
-                                                <AlertCircle className="h-8 w-8 text-slate-200" />
-                                                <span className="text-xs font-bold text-slate-300 italic">الصورة غير متوفرة</span>
+                                                <AlertCircle className="h-8 w-8 text-slate-200 dark:text-slate-800" />
+                                                <span className="text-xs font-bold text-slate-300 dark:text-slate-700 italic">الصورة غير متوفرة</span>
                                             </div>
                                         )}
                                     </div>
@@ -409,8 +409,8 @@ function UserDetailsContent({
                                     <Button 
                                         variant="outline" 
                                         className={cn(
-                                            "flex-1 h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all",
-                                            user.verification === 'verified' ? "text-red-600 border-red-50 hover:bg-red-50" : "text-blue-600 border-blue-50 hover:bg-blue-50"
+                                            "flex-1 h-12 rounded-2xl font-black text-xs border-2 shadow-sm transition-all bg-card",
+                                            user.verification === 'verified' ? "text-red-600 border-red-50 dark:border-red-500/10 hover:bg-red-50 dark:hover:bg-red-500/10" : "text-blue-600 border-blue-50 dark:border-blue-500/10 hover:bg-blue-50 dark:hover:bg-blue-500/10"
                                         )}
                                         onClick={() => onUserUpdate(user.id, { verification: user.verification === 'verified' ? 'unverified' : 'verified' })}
                                     >
@@ -427,15 +427,15 @@ function UserDetailsContent({
                             </CardContent>
                         </Card>
 
-                        <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden flex flex-col h-full">
-                            <CardHeader className="bg-slate-50/50 border-b py-4 flex flex-row items-center justify-start gap-2">
+                        <Card className="rounded-[2.5rem] border dark:border-white/5 shadow-sm bg-card overflow-hidden flex flex-col h-full">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-white/5 py-4 flex flex-row items-center justify-start gap-2">
                                 <Smartphone className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base text-[#001F3D] font-black">الجلسات والأجهزة النشطة</CardTitle>
+                                <CardTitle className="text-base text-[#001F3D] dark:text-foreground font-black">الجلسات والأجهزة النشطة</CardTitle>
                             </CardHeader>
                             <CardContent className="p-0 flex-1 flex flex-col overflow-hidden">
                                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar" style={{ maxHeight: '320px' }}>
                                     <Table>
-                                        <TableHeader className="sticky top-0 bg-white z-10">
+                                        <TableHeader className="sticky top-0 bg-card z-10">
                                             <TableRow className="border-none hover:bg-transparent text-right">
                                                 <TableHead className="text-right font-black text-slate-400 text-[10px] uppercase">الجهاز</TableHead>
                                                 <TableHead className="text-center font-black text-slate-400 text-[10px] uppercase">الحالة</TableHead>
@@ -444,11 +444,11 @@ function UserDetailsContent({
                                         </TableHeader>
                                         <TableBody>
                                             {sessions.length === 0 ? (
-                                                <TableRow><TableCell colSpan={3} className="h-32 text-center text-slate-300 font-bold italic text-sm">لا توجد أجهزة نشطة حالياً</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={3} className="h-32 text-center text-slate-300 dark:text-slate-700 font-bold italic text-sm">لا توجد أجهزة نشطة حالياً</TableCell></TableRow>
                                             ) : sessions.map(s => (
-                                                <TableRow key={s.id} className="border-b border-slate-50 hover:bg-slate-50/50">
+                                                <TableRow key={s.id} className="border-b border-slate-50 dark:border-white/5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
                                                     <TableCell className="text-right py-4">
-                                                        <div className="font-black text-xs text-[#001F3D]">{s.activeDevice}</div>
+                                                        <div className="font-black text-xs text-[#001F3D] dark:text-foreground">{s.activeDevice}</div>
                                                         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{s.phoneOS}</div>
                                                     </TableCell>
                                                     <TableCell className="text-center">
@@ -466,7 +466,7 @@ function UserDetailsContent({
                                         </TableBody>
                                     </Table>
                                 </div>
-                                <div className="p-6 border-t mt-auto">
+                                <div className="p-6 border-t dark:border-white/5 mt-auto">
                                     <Button 
                                         variant="destructive" 
                                         className="w-full h-12 rounded-[1.2rem] font-black text-xs shadow-xl shadow-red-500/20 gap-3"
@@ -479,12 +479,12 @@ function UserDetailsContent({
                         </Card>
                     </div>
 
-                    <Card className="rounded-[2.5rem] border shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <Card className="rounded-[2.5rem] border dark:border-white/5 shadow-sm bg-card overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-white/5 p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                             <div className="flex items-center gap-3">
                                 <Activity className="h-6 w-6 text-primary" />
                                 <div className="text-right">
-                                    <CardTitle className="text-xl font-black text-[#001F3D]">سجل عمليات المستخدم</CardTitle>
+                                    <CardTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">سجل عمليات المستخدم</CardTitle>
                                     <CardDescription className="text-xs font-bold text-slate-400 mt-1">إدارة وبحث وتصفية كافة العمليات المالية</CardDescription>
                                 </div>
                             </div>
@@ -496,11 +496,11 @@ function UserDetailsContent({
                                         placeholder="بحث برقم العملية أو المستلم..." 
                                         value={txSearch} 
                                         onChange={(e) => setTxSearch(e.target.value)} 
-                                        className="pr-10 h-10 rounded-xl bg-white border-slate-200 text-xs text-right" 
+                                        className="pr-10 h-10 rounded-xl bg-background dark:bg-slate-900 border-slate-200 dark:border-white/5 text-xs text-right" 
                                     />
                                 </div>
                                 <Select value={txType} onValueChange={setTxType}>
-                                    <SelectTrigger className="w-[130px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
+                                    <SelectTrigger className="w-[130px] h-10 rounded-xl bg-background dark:bg-slate-900 border-slate-200 dark:border-white/5 text-xs"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
                                     <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الأنواع</SelectItem>
                                         <SelectItem value="account_transfer">تحويل داخلي</SelectItem>
@@ -512,7 +512,7 @@ function UserDetailsContent({
                                     </SelectContent>
                                 </Select>
                                 <Select value={txStatus} onValueChange={setTxStatus}>
-                                    <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                                    <SelectTrigger className="w-[110px] h-10 rounded-xl bg-background dark:bg-slate-900 border-slate-200 dark:border-white/5 text-xs"><SelectValue placeholder="الحالة" /></SelectTrigger>
                                     <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الحالات</SelectItem>
                                         <SelectItem value="completed">ناجحة</SelectItem>
@@ -521,7 +521,7 @@ function UserDetailsContent({
                                     </SelectContent>
                                 </Select>
                                 <Select value={txMonth} onValueChange={setTxMonth}>
-                                    <SelectTrigger className="w-[110px] h-10 rounded-xl bg-white text-xs"><SelectValue placeholder="الشهر" /></SelectTrigger>
+                                    <SelectTrigger className="w-[110px] h-10 rounded-xl bg-background dark:bg-slate-900 border-slate-200 dark:border-white/5 text-xs"><SelectValue placeholder="الشهر" /></SelectTrigger>
                                     <SelectContent className="rounded-2xl border-none shadow-2xl z-[200]">
                                         <SelectItem value="all">كل الأشهر</SelectItem>
                                         {months.map(m => (
@@ -629,12 +629,12 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                     placeholder="بحث بالاسم أو الهاتف..." 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
+                    className="pr-10 h-11 rounded-xl bg-card border-slate-200 dark:border-white/10 text-right" 
                 />
             </div>
             <div className="flex gap-2">
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="كل الانواع" /></SelectTrigger>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="كل الانواع" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الانواع</SelectItem>
                         <SelectItem value="user">مستخدم</SelectItem>
@@ -643,7 +643,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                     </SelectContent>
                 </Select>
                 <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="التوثيق" /></SelectTrigger>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="التوثيق" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الحالات</SelectItem>
                         <SelectItem value="verified">موثق</SelectItem>
@@ -652,7 +652,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                     </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                    <SelectTrigger className="w-[130px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="الحالة" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الحالات</SelectItem>
                         <SelectItem value="active">نشط</SelectItem>
@@ -663,18 +663,18 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-right h-12">نوع الحساب</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-center h-12">التوثيق</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-right h-12">الاتصال</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-xs uppercase tracking-widest text-right h-12">آخر ظهور</TableHead>
-                        <TableHead className="text-left font-black text-[#001F3D] text-xs uppercase tracking-widest h-12">إجراءات</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">نوع الحساب</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-center h-12">التوثيق</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest text-right h-12">آخر ظهور</TableHead>
+                        <TableHead className="text-left font-black text-[#001F3D] dark:text-slate-300 text-xs uppercase tracking-widest h-12">إجراءات</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -685,29 +685,29 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                     ) : filteredData.map(u => {
                         const isOnline = u.connectionStatus === 'متصل';
                         return (
-                            <TableRow key={u.id} className={cn("hover:bg-slate-50/50 transition-colors border-b last:border-0", u.status === 'banned' && "bg-red-50/20")}>
+                            <TableRow key={u.id} className={cn("hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0", u.status === 'banned' && "bg-red-50/20 dark:bg-red-500/5")}>
                                 <TableCell className="text-right">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-slate-700">{u.name || 'مستخدم بدون اسم'}</span>
+                                        <span className="font-bold text-sm text-slate-700 dark:text-foreground">{u.name || 'مستخدم بدون اسم'}</span>
                                         <span className="text-[11px] text-slate-400 font-mono tabular-nums">{u.phone}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-sm font-black text-[#001F3D] text-right">
+                                <TableCell className="text-sm font-black text-[#001F3D] dark:text-slate-300 text-right">
                                     {roleMap[u.role] || u.role}
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    <Badge variant="outline" className={cn("text-[10px] px-2 py-0 font-bold border-none", verificationColors[u.verification])}>
+                                    <Badge variant="outline" className={cn("text-[10px] px-2 py-0 font-bold border-none shadow-none", verificationColors[u.verification])}>
                                         {verificationMap[u.verification] || u.verification}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-center">
-                                    <Badge className={cn("text-[10px] px-2 py-0 font-bold", statusColors[u.status], `hover:${statusColors[u.status]}`)}>
+                                    <Badge className={cn("text-[10px] px-2 py-0 font-bold border-none shadow-none", statusColors[u.status], `hover:${statusColors[u.status]}`)}>
                                         {statusMap[u.status] || u.status}
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex items-center gap-1.5 justify-start">
-                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                                        <span className={cn("h-2 w-2 rounded-full shadow-sm", isOnline ? "bg-green-500 animate-pulse" : "bg-slate-300 dark:bg-slate-700")} />
                                         <span className={cn("text-[11px] font-bold", isOnline ? "text-green-600" : "text-slate-400")}>{u.connectionStatus || 'غير متصل'}</span>
                                     </div>
                                 </TableCell>
@@ -717,9 +717,9 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                                 <TableCell className="text-left">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"><MoreHorizontal className="h-4 w-4" /></Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2">
+                                        <DropdownMenuContent align="end" className="w-[180px] rounded-2xl border-none shadow-2xl p-2 bg-card">
                                             <DropdownMenuItem className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm" onClick={() => setSelectedUser(u)}>
                                                 <Eye className="ml-2 h-4 w-4 text-[#1B69FF]" /> عرض الملف الشخصي
                                             </DropdownMenuItem>
@@ -753,12 +753,12 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
       )}
 
       <AlertDialog open={!!userToToggleBan} onOpenChange={(open) => !open && setUserToToggleBan(null)}>
-          <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8 max-w-md" dir="rtl">
+          <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8 max-w-md bg-card" dir="rtl">
               <AlertDialogHeader>
-                  <AlertDialogTitle className="text-2xl font-black text-[#001F3D] text-center">
+                  <AlertDialogTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground text-center">
                       {userToToggleBan?.status === 'active' ? 'تجميد الحساب' : 'إلغاء التجميد'}
                   </AlertDialogTitle>
-                  <AlertDialogDescription className="font-bold text-slate-500 text-center mt-2 leading-relaxed">
+                  <AlertDialogDescription className="font-bold text-slate-500 dark:text-slate-400 text-center mt-2 leading-relaxed">
                       {userToToggleBan?.status === 'active' 
                         ? `هل أنت متأكد من تجميد حساب "${userToToggleBan?.name}"؟ سيتم منعه من استخدام التطبيق فوراً.`
                         : `هل تريد إعادة تفعيل حساب "${userToToggleBan?.name}"؟ سيتمكن من الدخول واستئناف نشاطه.`
@@ -766,7 +766,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
                   </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="gap-3 pt-6 flex flex-col sm:flex-row">
-                  <AlertDialogCancel className="rounded-xl font-bold border-slate-200 flex-1 h-12">تراجع</AlertDialogCancel>
+                  <AlertDialogCancel className="rounded-xl font-bold border-slate-200 dark:border-white/10 flex-1 h-12">تراجع</AlertDialogCancel>
                   <AlertDialogAction 
                     onClick={confirmToggleBan} 
                     className={cn(

@@ -25,9 +25,9 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 
 const statusColors: Record<EgyptTransferTransaction['status'], string> = {
-  completed: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  pending: 'bg-yellow-100 text-yellow-800',
+  completed: 'bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400',
+  failed: 'bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400',
+  pending: 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-400',
 };
 const statusMap: Record<EgyptTransferTransaction['status'], string> = {
   completed: 'ناجح',
@@ -75,7 +75,7 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     return (
         <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
             <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
                 <span className="text-[10px] font-black text-slate-400">{period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
@@ -174,10 +174,10 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               placeholder="ابحث بالاسم أو الرقم..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-sm h-11 rounded-xl flex-grow"/>
+              className="max-w-sm h-11 rounded-xl bg-card border-slate-200 dark:border-white/10 flex-grow"/>
             
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -191,7 +191,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant={'outline'} className={cn('h-11 rounded-xl justify-start text-left font-normal', !date && 'text-muted-foreground')}>
+                <Button variant={'outline'} className={cn('h-11 rounded-xl justify-start text-left font-normal bg-card border-slate-200 dark:border-white/10', !date && 'text-muted-foreground')}>
                   <CalendarIcon className="ml-2 h-4 w-4" />
                   {date ? format(date, 'dd/MM/y', { locale: arEG }) : <span>فلتر باليوم</span>}
                 </Button>
@@ -202,7 +202,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
             </Popover>
 
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>
+              <SelectTrigger className="w-[110px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="الحالة" /></SelectTrigger>
               <SelectContent className="rounded-xl border-none shadow-2xl">
                 <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="completed">ناجح</SelectItem>
@@ -217,27 +217,27 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           </div>
       </div>
       
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">قيمة الفكة</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">قيمة الفكة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {filteredData.map((transfer, index) => (
-                    <TableRow key={`${transfer.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                    <TableRow key={`${transfer.id}-${index}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0">
                         <TableCell className="text-xs font-mono text-slate-500 font-bold">{transfer.id}</TableCell>
                         <TableCell>
-                            <div className="font-bold text-sm text-slate-700">{transfer.userName}</div>
+                            <div className="font-bold text-sm text-slate-700 dark:text-foreground">{transfer.userName}</div>
                             <div className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.userPhone}</div>
                         </TableCell>
                         <TableCell className="text-sm font-black text-[#1B69FF] tabular-nums" dir="ltr">
@@ -247,7 +247,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                             <CurrencyDisplay amount={transfer.amountLYD} currency="د.ل" colorClass="text-green-600 text-sm" />
                         </TableCell>
                         <TableCell>
-                            <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" decimals={0} />
+                            <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" decimals={0} colorClass="text-foreground" />
                         </TableCell>
                         <TableCell>
                             <div className="flex items-center gap-1.5">

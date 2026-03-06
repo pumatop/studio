@@ -32,9 +32,9 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 
 const statusColors: Record<string, string> = {
-  'completed': 'bg-green-100 text-green-800',
-  'failed': 'bg-red-100 text-red-800',
-  'pending': 'bg-yellow-100 text-yellow-800',
+  'completed': 'bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400',
+  'failed': 'bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400',
+  'pending': 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-400',
 };
 
 const statusMap: Record<string, string> = {
@@ -100,7 +100,7 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     return (
         <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
             <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
                 <span className="text-[10px] font-black text-slate-400">{period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
@@ -225,11 +225,11 @@ export function LibyanTransactionsDataTable({
               placeholder="ابحث بالمعرف، الهاتف، الاسم أو المندوب..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-sm h-11 rounded-xl"
+              className="w-full max-w-sm h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"
             />
             
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -243,7 +243,7 @@ export function LibyanTransactionsDataTable({
 
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant={'outline'} className={cn('h-11 rounded-xl justify-start text-left font-normal', !date && 'text-muted-foreground')}>
+                <Button variant={'outline'} className={cn('h-11 rounded-xl justify-start text-left font-normal bg-card border-slate-200 dark:border-white/10', !date && 'text-muted-foreground')}>
                   <CalendarIcon className="ml-2 h-4 w-4" />
                   {date ? format(date, 'dd/MM/y', { locale: arEG }) : <span>فلتر باليوم</span>}
                 </Button>
@@ -255,7 +255,7 @@ export function LibyanTransactionsDataTable({
 
             {showTypeFilter && (
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
+                <SelectTrigger className="w-[140px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
                 <SelectContent className="rounded-xl border-none shadow-2xl">
                   <SelectItem value="all">كل الأنواع</SelectItem>
                   {Object.entries(typeMap).map(([id, label]) => (
@@ -266,7 +266,7 @@ export function LibyanTransactionsDataTable({
             )}
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>
+              <SelectTrigger className="w-[110px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="الحالة" /></SelectTrigger>
               <SelectContent className="rounded-xl border-none shadow-2xl">
                 <SelectItem value="all">كل الحالات</SelectItem>
                 <SelectItem value="completed">ناجحة</SelectItem>
@@ -281,21 +281,21 @@ export function LibyanTransactionsDataTable({
           </div>
       </div>
 
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المرسل</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
-                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
-                        {showReceivedAmount && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>}
-                        {showFee && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
-                        {showDelegate && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المرسل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
+                        {showReceivedAmount && <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>}
+                        {showFee && <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
+                        {showDelegate && <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -303,7 +303,7 @@ export function LibyanTransactionsDataTable({
                         const isEgyptLocal = ['egypt_home', 'egypt_wallets', 'egypt_instapay', 'egypt_transfer'].includes(tx.type);
                         const currency = isEgyptLocal ? "ج.م" : "د.ل";
                         return (
-                            <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                            <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0">
                                 <TableCell className="text-xs font-mono text-slate-500 font-bold">{tx.id}</TableCell>
                                 <TableCell className="text-xs font-bold">{typeMap[tx.type] || tx.type}</TableCell>
                                 <TableCell className="text-center">
@@ -316,7 +316,7 @@ export function LibyanTransactionsDataTable({
                                 </TableCell>
                                 <TableCell className="text-[11px]">
                                     <div className="flex flex-col">
-                                        <div className="font-bold text-slate-700">{tx.senderName || tx.userName || '-'}</div>
+                                        <div className="font-bold text-slate-700 dark:text-foreground">{tx.senderName || tx.userName || '-'}</div>
                                         <div className="text-slate-400 font-mono tabular-nums">{getSenderPhone(tx)}</div>
                                     </div>
                                 </TableCell>
@@ -326,6 +326,7 @@ export function LibyanTransactionsDataTable({
                                             amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
                                             currency={currency}
                                             decimals={isEgyptLocal ? 0 : 2}
+                                            colorClass="text-foreground"
                                         />
                                         {isEgyptLocal && tx.fakkaAmount > 0 && (
                                             <div className="flex items-center gap-1 opacity-60">
@@ -338,14 +339,14 @@ export function LibyanTransactionsDataTable({
                                 <TableCell className="text-[11px]">
                                     {isEgyptLocal ? (
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-slate-700 tabular-nums">{tx.recipientNumber || '-'}</span>
+                                            <span className="font-bold text-slate-700 dark:text-foreground tabular-nums">{tx.recipientNumber || '-'}</span>
                                             {tx.recipientName && (
                                                 <span className="text-[10px] text-slate-400 font-bold">{tx.recipientName}</span>
                                             )}
                                         </div>
                                     ) : (
                                         <div className="flex flex-col">
-                                            <div className="font-bold text-slate-700">{tx.recipientName || tx.userName || '-'}</div>
+                                            <div className="font-bold text-slate-700 dark:text-foreground">{tx.recipientName || tx.userName || '-'}</div>
                                             <div className="text-slate-400 font-mono tabular-nums">
                                                 {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
                                             </div>
@@ -358,6 +359,7 @@ export function LibyanTransactionsDataTable({
                                             amount={tx.type === 'account_transfer' ? (tx.amount || 0) : (tx.amountEGP || 0)} 
                                             currency={tx.type === 'account_transfer' ? "د.ل" : "ج.م"}
                                             decimals={tx.type === 'account_transfer' ? 2 : 0}
+                                            colorClass="text-foreground"
                                         />
                                     </TableCell>
                                 )}

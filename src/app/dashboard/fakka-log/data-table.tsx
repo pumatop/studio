@@ -60,7 +60,7 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     return (
         <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
             <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
                 <span className="text-[10px] font-black text-slate-400">{period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
@@ -156,11 +156,11 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
             placeholder="ابحث بالمعرف، الاسم أو الهاتف..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm h-11 rounded-xl"
+            className="w-full max-w-sm h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"
           />
           
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -174,7 +174,7 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
 
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant={"outline"} className={cn("h-11 rounded-xl justify-start text-left font-normal", !date && "text-muted-foreground")}>
+              <Button variant={"outline"} className={cn("h-11 rounded-xl justify-start text-left font-normal bg-card border-slate-200 dark:border-white/10", !date && "text-muted-foreground")}>
                 <CalendarIcon className="ml-2 h-4 w-4" />
                 {date ? format(date, "dd/MM/y", { locale: arEG }) : <span>فلتر باليوم</span>}
               </Button>
@@ -190,10 +190,10 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم المعاملة الأصلية</TableHead>
                         <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">اسم المستخدم</TableHead>
@@ -203,10 +203,10 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
                 </TableHeader>
                 <TableBody>
                     {filteredData.map((log, index) => (
-                    <TableRow key={`${log.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                    <TableRow key={`${log.id}-${index}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0">
                         <TableCell className="text-xs font-mono text-slate-500 font-bold">{log.transactionId}</TableCell>
                         <TableCell>
-                            <div className="font-bold text-sm text-slate-700">{log.userName}</div>
+                            <div className="font-bold text-sm text-slate-700 dark:text-foreground">{log.userName}</div>
                             <div className="text-[11px] text-slate-400 font-mono tabular-nums">{log.userPhone}</div>
                         </TableCell>
                         <TableCell>

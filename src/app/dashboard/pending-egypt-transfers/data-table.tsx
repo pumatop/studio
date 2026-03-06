@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -17,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { UpdateStatusForm } from './update-status-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CheckCircle2, User, Truck } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 export function PendingEgyptTransfersDataTable() {
   const { data, isLoading, error } = useRtdbList<EgyptTransferTransaction>('admin/pending_egypt_transfers');
@@ -53,20 +55,20 @@ export function PendingEgyptTransfersDataTable() {
 
   return (
     <>
-      <div className="rounded-md border overflow-x-auto bg-white shadow-sm">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead className="font-bold text-xs uppercase text-right">رقم العملية</TableHead>
-              <TableHead className="font-bold text-xs text-right">المستخدم</TableHead>
-              <TableHead className="font-bold text-xs text-right">المبلغ (ج.م)</TableHead>
-              <TableHead className="font-bold text-xs text-right">النوع</TableHead>
-              <TableHead className="font-bold text-xs text-right">رقم المستلم</TableHead>
-              <TableHead className="font-bold text-xs text-right">اسم المستلم</TableHead>
-              <TableHead className="font-bold text-xs text-right">المندوب</TableHead>
-              <TableHead className="font-bold text-xs text-right">رسوم الخدمة</TableHead>
-              <TableHead className="font-bold text-xs text-right">التاريخ والوقت</TableHead>
-              <TableHead className="text-left font-bold text-xs">الإجراء</TableHead>
+          <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المستخدم</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ (ج.م)</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم المستلم</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">اسم المستلم</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>
+              <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">التاريخ والوقت</TableHead>
+              <TableHead className="text-left font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest h-12">الإجراء</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -80,10 +82,10 @@ export function PendingEgyptTransfersDataTable() {
               const year = dateObj.getFullYear();
 
               return (
-                <TableRow key={transfer.id} className="hover:bg-slate-50 transition-colors">
+                <TableRow key={transfer.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0">
                   <TableCell className="font-mono text-[10px] font-bold text-slate-500">{transfer.id}</TableCell>
                   <TableCell>
-                    <div className="font-bold text-xs">{transfer.userName}</div>
+                    <div className="font-bold text-xs dark:text-foreground">{transfer.userName}</div>
                     <div className="text-[10px] text-muted-foreground tabular-nums">{transfer.userPhone}</div>
                   </TableCell>
                   <TableCell className="font-black text-[#1B69FF] whitespace-nowrap text-sm tabular-nums">
@@ -94,17 +96,17 @@ export function PendingEgyptTransfersDataTable() {
                       {transfer.methodDisplayName || (transfer as any).transferType || transfer.type}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-mono text-xs tabular-nums">{transfer.recipientNumber}</TableCell>
+                  <TableCell className="font-mono text-xs tabular-nums dark:text-foreground">{transfer.recipientNumber}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5 min-w-[120px]">
                       <User className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="text-xs font-bold">{transfer.recipientName || '-'}</span>
+                      <span className="text-xs font-bold dark:text-foreground">{transfer.recipientName || '-'}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1.5 min-w-[100px]">
                       <Truck className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="text-[10px] font-bold">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
+                      <span className="text-[10px] font-bold dark:text-foreground">{(transfer as any).agentInfo || transfer.delegateName || '-'}</span>
                     </div>
                   </TableCell>
                   <TableCell className="font-black text-xs text-orange-600 tabular-nums">
@@ -113,7 +115,7 @@ export function PendingEgyptTransfersDataTable() {
                   <TableCell className="text-[11px] text-muted-foreground whitespace-nowrap tabular-nums text-right font-medium">
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center justify-end gap-1" dir="rtl">
-                        <span className="font-bold text-slate-700">{timePart}</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
                         <span className="text-[10px] opacity-70 font-black">{period}</span>
                       </div>
                       <div className="text-[10px] opacity-60 flex items-center justify-end gap-0.5" dir="rtl">
@@ -138,9 +140,9 @@ export function PendingEgyptTransfersDataTable() {
       </div>
 
       <Dialog open={!!selectedTransfer} onOpenChange={(open) => !open && setSelectedTransfer(null)}>
-        <DialogContent className="rounded-3xl border-none shadow-2xl">
+        <DialogContent className="rounded-3xl border-none shadow-2xl bg-card">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-[#001F3D]">تحديث حالة الحوالة</DialogTitle>
+            <DialogTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">تحديث حالة الحوالة</DialogTitle>
             <DialogDescription className="font-bold text-xs">
               رقم العملية: <span className="font-mono text-[#1B69FF]">{selectedTransfer?.id}</span>
             </DialogDescription>

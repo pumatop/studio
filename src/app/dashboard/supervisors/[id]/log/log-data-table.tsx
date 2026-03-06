@@ -43,9 +43,9 @@ import 'datatables.net-buttons/js/buttons.print.js';
 import 'jszip';
 
 const statusColors: Record<EgyptTransferTransaction["status"], string> = {
-  "completed": "bg-green-100 text-green-800",
-  "failed": "bg-red-100 text-red-800",
-  "pending": "bg-yellow-100 text-yellow-800",
+  "completed": "bg-green-100 dark:bg-green-500/10 text-green-800 dark:text-green-400",
+  "failed": "bg-red-100 dark:bg-red-500/10 text-red-800 dark:text-red-400",
+  "pending": "bg-yellow-100 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-400",
 };
 
 const statusMap: Record<EgyptTransferTransaction["status"], string> = {
@@ -84,7 +84,7 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     return (
         <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
             <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">{timePart}</span>
                 <span className="text-[10px] font-black text-slate-400">{period}</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 font-medium">
@@ -181,13 +181,13 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                     placeholder="بحث باسم العميل أو رقم هاتفه..." 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)} 
-                    className="pr-10 h-11 rounded-xl bg-white border-slate-200 text-right" 
+                    className="pr-10 h-11 rounded-xl bg-card border-slate-200 dark:border-white/10 text-right" 
                 />
             </div>
             
             <div className="flex items-center gap-2">
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
+                    <SelectTrigger className="w-[140px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="نوع التحويل" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الأنواع</SelectItem>
                         <SelectItem value="محفظة كاش">محفظة كاش</SelectItem>
@@ -197,7 +197,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                 </Select>
 
                 <Select value={monthFilter} onValueChange={setMonthFilter}>
-                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -210,7 +210,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                 </Select>
 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[110px] h-11 rounded-xl bg-white"><SelectValue placeholder="الحالة" /></SelectTrigger>
+                    <SelectTrigger className="w-[110px] h-11 rounded-xl bg-card border-slate-200 dark:border-white/10"><SelectValue placeholder="الحالة" /></SelectTrigger>
                     <SelectContent className="rounded-xl border-none shadow-2xl">
                         <SelectItem value="all">كل الحالات</SelectItem>
                         <SelectItem value="completed">ناجح</SelectItem>
@@ -225,19 +225,19 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
         </div>
       </div>
 
-      <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
             <Table key={tableKey} ref={tableRef}>
-                <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
+                <TableHeader className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b dark:border-white/5 shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">العميل المرسل</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">نوع التحويل</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">المبلغ والرسوم</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">بيانات المستلم</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
-                        <TableHead className="text-left font-black text-[#001F3D] text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">العميل المرسل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">نوع التحويل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">المبلغ والرسوم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">بيانات المستلم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
+                        <TableHead className="text-left font-black text-[#001F3D] dark:text-slate-300 text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -246,22 +246,22 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                             <TableCell colSpan={8} className="h-40 text-center text-muted-foreground font-bold italic">لا توجد عمليات مطابقة</TableCell>
                         </TableRow>
                     ) : filteredData.map((transfer, index) => (
-                        <TableRow key={`${transfer.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
+                        <TableRow key={`${transfer.id}-${index}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-white/5 last:border-0">
                             <TableCell className="text-xs font-mono text-slate-500 font-bold">{transfer.id}</TableCell>
                             <TableCell>
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-sm text-slate-700">{transfer.userName}</span>
+                                    <span className="font-bold text-sm text-slate-700 dark:text-foreground">{transfer.userName}</span>
                                     <span className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.userPhone}</span>
                                 </div>
                             </TableCell>
                             <TableCell>
-                                <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 border-slate-200">
+                                <Badge variant="outline" className="text-[10px] font-bold bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-white/5">
                                     {transfer.transferType}
                                 </Badge>
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col gap-1">
-                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" decimals={0} />
+                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" decimals={0} colorClass="text-foreground" />
                                     <div className="flex items-center gap-1 opacity-50">
                                         <span className="text-[9px] font-bold">الرسوم:</span>
                                         <CurrencyDisplay amount={transfer.serviceFee || 0} currency="ج.م" colorClass="text-orange-600 text-[10px]" decimals={0} />
@@ -270,7 +270,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-sm text-slate-700">{transfer.recipientName}</span>
+                                    <span className="font-bold text-sm text-slate-700 dark:text-foreground">{transfer.recipientName}</span>
                                     <span className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.recipientNumber}</span>
                                 </div>
                             </TableCell>
@@ -286,26 +286,26 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                                 {transfer.receiptImageUrl && transfer.status === 'completed' ? (
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-[#1B69FF]">
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-[#1B69FF]">
                                                 <Eye className="h-4 w-4" />
                                             </Button>
                                         </DialogTrigger>
-                                        <DialogContent className="max-w-md rounded-[2rem]">
+                                        <DialogContent className="max-w-md rounded-[2rem] bg-card">
                                             <DialogHeader>
-                                                <DialogTitle className="text-xl font-black text-[#001F3D]">إيصال العملية {transfer.id}</DialogTitle>
+                                                <DialogTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">إيصال العملية {transfer.id}</DialogTitle>
                                             </DialogHeader>
                                             <div className="relative aspect-[3/4] w-full mt-4">
                                                 <Image
                                                     src={transfer.receiptImageUrl}
                                                     alt={`إيصال ${transfer.id}`}
                                                     fill
-                                                    className="object-contain rounded-2xl border bg-slate-50"
+                                                    className="object-contain rounded-2xl border dark:border-white/10 bg-slate-50 dark:bg-slate-900"
                                                 />
                                             </div>
                                         </DialogContent>
                                     </Dialog>
                                 ) : (
-                                    <span className="text-slate-300">---</span>
+                                    <span className="text-slate-300 dark:text-slate-700">---</span>
                                 )}
                             </TableCell>
                         </TableRow>
