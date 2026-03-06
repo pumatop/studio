@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -90,6 +91,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   const [statusFilter, setStatusFilter] = useState<'all' | EgyptTransferTransaction['status']>('all');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
+  const [tableKey, setTableKey] = useState(0);
   const tableRef = useRef<HTMLTableElement>(null);
 
   const filteredData = useMemo(() => {
@@ -118,8 +120,11 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
   }, [initialData, searchTerm, statusFilter, date, selectedMonth]);
 
   useEffect(() => {
+    setTableKey(prev => prev + 1);
+  }, [filteredData]);
+
+  useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
-    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -138,13 +143,15 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
           searching: false,
           pagingType: 'full_numbers',
         });
-    }, 100);
+    }, 50);
 
     return () => {
         clearTimeout(timer);
-        if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+        if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+            $(tableRef.current).DataTable().destroy();
+        }
     };
-  }, [filteredData]);
+  }, [tableKey]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -208,7 +215,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
       
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
-            <Table ref={tableRef}>
+            <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>

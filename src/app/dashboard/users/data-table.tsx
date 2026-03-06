@@ -548,6 +548,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userToToggleBan, setUserToToggleBan] = useState<User | null>(null);
   const [isToggling, setIsToggling] = useState(false);
+  const [tableKey, setTableKey] = useState(0);
   
   const tableRef = useRef<HTMLTableElement>(null);
   const { database } = useDatabase();
@@ -564,8 +565,11 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
   }, [initialData, searchTerm, roleFilter, statusFilter, verificationFilter]);
 
   useEffect(() => {
+    setTableKey(prev => prev + 1);
+  }, [filteredData]);
+
+  useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
-    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -584,13 +588,15 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
           searching: false,
           pagingType: 'full_numbers',
         });
-    }, 100);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+          $(tableRef.current).DataTable().destroy();
+      }
     };
-  }, [filteredData]);
+  }, [tableKey]);
 
   const confirmToggleBan = async () => {
       if (!userToToggleBan) return;
@@ -655,7 +661,7 @@ export function UsersDataTable({ initialData, allTransactions }: { initialData: 
 
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-300px)] overflow-y-auto custom-scrollbar relative">
-            <Table ref={tableRef}>
+            <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-xs uppercase tracking-widest text-right h-12">المستخدم</TableHead>

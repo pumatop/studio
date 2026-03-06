@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from "react";
@@ -69,7 +70,7 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
 );
 
 /**
- * مكون لعرض التاريخ والوقت بنمط عربي دقيق (يوم/شهر/سنة من اليمين، ص/م يسار الوقت)
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق
  */
 const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     if (!timestamp) return <span className="text-slate-300">---</span>;
@@ -99,6 +100,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [monthFilter, setMonthFilter] = useState((new Date().getMonth() + 1).toString());
+  const [tableKey, setTableKey] = useState(0);
   
   const tableRef = useRef<HTMLTableElement>(null);
 
@@ -121,54 +123,47 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
     ).sort((a, b) => b.timestamp - a.timestamp);
   }, [initialData, searchTerm, statusFilter, typeFilter, monthFilter]);
 
+  useEffect(() => {
+    setTableKey(prev => prev + 1);
+  }, [filteredData]);
+
+  useEffect(() => {
+    if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+
+    const timer = setTimeout(() => {
+        if (!tableRef.current || !document.body.contains(tableRef.current)) return;
+
+        $(tableRef.current).DataTable({
+          responsive: true,
+          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          buttons: [
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
+          ],
+          language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
+          pageLength: 100,
+          lengthMenu: [10, 25, 50, 100],
+          searching: false,
+          pagingType: 'full_numbers',
+        });
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+          $(tableRef.current).DataTable().destroy();
+      }
+    };
+  }, [tableKey]);
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
     setTypeFilter("all");
     setMonthFilter((new Date().getMonth() + 1).toString());
   };
-
-  useEffect(() => {
-    if (!tableRef.current || !document.body.contains(tableRef.current)) {
-      return;
-    }
-
-    if ($.fn.DataTable.isDataTable(tableRef.current)) {
-      $(tableRef.current).DataTable().destroy();
-    }
-
-    const timer = setTimeout(() => {
-        if (!tableRef.current || !document.body.contains(tableRef.current)) {
-          return;
-        }
-
-        $(tableRef.current).DataTable({
-          responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
-          buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'PDF', autoPrint: false, exportOptions: { columns: ':visible' }, className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
-          ],
-          language: {
-            url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json',
-          },
-          pageLength: 100,
-          lengthMenu: [10, 25, 50, 100],
-          searching: false,
-          pagingType: 'full_numbers',
-        });
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
-        $(tableRef.current).DataTable().destroy();
-      }
-    };
-  }, [filteredData]);
 
   const currentMonthVal = (new Date().getMonth() + 1).toString();
 
@@ -228,7 +223,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
 
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
-            <Table ref={tableRef}>
+            <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>

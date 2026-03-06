@@ -183,6 +183,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingSupervisor, setEditingSupervisor] = useState<Supervisor | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [tableKey, setTableKey] = useState(0);
 
   const supervisorStats = useMemo(() => {
     if (!allTransactions || !initialData) return {};
@@ -237,8 +238,11 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
   }, [initialData, searchTerm, specializationFilter, statusFilter]);
 
   useEffect(() => {
+    setTableKey(prev => prev + 1);
+  }, [filteredData]);
+
+  useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
-    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -257,13 +261,15 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
           searching: false,
           pagingType: 'full_numbers',
         });
-    }, 100);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+          $(tableRef.current).DataTable().destroy();
+      }
     };
-  }, [filteredData]);
+  }, [tableKey]);
 
   const handleSave = async (supervisorData: Partial<Supervisor>) => {
     setIsSaving(true);
@@ -319,7 +325,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto flex-1 items-center">
             <div className="relative flex-1 max-sm:w-full">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Search className="absolute right-3 top-1/2 h-4 w-4 text-slate-400" />
                 <Input 
                     placeholder="بحث باسم المشرف أو رقم هاتفه..." 
                     value={searchTerm} 
@@ -377,7 +383,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
 
       <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
         <div className="max-h-[calc(100vh-350px)] overflow-y-auto custom-scrollbar relative">
-            <Table ref={tableRef}>
+            <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>

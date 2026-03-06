@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -47,6 +47,7 @@ export function ChangeLogCard({
     onClearSelection: () => void,
 }) {
   const tableRef = useRef<HTMLTableElement>(null);
+  const [tableKey, setTableKey] = useState(0);
 
   const getDifference = (oldRate: number, newRate: number) => {
     return newRate - oldRate;
@@ -56,8 +57,11 @@ export function ChangeLogCard({
   const cardDescription = selectedDate ? "عرض جميع التغييرات التي تمت على سعر الصرف في هذا اليوم." : "آخر التغييرات التي تمت على أسعار الصرف.";
 
   useEffect(() => {
+    setTableKey(prev => prev + 1);
+  }, [logs]);
+
+  useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current) || !logs || logs.length === 0) return;
-    if ($.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
     
     const timer = setTimeout(() => {
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -75,13 +79,15 @@ export function ChangeLogCard({
           searching: false,
           pagingType: 'full_numbers',
         });
-    }, 100);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
-      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) $(tableRef.current).DataTable().destroy();
+      if (tableRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+          $(tableRef.current).DataTable().destroy();
+      }
     };
-  }, [logs]);
+  }, [tableKey]);
 
   if (isLoading) {
       return (
@@ -125,15 +131,15 @@ export function ChangeLogCard({
       </CardHeader>
       <CardContent>
         <div className="border rounded-xl overflow-hidden bg-background/50">
-        <Table ref={tableRef}>
+        <Table key={tableKey} ref={tableRef}>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-[150px] font-bold">الوقت</TableHead>
-              <TableHead className="font-bold">زوج العملات</TableHead>
-              <TableHead className="font-bold">المُعدِّل</TableHead>
+              <TableHead className="w-[150px] font-bold text-right">الوقت</TableHead>
+              <TableHead className="font-bold text-right">زوج العملات</TableHead>
+              <TableHead className="font-bold text-right">المُعدِّل</TableHead>
               <TableHead className="text-center font-bold">السعر القديم</TableHead>
               <TableHead className="text-center font-bold">السعر الجديد</TableHead>
-              <TableHead className="text-right font-bold">الفارق</TableHead>
+              <TableHead className="text-left font-bold">الفارق</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -148,7 +154,7 @@ export function ChangeLogCard({
               const isIncrease = difference > 0;
               return (
                 <TableRow key={log.id} className="hover:bg-muted/30 transition-colors tabular-nums">
-                  <TableCell className="text-xs">
+                  <TableCell className="text-xs text-right">
                     {new Date(log.date).toLocaleString("ar-EG-u-nu-latn", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -156,15 +162,15 @@ export function ChangeLogCard({
                       hour12: true,
                     })}
                   </TableCell>
-                  <TableCell className="font-medium text-xs">{log.currencyPair}</TableCell>
-                  <TableCell className="font-medium text-xs">{log.modifiedBy}</TableCell>
+                  <TableCell className="font-medium text-xs text-right">{log.currencyPair}</TableCell>
+                  <TableCell className="font-medium text-xs text-right">{log.modifiedBy}</TableCell>
                   <TableCell className="text-center text-muted-foreground text-xs">{log.oldRate.toFixed(2)}</TableCell>
                   <TableCell className="text-center font-bold text-xs">{log.newRate.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-left">
                     <Badge
                       variant={isIncrease ? "default" : "destructive"}
                       className={cn(
-                        "flex items-center gap-1 w-fit ml-auto text-[10px] px-2 py-0",
+                        "flex items-center gap-1 w-fit mr-auto text-[10px] px-2 py-0",
                         isIncrease
                           ? "bg-green-100 text-green-800 border-green-200"
                           : "bg-red-100 text-red-800 border-red-200"
