@@ -318,7 +318,7 @@ export default function DashboardPage() {
 
   const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 md:space-y-6 pt-6 md:pt-10 flex-grow flex flex-col justify-center px-4 md:px-10">
-        <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1B69FF]/5 w-full">
+        <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1B69FF]/5 w-full flex flex-col items-center justify-center">
             <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1B69FF]/60 tracking-widest mb-1 md:mb-2 text-center">إجمالي الحوالات (ناجح + معلق)</p>
             <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1B69FF]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" className="justify-center w-full" decimals={0} />
         </div>
@@ -482,13 +482,13 @@ export default function DashboardPage() {
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineDaySelector /></h4>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyInternalStats.count}</span></div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" className="justify-start w-full" /></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" className="justify-start w-full" decimals={0} /></div>
                     </div>
                     <Separator className="bg-slate-50" />
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineMonthSelector /></h4>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyInternalStats.count}</span></div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" className="justify-start w-full" /></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" className="justify-start w-full" decimals={0} /></div>
                     </div>
                 </CardContent>
             </Card>
@@ -504,13 +504,13 @@ export default function DashboardPage() {
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineDaySelector /></h4>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyCardStats.count}</span></div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" className="justify-start w-full" /></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" className="justify-start w-full" decimals={0} /></div>
                     </div>
                     <Separator className="bg-slate-50" />
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineMonthSelector /></h4>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyCardStats.count}</span></div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" className="justify-start w-full" /></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" className="justify-start w-full" decimals={0} /></div>
                     </div>
                 </CardContent>
             </Card>
@@ -530,7 +530,7 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
-                    <div className="text-center py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50 w-full overflow-visible px-6">
+                    <div className="text-center py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50 w-full overflow-visible px-6 flex items-center justify-center">
                         <FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-xl md:text-2xl font-black text-indigo-600" currencyClass="text-[10px] md:sm font-bold" className="justify-center w-full" decimals={0} />
                     </div>
                     <Separator className="bg-slate-100" />
