@@ -67,11 +67,21 @@ const getSenderPhone = (transaction: Transaction): string | null => {
     return null;
 }
 
-// مكون لعرض المبالغ مع العملة جهة اليسار
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+// مكون لعرض المبالغ مع العملة جهة اليسار وخيار التحكم في الكسور العشرية
+const CurrencyDisplay = ({ 
+    amount, 
+    currency, 
+    colorClass = "text-[#1A4B84]", 
+    decimals = 2 
+}: { 
+    amount: number, 
+    currency: string, 
+    colorClass?: string,
+    decimals?: number
+}) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
-        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
 
@@ -264,7 +274,8 @@ export function LibyanTransactionsDataTable({
                 </TableHeader>
                 <TableBody>
                     {filteredData.map((tx: any, index) => {
-                        const currency = ['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "ج.م" : "د.ل";
+                        const isEgyptLocal = ['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type);
+                        const currency = isEgyptLocal ? "ج.م" : "د.ل";
                         return (
                             <TableRow key={`${tx.id}-${index}`} className="hover:bg-slate-50/50 transition-colors border-b last:border-0">
                                 <TableCell className="text-xs font-mono text-slate-500 font-bold">{tx.id}</TableCell>
@@ -280,9 +291,10 @@ export function LibyanTransactionsDataTable({
                                 <TableCell className="text-[11px] font-bold text-slate-600">{getSenderPhone(tx)}</TableCell>
                                 <TableCell>
                                     <CurrencyDisplay 
-                                        amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || 0)} 
-                                        currency={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "ج.م" : "د.ل"}
-                                        colorClass={['egypt_home', 'egypt_wallets', 'egypt_instapay'].includes(tx.type) ? "text-primary" : "text-green-600"}
+                                        amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
+                                        currency={currency}
+                                        colorClass={isEgyptLocal ? "text-primary" : "text-green-600"}
+                                        decimals={isEgyptLocal ? 0 : 2}
                                     />
                                 </TableCell>
                                 <TableCell className="text-[11px]">
