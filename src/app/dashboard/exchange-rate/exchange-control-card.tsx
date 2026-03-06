@@ -229,11 +229,25 @@ export function ExchangeControlCard() {
   return (
     <Card className={floatingCardClass}>
       <CardHeader className="pb-6">
-        <div className="flex items-center gap-4">
-            <div className="p-4 bg-[#E3F2FD] rounded-[1.5rem]"><Activity className="h-6 w-6 text-[#1B69FF]" /></div>
-            <div>
-                <CardTitle className="text-[#001F3D] font-black text-2xl">التحكم في الصرف</CardTitle>
-                <CardDescription className="text-sm font-bold text-slate-400">إدارة حالة الصرف وتحديث الأسعار الذكية</CardDescription>
+        <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+                <div className="p-4 bg-[#E3F2FD] rounded-[1.5rem]"><Activity className="h-6 w-6 text-[#1B69FF]" /></div>
+                <div>
+                    <CardTitle className="text-[#001F3D] font-black text-2xl">التحكم في الصرف</CardTitle>
+                    <CardDescription className="text-sm font-bold text-slate-400">إدارة حالة الصرف والأسعار</CardDescription>
+                </div>
+            </div>
+            {/* Server Clock - Made Bigger */}
+            <div className="flex items-center gap-3 px-5 py-2.5 bg-white rounded-2xl shadow-sm border border-[#1B69FF]/10 animate-in fade-in zoom-in duration-500">
+                <Clock className="h-5 w-5 text-primary animate-pulse" />
+                <span className="text-lg text-[#001F3D] font-black tabular-nums tracking-tight">
+                {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                }) : '--:--:--'}
+                </span>
             </div>
         </div>
       </CardHeader>
@@ -294,32 +308,19 @@ export function ExchangeControlCard() {
             )}
         </div>
         
-        {/* Current Exchange Rate */}
+        {/* Current Exchange Rate - Height Reduced */}
         <div className={innerLevelCardClass}>
-          <div className="flex justify-between items-center mb-2">
-            <Label htmlFor="current-rate" className="font-black text-[#001F3D] text-xs uppercase tracking-widest">سعر الصرف (LYD/EGP)</Label>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full shadow-sm border border-[#1B69FF]/5">
-                <Clock className="h-3 w-3 text-primary animate-pulse" />
-                <span className="text-[10px] text-[#001F3D] font-black tabular-nums">
-                {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true,
-                }) : '--:--:--'}
-                </span>
-            </div>
-          </div>
-          <div className={cn("relative", deepInnerCardClass)}>
+          <Label htmlFor="current-rate" className="font-black text-[#001F3D] text-xs uppercase tracking-widest mb-2 block">سعر الصرف (LYD/EGP)</Label>
+          <div className={cn("relative p-2", deepInnerCardClass)}>
             <Input
               id="current-rate"
               type="number"
               value={localSettings.currentRate ?? ''}
               onChange={(e) => handleSettingChange('currentRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
-              className={cn("text-2xl font-black pl-16 text-left h-16 border-none shadow-none focus-visible:ring-0", inputLevel4Class.split(' ')[0])}
+              className={cn("text-2xl font-black pl-16 text-left h-12 border-none shadow-none focus-visible:ring-0 bg-transparent", inputLevel4Class.split(' ')[0])}
               step="0.01"
             />
-            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-lg font-black text-slate-300 pointer-events-none">
+            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-base font-black text-slate-300 pointer-events-none">
               ج.م
             </span>
           </div>
