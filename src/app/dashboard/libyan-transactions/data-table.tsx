@@ -298,10 +298,21 @@ export function LibyanTransactionsDataTable({
                                     />
                                 </TableCell>
                                 <TableCell className="text-[11px]">
-                                    <div className="font-bold text-slate-700">{tx.recipientName || tx.userName || '-'}</div>
-                                    <div className="text-slate-400 font-mono tabular-nums">
-                                        {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
-                                    </div>
+                                    {isEgyptLocal ? (
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-slate-700 tabular-nums">{tx.recipientNumber || '-'}</span>
+                                            {tx.recipientName && (
+                                                <span className="text-[10px] text-slate-400 font-bold">{tx.recipientName}</span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col">
+                                            <div className="font-bold text-slate-700">{tx.recipientName || tx.userName || '-'}</div>
+                                            <div className="text-slate-400 font-mono tabular-nums">
+                                                {tx.type === 'account_transfer' ? tx.recipientPhone : (tx.recipientNumber || tx.userPhone || '-')}
+                                            </div>
+                                        </div>
+                                    )}
                                 </TableCell>
                                 {showReceivedAmount && (
                                     <TableCell>
