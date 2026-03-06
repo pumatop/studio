@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRef, useEffect, useState } from "react";
@@ -40,11 +39,15 @@ export function ChangeLogCard({
     isLoading,
     selectedDate,
     onClearSelection,
+    monthSelector,
+    daySelector,
 }: { 
     logs?: ExchangeRateLog[], 
     isLoading?: boolean,
     selectedDate: string | null,
     onClearSelection: () => void,
+    monthSelector?: React.ReactNode,
+    daySelector?: React.ReactNode,
 }) {
   const tableRef = useRef<HTMLTableElement>(null);
   const [tableKey, setTableKey] = useState(0);
@@ -53,9 +56,6 @@ export function ChangeLogCard({
     return newRate - oldRate;
   };
   
-  const cardTitle = selectedDate ? `سجل تغييرات يوم: ${new Date(selectedDate).toLocaleDateString("ar-EG-u-nu-latn", { day: 'numeric', month: 'long' })}` : "آخر التغييرات";
-  const cardDescription = selectedDate ? "عرض جميع التغييرات التي تمت على سعر الصرف في هذا اليوم." : "آخر التغييرات التي تمت على أسعار الصرف.";
-
   useEffect(() => {
     setTableKey(prev => prev + 1);
   }, [logs]);
@@ -113,13 +113,18 @@ export function ChangeLogCard({
 
   return (
     <Card className={floatingCardClass}>
-      <CardHeader className="flex flex-row items-start justify-between">
-        <div>
+      <CardHeader className="flex flex-col sm:flex-row items-start justify-between gap-4">
+        <div className="space-y-1">
           <CardTitle className="flex items-center gap-2">
               <History className="h-5 w-5 text-primary" />
-              <span>{cardTitle}</span>
+              <span>سجل التغييرات</span>
           </CardTitle>
-          <CardDescription>{cardDescription}</CardDescription>
+          <div className="flex flex-wrap items-center gap-2 text-right">
+              <CardDescription className="text-xs font-bold text-slate-400">عرض التغييرات ليوم </CardDescription>
+              {daySelector}
+              <CardDescription className="text-xs font-bold text-slate-400"> من شهر </CardDescription>
+              {monthSelector}
+          </div>
         </div>
         <div className="flex items-center gap-2">
             {selectedDate && (
@@ -147,7 +152,7 @@ export function ChangeLogCard({
             {!logs || logs.length === 0 ? (
                 <TableRow>
                     <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                        لا توجد سجلات لعرضها.
+                        لا توجد سجلات لعرضها لهذا اليوم.
                     </TableCell>
                 </TableRow>
             ) : logs.map((log) => {
