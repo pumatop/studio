@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -153,11 +154,11 @@ export default function NotificationsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-10" dir="rtl">
                 {/* Column 1: Form & User Selection */}
                 <div className="space-y-8">
-                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                         <CardHeader className="bg-slate-50/50 border-b p-6 flex flex-row items-center gap-4">
+                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                         <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-4">
                             <div className="p-3 bg-primary/10 rounded-2xl"><Mail className="h-6 w-6 text-primary" /></div>
                             <div>
-                                <CardTitle className="text-xl font-black text-[#001F3D]">محتوى الإشعار</CardTitle>
+                                <CardTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">محتوى الإشعار</CardTitle>
                                 <CardDescription className="text-xs font-bold text-slate-400">أدخل تفاصيل الرسالة التي سيتم إرسالها.</CardDescription>
                             </div>
                         </CardHeader>
@@ -166,11 +167,11 @@ export default function NotificationsPage() {
                          </CardContent>
                     </Card>
 
-                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                        <CardHeader className="bg-slate-50/50 border-b p-6 flex flex-row items-center gap-4">
-                            <div className="p-3 bg-orange-50 rounded-2xl"><Users className="h-6 w-6 text-orange-600" /></div>
+                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-4">
+                            <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-2xl"><Users className="h-6 w-6 text-orange-600" /></div>
                             <div>
-                                <CardTitle className="text-xl font-black text-[#001F3D]">المستلمون</CardTitle>
+                                <CardTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">المستلمون</CardTitle>
                                 <CardDescription className="text-xs font-bold text-slate-400">حدد المستخدمين المستهدفين أو اترك فارغاً للإرسال للكل.</CardDescription>
                             </div>
                         </CardHeader>
@@ -195,9 +196,9 @@ export default function NotificationsPage() {
 
                 {/* Column 2: Preview & Send */}
                 <div className="lg:col-span-1 space-y-8">
-                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden sticky top-24">
-                        <CardHeader className="bg-slate-50/50 border-b p-6">
-                            <CardTitle className="text-xl font-black text-[#001F3D]">معاينة حية</CardTitle>
+                     <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden sticky top-24">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6">
+                            <CardTitle className="text-xl font-black text-[#001F3D] dark:text-foreground">معاينة حية</CardTitle>
                             <CardDescription className="text-xs font-bold text-slate-400">شاهد كيف سيظهر الإشعار على هواتف المستخدمين.</CardDescription>
                         </CardHeader>
                         <CardContent className="p-8">
@@ -208,7 +209,7 @@ export default function NotificationsPage() {
                                 type={watchAllFields.type as any}
                             />
                         </CardContent>
-                        <CardFooter className="p-8 bg-slate-50/30 border-t flex flex-col gap-4">
+                        <CardFooter className="p-8 bg-slate-50/30 dark:bg-slate-900/10 border-t dark:border-white/5 flex flex-col gap-4">
                             <Button 
                                 onClick={methods.handleSubmit(onSubmit)} 
                                 disabled={isSubmitting} 
@@ -225,7 +226,7 @@ export default function NotificationsPage() {
                                     variant="ghost"
                                     onClick={() => setDeleteAllDialogOpen(true)}
                                     disabled={isSubmitting || isDeletingAll}
-                                    className="w-full text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl font-bold text-xs"
+                                    className="w-full text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl font-bold text-xs"
                                 >
                                     <Trash2 className="ml-2 h-4 w-4" />
                                     حذف كافة سجلات الإشعارات المرسلة
@@ -237,10 +238,10 @@ export default function NotificationsPage() {
             </div>
             
              <div className="space-y-8 mt-8">
-                <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-                    <CardHeader className="bg-slate-50/50 border-b p-8">
-                        <CardTitle className="text-2xl font-black text-[#001F3D]">سجل الإشعارات المرسلة</CardTitle>
-                        <CardDescription className="text-sm font-bold text-slate-400">تاريخ العمليات السابقة وحالات الإرسال.</CardDescription>
+                <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                    <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-8">
+                        <CardTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground">سجل الإشعارات المرسلة</CardTitle>
+                        <CardDescription className="text-sm font-bold text-slate-400 mt-1">تاريخ العمليات السابقة وحالات الإرسال.</CardDescription>
                     </CardHeader>
                     <CardContent className="p-8">
                         {isLoadingData && allNotifications.length === 0 ? (
@@ -253,15 +254,15 @@ export default function NotificationsPage() {
             </div>
 
              <AlertDialog open={isDeleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
-                <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8" dir="rtl">
+                <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl p-8 bg-card" dir="rtl">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-2xl font-black text-[#001F3D]">هل أنت متأكد؟</AlertDialogTitle>
-                        <AlertDialogDescription className="font-bold text-slate-500 mt-2 leading-relaxed">
+                        <AlertDialogTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground">هل أنت متأكد؟</AlertDialogTitle>
+                        <AlertDialogDescription className="font-bold text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                             سيتم حذف كافة سجلات الإشعارات المرسلة نهائياً من النظام. لن يؤثر هذا على الإشعارات التي وصلت بالفعل لهواتف المستخدمين.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="gap-3 pt-6 flex flex-col sm:flex-row">
-                        <AlertDialogCancel className="rounded-xl font-bold border-slate-200 flex-1 h-12">إلغاء</AlertDialogCancel>
+                        <AlertDialogCancel className="rounded-xl font-bold border-slate-200 dark:border-white/10 flex-1 h-12">إلغاء</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDeleteAllNotifications}
                             className="bg-red-600 hover:bg-red-700 text-white rounded-xl font-black text-sm px-8 flex-1 h-12"

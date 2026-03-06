@@ -90,11 +90,11 @@ export default function AuditLogPage() {
                     <History className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black text-[#001F3D]">سجل التدقيق الشامل</h1>
+                    <h1 className="text-3xl font-black text-[#001F3D] dark:text-foreground">سجل التدقيق الشامل</h1>
                     <p className="text-sm font-bold text-slate-400 mt-1">مراقبة حية وتحليل ذكي لكافة التدفقات المالية داخل النظام.</p>
                 </div>
             </div>
-            <Badge className="bg-[#E3F2FD] text-[#1B69FF] border-none font-black px-4 py-2 rounded-full flex items-center gap-2">
+            <Badge className="bg-[#E3F2FD] dark:bg-primary/10 text-[#1B69FF] border-none font-black px-4 py-2 rounded-full flex items-center gap-2">
                 <Activity className="h-3 w-3 animate-pulse text-green-500" />
                 تزامن فوري مع السحابة
             </Badge>
@@ -102,21 +102,21 @@ export default function AuditLogPage() {
 
         {/* بطاقات المؤشرات الذكية */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="rounded-[2rem] border-none shadow-sm bg-white hover:shadow-md transition-all">
+            <Card className="rounded-[2rem] border-none shadow-sm bg-card hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 bg-blue-50 rounded-xl"><Zap className="h-5 w-5 text-[#1B69FF]" /></div>
+                        <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-xl"><Zap className="h-5 w-5 text-[#1B69FF]" /></div>
                         <span className="text-[10px] font-black text-[#1B69FF] uppercase tracking-widest">إجمالي الحركات</span>
                     </div>
-                    <div className="text-3xl font-black text-[#001F3D] tabular-nums">{auditMetrics?.total}</div>
+                    <div className="text-3xl font-black text-[#001F3D] dark:text-foreground tabular-nums">{auditMetrics?.total}</div>
                     <p className="text-[10px] font-bold text-slate-400 mt-1">عملية مدققة بالكامل</p>
                 </CardContent>
             </Card>
             
-            <Card className="rounded-[2rem] border-none shadow-sm bg-white hover:shadow-md transition-all">
+            <Card className="rounded-[2rem] border-none shadow-sm bg-card hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 bg-green-50 rounded-xl"><CheckCircle2 className="h-5 w-5 text-green-600" /></div>
+                        <div className="p-2 bg-green-50 dark:bg-green-500/10 rounded-xl"><CheckCircle2 className="h-5 w-5 text-green-600" /></div>
                         <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">معدل الانجاز</span>
                     </div>
                     <div className="text-3xl font-black text-green-600 tabular-nums">{auditMetrics?.successRate}%</div>
@@ -124,10 +124,10 @@ export default function AuditLogPage() {
                 </CardContent>
             </Card>
 
-            <Card className="rounded-[2rem] border-none shadow-sm bg-white hover:shadow-md transition-all">
+            <Card className="rounded-[2rem] border-none shadow-sm bg-card hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 bg-yellow-50 rounded-xl"><AlertCircle className="h-5 w-5 text-yellow-600" /></div>
+                        <div className="p-2 bg-yellow-50 dark:bg-yellow-500/10 rounded-xl"><AlertCircle className="h-5 w-5 text-yellow-600" /></div>
                         <span className="text-[10px] font-black text-yellow-600 uppercase tracking-widest">تنبيهات معلقة</span>
                     </div>
                     <div className="text-3xl font-black text-yellow-600 tabular-nums">{auditMetrics?.pendingCount}</div>
@@ -135,10 +135,10 @@ export default function AuditLogPage() {
                 </CardContent>
             </Card>
 
-            <Card className="rounded-[2rem] border-none shadow-sm bg-white hover:shadow-md transition-all">
+            <Card className="rounded-[2rem] border-none shadow-sm bg-card hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 bg-purple-50 rounded-xl"><TrendingUp className="h-5 w-5 text-purple-600" /></div>
+                        <div className="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-xl"><TrendingUp className="h-5 w-5 text-purple-600" /></div>
                         <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest">إجمالي التدفق (ج.م)</span>
                     </div>
                     <div className="text-xl font-black text-purple-600 tabular-nums">
@@ -172,11 +172,11 @@ export default function AuditLogPage() {
       </Card>
 
       {/* السجل المركزي الموحد */}
-      <Card className="rounded-[2.5rem] border-none shadow-sm bg-white overflow-hidden">
-        <CardHeader className="p-8 md:px-10 border-b bg-slate-50/50">
+      <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+        <CardHeader className="p-8 md:px-10 border-b bg-slate-50/50 dark:bg-slate-900/50">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-right">
-                <CardTitle className="text-2xl font-black text-[#001F3D]">مركز العمليات المركزي</CardTitle>
+                <CardTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground">مركز العمليات المركزي</CardTitle>
                 <CardDescription className="text-sm font-bold text-slate-400 mt-1">عرض تفصيلي وتفاعلي لكافة الحركات المالية الموحدة في النظام.</CardDescription>
             </div>
           </div>
