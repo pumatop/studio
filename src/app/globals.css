@@ -37,6 +37,37 @@
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 220 100% 55%;
   }
+
+  .dark {
+    --background: 210 100% 6%; /* #000d14 - كحلي داكن جداً */
+    --foreground: 210 40% 98%;
+    --card: 210 100% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 210 100% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 220 100% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 100% 12%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 100% 12%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 45 93% 47%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 100% 15%;
+    --input: 210 100% 15%;
+    --ring: 220 100% 55%;
+    
+    --sidebar-background: 210 100% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 220 100% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 100% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 210 100% 15%;
+    --sidebar-ring: 220 100% 55%;
+  }
 }
 
 @layer base {
@@ -45,7 +76,7 @@
   }
   body {
     @apply bg-background text-foreground font-sans leading-relaxed overflow-x-hidden;
-    background-image: linear-gradient(180deg, #e1ecf3 0%, #ffffff 100%);
+    background-image: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--background)) 100%);
     background-attachment: fixed;
     font-feature-settings: "tnum";
   }
@@ -53,7 +84,7 @@
 
 @layer components {
     .floating-card {
-        @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(27,105,255,0.05)] border-none transition-all duration-500 rounded-3xl;
+        @apply bg-card/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(27,105,255,0.05)] border-none transition-all duration-500 rounded-3xl;
     }
     
     @media (min-width: 768px) {
@@ -91,7 +122,7 @@
 }
 
 .dataTables_wrapper .paginate_button {
-  @apply h-9 md:h-10 min-w-[2.5rem] px-3 rounded-xl border border-border bg-white text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center;
+  @apply h-9 md:h-10 min-w-[2.5rem] px-3 rounded-xl border border-border bg-card text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer flex items-center justify-center;
 }
 
 .dataTables_wrapper .paginate_button.current {
