@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FilterX, Calendar as CalendarIcon, Search } from 'lucide-react';
+import { FilterX, Calendar as CalendarIcon, Search, PiggyBank } from 'lucide-react';
 import type { EgyptTransferTransaction } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,10 +42,20 @@ const months = [
 ];
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ 
+    amount, 
+    currency, 
+    colorClass = "text-[#1A4B84]", 
+    decimals = 2 
+}: { 
+    amount: number, 
+    currency: string, 
+    colorClass?: string,
+    decimals?: number
+}) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
-        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+        <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
 
@@ -206,6 +216,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
+                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">قيمة الفكة</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
                         <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
                     </TableRow>
@@ -226,6 +237,17 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                         </TableCell>
                         <TableCell>
                             <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-primary text-sm" />
+                        </TableCell>
+                        <TableCell>
+                            <div className="flex items-center gap-1.5">
+                                <PiggyBank className="h-3.5 w-3.5 text-orange-500 opacity-40" />
+                                <CurrencyDisplay 
+                                    amount={transfer.fakkaAmount || 0} 
+                                    currency="ج.م" 
+                                    colorClass="text-orange-600 text-[11px]" 
+                                    decimals={3}
+                                />
+                            </div>
                         </TableCell>
                         <TableCell className="text-center">
                             <Badge className={cn("text-[10px] font-bold border-none shadow-none", statusColors[transfer.status])}>
