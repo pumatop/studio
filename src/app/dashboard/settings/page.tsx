@@ -24,8 +24,8 @@ import { cn } from "@/lib/utils";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-300 rounded-2xl";
 const innerCardClass = "bg-[#dbe3ea] dark:bg-slate-900/50 shadow-sm rounded-xl border border-black/5 dark:border-white/5";
-const deepInnerCardClass = "bg-card border border-black/10 dark:border-white/10 rounded-lg p-3";
-const inputLevel4Class = "bg-background border-black/5 dark:border-white/10 focus:bg-card transition-colors tabular-nums";
+const deepInnerCardClass = "bg-background dark:bg-slate-900 border border-black/10 dark:border-white/10 rounded-lg p-3";
+const inputLevel4Class = "bg-background dark:bg-slate-950 border-black/5 dark:border-white/10 focus:bg-card transition-colors tabular-nums";
 
 function FeeTierManager({
   title,
@@ -91,7 +91,7 @@ function FeeTierManager({
           </div>
         ))}
       </div>
-      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs bg-card border-black/10 dark:border-white/10"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
+      <Button variant="outline" size="sm" onClick={handleAddTier} className="h-8 text-xs bg-card border-black/10 dark:border-white/10 text-foreground"><PlusCircle className="ml-1 h-3 w-3" /> إضافة شريحة</Button>
     </div>
   );
 }

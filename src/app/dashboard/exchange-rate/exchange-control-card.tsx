@@ -42,8 +42,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "floating-card h-full flex flex-col p-2";
 const innerLevelCardClass = "bg-[#E3F2FD]/50 dark:bg-primary/5 rounded-[2rem] border border-[#1B69FF]/5 p-6 space-y-4";
-const deepInnerCardClass = "bg-white dark:bg-slate-900/50 border border-[#1B69FF]/5 rounded-2xl p-4 shadow-sm";
-const inputLevel4Class = "bg-white dark:bg-slate-950 border-[#1B69FF]/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums";
+const deepInnerCardClass = "bg-background dark:bg-slate-900/50 border border-[#1B69FF]/5 rounded-2xl p-4 shadow-sm";
+const inputLevel4Class = "bg-background dark:bg-slate-950 border-[#1B69FF]/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums";
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
     const [type, setType] = useState<'amount' | 'time'>('amount');
@@ -238,7 +238,7 @@ export function ExchangeControlCard() {
                 </div>
             </div>
             {/* Server Clock */}
-            <div className="flex items-center gap-3 px-5 py-2.5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-[#1B69FF]/10 animate-in fade-in zoom-in duration-500">
+            <div className="flex items-center gap-3 px-5 py-2.5 bg-background dark:bg-slate-900 rounded-2xl shadow-sm border border-[#1B69FF]/10 animate-in fade-in zoom-in duration-500">
                 <Clock className="h-5 w-5 text-primary animate-pulse" />
                 <span className="text-lg text-foreground font-black tabular-nums tracking-tight">
                 {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
@@ -317,7 +317,7 @@ export function ExchangeControlCard() {
               type="number"
               value={localSettings.currentRate ?? ''}
               onChange={(e) => handleSettingChange('currentRate', e.target.value === '' ? '' : parseFloat(e.target.value))}
-              className={cn("text-2xl font-black pl-16 text-left h-12 border-none shadow-none focus-visible:ring-0 bg-transparent", inputLevel4Class.split(' ')[0])}
+              className={cn("text-2xl font-black pl-16 text-left h-12 border-none shadow-none focus-visible:ring-0 bg-transparent", inputLevel4Class)}
               step="0.01"
             />
             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-base font-black text-slate-300 dark:text-slate-600 pointer-events-none">
@@ -345,7 +345,7 @@ export function ExchangeControlCard() {
                  <h3 className="font-black text-foreground text-xs uppercase tracking-widest">جدول التغييرات</h3>
                  <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="rounded-xl bg-card border-[#1B69FF]/10 font-bold text-xs h-9">
+                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="rounded-xl bg-card border-[#1B69FF]/10 font-bold text-xs h-9 text-foreground">
                             <PlusCircle className="ml-2 h-4 w-4" />
                             إضافة شرط ذكي
                         </Button>
@@ -362,7 +362,7 @@ export function ExchangeControlCard() {
             
             <div className={cn("space-y-3 transition-all max-h-64 overflow-y-auto pr-2 custom-scrollbar", !localSettings.autoConditionsActive && "opacity-30 pointer-events-none grayscale")}>
                 {!localSettings.conditions || Object.keys(localSettings.conditions).length === 0 ? (
-                    <div className="text-center py-10 bg-white/50 dark:bg-slate-900/50 rounded-2xl border-2 border-dashed border-[#1B69FF]/10">
+                    <div className="text-center py-10 bg-background/50 dark:bg-slate-900/50 rounded-2xl border-2 border-dashed border-[#1B69FF]/10">
                         <p className="text-xs font-bold text-slate-400">لا توجد شروط مجدولة حالياً.</p>
                     </div>
                 ) : (
