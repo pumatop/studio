@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, User as UserIcon, Clock, ShieldCheck } from "lucide-react";
+import { LogOut, User as UserIcon, Clock } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +23,12 @@ import type { ExchangeControlSettings } from "@/lib/types";
 import { Skeleton } from "./ui/skeleton";
 import { Separator } from "./ui/separator";
 import { GlobalSearch } from "./global-search";
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export function PageHeader({ title }: { title: string }) {
   const router = useRouter();
   const auth = useAuth();
+  const appLogo = PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '/logo.png';
 
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
   const [serverTime, setServerTime] = useState<string | null>(null);
@@ -109,21 +112,29 @@ export function PageHeader({ title }: { title: string }) {
             <Button
               variant="outline"
               size="icon"
-              className="overflow-hidden rounded-xl md:rounded-2xl shadow-sm bg-primary/5 border-border/40 hover:bg-primary/10 h-11 w-11 md:h-12 md:w-12 transition-all"
+              className="overflow-hidden rounded-xl md:rounded-2xl shadow-sm bg-white dark:bg-slate-200 border-border/40 hover:scale-105 h-11 w-11 md:h-12 md:w-12 transition-all p-1.5"
             >
-              <ShieldCheck className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+              <div className="relative h-full w-full">
+                <Image 
+                  src={appLogo} 
+                  alt="Logo" 
+                  fill 
+                  className="object-contain" 
+                  data-ai-hint="finance logo"
+                />
+              </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-2xl p-2 min-w-[180px] md:min-w-[200px]">
+          <DropdownMenuContent align="end" className="rounded-2xl border-none shadow-2xl p-2 min-w-[180px] md:min-w-[200px] bg-card text-right">
             <DropdownMenuLabel className="font-black text-foreground px-4 py-2 md:py-3 text-sm md:text-base">حسابي</DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border/10" />
-            <DropdownMenuItem className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-xs md:text-sm">
-              <UserIcon className="w-4 h-4 ml-3 text-primary/60" />
+            <DropdownMenuItem className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-xs md:text-sm flex-row-reverse gap-3">
+              <UserIcon className="w-4 h-4 text-primary/60" />
               <span className="font-bold">الملف الشخصي</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-border/10" />
-            <DropdownMenuItem onClick={handleLogout} className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-destructive focus:text-destructive text-xs md:text-sm">
-              <LogOut className="w-4 h-4 ml-3" />
+            <DropdownMenuItem onClick={handleLogout} className="rounded-xl px-4 py-2 md:py-3 cursor-pointer text-destructive focus:text-destructive text-xs md:text-sm flex-row-reverse gap-3">
+              <LogOut className="w-4 h-4" />
               <span className="font-bold">تسجيل الخروج</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

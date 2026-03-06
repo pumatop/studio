@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, ForwardRefExoticComponent, RefAttributes } from 'react';
 import {
@@ -46,6 +47,7 @@ import {
 import { PageHeader } from '@/components/page-header';
 import { useUser } from '@/firebase';
 import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 // Type definitions for navigation items
 type SubItem = {
@@ -247,6 +249,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, isUserLoading } = useUser();
+  const appLogo = PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '/logo.png';
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -284,9 +287,17 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   if (isUserLoading || !user) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <ShieldCheck className="h-16 w-16 animate-pulse text-primary" />
-          <p className="text-foreground font-bold text-lg">جاري التحقق من الهوية...</p>
+        <div className="flex flex-col items-center gap-6">
+          <div className="relative h-20 w-20 md:h-24 md:w-24 p-3 bg-white dark:bg-slate-200 rounded-[2rem] shadow-2xl animate-pulse">
+            <Image 
+              src={appLogo} 
+              alt="Loading Logo" 
+              fill 
+              className="object-contain p-2"
+              data-ai-hint="finance logo"
+            />
+          </div>
+          <p className="text-foreground font-black text-lg md:text-xl">جاري التحقق من الهوية...</p>
         </div>
       </div>
     );
@@ -296,11 +307,18 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader className="h-24 md:h-28 border-b border-border/10 sticky top-0 bg-card/80 backdrop-blur-xl z-10">
-          <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
-            <div className="p-2.5 md:p-3 bg-gradient-to-br from-primary to-primary/60 rounded-xl md:rounded-[1.2rem] text-primary-foreground shadow-xl shadow-primary/20">
-              <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 shrink-0" />
+          <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 justify-start group-data-[collapsible=icon]:justify-center relative text-right">
+            <div className="p-1.5 md:p-2 bg-white dark:bg-slate-200 rounded-xl md:rounded-[1.2rem] shadow-xl shadow-primary/5 border border-border/10 shrink-0 overflow-hidden">
+              <Image 
+                src={appLogo} 
+                alt="Logo" 
+                width={48} 
+                height={48} 
+                className="h-8 w-8 md:h-10 md:w-10 object-contain" 
+                data-ai-hint="finance logo"
+              />
             </div>
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden text-right">
+            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
               <h2 className="font-black text-lg md:text-xl text-foreground">حولّي كاش</h2>
               <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-primary font-black">لوحة تحكم الإدارة</p>
             </div>
