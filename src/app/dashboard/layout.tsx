@@ -78,8 +78,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'لوحة التحكم',
         description: 'نظرة عامة وإحصائيات',
         match: /^\/dashboard\/?$/,
-        bgColor: 'bg-[#E3F2FD]',
-        iconColor: 'text-[#1B69FF]',
+        bgColor: 'bg-primary/10',
+        iconColor: 'text-primary',
       },
     ],
   },
@@ -92,8 +92,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'المستخدمين',
         description: 'إدارة حسابات المستخدمين',
         match: /^\/dashboard\/users/,
-        bgColor: 'bg-purple-50',
-        iconColor: 'text-purple-600',
+        bgColor: 'bg-purple-500/10',
+        iconColor: 'text-purple-500',
       },
       {
         href: '/dashboard/supervisors',
@@ -101,8 +101,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'المشرفين',
         description: 'إدارة المشرفين والمندوبين',
         match: /^\/dashboard\/supervisors/,
-        bgColor: 'bg-orange-50',
-        iconColor: 'text-orange-600',
+        bgColor: 'bg-orange-500/10',
+        iconColor: 'text-orange-500',
       },
       {
         href: '/dashboard/exchange-rate',
@@ -110,8 +110,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'سعر الصرف',
         description: 'مراقبة وتعديل الأسعار',
         match: /^\/dashboard\/exchange-rate/,
-        bgColor: 'bg-teal-50',
-        iconColor: 'text-teal-600',
+        bgColor: 'bg-teal-500/10',
+        iconColor: 'text-teal-500',
       },
     ],
   },
@@ -123,50 +123,50 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'سجلات التحويلات',
         description: 'تصفح جميع أنواع المعاملات',
         match: /^\/dashboard\/(dg-transfers|card-transactions|transfers|egyptian-transactions)/,
-        bgColor: 'bg-yellow-50',
-        iconColor: 'text-yellow-600',
+        bgColor: 'bg-yellow-500/10',
+        iconColor: 'text-yellow-500',
         subItems: [
           {
             href: '/dashboard/transfers/dd',
             label: 'دينار لدينار (DD)',
             icon: Wallet,
-            bgColor: 'bg-green-50',
-            iconColor: 'text-green-600',
+            bgColor: 'bg-green-500/10',
+            iconColor: 'text-green-500',
           },
           {
             href: '/dashboard/dg-transfers',
             label: 'دينار لجنيه (DG)',
             icon: ArrowRightLeft,
-            bgColor: 'bg-teal-50',
-            iconColor: 'text-teal-600',
+            bgColor: 'bg-teal-500/10',
+            iconColor: 'text-teal-500',
           },
           {
             href: '/dashboard/card-transactions',
             label: 'شراء الكروت (DC)',
             icon: CreditCardIcon,
-            bgColor: 'bg-sky-50',
-            iconColor: 'text-sky-600',
+            bgColor: 'bg-sky-500/10',
+            iconColor: 'text-sky-500',
           },
           {
             href: '/dashboard/transfers/ec',
             label: 'محفظة كاش (EC)',
             icon: Landmark,
-            bgColor: 'bg-indigo-50',
-            iconColor: 'text-indigo-600',
+            bgColor: 'bg-indigo-500/10',
+            iconColor: 'text-indigo-500',
           },
           {
             href: '/dashboard/transfers/ei',
             label: 'انستاباي (EI)',
             icon: Banknote,
-            bgColor: 'bg-emerald-50',
-            iconColor: 'text-emerald-600',
+            bgColor: 'bg-emerald-500/10',
+            iconColor: 'text-emerald-500',
           },
           {
             href: '/dashboard/transfers/ew',
             label: 'وصلي للبيت (EW)',
             icon: Truck,
-            bgColor: 'bg-rose-50',
-            iconColor: 'text-rose-600',
+            bgColor: 'bg-rose-500/10',
+            iconColor: 'text-rose-500',
           },
         ],
       },
@@ -176,8 +176,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'مراجعة الحوالات المصرية',
         description: 'تأكيد الحوالات المعلقة',
         match: /^\/dashboard\/pending-egypt-transfers/,
-        bgColor: 'bg-cyan-50',
-        iconColor: 'text-cyan-600',
+        bgColor: 'bg-cyan-500/10',
+        iconColor: 'text-cyan-500',
       },
     ],
   },
@@ -190,8 +190,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'الإشعارات',
         description: 'إرسال وإدارة الإشعارات',
         match: /^\/dashboard\/notifications/,
-        bgColor: 'bg-red-50',
-        iconColor: 'text-red-600',
+        bgColor: 'bg-red-500/10',
+        iconColor: 'text-red-500',
       },
       {
         href: '/dashboard/reports',
@@ -199,8 +199,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'تقارير AI',
         description: 'تحليلات ذكية للبيانات',
         match: /^\/dashboard\/reports/,
-        bgColor: 'bg-indigo-50',
-        iconColor: 'text-indigo-600',
+        bgColor: 'bg-indigo-500/10',
+        iconColor: 'text-indigo-500',
       },
       {
         href: '/dashboard/audit-log',
@@ -208,8 +208,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'سجل التدقيق',
         description: 'عرض جميع المعاملات',
         match: /^\/dashboard\/audit-log/,
-        bgColor: 'bg-cyan-50',
-        iconColor: 'text-cyan-600',
+        bgColor: 'bg-cyan-500/10',
+        iconColor: 'text-cyan-500',
       },
       {
         href: '/dashboard/settings',
@@ -217,8 +217,8 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         label: 'الإعدادات',
         description: 'إعدادات النظام والتطبيق',
         match: /^\/dashboard\/settings/,
-        bgColor: 'bg-gray-100',
-        iconColor: 'text-gray-600',
+        bgColor: 'bg-slate-500/10',
+        iconColor: 'text-slate-500',
       },
     ],
   },
@@ -278,22 +278,15 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     if (bestMatch && bestMatch.href && pageTitles[bestMatch.href]) {
       return pageTitles[bestMatch.href];
     }
-    if (pathname.startsWith('/dashboard/')) {
-      const pathSegments = pathname.split('/');
-      const lastSegment = pathSegments[pathSegments.length - 1];
-      if (pageTitles[pathname]) return pageTitles[pathname];
-      if (pathname.includes('/log')) return `سجل عمليات`;
-      return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace(/-/g, ' ');
-    }
     return 'لوحة التحكم';
   };
 
   if (isUserLoading || !user) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#e1ecf3]">
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <ShieldCheck className="h-16 w-16 animate-pulse text-[#1B69FF]" />
-          <p className="text-[#001F3D] font-bold text-lg">جاري التحقق من الهوية...</p>
+          <ShieldCheck className="h-16 w-16 animate-pulse text-primary" />
+          <p className="text-foreground font-bold text-lg">جاري التحقق من الهوية...</p>
         </div>
       </div>
     );
@@ -302,14 +295,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar side="right" collapsible="icon">
-        <SidebarHeader className="h-24 md:h-28 border-b border-sidebar-border/10 sticky top-0 bg-white/80 backdrop-blur-xl z-10">
+        <SidebarHeader className="h-24 md:h-28 border-b border-border/10 sticky top-0 bg-card/80 backdrop-blur-xl z-10">
           <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
-            <div className="p-2.5 md:p-3 bg-gradient-to-br from-[#1B69FF] to-[#004ABB] rounded-xl md:rounded-[1.2rem] text-primary-foreground shadow-xl shadow-primary/20">
+            <div className="p-2.5 md:p-3 bg-gradient-to-br from-primary to-primary/60 rounded-xl md:rounded-[1.2rem] text-primary-foreground shadow-xl shadow-primary/20">
               <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 shrink-0" />
             </div>
             <div className="flex flex-col group-data-[collapsible=icon]:hidden text-right">
-              <h2 className="font-black text-lg md:text-xl text-[#001F3D]">حولّي كاش</h2>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-[#1B69FF]/60 font-black">لوحة تحكم الإدارة</p>
+              <h2 className="font-black text-lg md:text-xl text-foreground">حولّي كاش</h2>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-primary font-black">لوحة تحكم الإدارة</p>
             </div>
           </div>
         </SidebarHeader>
@@ -317,7 +310,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
-                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#001F3D] font-black text-[9px] md:text-[10px] uppercase tracking-widest text-right">{group.label}</SidebarGroupLabel>}
+                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-foreground font-black text-[9px] md:text-[10px] uppercase tracking-widest text-right">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
@@ -331,7 +324,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                               tooltip={{ children: item.label, side: 'left' }}
                               className={cn(
                                 "w-full justify-between rounded-xl md:rounded-2xl transition-all duration-300",
-                                isActive ? "bg-[#1B69FF] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
+                                isActive ? "bg-primary shadow-lg shadow-primary/20 text-primary-foreground" : "hover:bg-secondary/50"
                               )}
                               size="lg"
                             >
@@ -340,14 +333,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                   <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-[#001F3D]")}>{item.label}</span>
+                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-foreground")}>{item.label}</span>
                                 </div>
                               </div>
-                              <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-slate-500")} />
+                              <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-muted-foreground")} />
                             </SidebarMenuButton>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-                            <SidebarMenuSub className="mt-1 border-r-2 border-l-0 border-slate-200 pr-3 md:pr-4 mr-4 md:mr-6">
+                            <SidebarMenuSub className="mt-1 border-r-2 border-l-0 border-border/30 pr-3 md:pr-4 mr-4 md:mr-6">
                               {item.subItems.map((subItem: SubItem) => {
                                 const isSubActive = pathname.startsWith(subItem.href);
                                 return (
@@ -358,13 +351,13 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                         size="md" 
                                         className={cn(
                                           "rounded-lg md:rounded-xl transition-all",
-                                          isSubActive ? "bg-[#1B69FF] shadow-sm text-white" : "hover:bg-[#E3F2FD]/50"
+                                          isSubActive ? "bg-primary shadow-sm text-primary-foreground" : "hover:bg-secondary/50"
                                         )}
                                       >
                                         <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', isSubActive ? "bg-white/20" : subItem.bgColor)}>
                                           <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', isSubActive ? "text-white" : subItem.iconColor)} />
                                         </div>
-                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-[#001F3D]")}>{subItem.label}</span>
+                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-foreground")}>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
                                   </SidebarMenuSubItem>
@@ -378,7 +371,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                   }
 
                   return (
-                    <SidebarMenuItem key={item.href!} className="mb-1">
+                    <SidebarMenuItem key={item.href!}>
                       <Link href={item.href!}>
                         <SidebarMenuButton 
                           isActive={isActive} 
@@ -386,14 +379,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                           size="lg"
                           className={cn(
                             "rounded-xl md:rounded-2xl transition-all duration-300",
-                            isActive ? "bg-[#1B69FF] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
+                            isActive ? "bg-primary shadow-lg shadow-primary/20 text-primary-foreground" : "hover:bg-secondary/50"
                           )}
                         >
                           <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', isActive ? "bg-white/20" : item.bgColor, isActive && "scale-110")}>
                             <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-[#001F3D]")}>{item.label}</span>
+                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-foreground")}>{item.label}</span>
                           </div>
                         </SidebarMenuButton>
                       </Link>
@@ -404,7 +397,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter className="p-3 md:p-4 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-sidebar-border/10">
+        <SidebarFooter className="p-3 md:p-4 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-card/80 backdrop-blur-xl border-t border-border/10">
         </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">
