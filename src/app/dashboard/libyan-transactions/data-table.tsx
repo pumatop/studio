@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { FilterX, Calendar as CalendarIcon, Truck, Banknote } from 'lucide-react';
+import { FilterX, Calendar as CalendarIcon, Truck, Banknote, PiggyBank } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -222,7 +222,7 @@ export function LibyanTransactionsDataTable({
             />
             
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -314,12 +314,20 @@ export function LibyanTransactionsDataTable({
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay 
-                                        amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
-                                        currency={currency}
-                                        colorClass={isEgyptLocal ? "text-primary" : "text-green-600"}
-                                        decimals={isEgyptLocal ? 0 : 2}
-                                    />
+                                    <div className="flex flex-col gap-1">
+                                        <CurrencyDisplay 
+                                            amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
+                                            currency={currency}
+                                            colorClass={isEgyptLocal ? "text-primary" : "text-green-600"}
+                                            decimals={isEgyptLocal ? 0 : 2}
+                                        />
+                                        {isEgyptLocal && tx.fakkaAmount > 0 && (
+                                            <div className="flex items-center gap-1 opacity-60">
+                                                <PiggyBank className="h-2.5 w-2.5 text-orange-500" />
+                                                <CurrencyDisplay amount={tx.fakkaAmount} currency="ج.م" colorClass="text-orange-600 text-[9px]" decimals={2} />
+                                            </div>
+                                        )}
+                                    </div>
                                 </TableCell>
                                 <TableCell className="text-[11px]">
                                     {isEgyptLocal ? (
