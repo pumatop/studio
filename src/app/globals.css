@@ -4,37 +4,38 @@
 
 @layer base {
   :root {
-    /* لوحة الألوان الأساسية المحدثة لسهولة القراءة */
-    /* اللون الكحلي العميق المختار: #001F3D */
+    /* لوحة الألوان الأساسية المحدثة */
+    /* الكحلي العميق للنصوص: #001F3D */
+    /* الأزرق الحيوي للمنصة: #1B69FF */
     --background: 203 43% 92%; /* #e1ecf3 */
-    --foreground: 210 100% 12%; /* #001F3D - اللون الأساسي الموحد للنصوص */
+    --foreground: 210 100% 12%; /* #001F3D - اللون الأساسي الموحد للنصوص لسهولة القراءة */
     --card: 0 0% 100%;
     --card-foreground: 210 100% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 100% 12%;
-    --primary: 210 100% 12%; /* #001F3D - اللون القيادي الموحد */
+    --primary: 220 100% 55%; /* #1B69FF - اللون الأزرق المعتمد للمنصة */
     --primary-foreground: 0 0% 100%;
     --secondary: 207 90% 94%; /* #E3F2FD - اللون المساعد */
     --secondary-foreground: 210 100% 12%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 20% 45%;
-    --accent: 45 93% 47%; /* #FFB800 - لون التمييز */
+    --accent: 45 93% 47%; /* #FFB800 - لون التمييز الذهبي */
     --accent-foreground: 210 100% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 210 100% 12%;
-    --radius: 2.5rem; /* الحواف الكبيرة المميزة 40px */
+    --ring: 220 100% 55%;
+    --radius: 2.5rem;
     
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 210 100% 12%;
-    --sidebar-primary: 210 100% 12%;
+    --sidebar-primary: 220 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 207 90% 94%;
     --sidebar-accent-foreground: 210 100% 12%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 210 100% 12%;
+    --sidebar-ring: 220 100% 55%;
   }
 }
 
@@ -46,25 +47,23 @@
     @apply bg-background text-foreground font-sans leading-relaxed overflow-x-hidden;
     background-image: linear-gradient(180deg, #e1ecf3 0%, #ffffff 100%);
     background-attachment: fixed;
-    font-feature-settings: "tnum"; /* تفعيل الأرقام المتساوية العرض تلقائياً */
+    font-feature-settings: "tnum";
   }
 }
 
 @layer components {
-    /* نمط البطاقات العائمة الموحد */
     .floating-card {
-        @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,31,61,0.05)] border-none transition-all duration-500 rounded-3xl;
+        @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(27,105,255,0.05)] border-none transition-all duration-500 rounded-3xl;
     }
     
     @media (min-width: 768px) {
         .floating-card {
-            @apply shadow-[0_20px_50px_rgba(0,31,61,0.08)] hover:shadow-[0_30px_70px_rgba(0,31,61,0.12)] hover:-translate-y-2 rounded-[2.5rem];
+            @apply shadow-[0_20px_50px_rgba(27,105,255,0.08)] hover:shadow-[0_30px_70px_rgba(27,105,255,0.12)] hover:-translate-y-2 rounded-[2.5rem];
         }
     }
     
-    /* خط التميز المتدرج أسفل العناوين */
     .accent-gradient-line {
-        @apply h-0.5 w-16 rounded-full bg-gradient-to-r from-[#001F3D] to-[#FFB800] mt-1.5;
+        @apply h-0.5 w-16 rounded-full bg-gradient-to-r from-[#1B69FF] to-[#FFB800] mt-1.5;
     }
 
     @media (min-width: 768px) {
@@ -73,7 +72,6 @@
         }
     }
 
-    /* تحسين مظهر حقول الأرقام */
     input[type=number]::-webkit-inner-spin-button,
     input[type=number]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -84,7 +82,6 @@
     }
 }
 
-/* تخصيص مظهر جداول البيانات */
 .dataTables_wrapper .dataTables_info {
   @apply text-xs text-muted-foreground pt-4;
 }
@@ -101,7 +98,6 @@
   @apply bg-primary text-white border-primary shadow-lg shadow-primary/20;
 }
 
-/* تخصيص شريط التمرير */
 ::-webkit-scrollbar {
   width: 6px;
 }

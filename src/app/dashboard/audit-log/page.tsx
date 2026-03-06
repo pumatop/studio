@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
@@ -90,11 +89,11 @@ export default function AuditLogPage() {
                     <History className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-black text-[#1A4B84]">سجل التدقيق الشامل</h1>
+                    <h1 className="text-3xl font-black text-[#001F3D]">سجل التدقيق الشامل</h1>
                     <p className="text-sm font-bold text-slate-400 mt-1">مراقبة حية وتحليل ذكي لكافة التدفقات المالية داخل النظام.</p>
                 </div>
             </div>
-            <Badge className="bg-[#E3F2FD] text-[#1A4B84] border-none font-black px-4 py-2 rounded-full flex items-center gap-2">
+            <Badge className="bg-[#E3F2FD] text-[#1B69FF] border-none font-black px-4 py-2 rounded-full flex items-center gap-2">
                 <Activity className="h-3 w-3 animate-pulse text-green-500" />
                 تزامن فوري مع السحابة
             </Badge>
@@ -105,10 +104,10 @@ export default function AuditLogPage() {
             <Card className="rounded-[2rem] border-none shadow-sm bg-white hover:shadow-md transition-all">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-2 bg-blue-50 rounded-xl"><Zap className="h-5 w-5 text-blue-600" /></div>
-                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">إجمالي الحركات</span>
+                        <div className="p-2 bg-blue-50 rounded-xl"><Zap className="h-5 w-5 text-[#1B69FF]" /></div>
+                        <span className="text-[10px] font-black text-[#1B69FF] uppercase tracking-widest">إجمالي الحركات</span>
                     </div>
-                    <div className="text-3xl font-black text-[#1A4B84] tabular-nums">{auditMetrics?.total}</div>
+                    <div className="text-3xl font-black text-[#001F3D] tabular-nums">{auditMetrics?.total}</div>
                     <p className="text-[10px] font-bold text-slate-400 mt-1">عملية مدققة بالكامل</p>
                 </CardContent>
             </Card>
@@ -151,7 +150,7 @@ export default function AuditLogPage() {
       </div>
 
       {/* لوحة تحليل الذكاء الاصطناعي */}
-      <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-[#1A4B84] to-[#2563EB] text-white overflow-hidden relative">
+      <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-[#1B69FF] to-[#004ABB] text-white overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://picsum.photos/seed/ai/1200/400')] opacity-10 mix-blend-overlay"></div>
         <CardContent className="p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 relative z-10">
             <div className="p-6 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/20 shrink-0">
@@ -176,7 +175,7 @@ export default function AuditLogPage() {
         <CardHeader className="p-8 md:px-10 border-b bg-slate-50/50">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-right">
-                <CardTitle className="text-2xl font-black text-[#1A4B84]">مركز العمليات المركزي</CardTitle>
+                <CardTitle className="text-2xl font-black text-[#001F3D]">مركز العمليات المركزي</CardTitle>
                 <CardDescription className="text-sm font-bold text-slate-400 mt-1">عرض تفصيلي وتفاعلي لكافة الحركات المالية الموحدة في النظام.</CardDescription>
             </div>
           </div>

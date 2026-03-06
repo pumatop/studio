@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -61,7 +60,7 @@ const FormattedAmount = ({
     const [integer, fraction] = (amount || 0).toFixed(2).split('.');
     return (
         <div className={cn('flex items-baseline gap-x-1 whitespace-nowrap leading-none flex-row-reverse', className)} dir="ltr">
-            <span className={cn('shrink-0 font-bold text-[#1A4B84] font-sans', currencyClass)}>{currency}</span>
+            <span className={cn('shrink-0 font-bold text-[#1B69FF] font-sans', currencyClass)}>{currency}</span>
             <span className={cn('tabular-nums tracking-tighter font-bold', integerClass)}>{Number(integer).toLocaleString('en-US')}</span>
             <span className={cn('text-muted-foreground opacity-60 shrink-0 tabular-nums text-[0.7em]', fractionClass)}>.{fraction}</span>
         </div>
@@ -128,7 +127,7 @@ export default function DashboardPage() {
 
     return (
         <Select value={String(selectedMonth)} onValueChange={(val) => setSelectedMonth(Number(val))}>
-        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
             <SelectValue placeholder={displayLabel} />
         </SelectTrigger>
         <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl">
@@ -149,7 +148,7 @@ export default function DashboardPage() {
     
     return (
       <Select value={String(selectedDay)} onValueChange={(val) => setSelectedDay(Number(val))}>
-        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
           <SelectValue placeholder={displayLabel} />
         </SelectTrigger>
         <SelectContent dir="rtl" className="max-h-[300px] rounded-2xl border-none shadow-2xl">
@@ -301,7 +300,7 @@ export default function DashboardPage() {
         <div className="flex h-screen w-full items-center justify-center">
             <div className="flex flex-col items-center gap-4">
                 <ShieldCheck className="h-12 md:h-16 w-12 md:w-16 text-primary animate-pulse" />
-                <p className="text-[#1A4B84] font-black text-lg md:text-xl">جاري معالجة البيانات المباشرة...</p>
+                <p className="text-[#001F3D] font-black text-lg md:text-xl">جاري معالجة البيانات المباشرة...</p>
             </div>
         </div>
     );
@@ -309,9 +308,9 @@ export default function DashboardPage() {
 
   const renderTransferSummary = (summary: any, successful: any, pending: any) => (
     <CardContent className="space-y-4 md:space-y-6 pt-6 md:pt-10 flex-grow flex flex-col justify-center px-4 md:px-10">
-        <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1A4B84]/5 w-full">
-            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1A4B84]/60 tracking-widest mb-1 md:mb-2">إجمالي الحوالات (ناجح + معلق)</p>
-            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1A4B84]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" className="justify-center w-full" />
+        <div className="text-center p-4 md:p-6 bg-[#E3F2FD] rounded-2xl md:rounded-[2rem] border border-[#1B69FF]/5 w-full">
+            <p className="text-[9px] md:text-[10px] font-black uppercase text-[#1B69FF]/60 tracking-widest mb-1 md:mb-2">إجمالي الحوالات (ناجح + معلق)</p>
+            <FormattedAmount amount={summary.totalActive} currency="ج.م" integerClass="text-xl md:text-2xl lg:text-3xl font-black text-[#1B69FF]" fractionClass="text-xs md:text-sm" currencyClass="text-sm md:text-lg font-bold" className="justify-center w-full" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full">
             <div className="p-4 md:p-6 bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm text-green-600">
@@ -365,7 +364,7 @@ export default function DashboardPage() {
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">إجمالي الرصيد الليبي</CardTitle>
+                            <CardTitle className="text-[#001F3D] font-black text-base md:text-lg text-right">إجمالي الرصيد الليبي</CardTitle>
                             <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-right">رصيد جميع المستخدمين بالدينار</CardDescription>
                         </div>
                         <div className="p-3 md:p-4 bg-green-50 rounded-xl md:rounded-[1.5rem] shrink-0 flex items-center justify-center min-w-[50px] md:min-w-[64px]">
@@ -389,8 +388,8 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">تداول العملات</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات الناجحة (DG)</CardDescription></div>
-                        <div className="p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-[1.5rem] shrink-0"><ArrowRightLeft className="h-5 w-5 md:h-6 md:w-6 text-[#1A4B84]" /></div>
+                        <div><CardTitle className="text-[#001F3D] font-black text-base md:text-lg">تداول العملات</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات الناجحة (DG)</CardDescription></div>
+                        <div className="p-3 md:p-4 bg-blue-50 rounded-xl md:rounded-[1.5rem] shrink-0"><ArrowRightLeft className="h-5 w-5 md:h-6 md:w-6 text-[#1B69FF]" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
@@ -398,7 +397,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <h4 className="mb-2"><InlineDaySelector /></h4>
                         </div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyTradeStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyTradeStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">المبلغ الليبي</span><FormattedAmount amount={stats.dailyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold text-xs md:text-sm" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">المبلغ المصري</span><FormattedAmount amount={stats.dailyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold text-xs md:text-sm" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">حصالة الفكة</span><FormattedAmount amount={stats.dailyTradeStats.fakkaAmount} currency="ج.م" integerClass="font-bold text-xs md:text-sm text-orange-600" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
@@ -408,7 +407,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <h4 className="mb-2"><InlineMonthSelector /></h4>
                         </div>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyTradeStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyTradeStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">المبلغ الليبي</span><FormattedAmount amount={stats.monthlyTradeStats.lydAmount} currency="د.ل" integerClass="font-bold text-xs md:text-sm" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">المبلغ المصري</span><FormattedAmount amount={stats.monthlyTradeStats.egpAmount} currency="ج.م" integerClass="font-bold text-xs md:text-sm" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">حصالة الفكة</span><FormattedAmount amount={stats.monthlyTradeStats.fakkaAmount} currency="ج.م" integerClass="font-bold text-xs md:text-sm text-orange-600" currencyClass="text-[9px] md:text-[10px] font-bold" className="justify-start w-full" /></div>
@@ -420,7 +419,7 @@ export default function DashboardPage() {
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
                         <div>
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">إجمالي الرصيد المصري</CardTitle>
+                            <CardTitle className="text-[#001F3D] font-black text-base md:text-lg text-right">إجمالي الرصيد المصري</CardTitle>
                             <CardDescription className="text-[10px] md:text-xs font-bold text-slate-400 text-right">رصيد جميع المستخدمين بالجنيه</CardDescription>
                         </div>
                         <div className="p-3 md:p-4 bg-purple-50 rounded-xl md:rounded-[1.5rem] shrink-0 flex items-center justify-center min-w-[50px] md:min-w-[64px]">
@@ -446,12 +445,12 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-black uppercase tracking-widest">{stats.userCounts.pendingDoc} طلب توثيق</CardDescription></div>
+                        <div><CardTitle className="text-[#001F3D] font-black text-base md:text-lg">إدارة المستخدمين</CardTitle><CardDescription className="text-[9px] md:text-[10px] text-yellow-500 font-black uppercase tracking-widest">{stats.userCounts.pendingDoc} طلب توثيق</CardDescription></div>
                         <div className="p-3 md:p-4 bg-orange-50 rounded-xl md:rounded-[1.5rem] shrink-0"><Users2 className="h-5 w-5 md:h-6 md:w-6 text-orange-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
-                    <div className="text-center text-4xl md:text-6xl font-black text-[#1A4B84] mb-6 md:mb-8 tabular-nums">{stats.userCounts.total}</div>
+                    <div className="text-center text-4xl md:text-6xl font-black text-[#001F3D] mb-6 md:mb-8 tabular-nums">{stats.userCounts.total}</div>
                     <div className="grid grid-cols-2 gap-2 md:gap-3">
                         <div className="flex justify-between items-center bg-green-50 p-2 md:p-3 rounded-xl md:rounded-2xl border border-green-100"><span className="text-[8px] md:text-[10px] font-black text-green-700 uppercase">تاجر</span><span className="font-bold text-green-700 text-xs md:text-base">{stats.userCounts.merchants}</span></div>
                         <div className="flex justify-between items-center bg-blue-50 p-2 md:p-3 rounded-xl md:rounded-2xl border border-blue-100"><span className="text-[8px] md:text-[10px] font-black text-blue-700 uppercase">موثق</span><span className="font-bold text-blue-700 text-xs md:text-base">{stats.userCounts.verified}</span></div>
@@ -464,20 +463,20 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">التحويل الداخلي (DD)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات والرسوم بالدينار</CardDescription></div>
+                        <div><CardTitle className="text-[#001F3D] font-black text-base md:text-lg">التحويل الداخلي (DD)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات والرسوم بالدينار</CardDescription></div>
                         <div className="p-3 md:p-4 bg-green-50 rounded-xl md:rounded-[1.5rem] shrink-0"><Wallet className="h-5 w-5 md:h-6 md:w-6 text-green-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineDaySelector /></h4>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyInternalStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyInternalStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.dailyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" /></div>
                     </div>
                     <Separator className="bg-slate-50" />
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineMonthSelector /></h4>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyInternalStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">العمليات</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyInternalStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">إجمالي الرسوم</span><FormattedAmount amount={stats.monthlyInternalStats.revenue} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-green-600" /></div>
                     </div>
                 </CardContent>
@@ -486,20 +485,20 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#1A4B84] font-black text-base md:text-lg">متجر الكروت (DC)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">مبيعات الكروت المباشرة</CardDescription></div>
+                        <div><CardTitle className="text-[#001F3D] font-black text-base md:text-lg">متجر الكروت (DC)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">مبيعات الكروت المباشرة</CardDescription></div>
                         <div className="p-3 md:p-4 bg-sky-50 rounded-xl md:rounded-[1.5rem] shrink-0"><CreditCard className="h-5 w-5 md:h-6 md:w-6 text-sky-600" /></div>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineDaySelector /></h4>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyCardStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.dailyCardStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.dailyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" /></div>
                     </div>
                     <Separator className="bg-slate-50" />
                     <div className="space-y-2 md:space-y-3 overflow-visible">
                         <h4 className="mb-2"><InlineMonthSelector /></h4>
-                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#1A4B84] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyCardStats.count}</span></div>
+                        <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">عدد الكروت</span><span className="font-bold text-[#001F3D] text-sm md:text-base text-left flex-1" dir="ltr">{stats.monthlyCardStats.count}</span></div>
                         <div className="flex justify-between items-center gap-2"><span className="text-slate-500 font-bold text-xs md:text-sm shrink-0">قيمة المبيعات</span><FormattedAmount amount={stats.monthlyCardStats.value} currency="د.ل" integerClass="font-bold text-xs md:text-sm text-sky-600" /></div>
                     </div>
                 </CardContent>
@@ -511,7 +510,7 @@ export default function DashboardPage() {
                 <CardHeader className="pb-2 md:pb-4">
                     <div className="flex items-start justify-between">
                         <div className="flex flex-col space-y-1">
-                            <CardTitle className="text-[#1A4B84] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
+                            <CardTitle className="text-[#001F3D] font-black text-base md:text-lg text-right">رسوم التحويلات المصرية</CardTitle>
                             <CardDescription className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-widest text-right">إيرادات <InlineMonthSelector /></CardDescription>
                         </div>
                         <div className="p-3 md:p-4 bg-indigo-50 rounded-xl md:rounded-[1.5rem] shadow-inner shadow-indigo-600/5 shrink-0">
@@ -530,7 +529,7 @@ export default function DashboardPage() {
                                 <span className="font-bold text-slate-500 shrink-0">{type}</span>
                                 <div className="flex items-center gap-2 md:gap-3">
                                     <Badge variant="outline" className="rounded-full bg-slate-50 text-slate-600 border-slate-200 font-bold text-[9px] md:text-[10px] px-1.5 md:px-2 shrink-0">{s.count}</Badge>
-                                    <FormattedAmount amount={s.revenue} currency="ج.م" integerClass="font-bold text-[#1A4B84] text-xs md:text-sm" />
+                                    <FormattedAmount amount={s.revenue} currency="ج.م" integerClass="font-bold text-[#001F3D] text-xs md:text-sm" />
                                 </div>
                             </div>
                         ))}
@@ -542,7 +541,7 @@ export default function DashboardPage() {
                 <Tabs defaultValue="today" dir="rtl" className="flex flex-col h-full">
                     <CardHeader className="pb-2">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <CardTitle className="flex items-center gap-2 md:gap-3 text-[#1A4B84] font-black text-lg md:text-xl">
+                            <CardTitle className="flex items-center gap-2 md:gap-3 text-[#001F3D] font-black text-lg md:text-xl">
                                 <TrendingUp className="h-5 w-5 md:h-6 md:w-6" /> 
                                 ملخص الحوالات المصرية
                             </CardTitle>
@@ -568,9 +567,9 @@ export default function DashboardPage() {
             <CardHeader className="pb-4 md:pb-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-3 md:gap-4">
-                        <div className="p-3 md:p-4 bg-[#E3F2FD] rounded-xl md:rounded-[1.5rem] shrink-0"><BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-[#1A4B84]" /></div>
+                        <div className="p-3 md:p-4 bg-[#E3F2FD] rounded-xl md:rounded-[1.5rem] shrink-0"><BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-[#1B69FF]" /></div>
                         <div>
-                            <CardTitle className="text-[#1A4B84] font-black text-lg md:text-2xl">أداء المندوبين</CardTitle>
+                            <CardTitle className="text-[#001F3D] font-black text-lg md:text-2xl">أداء المندوبين</CardTitle>
                             <CardDescription className="text-xs font-bold text-slate-400">عرض شامل لمبالغ التحويل والرسوم حسب المندوب</CardDescription>
                         </div>
                     </div>
@@ -584,20 +583,20 @@ export default function DashboardPage() {
                     <Table className="min-w-[600px] md:min-w-full">
                         <TableHeader className="bg-white">
                             <TableRow className="border-b border-slate-100 hover:bg-transparent">
-                                <TableHead className="font-black text-[#1A4B84] text-center uppercase tracking-widest text-[9px] md:text-[10px]">المندوب</TableHead>
-                                <TableHead className="text-center font-black text-[#1A4B84] uppercase tracking-widest text-[9px] md:text-[10px]">تداول اليوم</TableHead>
-                                <TableHead className="text-center font-black text-[#1A4B84] uppercase tracking-widest text-[9px] md:text-[10px]">إجمالي الشهر</TableHead>
-                                <TableHead className="text-center font-black text-[#1A4B84] uppercase tracking-widest text-[9px] md:text-[10px]">إجمالي الرسوم</TableHead>
-                                <TableHead className="text-center font-black text-[#1A4B84] uppercase tracking-widest text-[9px] md:text-[10px]">العمليات</TableHead>
-                                {E_TYPES.map(t => <TableHead key={t} className="text-center font-black text-[#1A4B84] uppercase tracking-widest text-[9px] md:text-[10px]">{t}</TableHead>)}
+                                <TableHead className="font-black text-[#001F3D] text-center uppercase tracking-widest text-[9px] md:text-[10px]">المندوب</TableHead>
+                                <TableHead className="text-center font-black text-[#001F3D] uppercase tracking-widest text-[9px] md:text-[10px]">تداول اليوم</TableHead>
+                                <TableHead className="text-center font-black text-[#001F3D] uppercase tracking-widest text-[9px] md:text-[10px]">إجمالي الشهر</TableHead>
+                                <TableHead className="text-center font-black text-[#001F3D] uppercase tracking-widest text-[9px] md:text-[10px]">إجمالي الرسوم</TableHead>
+                                <TableHead className="text-center font-black text-[#001F3D] uppercase tracking-widest text-[9px] md:text-[10px]">العمليات</TableHead>
+                                {E_TYPES.map(t => <TableHead key={t} className="text-center font-black text-[#001F3D] uppercase tracking-widest text-[9px] md:text-[10px]">{t}</TableHead>)}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {stats.supervisorSummary.map(s => (
                                 <TableRow key={s.id} className="hover:bg-[#E3F2FD]/30 transition-colors border-b border-slate-50/50 last:border-0">
-                                    <TableCell className="font-black text-[#1A4B84] text-center text-xs md:sm">{s.name}</TableCell>
+                                    <TableCell className="font-black text-[#001F3D] text-center text-xs md:sm">{s.name}</TableCell>
                                     <TableCell className="text-center"><FormattedAmount amount={s.dailyTotal} currency="ج.م" integerClass="font-bold text-slate-600 text-xs md:text-sm" currencyClass="text-[8px] md:text-[10px] font-bold" className="justify-center" /></TableCell>
-                                    <TableCell className="text-center"><FormattedAmount amount={s.monthlyTotal} currency="ج.م" integerClass="font-bold text-[#1A4B84] text-xs md:text-sm" currencyClass="text-[8px] md:text-[10px] font-bold" className="justify-center" /></TableCell>
+                                    <TableCell className="text-center"><FormattedAmount amount={s.monthlyTotal} currency="ج.م" integerClass="font-bold text-[#001F3D] text-xs md:text-sm" currencyClass="text-[8px] md:text-[10px] font-bold" className="justify-center" /></TableCell>
                                     <TableCell className="text-center"><FormattedAmount amount={s.monthlyFees} currency="ج.م" integerClass="font-bold text-indigo-600 text-xs md:text-sm" currencyClass="text-[8px] md:text-[10px] font-bold" className="justify-center" /></TableCell>
                                     <TableCell className="text-center font-bold text-slate-400 text-xs md:text-sm">{s.monthlyCount}</TableCell>
                                     {s.details.map((count, i) => <TableCell key={i} className="text-center font-bold text-slate-400 text-xs md:sm">{count}</TableCell>)}

@@ -61,7 +61,7 @@ export function UpdateStatusForm({ transfer, onSuccess }: UpdateStatusFormProps)
       await updateTransferStatus({ 
         transferId: transfer.id, 
         status: data.status, 
-        receiptUrl // يتم إرسال الرابط للدالة السحابية التي ستقوم بحفظه باسم receiptImageUrl في مسار المستخدم
+        receiptUrl 
       });
       
       toast({
@@ -125,7 +125,7 @@ export function UpdateStatusForm({ transfer, onSuccess }: UpdateStatusFormProps)
       </div>
 
       <div className="pt-2">
-        <Button type="submit" className="w-full h-12 rounded-xl font-black text-sm bg-[#1A4B84] hover:bg-[#1A4B84]/90 shadow-lg shadow-primary/20" disabled={isSubmitting || isUploading}>
+        <Button type="submit" className="w-full h-12 rounded-xl font-black text-sm bg-[#1B69FF] hover:bg-[#1B69FF]/90 shadow-lg shadow-primary/20" disabled={isSubmitting || isUploading}>
           {(isSubmitting || isUploading) && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
           {isSubmitting ? 'جاري الحفظ...' : isUploading ? 'جاري رفع الإيصال...' : 'تأكيد التحديث النهائي'}
         </Button>

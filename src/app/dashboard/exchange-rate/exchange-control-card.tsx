@@ -41,9 +41,9 @@ import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/fir
 import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "floating-card h-full flex flex-col p-2";
-const innerLevelCardClass = "bg-[#E3F2FD]/50 rounded-[2rem] border border-[#1A4B84]/5 p-6 space-y-4";
-const deepInnerCardClass = "bg-white border border-[#1A4B84]/5 rounded-2xl p-4 shadow-sm";
-const inputLevel4Class = "bg-white border-[#1A4B84]/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums";
+const innerLevelCardClass = "bg-[#E3F2FD]/50 rounded-[2rem] border border-[#1B69FF]/5 p-6 space-y-4";
+const deepInnerCardClass = "bg-white border border-[#1B69FF]/5 rounded-2xl p-4 shadow-sm";
+const inputLevel4Class = "bg-white border-[#1B69FF]/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums";
 
 function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 'id' | 'createdBy'>) => void }) {
     const [type, setType] = useState<'amount' | 'time'>('amount');
@@ -65,7 +65,7 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
     return (
         <form onSubmit={handleSubmit} className="space-y-6 pt-4">
              <div>
-                <Label className="font-black text-[#1A4B84] text-xs uppercase tracking-widest mb-3 block">نوع الشرط</Label>
+                <Label className="font-black text-[#001F3D] text-xs uppercase tracking-widest mb-3 block">نوع الشرط</Label>
                  <RadioGroup
                     value={type}
                     onValueChange={(v: 'amount' | 'time') => setType(v)}
@@ -108,7 +108,7 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
                 <DialogClose asChild>
                     <Button type="button" variant="ghost" className="rounded-xl font-bold">إلغاء</Button>
                 </DialogClose>
-                <Button type="submit" className="rounded-xl font-bold bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-8">إضافة الشرط</Button>
+                <Button type="submit" className="rounded-xl font-bold bg-[#1B69FF] hover:bg-[#1B69FF]/90 px-8">إضافة الشرط</Button>
             </DialogFooter>
         </form>
     );
@@ -121,7 +121,7 @@ function formatTime12h(timeString: string) {
   const [hour, minute] = timeString.split(':');
   let h = parseInt(hour, 10);
   const suffix = h >= 12 ? 'م' : 'ص';
-  h = ((h + 11) % 12) + 1; // Convert 24h to 12h
+  h = ((h + 11) % 12) + 1;
   return `${h}:${minute} ${suffix}`;
 }
 
@@ -198,7 +198,6 @@ export function ExchangeControlCard() {
     }
     setIsSaving(true);
     try {
-        // Check if the current rate has been changed manually
         if (settings && typeof localSettings.currentRate === 'number' && localSettings.currentRate !== settings.currentRate) {
             const logPath = '/exchangeRateLogs';
             const newLog = {
@@ -231,9 +230,9 @@ export function ExchangeControlCard() {
     <Card className={floatingCardClass}>
       <CardHeader className="pb-6">
         <div className="flex items-center gap-4">
-            <div className="p-4 bg-[#E3F2FD] rounded-[1.5rem]"><Activity className="h-6 w-6 text-[#1A4B84]" /></div>
+            <div className="p-4 bg-[#E3F2FD] rounded-[1.5rem]"><Activity className="h-6 w-6 text-[#1B69FF]" /></div>
             <div>
-                <CardTitle className="text-[#1A4B84] font-black text-2xl">التحكم في الصرف</CardTitle>
+                <CardTitle className="text-[#001F3D] font-black text-2xl">التحكم في الصرف</CardTitle>
                 <CardDescription className="text-sm font-bold text-slate-400">إدارة حالة الصرف وتحديث الأسعار الذكية</CardDescription>
             </div>
         </div>
@@ -243,7 +242,7 @@ export function ExchangeControlCard() {
         {/* Exchange Status */}
         <div className={innerLevelCardClass}>
             <div className="flex items-center justify-between">
-              <h3 className="font-black text-[#1A4B84] text-xs uppercase tracking-widest">حالة الصرف الحالية</h3>
+              <h3 className="font-black text-[#001F3D] text-xs uppercase tracking-widest">حالة الصرف الحالية</h3>
               <Badge
                   className={cn(
                       "rounded-full px-4 py-1 font-black text-[10px] uppercase tracking-widest border",
@@ -260,11 +259,11 @@ export function ExchangeControlCard() {
                 onValueChange={(v: "manual" | "auto") => handleSettingChange('mode', v)}
                 className="grid grid-cols-2 gap-4"
             >
-                <div className="flex items-center justify-center p-3 rounded-xl border border-[#1A4B84]/5 bg-white shadow-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                <div className="flex items-center justify-center p-3 rounded-xl border border-[#1B69FF]/5 bg-white shadow-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
                     <RadioGroupItem value="manual" id="r-manual" className="ml-2" />
                     <Label htmlFor="r-manual" className="font-bold text-sm cursor-pointer">تحكم يدوي</Label>
                 </div>
-                <div className="flex items-center justify-center p-3 rounded-xl border border-[#1A4B84]/5 bg-white shadow-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
+                <div className="flex items-center justify-center p-3 rounded-xl border border-[#1B69FF]/5 bg-white shadow-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5 transition-all">
                     <RadioGroupItem value="auto" id="r-auto" className="ml-2" />
                     <Label htmlFor="r-auto" className="font-bold text-sm cursor-pointer">اغلاق تلقائي</Label>
                 </div>
@@ -272,7 +271,7 @@ export function ExchangeControlCard() {
 
             {localSettings.mode === 'manual' && (
                  <div className={cn("flex items-center justify-between animate-in fade-in-0 duration-500", deepInnerCardClass)}>
-                    <Label htmlFor="exchange-status" className="font-black text-[#1A4B84] text-sm">تبديل الحالة يدوياً</Label>
+                    <Label htmlFor="exchange-status" className="font-black text-[#001F3D] text-sm">تبديل الحالة يدوياً</Label>
                     <Switch
                         id="exchange-status"
                         checked={localSettings.isOpen}
@@ -283,7 +282,7 @@ export function ExchangeControlCard() {
             )}
              {localSettings.mode === 'auto' && (
                 <div className={cn("space-y-3 animate-in fade-in-0 duration-500", deepInnerCardClass)}>
-                    <Label htmlFor="auto-close-threshold" className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest block">سقف التداول قبل الإغلاق (ج.م)</Label>
+                    <Label htmlFor="auto-close-threshold" className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest block">سقف التداول قبل الإغلاق (ج.م)</Label>
                     <Input
                         id="auto-close-threshold"
                         type="number"
@@ -298,10 +297,10 @@ export function ExchangeControlCard() {
         {/* Current Exchange Rate */}
         <div className={innerLevelCardClass}>
           <div className="flex justify-between items-center mb-2">
-            <Label htmlFor="current-rate" className="font-black text-[#1A4B84] text-xs uppercase tracking-widest">سعر الصرف (LYD/EGP)</Label>
-            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full shadow-sm border border-[#1A4B84]/5">
+            <Label htmlFor="current-rate" className="font-black text-[#001F3D] text-xs uppercase tracking-widest">سعر الصرف (LYD/EGP)</Label>
+            <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-full shadow-sm border border-[#1B69FF]/5">
                 <Clock className="h-3 w-3 text-primary animate-pulse" />
-                <span className="text-[10px] text-[#1A4B84] font-black tabular-nums">
+                <span className="text-[10px] text-[#001F3D] font-black tabular-nums">
                 {serverTime ? serverTime.toLocaleTimeString("ar-EG-u-nu-latn", {
                     hour: 'numeric',
                     minute: '2-digit',
@@ -329,30 +328,30 @@ export function ExchangeControlCard() {
         {/* Automatic Rate Change Conditions */}
         <div className={innerLevelCardClass}>
             <div className={cn("flex items-center justify-between p-4", deepInnerCardClass)}>
-                <div className="space-y-1">
-                    <Label htmlFor="auto-conditions-switch" className="font-black text-[#1A4B84] text-sm block">تفعيل الشروط التلقائية</Label>
+                <div className="space-y-1 text-right">
+                    <Label htmlFor="auto-conditions-switch" className="font-black text-[#001F3D] text-sm block">تفعيل الشروط التلقائية</Label>
                     <p className="text-[10px] text-slate-400 font-bold">تطبيق التغييرات المجدولة للسعر</p>
                 </div>
                 <Switch
                     id="auto-conditions-switch"
                     checked={localSettings.autoConditionsActive}
                     onCheckedChange={(checked) => handleSettingChange('autoConditionsActive', checked)}
-                    className="data-[state=checked]:bg-blue-600 scale-110"
+                    className="data-[state=checked]:bg-[#1B69FF] scale-110"
                 />
             </div>
 
             <div className="flex items-center justify-between mt-6">
-                 <h3 className="font-black text-[#1A4B84] text-xs uppercase tracking-widest">جدول التغييرات</h3>
+                 <h3 className="font-black text-[#001F3D] text-xs uppercase tracking-widest">جدول التغييرات</h3>
                  <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="rounded-xl bg-white border-[#1A4B84]/10 font-bold text-xs h-9">
+                        <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="rounded-xl bg-white border-[#1B69FF]/10 font-bold text-xs h-9">
                             <PlusCircle className="ml-2 h-4 w-4" />
                             إضافة شرط ذكي
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
                         <DialogHeader>
-                            <DialogTitle className="text-2xl font-black text-[#1A4B84]">إضافة شرط جديد</DialogTitle>
+                            <DialogTitle className="text-2xl font-black text-[#001F3D]">إضافة شرط جديد</DialogTitle>
                             <DialogDescription className="font-bold">قم بتحديد معيار التغيير التلقائي لسعر الصرف.</DialogDescription>
                         </DialogHeader>
                         <NewConditionForm onSave={handleAddCondition} />
@@ -362,23 +361,23 @@ export function ExchangeControlCard() {
             
             <div className={cn("space-y-3 transition-all max-h-64 overflow-y-auto pr-2 custom-scrollbar", !localSettings.autoConditionsActive && "opacity-30 pointer-events-none grayscale")}>
                 {!localSettings.conditions || Object.keys(localSettings.conditions).length === 0 ? (
-                    <div className="text-center py-10 bg-white/50 rounded-2xl border-2 border-dashed border-[#1A4B84]/10">
+                    <div className="text-center py-10 bg-white/50 rounded-2xl border-2 border-dashed border-[#1B69FF]/10">
                         <p className="text-xs font-bold text-slate-400">لا توجد شروط مجدولة حالياً.</p>
                     </div>
                 ) : (
                     Object.values(localSettings.conditions).map(condition => (
                     <div key={condition.id} className={cn("flex items-center justify-between group hover:border-primary/20 transition-all", deepInnerCardClass)}>
-                       <div className="flex items-center gap-4">
+                       <div className="flex items-center gap-4 text-right">
                             <div className="p-3 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
                                 {condition.type === 'amount' ? <DollarSign className="h-5 w-5 text-primary" /> : <Clock className="h-5 w-5 text-primary" />}
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-slate-600">
                                     {condition.type === 'amount' ? `عند تداول ` : `عند حلول الساعة `}
-                                    <span className="font-black text-[#1A4B84] mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
+                                    <span className="font-black text-[#001F3D] mx-1">{typeof condition.value === 'number' ? condition.value.toLocaleString('en-US') : condition.type === 'time' ? formatTime12h(condition.value as string) : condition.value}</span>
                                     {condition.type === 'amount' && ` ج.م`}
                                 </p>
-                                <div className="flex items-center gap-2 mt-1">
+                                <div className="flex items-center gap-2 mt-1 justify-start">
                                     <span className="text-[10px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-full">السعر الجديد: {condition.targetRate.toFixed(2)}</span>
                                     <span className="text-[9px] text-slate-400 font-bold">• بواسطة {condition.createdBy}</span>
                                 </div>
@@ -394,7 +393,7 @@ export function ExchangeControlCard() {
 
       </CardContent>
       <CardFooter className="pt-6 border-t border-slate-50 mt-4">
-        <Button onClick={handleSave} className="w-full rounded-[1.5rem] shadow-xl shadow-primary/20 h-14 text-lg font-black bg-[#1A4B84] hover:bg-[#1A4B84]/90" disabled={isSaving}>
+        <Button onClick={handleSave} className="w-full rounded-[1.5rem] shadow-xl shadow-primary/20 h-14 text-lg font-black bg-[#1B69FF] hover:bg-[#1B69FF]/90" disabled={isSaving}>
           {isSaving ? "جاري الحفظ..." : "حفظ كافة الإعدادات"}
         </Button>
       </CardFooter>

@@ -79,7 +79,7 @@ const navGroups: { label: string | null; items: NavItem[] }[] = [
         description: 'نظرة عامة وإحصائيات',
         match: /^\/dashboard\/?$/,
         bgColor: 'bg-[#E3F2FD]',
-        iconColor: 'text-[#1A4B84]',
+        iconColor: 'text-[#1B69FF]',
       },
     ],
   },
@@ -292,8 +292,8 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-[#e1ecf3]">
         <div className="flex flex-col items-center gap-4">
-          <ShieldCheck className="h-16 w-16 animate-pulse text-[#1A4B84]" />
-          <p className="text-[#1A4B84] font-bold text-lg">جاري التحقق من الهوية...</p>
+          <ShieldCheck className="h-16 w-16 animate-pulse text-[#1B69FF]" />
+          <p className="text-[#001F3D] font-bold text-lg">جاري التحقق من الهوية...</p>
         </div>
       </div>
     );
@@ -304,12 +304,12 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
       <Sidebar side="right" collapsible="icon">
         <SidebarHeader className="h-24 md:h-28 border-b border-sidebar-border/10 sticky top-0 bg-white/80 backdrop-blur-xl z-10">
           <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 justify-start group-data-[collapsible=icon]:justify-center relative">
-            <div className="p-2.5 md:p-3 bg-gradient-to-br from-[#1A4B84] to-[#2563EB] rounded-xl md:rounded-[1.2rem] text-primary-foreground shadow-xl shadow-primary/20">
+            <div className="p-2.5 md:p-3 bg-gradient-to-br from-[#1B69FF] to-[#004ABB] rounded-xl md:rounded-[1.2rem] text-primary-foreground shadow-xl shadow-primary/20">
               <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 shrink-0" />
             </div>
-            <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-              <h2 className="font-black text-lg md:text-xl text-[#1A4B84]">حولّي كاش</h2>
-              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-[#1A4B84]/60 font-bold">لوحة تحكم الإدارة</p>
+            <div className="flex flex-col group-data-[collapsible=icon]:hidden text-right">
+              <h2 className="font-black text-lg md:text-xl text-[#001F3D]">حولّي كاش</h2>
+              <p className="text-[9px] md:text-[10px] uppercase tracking-widest text-[#1B69FF]/60 font-black">لوحة تحكم الإدارة</p>
             </div>
           </div>
         </SidebarHeader>
@@ -317,7 +317,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navGroups.map((group, i) => (
               <React.Fragment key={group.label || `group-${i}`}>
-                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#1A4B84] font-black text-[9px] md:text-[10px] uppercase tracking-widest">{group.label}</SidebarGroupLabel>}
+                {group.label && <SidebarGroupLabel className="mt-4 md:mt-6 mb-1 md:mb-2 px-2 text-[#001F3D] font-black text-[9px] md:text-[10px] uppercase tracking-widest text-right">{group.label}</SidebarGroupLabel>}
                 {group.items.map((item: NavItem) => {
                   const isActive = !!(item.match && pathname.match(item.match));
 
@@ -331,7 +331,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                               tooltip={{ children: item.label, side: 'left' }}
                               className={cn(
                                 "w-full justify-between rounded-xl md:rounded-2xl transition-all duration-300",
-                                isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
+                                isActive ? "bg-[#1B69FF] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
                               )}
                               size="lg"
                             >
@@ -340,7 +340,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                   <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                                 </div>
                                 <div className="flex flex-col items-start">
-                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-900")}>{item.label}</span>
+                                  <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-[#001F3D]")}>{item.label}</span>
                                 </div>
                               </div>
                               <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180", isActive ? "text-white" : "text-slate-500")} />
@@ -358,13 +358,13 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                                         size="md" 
                                         className={cn(
                                           "rounded-lg md:rounded-xl transition-all",
-                                          isSubActive ? "bg-[#1A4B84] shadow-sm text-white" : "hover:bg-[#E3F2FD]/50"
+                                          isSubActive ? "bg-[#1B69FF] shadow-sm text-white" : "hover:bg-[#E3F2FD]/50"
                                         )}
                                       >
                                         <div className={cn('p-1 md:p-1.5 rounded-md md:rounded-lg', isSubActive ? "bg-white/20" : subItem.bgColor)}>
                                           <subItem.icon className={cn('h-3 w-3 md:h-3.5 md:w-3.5', isSubActive ? "text-white" : subItem.iconColor)} />
                                         </div>
-                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-slate-800")}>{subItem.label}</span>
+                                        <span className={cn("text-[11px] md:text-xs font-bold transition-colors", isSubActive ? "text-white" : "text-[#001F3D]")}>{subItem.label}</span>
                                       </SidebarMenuSubButton>
                                     </Link>
                                   </SidebarMenuSubItem>
@@ -386,14 +386,14 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                           size="lg"
                           className={cn(
                             "rounded-xl md:rounded-2xl transition-all duration-300",
-                            isActive ? "bg-[#1A4B84] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
+                            isActive ? "bg-[#1B69FF] shadow-lg shadow-primary/20 text-white" : "hover:bg-[#E3F2FD]/50"
                           )}
                         >
                           <div className={cn('p-2 md:p-2.5 rounded-lg md:rounded-xl shadow-sm transition-transform duration-300', isActive ? "bg-white/20" : item.bgColor, isActive && "scale-110")}>
                             <item.icon className={cn('h-4 w-4 md:h-5 md:w-5', isActive ? "text-white" : item.iconColor)} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-slate-900")}>{item.label}</span>
+                            <span className={cn("font-bold text-xs md:text-sm transition-colors", isActive ? "text-white" : "text-[#001F3D]")}>{item.label}</span>
                           </div>
                         </SidebarMenuButton>
                       </Link>
@@ -405,7 +405,6 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter className="p-3 md:p-4 group-data-[collapsible=icon]:hidden sticky bottom-0 bg-white/80 backdrop-blur-xl border-t border-sidebar-border/10">
-          {/* Sidebar Footer empty */}
         </SidebarFooter>
       </Sidebar>
       <div className="relative flex min-h-svh flex-1 flex-col bg-transparent overflow-x-hidden">

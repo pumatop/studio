@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -66,7 +65,7 @@ const months = [
     { val: "10", label: "أكتوبر" }, { val: "11", label: "نوفمبر" }, { val: "12", label: "ديسمبر" },
 ];
 
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -161,7 +160,7 @@ function SupervisorForm({ supervisor, onSave, isSaving }: { supervisor?: Supervi
 
       <DialogFooter className="gap-2">
         <DialogClose asChild><Button type="button" variant="ghost" className="rounded-xl" disabled={isSaving}>إلغاء</Button></DialogClose>
-        <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1A4B84] hover:bg-[#1A4B84]/90 text-white">
+        <Button type="submit" disabled={isSaving} className="rounded-xl px-8 bg-[#1B69FF] hover:bg-[#1B69FF]/90 text-white">
             {isSaving ? 'جاري الحفظ...' : 'حفظ بيانات المشرف'}
         </Button>
       </DialogFooter>
@@ -345,7 +344,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                 </Select>
 
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -374,7 +373,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
         <div className="flex gap-2 w-full md:w-auto">
             <Button 
                 onClick={() => { setEditingSupervisor(null); setDialogOpen(true); }}
-                className="h-11 rounded-xl bg-[#1A4B84] hover:bg-[#1A4B84]/90 px-6 text-white"
+                className="h-11 rounded-xl bg-[#1B69FF] hover:bg-[#1B69FF]/90 px-6 text-white"
             >
                 <PlusCircle className="ml-2 h-4 w-4" /> إضافة مشرف
             </Button>
@@ -386,14 +385,14 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
             <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="text-left font-black text-[#1A4B84] text-[10px] uppercase tracking-widest h-12">إجراءات</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">المشرف / المندوب</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">اجمالي اليوم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">اجمالي الشهر</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">رسوم الشهر</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">التخصصات</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">الاتصال</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="text-left font-black text-[#001F3D] text-[10px] uppercase tracking-widest h-12">إجراءات</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -416,7 +415,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                     <CurrencyDisplay amount={stats.daily} currency="ج.م" colorClass="text-slate-600 text-xs" />
                                 </TableCell>
                                 <TableCell>
-                                    <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1A4B84] text-xs" />
+                                    <CurrencyDisplay amount={stats.monthly} currency="ج.م" colorClass="text-[#1B69FF] text-xs" />
                                 </TableCell>
                                 <TableCell>
                                     <CurrencyDisplay amount={stats.fees} currency="ج.م" colorClass="text-orange-600 text-xs" />
@@ -450,7 +449,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
                                                     setDialogOpen(true);
                                                 }}
                                             >
-                                                <Pencil className="ml-2 h-4 w-4 text-[#1A4B84]" /> تعديل البيانات
+                                                <Pencil className="ml-2 h-4 w-4 text-[#1B69FF]" /> تعديل البيانات
                                             </DropdownMenuItem>
                                             <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer font-bold text-sm">
                                                 <Link href={`/dashboard/supervisors/${s.id}/log`}><FileClock className="ml-2 h-4 w-4 text-blue-500" /> سجل العمليات</Link>
@@ -476,7 +475,7 @@ export function SupervisorsDataTable({ initialData, allTransactions }: { initial
       <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-2xl rounded-[2rem] border-none shadow-2xl p-8">
               <DialogHeader>
-                  <DialogTitle className="text-2xl font-black text-[#1A4B84]">
+                  <DialogTitle className="text-2xl font-black text-[#001F3D]">
                       {editingSupervisor ? 'تعديل بيانات المشرف' : 'إضافة مشرف نظام جديد'}
                   </DialogTitle>
               </DialogHeader>

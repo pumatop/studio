@@ -72,11 +72,9 @@ export function PendingEgyptTransfersDataTable() {
           <TableBody>
             {sortedData.map((transfer) => {
               const dateObj = new Date(transfer.timestamp);
-              // تنسيق الوقت: 12 ساعة بالأرقام الإنجليزية بدون AM/PM لأننا سنضيف ص/م يدوياً
               const timePart = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ')[0];
               const period = dateObj.getHours() >= 12 ? 'م' : 'ص';
               
-              // تنسيق التاريخ: يوم/شهر/سنة (أرقام إنجليزية)
               const day = dateObj.getDate().toString().padStart(2, '0');
               const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
               const year = dateObj.getFullYear();
@@ -88,7 +86,7 @@ export function PendingEgyptTransfersDataTable() {
                     <div className="font-bold text-xs">{transfer.userName}</div>
                     <div className="text-[10px] text-muted-foreground tabular-nums">{transfer.userPhone}</div>
                   </TableCell>
-                  <TableCell className="font-black text-primary whitespace-nowrap text-sm tabular-nums">
+                  <TableCell className="font-black text-[#1B69FF] whitespace-nowrap text-sm tabular-nums">
                     {transfer.amountEGP.toLocaleString('en-US')} ج.م
                   </TableCell>
                   <TableCell>
@@ -142,9 +140,9 @@ export function PendingEgyptTransfersDataTable() {
       <Dialog open={!!selectedTransfer} onOpenChange={(open) => !open && setSelectedTransfer(null)}>
         <DialogContent className="rounded-3xl border-none shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-[#1A4B84]">تحديث حالة الحوالة</DialogTitle>
+            <DialogTitle className="text-xl font-black text-[#001F3D]">تحديث حالة الحوالة</DialogTitle>
             <DialogDescription className="font-bold text-xs">
-              رقم العملية: <span className="font-mono text-primary">{selectedTransfer?.id}</span>
+              رقم العملية: <span className="font-mono text-[#1B69FF]">{selectedTransfer?.id}</span>
             </DialogDescription>
           </DialogHeader>
           {selectedTransfer && (

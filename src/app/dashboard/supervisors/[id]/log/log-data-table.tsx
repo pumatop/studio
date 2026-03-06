@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useState, useRef, useEffect } from "react";
@@ -62,7 +61,7 @@ const months = [
 ];
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -193,7 +192,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                 </Select>
 
                 <Select value={monthFilter} onValueChange={setMonthFilter}>
-                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                    <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -226,14 +225,14 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
             <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">العميل المرسل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">نوع التحويل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ والرسوم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">بيانات المستلم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
-                        <TableHead className="text-left font-black text-[#1A4B84] text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">العميل المرسل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">نوع التحويل</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">المبلغ والرسوم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">بيانات المستلم</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#001F3D] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
+                        <TableHead className="text-left font-black text-[#001F3D] text-[10px] uppercase tracking-widest h-12">الإيصال</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -282,13 +281,13 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                                 {transfer.receiptImageUrl && transfer.status === 'completed' ? (
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-[#1A4B84]">
+                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 text-[#1B69FF]">
                                                 <Eye className="h-4 w-4" />
                                             </Button>
                                         </DialogTrigger>
                                         <DialogContent className="max-w-md rounded-[2rem]">
                                             <DialogHeader>
-                                                <DialogTitle className="text-xl font-black text-[#1A4B84]">إيصال العملية {transfer.id}</DialogTitle>
+                                                <DialogTitle className="text-xl font-black text-[#001F3D]">إيصال العملية {transfer.id}</DialogTitle>
                                             </DialogHeader>
                                             <div className="relative aspect-[3/4] w-full mt-4">
                                                 <Image
