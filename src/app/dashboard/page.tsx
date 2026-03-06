@@ -530,8 +530,8 @@ export default function DashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 md:space-y-6 flex-grow flex flex-col justify-center py-4 md:py-6 px-4 md:px-6 overflow-visible">
-                    <div className="text-right py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50 w-full overflow-visible px-6">
-                        <FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-xl md:text-2xl font-black text-indigo-600" currencyClass="text-[10px] md:sm font-bold" className="justify-start w-full" decimals={0} />
+                    <div className="text-center py-3 md:py-4 bg-indigo-50/50 rounded-xl md:rounded-[1.5rem] border border-indigo-100/50 w-full overflow-visible px-6">
+                        <FormattedAmount amount={stats.monthlyTotalRevenueEGP} currency="ج.م" integerClass="text-xl md:text-2xl font-black text-indigo-600" currencyClass="text-[10px] md:sm font-bold" className="justify-center w-full" decimals={0} />
                     </div>
                     <Separator className="bg-slate-100" />
                     <div className="space-y-3 md:space-y-4 overflow-visible">
