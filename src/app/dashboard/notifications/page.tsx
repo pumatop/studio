@@ -75,12 +75,9 @@ export default function NotificationsPage() {
             
             const finalTargets = selectedUserIds.length > 0 ? selectedUserIds : ['all'];
             
-            // Loop through selected users and send notifications
-            // If 'all' is chosen, it's a single call.
             if (finalTargets.length === 1 && finalTargets[0] === 'all') {
                 await sendNotification({ ...values, target: 'all' });
             } else {
-                // Batch execution for multiple targets
                 await Promise.all(finalTargets.map(id => sendNotification({ ...values, target: id })));
             }
 
@@ -89,7 +86,6 @@ export default function NotificationsPage() {
                 description: `تم إرسال الإشعار إلى ${finalTargets.length === 1 && finalTargets[0] === 'all' ? 'جميع المستخدمين' : `${finalTargets.length} مستخدم`}.`,
             });
             
-            // Reset fields but keep type
             methods.reset({ ...methods.getValues(), title: '', body: '', imageUrl: '' }); 
             setSelectedUserIds([]);
         } catch (error: any) {
@@ -152,7 +148,6 @@ export default function NotificationsPage() {
     return (
         <FormProvider {...methods}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start pb-10" dir="rtl">
-                {/* Column 1: Form & User Selection */}
                 <div className="space-y-8">
                      <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
                          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-4">
@@ -194,7 +189,6 @@ export default function NotificationsPage() {
                     </Card>
                 </div>
 
-                {/* Column 2: Preview & Send */}
                 <div className="lg:col-span-1 space-y-8">
                      <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden sticky top-24">
                         <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6">
