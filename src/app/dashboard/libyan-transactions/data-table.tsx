@@ -113,16 +113,19 @@ export function LibyanTransactionsDataTable({
   showExchangeRate = true,
   showDelegate = true,
   showFee = false,
-  showReceivedAmount = true
+  showReceivedAmount = true,
+  showTypeFilter = false
 }: { 
   initialData: Transaction[], 
   showExchangeRate?: boolean,
   showDelegate?: boolean,
   showFee?: boolean,
-  showReceivedAmount?: boolean
+  showReceivedAmount?: boolean,
+  showTypeFilter?: boolean
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [date, setDate] = useState<Date | undefined>();
   const [selectedMonth, setSelectedMonth] = useState((new Date().getMonth() + 1).toString());
   const tableRef = useRef<HTMLTableElement>(null);
@@ -156,10 +159,11 @@ export function LibyanTransactionsDataTable({
           recipientPhone.includes(searchTerm) ||
           recipientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           agentInfo.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (statusFilter === 'all' || tx.status === statusFilter);
+        (statusFilter === 'all' || tx.status === statusFilter) &&
+        (typeFilter === 'all' || tx.type === typeFilter);
       }
     ).sort((a, b) => b.timestamp - a.timestamp);
-  }, [initialData, searchTerm, statusFilter, date, selectedMonth]);
+  }, [initialData, searchTerm, statusFilter, typeFilter, date, selectedMonth]);
 
   useEffect(() => {
     if (!tableRef.current || !document.body.contains(tableRef.current)) return;
@@ -193,6 +197,7 @@ export function LibyanTransactionsDataTable({
   const handleClearFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
+    setTypeFilter('all');
     setDate(undefined);
     setSelectedMonth((new Date().getMonth() + 1).toString());
   };
@@ -234,6 +239,18 @@ export function LibyanTransactionsDataTable({
                 <Calendar initialFocus mode="single" selected={date} onSelect={setDate} locale={arEG} />
               </PopoverContent>
             </Popover>
+
+            {showTypeFilter && (
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[140px] h-11 rounded-xl bg-white"><SelectValue placeholder="نوع العملية" /></SelectTrigger>
+                <SelectContent className="rounded-xl border-none shadow-2xl">
+                  <SelectItem value="all">كل الأنواع</SelectItem>
+                  {Object.entries(typeMap).map(([id, label]) => (
+                    <SelectItem key={id} value={id}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[110px] h-11 rounded-xl"><SelectValue placeholder="الحالة" /></SelectTrigger>

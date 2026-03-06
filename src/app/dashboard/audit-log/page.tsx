@@ -188,6 +188,7 @@ export default function AuditLogPage() {
             showDelegate={true}
             showFee={true}
             showReceivedAmount={true}
+            showTypeFilter={true}
           />
         </CardContent>
       </Card>
