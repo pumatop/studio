@@ -46,7 +46,7 @@ const months = [
 const CurrencyDisplay = ({ 
     amount, 
     currency, 
-    colorClass = "text-[#1A4B84]", 
+    colorClass = "text-[#001F3D]", 
     decimals = 2 
 }: { 
     amount: number, 
@@ -61,7 +61,7 @@ const CurrencyDisplay = ({
 );
 
 /**
- * مكون لعرض التاريخ والوقت بنمط عربي دقيق
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق (الوقت أولاً ثم التاريخ)
  */
 const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     if (!timestamp) return <span className="text-slate-300">---</span>;
@@ -73,15 +73,18 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     
     return (
-        <div className="flex items-center justify-start gap-0.5 tabular-nums" dir="rtl">
-            <span>{day}</span>
-            <span className="opacity-40">/</span>
-            <span>{month}</span>
-            <span className="opacity-40">/</span>
-            <span>{year}</span>
-            <span className="mx-2"></span>
-            <span className="font-bold">{timePart}</span>
-            <span className="text-[10px] font-black mr-1">{period}</span>
+        <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
+            <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="text-[10px] font-black text-slate-400">{period}</span>
+            </div>
+            <div className="flex items-center text-[10px] text-slate-400 font-medium">
+                <span>{day}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{month}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{year}</span>
+            </div>
         </div>
     );
 };
@@ -130,12 +133,12 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           pageLength: 100,
@@ -173,7 +176,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
               className="max-w-sm h-11 rounded-xl flex-grow"/>
             
             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -218,14 +221,14 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
             <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">قيمة الفكة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">العميل</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">سعر الصرف</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ الليبي</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المصري</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">قيمة الفكة</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">توقيت الطلب</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -236,7 +239,7 @@ export function EgyptianTransfersDataTable({ initialData }: { initialData: Egypt
                             <div className="font-bold text-sm text-slate-700">{transfer.userName}</div>
                             <div className="text-[11px] text-slate-400 font-mono tabular-nums">{transfer.userPhone}</div>
                         </TableCell>
-                        <TableCell className="text-sm font-black text-[#1A4B84] tabular-nums" dir="ltr">
+                        <TableCell className="text-sm font-black text-[#1B69FF] tabular-nums" dir="ltr">
                             x {transfer.exchangeRate.toFixed(2)}
                         </TableCell>
                         <TableCell>

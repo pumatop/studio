@@ -71,7 +71,7 @@ const getSenderPhone = (transaction: Transaction): string | null => {
 const CurrencyDisplay = ({ 
     amount, 
     currency, 
-    colorClass = "text-[#1A4B84]", 
+    colorClass = "text-[#001F3D]", 
     decimals = 2 
 }: { 
     amount: number, 
@@ -85,6 +85,9 @@ const CurrencyDisplay = ({
     </div>
 );
 
+/**
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق (الوقت أولاً ثم التاريخ)
+ */
 const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     if (!timestamp) return <span className="text-slate-300">---</span>;
     const date = new Date(timestamp);
@@ -95,15 +98,18 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     
     return (
-        <div className="flex items-center justify-start gap-0.5 tabular-nums" dir="rtl">
-            <span>{day}</span>
-            <span className="opacity-40">/</span>
-            <span>{month}</span>
-            <span className="opacity-40">/</span>
-            <span>{year}</span>
-            <span className="mx-2"></span>
-            <span className="font-bold">{timePart}</span>
-            <span className="text-[10px] font-black mr-1">{period}</span>
+        <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
+            <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="text-[10px] font-black text-slate-400">{period}</span>
+            </div>
+            <div className="flex items-center text-[10px] text-slate-400 font-medium">
+                <span>{day}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{month}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{year}</span>
+            </div>
         </div>
     );
 };
@@ -279,16 +285,16 @@ export function LibyanTransactionsDataTable({
             <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المرسل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
-                        {showReceivedAmount && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>}
-                        {showFee && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
-                        {showDelegate && <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم العملية</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">النوع</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">التوقيت</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المرسل</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المرسل</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المستلم</TableHead>
+                        {showReceivedAmount && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ المستلم</TableHead>}
+                        {showFee && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رسوم الخدمة</TableHead>}
+                        {showDelegate && <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المندوب</TableHead>}
                     </TableRow>
                 </TableHeader>
                 <TableBody>

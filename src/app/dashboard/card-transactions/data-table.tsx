@@ -51,7 +51,7 @@ const months = [
 ];
 
 // مكون لعرض المبالغ مع العملة جهة اليسار
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#001F3D]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
@@ -59,7 +59,7 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1A4B84]" }: { 
 );
 
 /**
- * مكون لعرض التاريخ والوقت بنمط عربي دقيق
+ * مكون لعرض التاريخ والوقت بنمط عربي دقيق (الوقت أولاً ثم التاريخ)
  */
 const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     if (!timestamp) return <span className="text-slate-300">---</span>;
@@ -71,15 +71,18 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
     const period = date.getHours() >= 12 ? 'م' : 'ص';
     
     return (
-        <div className="flex items-center justify-start gap-0.5 tabular-nums" dir="rtl">
-            <span>{day}</span>
-            <span className="opacity-40">/</span>
-            <span>{month}</span>
-            <span className="opacity-40">/</span>
-            <span>{year}</span>
-            <span className="mx-2"></span>
-            <span className="font-bold">{timePart}</span>
-            <span className="text-[10px] font-black mr-1">{period}</span>
+        <div className="flex flex-col items-start gap-0.5 tabular-nums" dir="rtl">
+            <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-700">{timePart}</span>
+                <span className="text-[10px] font-black text-slate-400">{period}</span>
+            </div>
+            <div className="flex items-center text-[10px] text-slate-400 font-medium">
+                <span>{day}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{month}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{year}</span>
+            </div>
         </div>
     );
 };
@@ -141,12 +144,12 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
-          dom: "<'flex items-center justify-end px-4 py-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
+          dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
-              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' },
-              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm' }
+              { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'csv', text: 'CSV', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'excel', text: 'Excel', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
+              { extend: 'print', text: 'طباعة', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' }
           ],
           language: { url: '//cdn.datatables.net/plug-ins/1.10.25/i18n/Arabic.json' },
           searching: false,
@@ -197,7 +200,7 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
           </Select>
 
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1A4B84] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+                <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
                     <SelectValue />
                 </SelectTrigger>
                 <SelectContent dir="rtl" className="rounded-2xl border-none shadow-2xl max-h-[300px]">
@@ -232,13 +235,13 @@ export function CardTransactionsDataTable({ initialData }: { initialData: Rechar
             <Table key={tableKey} ref={tableRef}>
                 <TableHeader className="sticky top-0 z-20 bg-slate-50 border-b shadow-sm">
                     <TableRow className="hover:bg-transparent">
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">رقم المعاملة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المستخدم</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">نوع الكرت</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">المبلغ</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">الرقم المسلسل/الكود</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
-                        <TableHead className="font-black text-[#1A4B84] text-[10px] uppercase tracking-widest text-right h-12">وقت العملية</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">رقم المعاملة</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المستخدم</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">نوع الكرت</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">المبلغ</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">الرقم المسلسل/الكود</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-center h-12">الحالة</TableHead>
+                        <TableHead className="font-black text-[#1B69FF] text-[10px] uppercase tracking-widest text-right h-12">وقت العملية</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
@@ -133,7 +134,7 @@ const typeLabelMap: Record<string, string> = {
     'egypt_instapay': 'انستاباي',
 };
 
-const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { amount: number, currency: string, colorClass?: string }) => (
+const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#001F3D]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
         <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
@@ -142,16 +143,20 @@ const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]" }: { 
 
 const DateTimeDisplay = ({ timestamp, className }: { timestamp: number | undefined, className?: string }) => {
     const parts = formatDateParts(timestamp);
+    if (!timestamp) return <span className="text-slate-300">---</span>;
     return (
-        <div className={cn("flex items-center justify-start gap-0.5 tabular-nums", className)} dir="rtl">
-            <span>{parts.day}</span>
-            <span className="opacity-40">/</span>
-            <span>{parts.month}</span>
-            <span className="opacity-40">/</span>
-            <span>{parts.year}</span>
-            <span className="mx-2"></span>
-            <span className="font-bold">{parts.time}</span>
-            <span className="text-[10px] font-black mr-1">{parts.period}</span>
+        <div className={cn("flex flex-col items-start gap-0.5 tabular-nums", className)} dir="rtl">
+            <div className="flex items-center gap-1">
+                <span className="font-bold text-slate-700">{parts.time}</span>
+                <span className="text-[10px] font-black text-slate-400">{parts.period}</span>
+            </div>
+            <div className="flex items-center text-[10px] text-slate-400 font-medium">
+                <span>{parts.day}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{parts.month}</span>
+                <span className="mx-0.5 opacity-40">/</span>
+                <span>{parts.year}</span>
+            </div>
         </div>
     );
 };
