@@ -4,36 +4,37 @@
 
 @layer base {
   :root {
-    /* لوحة الألوان الأساسية */
+    /* لوحة الألوان الأساسية المحدثة لسهولة القراءة */
+    /* اللون الكحلي العميق المختار: #001F3D */
     --background: 203 43% 92%; /* #e1ecf3 */
-    --foreground: 215 28% 17%;
+    --foreground: 210 100% 12%; /* #001F3D - اللون الأساسي الموحد للنصوص */
     --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card-foreground: 210 100% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
-    --primary: 213 67% 31%; /* #1A4B84 - اللون القيادي */
+    --popover-foreground: 210 100% 12%;
+    --primary: 210 100% 12%; /* #001F3D - اللون القيادي الموحد */
     --primary-foreground: 0 0% 100%;
     --secondary: 207 90% 94%; /* #E3F2FD - اللون المساعد */
-    --secondary-foreground: 213 67% 31%;
+    --secondary-foreground: 210 100% 12%;
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215 20% 55%;
+    --muted-foreground: 215 20% 45%;
     --accent: 45 93% 47%; /* #FFB800 - لون التمييز */
-    --accent-foreground: 215 28% 17%;
+    --accent-foreground: 210 100% 12%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 213 67% 31%;
+    --ring: 210 100% 12%;
     --radius: 2.5rem; /* الحواف الكبيرة المميزة 40px */
     
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215 28% 17%;
-    --sidebar-primary: 213 67% 31%;
+    --sidebar-foreground: 210 100% 12%;
+    --sidebar-primary: 210 100% 12%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 207 90% 94%;
-    --sidebar-accent-foreground: 213 67% 31%;
+    --sidebar-accent-foreground: 210 100% 12%;
     --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 213 67% 31%;
+    --sidebar-ring: 210 100% 12%;
   }
 }
 
@@ -52,18 +53,18 @@
 @layer components {
     /* نمط البطاقات العائمة الموحد */
     .floating-card {
-        @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(26,75,132,0.05)] border-none transition-all duration-500 rounded-3xl;
+        @apply bg-white/90 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,31,61,0.05)] border-none transition-all duration-500 rounded-3xl;
     }
     
     @media (min-width: 768px) {
         .floating-card {
-            @apply shadow-[0_20px_50px_rgba(26,75,132,0.08)] hover:shadow-[0_30px_70px_rgba(26,75,132,0.12)] hover:-translate-y-2 rounded-[2.5rem];
+            @apply shadow-[0_20px_50px_rgba(0,31,61,0.08)] hover:shadow-[0_30px_70px_rgba(0,31,61,0.12)] hover:-translate-y-2 rounded-[2.5rem];
         }
     }
     
     /* خط التميز المتدرج أسفل العناوين */
     .accent-gradient-line {
-        @apply h-0.5 w-16 rounded-full bg-gradient-to-r from-[#1A4B84] to-[#FFB800] mt-1.5;
+        @apply h-0.5 w-16 rounded-full bg-gradient-to-r from-[#001F3D] to-[#FFB800] mt-1.5;
     }
 
     @media (min-width: 768px) {
