@@ -40,7 +40,7 @@ const months = [
 // مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#001F3D]" }: { amount: number, currency: string, colorClass?: string }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
-        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className={cn("text-[0.7em] opacity-70 font-bold", currency === "ج.م" ? "text-primary" : "text-green-600")}>{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 4 })}</span>
     </div>
 );
@@ -116,6 +116,7 @@ export function FakkaLogDataTable({ initialData }: { initialData: FakkaLog[] }) 
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
+          order: [], // للحفاظ على ترتيب React (الأحدث أولاً)
           dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },

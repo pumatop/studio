@@ -64,7 +64,7 @@ const months = [
 // مكون لعرض المبالغ مع العملة جهة اليسار
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#1B69FF]", decimals = 2 }: { amount: number, currency: string, colorClass?: string, decimals?: number }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
-        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className={cn("text-[0.7em] opacity-70 font-bold", currency === "ج.م" ? "text-primary" : "text-green-600")}>{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
@@ -138,6 +138,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
 
         $(tableRef.current).DataTable({
           responsive: true,
+          order: [], // للحفاظ على ترتيب React (الأحدث أولاً)
           dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
@@ -260,7 +261,7 @@ export function SupervisorLogDataTable({ initialData }: { initialData: EgyptTran
                             </TableCell>
                             <TableCell>
                                 <div className="flex flex-col gap-1">
-                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" colorClass="text-green-600 text-sm" decimals={0} />
+                                    <CurrencyDisplay amount={transfer.amountEGP} currency="ج.م" decimals={0} />
                                     <div className="flex items-center gap-1 opacity-50">
                                         <span className="text-[9px] font-bold">الرسوم:</span>
                                         <CurrencyDisplay amount={transfer.serviceFee || 0} currency="ج.م" colorClass="text-orange-600 text-[10px]" decimals={0} />

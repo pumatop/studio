@@ -80,7 +80,7 @@ const CurrencyDisplay = ({
     decimals?: number
 }) => (
     <div className={cn("flex items-baseline gap-1 justify-start font-black", colorClass)} dir="ltr">
-        <span className="text-[0.7em] opacity-70 font-bold">{currency}</span>
+        <span className={cn("text-[0.7em] opacity-70 font-bold", currency === "ج.م" ? "text-primary" : "text-green-600")}>{currency}</span>
         <span className="tabular-nums">{(amount || 0).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>
     </div>
 );
@@ -183,6 +183,7 @@ export function LibyanTransactionsDataTable({
         if (!tableRef.current || !document.body.contains(tableRef.current)) return;
         $(tableRef.current).DataTable({
           responsive: true,
+          order: [], // للحفاظ على ترتيب React (الأحدث أولاً)
           dom: "<'flex items-center justify-end px-4 py-2 gap-2'B>t<'border-t mt-4 flex items-center justify-between px-4 py-2'i p>",
           buttons: [
               { extend: 'copy', text: 'نسخ', className: 'border bg-card hover:bg-accent hover:text-accent-foreground rounded-md px-3 py-1.5 text-sm font-bold' },
@@ -324,7 +325,6 @@ export function LibyanTransactionsDataTable({
                                         <CurrencyDisplay 
                                             amount={tx.type === 'account_transfer' ? (tx.totalDeduction || 0) : (tx.amount || tx.amountLYD || tx.amountEGP || 0)} 
                                             currency={currency}
-                                            colorClass={isEgyptLocal ? "text-primary" : "text-green-600"}
                                             decimals={isEgyptLocal ? 0 : 2}
                                         />
                                         {isEgyptLocal && tx.fakkaAmount > 0 && (
