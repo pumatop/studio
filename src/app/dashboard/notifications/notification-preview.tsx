@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -19,117 +20,175 @@ interface NotificationPreviewProps {
 
 // --- Mock Notification Components ---
 
-// ... (StandardNotification, PopupNotification, BannerNotification remain the same)
 const StandardNotification = ({ title, body, imageUrl, isIOS }: { title: string, body: string, imageUrl?: string, isIOS: boolean }) => (
     isIOS ? (
-        <div className="px-2"><div className="bg-white bg-opacity-80 backdrop-blur-md rounded-2xl p-3 shadow-md w-full"><div className="flex items-start gap-3"><div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">C</div><div className="flex-1 text-right"><p className="font-semibold text-sm text-black">كاشيات</p><p className="font-bold text-sm text-black">{title}</p><p className="text-sm text-black">{body}</p></div><p className="text-xs text-gray-500">الآن</p></div>{imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 rounded-lg w-full" />}</div></div>
-    ) : (
-        <div className="px-2"><div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-full"><div className="flex items-center gap-2"><div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">C</div><p className="text-xs font-semibold dark:text-white">كاشيات</p><p className="text-xs text-gray-500 dark:text-gray-400">· الآن</p></div><div className="mt-1 text-right"><p className="font-bold text-sm dark:text-white">{title}</p><p className="text-sm text-gray-600 dark:text-gray-300">{body}</p></div>{imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 rounded-md w-full" />}</div></div>
-    )
-);
-const PopupNotification = ({ title, body, imageUrl }: { title: string, body: string, imageUrl?: string }) => (<div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-20"><div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-11/12 max-w-sm mx-auto p-4 text-center"><AlertCircle className="h-12 w-12 text-blue-500 mx-auto" /><h3 className="text-lg font-bold mt-3">{title}</h3><p className="text-sm text-muted-foreground mt-1">{body}</p>{imageUrl && <img src={imageUrl} alt="Preview" className="mt-4 rounded-md w-full max-h-48 object-contain" />}<Button className="mt-4 w-full">حسناً</Button></div></div>);
-const BannerNotification = ({ title, body }: { title: string, body: string }) => (<div className="absolute top-0 left-0 right-0 bg-blue-500 text-white p-3 text-center z-20 shadow-lg"><p className="font-bold text-sm">{title}</p><p className="text-xs">{body}</p></div>);
-
-// --- NEW Ad Mock Components ---
-const BannerAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
-    <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-4 z-20 shadow-xl flex items-center justify-between">
-        <div className="flex items-center gap-4">
-            {imageUrl && <img src={imageUrl} alt="Ad" className="h-12 w-12 rounded-md object-cover" />}
-            <div>
-                <p className="font-bold text-md">{title}</p>
-                <p className="text-sm opacity-90">{body}</p>
+        <div className="px-2 w-full animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-2xl p-3 shadow-md w-full">
+                <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white font-black">C</div>
+                    <div className="flex-1 text-right">
+                        <p className="font-black text-xs text-black/40 uppercase tracking-tighter">حولّي كاش</p>
+                        <p className="font-black text-sm text-black">{title}</p>
+                        <p className="text-xs text-black/80 font-medium leading-tight">{body}</p>
+                    </div>
+                    <p className="text-[10px] font-bold text-gray-500">الآن</p>
+                </div>
+                {imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 rounded-lg w-full aspect-video object-cover" />}
             </div>
         </div>
-        <Button variant="secondary" size="sm">شاهد الآن</Button>
+    ) : (
+        <div className="px-2 w-full animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-[#f0f0f0] dark:bg-gray-700 rounded-2xl p-4 w-full shadow-sm">
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-[10px] font-black">C</div>
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">حولّي كاش</p>
+                    <p className="text-[10px] text-slate-400 font-bold">· الآن</p>
+                </div>
+                <div className="mt-1 text-right space-y-0.5">
+                    <p className="font-black text-sm text-[#001F3D]">{title}</p>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">{body}</p>
+                </div>
+                {imageUrl && <img src={imageUrl} alt="Preview" className="mt-3 rounded-xl w-full aspect-video object-cover" />}
+            </div>
+        </div>
+    )
+);
+
+const PopupNotification = ({ title, body, imageUrl }: { title: string, body: string, imageUrl?: string }) => (
+    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-20 animate-in fade-in duration-300">
+        <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl w-[85%] mx-auto p-6 text-center border-none">
+            <div className="p-4 bg-primary/10 rounded-full w-fit mx-auto mb-4">
+                <AlertCircle className="h-10 w-10 text-primary" />
+            </div>
+            <h3 className="text-lg font-black text-[#001F3D]">{title}</h3>
+            <p className="text-sm font-bold text-slate-400 mt-2 leading-relaxed">{body}</p>
+            {imageUrl && <img src={imageUrl} alt="Preview" className="mt-4 rounded-2xl w-full max-h-40 object-cover border border-slate-100" />}
+            <Button className="mt-6 w-full rounded-2xl h-12 font-black bg-primary shadow-lg shadow-primary/20">حسناً، فهمت</Button>
+        </div>
+    </div>
+);
+
+const BannerNotification = ({ title, body }: { title: string, body: string }) => (
+    <div className="absolute top-12 left-2 right-2 bg-primary text-white p-4 rounded-2xl text-center z-20 shadow-xl shadow-primary/20 animate-in slide-in-from-top-full duration-500">
+        <p className="font-black text-sm">{title}</p>
+        <p className="text-[10px] font-bold opacity-90">{body}</p>
+    </div>
+);
+
+const BannerAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
+    <div className="absolute top-12 left-2 right-2 bg-gradient-to-r from-[#1B69FF] to-[#004ABB] text-white p-4 rounded-2xl z-20 shadow-xl flex items-center justify-between animate-in slide-in-from-top-full duration-500">
+        <div className="flex items-center gap-3">
+            {imageUrl && <img src={imageUrl} alt="Ad" className="h-10 w-10 rounded-xl object-cover border border-white/20" />}
+            <div className="text-right">
+                <p className="font-black text-xs">{title}</p>
+                <p className="text-[10px] font-medium opacity-80">{body}</p>
+            </div>
+        </div>
+        <Button variant="secondary" size="sm" className="h-8 rounded-lg text-[10px] font-black px-3">عرض الآن</Button>
     </div>
 );
 
 const PopupAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
-    <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-20 p-4">
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden">
-            {imageUrl && <img src={imageUrl} alt="Ad" className="w-full h-48 object-cover" />}
-            <div className="p-6 text-center">
-                <h3 className="text-xl font-bold">{title}</h3>
-                <p className="text-muted-foreground mt-2">{body}</p>
-                <Button className="mt-6 w-full bg-green-500 hover:bg-green-600">
-                    <ShoppingCart className="ml-2 h-4 w-4" />
-                    اطلب الآن
+    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20 p-4 animate-in fade-in duration-300">
+        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl w-full max-w-[260px] mx-auto overflow-hidden">
+            {imageUrl && <img src={imageUrl} alt="Ad" className="w-full h-36 object-cover" />}
+            <div className="p-6 text-center space-y-2">
+                <h3 className="text-md font-black text-[#001F3D]">{title}</h3>
+                <p className="text-[10px] font-bold text-slate-400 leading-relaxed">{body}</p>
+                <Button className="mt-4 w-full h-11 rounded-xl bg-[#32CCAA] hover:bg-[#32CCAA]/90 text-white font-black text-xs gap-2">
+                    <ShoppingCart className="h-3.5 w-3.5" />
+                    اطلب العرض
                 </Button>
-                <Button variant="link" className="mt-2 text-muted-foreground">لا شكراً</Button>
+                <button className="text-[9px] font-black text-slate-300 uppercase tracking-widest pt-2">تخطي الإعلان</button>
             </div>
         </div>
     </div>
 );
 
-const ImageOnlyAd = ({ title, body, imageUrl }: NotificationPreviewProps) => (
-    <div className="absolute inset-0 bg-black flex items-center justify-center z-20 p-2">
+const ImageOnlyAd = ({ imageUrl }: NotificationPreviewProps) => (
+    <div className="absolute inset-0 bg-black flex items-center justify-center z-20 p-2 animate-in zoom-in-95 duration-500">
          {imageUrl ? 
-            <img src={imageUrl} alt="Full screen ad" className="w-full h-full object-contain rounded-lg" /> 
-            : <div className="text-white text-center">يرجى رفع صورة لعرض هذا الإعلان</div>}
-        <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full"><X className="h-5 w-5" /></Button>
+            <img src={imageUrl} alt="Full screen ad" className="w-full h-full object-contain rounded-[1.5rem]" /> 
+            : <div className="text-white/40 text-center font-black text-xs italic">يرجى رفع صورة لمعاينة الإعلان</div>}
+        <Button variant="ghost" size="icon" className="absolute top-6 right-6 bg-black/50 hover:bg-black/70 text-white rounded-full h-10 w-10 border border-white/10"><X className="h-5 w-5" /></Button>
     </div>
 );
 
 export function NotificationPreview({ title, body, imageUrl, type }: NotificationPreviewProps) {
-  const [view, setView] = useState<'mobile' | 'desktop'>('mobile');
   const [isIOS, setIsIOS] = useState(false);
 
-  const mockTitle = title || "عنوان الإشعار/الإعلان";
-  const mockBody = body || "هذا هو نص الإشعار الذي سيظهر للمستخدم.";
+  const mockTitle = title || "عنوان الإشعار القادم";
+  const mockBody = body || "هنا سيظهر نص الرسالة التي سيتلقاها المستخدمون على هواتفهم.";
 
   const renderPreview = () => {
       switch(type) {
           case 'popup': return <PopupNotification title={mockTitle} body={mockBody} imageUrl={imageUrl} />;
           case 'banner': return <BannerNotification title={mockTitle} body={mockBody} />;
-          
-          // Ad types
           case 'banner-ad': return <BannerAd title={mockTitle} body={mockBody} imageUrl={imageUrl} type={type} />;
           case 'popup-ad': return <PopupAd title={mockTitle} body={mockBody} imageUrl={imageUrl} type={type} />;
           case 'image-only': return <ImageOnlyAd title={mockTitle} body={mockBody} imageUrl={imageUrl} type={type} />;
-
           case 'standard':
-          default: // Render standard for both mobile and desktop if type is standard
-            if (view === 'desktop') {
-                 if (isIOS) return <div className="absolute top-14"><StandardNotification title={mockTitle} body={mockBody} imageUrl={imageUrl} isIOS={true} /></div>
-                 return <div className="absolute bottom-5 right-5"><StandardNotification title={mockTitle} body={mockBody} imageUrl={imageUrl} isIOS={false} /></div>
-            }
+          default:
             return <StandardNotification title={mockTitle} body={mockBody} imageUrl={imageUrl} isIOS={isIOS} />;
       }
   }
 
   return (
     <div className="w-full">
-        {/* ... (View switcher remains the same) ... */}
-        <div className="flex justify-center items-center gap-4 mb-4 border-b pb-4">
-            <button onClick={() => setView('mobile')} className={cn("flex items-center gap-2 px-4 py-2 rounded-md transition-colors", view === 'mobile' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}><Smartphone size={18} /><span>الهاتف</span></button>
-            <button onClick={() => setView('desktop')} className={cn("flex items-center gap-2 px-4 py-2 rounded-md transition-colors", view === 'desktop' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}><Monitor size={18} /><span>الحاسوب</span></button>
+        {/* OS Switcher */}
+        <div className="flex justify-center items-center gap-3 mb-6 border-b border-slate-50 pb-6">
+            <button 
+                onClick={() => setIsIOS(false)} 
+                className={cn(
+                    "flex items-center gap-2.5 px-6 py-2.5 rounded-2xl font-black text-xs transition-all", 
+                    !isIOS ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                )}
+            >
+                <div className={cn("p-1 rounded-md", !isIOS ? "bg-white/20" : "bg-slate-200")}>
+                    <Smartphone size={14} />
+                </div>
+                Android
+            </button>
+            <button 
+                onClick={() => setIsIOS(true)} 
+                className={cn(
+                    "flex items-center gap-2.5 px-6 py-2.5 rounded-2xl font-black text-xs transition-all", 
+                    isIOS ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                )}
+            >
+                <div className={cn("p-1 rounded-md", isIOS ? "bg-white/20" : "bg-slate-200")}>
+                    <Smartphone size={14} />
+                </div>
+                iOS (iPhone)
+            </button>
         </div>
 
-      <div className="p-4 rounded-lg bg-gray-100 dark:bg-gray-900 min-h-[620px] flex items-center justify-center relative overflow-hidden">
-        {/* OS Switchers (only for standard notifications) */}
-        {type === 'standard' && (
-             <> 
-                {view === 'mobile' && <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center space-x-2 bg-slate-200/50 dark:bg-slate-900/50 p-2 rounded-lg"><Label htmlFor="ios-mode">Android</Label><Switch id="ios-mode" checked={isIOS} onCheckedChange={setIsIOS} /><Label htmlFor="ios-mode">iOS</Label></div>}
-                {view === 'desktop' && <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center space-x-2 bg-slate-200/50 dark:bg-slate-900/50 p-2 rounded-lg"><Label htmlFor="os-mode">Windows</Label><Switch id="os-mode" checked={isIOS} onCheckedChange={setIsIOS} /><Label htmlFor="os-mode">macOS</Label></div>}
-             </>
-        )}
-
-        {/* Mockups Container */}
-        {view === 'mobile' && (
-            <div className="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px]">
-                <div className="h-[32px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[72px] rounded-s-lg"></div><div className="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[124px] rounded-s-lg"></div><div className="h-[46px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -start-[17px] top-[178px] rounded-s-lg"></div><div className="h-[64px] w-[3px] bg-gray-800 dark:bg-gray-800 absolute -end-[17px] top-[142px] rounded-e-lg"></div>
-                <div className="rounded-[2rem] overflow-hidden w-full h-full bg-white dark:bg-gray-800 relative flex items-start pt-16 justify-center">
+      <div className="p-4 rounded-[3rem] bg-slate-50 dark:bg-gray-900 min-h-[620px] flex items-center justify-center relative overflow-hidden border-2 border-dashed border-slate-200/50">
+        
+        {/* Mobile Mockup */}
+        <div className="relative mx-auto border-slate-800 dark:border-gray-800 bg-slate-800 border-[12px] rounded-[3.5rem] h-[580px] w-[280px] shadow-2xl transition-all duration-500">
+            {/* Speaker/Notch Area */}
+            <div className="h-[24px] w-[100px] bg-slate-800 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-2xl z-30"></div>
+            
+            {/* Buttons UI */}
+            <div className="h-[32px] w-[3px] bg-slate-800 absolute -start-[15px] top-[72px] rounded-s-lg"></div>
+            <div className="h-[46px] w-[3px] bg-slate-800 absolute -start-[15px] top-[124px] rounded-s-lg"></div>
+            <div className="h-[64px] w-[3px] bg-slate-800 absolute -end-[15px] top-[142px] rounded-e-lg"></div>
+            
+            {/* Screen Content */}
+            <div className="rounded-[2.8rem] overflow-hidden w-full h-full bg-white dark:bg-gray-800 relative flex items-start pt-16 justify-center bg-cover bg-center" style={{backgroundImage: "url('https://picsum.photos/seed/phone/600/1200')"}}>
+                {/* Overlay to dim wallpaper */}
+                <div className="absolute inset-0 bg-black/10"></div>
+                
+                {/* Actual Notification Preview */}
+                <div className="relative z-10 w-full flex flex-col items-center">
                     {renderPreview()}
                 </div>
             </div>
-        )}
-        {view === 'desktop' && (
-             <div className="w-full h-[550px] flex flex-col items-center justify-center bg-gray-300 dark:bg-gray-800 bg-cover bg-center relative rounded-xl shadow-lg" style={{backgroundImage: "url('/img/desktop-bg.svg')"}}>
-                {renderPreview()}
-             </div>
-        )}
+        </div>
       </div>
-      <div className="mt-8">
+
+      <div className="mt-10">
         <NotificationTypeSelector />
       </div>
     </div>
