@@ -347,7 +347,7 @@ export function ExchangeControlCard() {
                     <DialogTrigger asChild>
                         <Button variant="outline" size="sm" disabled={!localSettings.autoConditionsActive} className="rounded-xl bg-card border-[#1B69FF]/10 font-bold text-xs h-9 text-foreground">
                             <PlusCircle className="ml-2 h-4 w-4" />
-                            إضافة شرط ذكي
+                            إضافة شرط
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
