@@ -1,30 +1,42 @@
 
 "use client";
 
-import { useUser, useRtdbObject, useDatabase, updateRtdb } from "@/firebase";
+import { useUser, useRtdbObject, useDatabase, updateRtdb, useAuth } from "@/firebase";
 import type { User } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Wallet, CalendarDays, FileText, ArrowRight, User as UserIcon, Smartphone, AlertCircle } from "lucide-react";
+import { 
+    ShieldCheck, Wallet, CalendarDays, FileText, ArrowRight, 
+    User as UserIcon, Smartphone, AlertCircle, Lock, KeyRound, 
+    Pencil, Save, Loader2 
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from "@/lib/utils";
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogDescription,
+    DialogFooter,
+    DialogClose,
+    DialogTrigger
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 
 const roleMap: Record<string, string> = {
     "user": "مستخدم",
     "merchant": "تاجر",
     "admin": "مسؤول",
     "superadmin": "مسؤول خارق",
-};
-
-const statusMap: Record<string, string> = {
-    "active": "نشط",
-    "banned": "مجمد",
 };
 
 const CurrencyDisplay = ({ amount, currency, colorClass = "text-[#001F3D]" }: { amount: number, currency: string, colorClass?: string }) => (
@@ -61,9 +73,103 @@ const DateTimeDisplay = ({ timestamp }: { timestamp: number | undefined }) => {
 };
 
 export default function ProfilePage() {
+    const auth = useAuth();
     const { user: authUser, isUserLoading: isAuthLoading } = useUser();
+    const { database } = useDatabase();
     const { data: user, isLoading: isUserLoading } = useRtdbObject<User>(authUser ? `/users/${authUser.uid}` : null);
     const { toast } = useToast();
+
+    // Edit Name States
+    const [newName, setNewName] = useState("");
+    const [isUpdatingName, setIsUpdatingName] = useState(false);
+    const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
+
+    // Change Password States
+    const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+    const [isPassDialogOpen, setIsPassDialogOpen] = useState(false);
+
+    // Change PIN States
+    const [newPin, setNewPin] = useState("");
+    const [isUpdatingPin, setIsUpdatingPin] = useState(false);
+    const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
+
+    useEffect(() => {
+        if (user) setNewName(user.name || "");
+    }, [user]);
+
+    const handleUpdateName = async () => {
+        if (!authUser || !newName.trim()) return;
+        setIsUpdatingName(true);
+        try {
+            await updateRtdb(database, `/users/${authUser.uid}`, { 
+                name: newName.trim(), 
+                lastUpdate: Date.now() 
+            });
+            toast({ title: "تم تحديث الاسم بنجاح" });
+            setIsNameDialogOpen(false);
+        } catch (e: any) {
+            toast({ title: "خطأ", description: e.message, variant: "destructive" });
+        } finally {
+            setIsUpdatingName(false);
+        }
+    };
+
+    const handleChangePassword = async () => {
+        if (!auth.currentUser || !authUser?.email) return;
+        if (passwords.new !== passwords.confirm) {
+            toast({ title: "خطأ", description: "كلمات المرور الجديدة غير متطابقة", variant: "destructive" });
+            return;
+        }
+        
+        setIsUpdatingPassword(true);
+        try {
+            // Re-authenticate first
+            const credential = EmailAuthProvider.credential(authUser.email, passwords.current);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+            
+            // Update password
+            await updatePassword(auth.currentUser, passwords.new);
+            
+            // Log timestamp in RTDB
+            await updateRtdb(database, `/users/${authUser.uid}`, { 
+                lastPasswordChange: Date.now(),
+                lastUpdate: Date.now()
+            });
+
+            toast({ title: "تم تغيير كلمة المرور بنجاح" });
+            setIsPassDialogOpen(false);
+            setPasswords({ current: "", new: "", confirm: "" });
+        } catch (e: any) {
+            let msg = "فشل تغيير كلمة المرور.";
+            if (e.code === 'auth/wrong-password') msg = "كلمة المرور الحالية غير صحيحة.";
+            toast({ title: "خطأ", description: msg, variant: "destructive" });
+        } finally {
+            setIsUpdatingPassword(false);
+        }
+    };
+
+    const handleChangePin = async () => {
+        if (!authUser || newPin.length !== 6) {
+            toast({ title: "خطأ", description: "الرقم السري يجب أن يتكون من 6 أرقام", variant: "destructive" });
+            return;
+        }
+        setIsUpdatingPin(true);
+        try {
+            await updateRtdb(database, `/users/${authUser.uid}`, { 
+                pin: newPin,
+                lastPinChange: Date.now(),
+                lastUpdate: Date.now()
+            });
+            toast({ title: "تم تحديث الرقم السري (PIN) بنجاح" });
+            setIsPinDialogOpen(false);
+            setNewPin("");
+        } catch (e: any) {
+            toast({ title: "خطأ", description: e.message, variant: "destructive" });
+        } finally {
+            setIsUpdatingPin(false);
+        }
+    };
 
     const isLoading = isAuthLoading || isUserLoading;
     const idCardPlaceholder = PlaceHolderImages.find(p => p.id === 'id-card-placeholder');
@@ -108,7 +214,7 @@ export default function ProfilePage() {
                     <div className="p-4 bg-primary/10 rounded-[2rem]">
                         <ShieldCheck className="h-10 w-10 text-primary" />
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <h1 className="text-3xl font-black text-[#001F3D] dark:text-foreground">{user.name}</h1>
                         <div className="flex items-center gap-3 mt-2 justify-start">
                             <Badge className="bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 font-black text-[10px] px-3 py-0.5 border-none">
@@ -118,15 +224,56 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 </div>
-                <Button asChild variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 shrink-0 max-md:w-full">
-                    <Link href="/dashboard">
-                        <ArrowRight className="h-4 w-4" /> العودة للوحة التحكم
-                    </Link>
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <Dialog open={isNameDialogOpen} onOpenChange={setIsNameDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="rounded-2xl h-12 px-6 font-bold gap-2 bg-card border-primary/10 hover:bg-primary/5">
+                                <Pencil className="h-4 w-4" /> تعديل الاسم
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="rounded-[2rem] border-none shadow-2xl p-8 bg-card">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground text-right">تعديل الاسم المستعار</DialogTitle>
+                                <DialogDescription className="text-right font-bold">سيظهر هذا الاسم في كافة سجلات العمليات والتقارير.</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                                <div className="space-y-2 text-right">
+                                    <Label htmlFor="edit-name" className="font-bold text-slate-500">الاسم الجديد</Label>
+                                    <Input 
+                                        id="edit-name" 
+                                        value={newName} 
+                                        onChange={e => setNewName(e.target.value)} 
+                                        placeholder="أدخل اسمك الكامل"
+                                        className="h-12 rounded-xl text-right font-bold bg-background dark:bg-slate-900 border-primary/10"
+                                    />
+                                </div>
+                            </div>
+                            <DialogFooter className="mt-6 gap-3 flex-row-reverse">
+                                <Button 
+                                    onClick={handleUpdateName} 
+                                    disabled={isUpdatingName}
+                                    className="rounded-xl h-12 px-8 font-black bg-primary shadow-lg shadow-primary/20"
+                                >
+                                    {isUpdatingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4 ml-2" />}
+                                    حفظ التغييرات
+                                </Button>
+                                <DialogClose asChild>
+                                    <Button variant="ghost" className="rounded-xl h-12 px-6 font-bold">إلغاء</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                    
+                    <Button asChild variant="ghost" className="rounded-2xl h-12 px-6 font-bold gap-2 text-slate-400 hover:text-primary">
+                        <Link href="/dashboard">
+                            <ArrowRight className="h-4 w-4" /> العودة للرئيسية
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Column 1: Financial & Basic Info */}
+                {/* Column 1: Financial & Security */}
                 <div className="lg:col-span-2 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
@@ -147,19 +294,92 @@ export default function ProfilePage() {
                         </Card>
 
                         <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
-                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
-                                <CalendarDays className="h-5 w-5 text-primary" />
-                                <CardTitle className="text-base font-black">تواريخ هامة</CardTitle>
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3 text-red-600">
+                                <Lock className="h-5 w-5 text-inherit" />
+                                <CardTitle className="text-base font-black">إعدادات الأمان</CardTitle>
                             </CardHeader>
-                            <CardContent className="p-8 space-y-6">
-                                <div className="flex items-center justify-between border-b border-slate-50 dark:border-white/5 pb-4">
-                                    <span className="text-sm font-bold text-slate-500">تاريخ الانضمام</span>
-                                    <DateTimeDisplay timestamp={user.createdAt} />
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm font-bold text-slate-500">آخر تحديث للملف</span>
-                                    <DateTimeDisplay timestamp={user.lastUpdate} />
-                                </div>
+                            <CardContent className="p-8 space-y-4">
+                                <Dialog open={isPassDialogOpen} onOpenChange={setIsPassDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="w-full h-12 rounded-xl font-bold justify-start gap-3 border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-900">
+                                            <KeyRound className="h-4 w-4 text-primary" /> تغيير كلمة المرور
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8 bg-card">
+                                        <DialogHeader>
+                                            <DialogTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground text-right">تحديث كلمة المرور</DialogTitle>
+                                            <DialogDescription className="text-right font-bold">يرجى إدخال كلمة المرور الحالية لتأكيد الهوية.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 pt-4 text-right">
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-slate-500">كلمة المرور الحالية</Label>
+                                                <Input 
+                                                    type="password" 
+                                                    value={passwords.current} 
+                                                    onChange={e => setPasswords({...passwords, current: e.target.value})}
+                                                    className="h-12 rounded-xl text-right bg-background dark:bg-slate-900"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-slate-500">كلمة المرور الجديدة</Label>
+                                                <Input 
+                                                    type="password" 
+                                                    value={passwords.new} 
+                                                    onChange={e => setPasswords({...passwords, new: e.target.value})}
+                                                    className="h-12 rounded-xl text-right bg-background dark:bg-slate-900"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-slate-500">تأكيد كلمة المرور</Label>
+                                                <Input 
+                                                    type="password" 
+                                                    value={passwords.confirm} 
+                                                    onChange={e => setPasswords({...passwords, confirm: e.target.value})}
+                                                    className="h-12 rounded-xl text-right bg-background dark:bg-slate-900"
+                                                />
+                                            </div>
+                                        </div>
+                                        <DialogFooter className="mt-6 flex-row-reverse gap-2">
+                                            <Button onClick={handleChangePassword} disabled={isUpdatingPassword} className="rounded-xl h-12 px-8 font-black bg-primary">
+                                                {isUpdatingPassword ? <Loader2 className="h-4 w-4 animate-spin" /> : "تحديث كلمة المرور"}
+                                            </Button>
+                                            <DialogClose asChild><Button variant="ghost" className="rounded-xl h-12">إلغاء</Button></DialogClose>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+
+                                <Dialog open={isPinDialogOpen} onOpenChange={setIsPinDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="w-full h-12 rounded-xl font-bold justify-start gap-3 border-slate-100 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-900">
+                                            <ShieldCheck className="h-4 w-4 text-green-600" /> تغيير الرقم السري (PIN)
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8 bg-card">
+                                        <DialogHeader>
+                                            <DialogTitle className="text-2xl font-black text-[#001F3D] dark:text-foreground text-right">تغيير الرقم السري (PIN)</DialogTitle>
+                                            <DialogDescription className="text-right font-bold">يستخدم هذا الرقم المكون من 6 خانات لتأكيد التحويلات المالية.</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 pt-4 text-right">
+                                            <div className="space-y-2">
+                                                <Label className="font-bold text-slate-500">الرقم السري الجديد</Label>
+                                                <Input 
+                                                    type="text" 
+                                                    maxLength={6}
+                                                    value={newPin} 
+                                                    onChange={e => setNewPin(e.target.value.replace(/[^0-9]/g, ""))}
+                                                    placeholder="مثال: 123456"
+                                                    className="h-12 rounded-xl text-center font-black text-2xl tracking-[0.5em] bg-background dark:bg-slate-900 tabular-nums"
+                                                />
+                                            </div>
+                                        </div>
+                                        <DialogFooter className="mt-6 flex-row-reverse gap-2">
+                                            <Button onClick={handleChangePin} disabled={isUpdatingPin} className="rounded-xl h-12 px-8 font-black bg-primary">
+                                                {isUpdatingPin ? <Loader2 className="h-4 w-4 animate-spin" /> : "تأكيد الرقم الجديد"}
+                                            </Button>
+                                            <DialogClose asChild><Button variant="ghost" className="rounded-xl h-12">إلغاء</Button></DialogClose>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                             </CardContent>
                         </Card>
                     </div>
@@ -171,7 +391,7 @@ export default function ProfilePage() {
                         </CardHeader>
                         <CardContent className="p-8">
                             {user.sessions ? (
-                                <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {Object.entries(user.sessions).map(([id, session]) => (
                                         <div key={id} className="flex items-center justify-between p-4 rounded-2xl border dark:border-white/5 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
                                             <div className="flex items-center gap-4 text-right">
@@ -228,6 +448,23 @@ export default function ProfilePage() {
                                 <p className="text-lg font-black text-[#001F3D] dark:text-foreground">
                                     {user.verification === 'verified' ? "حساب موثق وآمن" : "قيد انتظار التوثيق"}
                                 </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="rounded-[2.5rem] border-none shadow-sm bg-card overflow-hidden">
+                        <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b p-6 flex flex-row items-center gap-3">
+                            <CalendarDays className="h-5 w-5 text-primary" />
+                            <CardTitle className="text-base font-black">تواريخ هامة</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-8 space-y-6">
+                            <div className="flex items-center justify-between border-b border-slate-50 dark:border-white/5 pb-4">
+                                <span className="text-sm font-bold text-slate-500">تاريخ الانضمام</span>
+                                <DateTimeDisplay timestamp={user.createdAt} />
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-slate-500">آخر تحديث للملف</span>
+                                <DateTimeDisplay timestamp={user.lastUpdate} />
                             </div>
                         </CardContent>
                     </Card>
