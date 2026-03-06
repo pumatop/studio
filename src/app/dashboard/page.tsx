@@ -373,14 +373,14 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-start py-6 md:py-10 px-6 text-right overflow-visible">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-6 text-center overflow-visible">
                     <div className="w-full overflow-visible">
                         <FormattedAmount 
                             amount={stats.totalLibyanBalance} 
                             currency="د.ل" 
                             integerClass="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-green-600" 
                             currencyClass="text-[10px] sm:text-xs md:text-sm lg:text-lg font-bold text-green-600" 
-                            className="justify-start w-full"
+                            className="justify-center w-full"
                         />
                     </div>
                 </CardContent>
@@ -428,14 +428,14 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-grow flex items-center justify-start py-6 md:py-10 px-6 text-right overflow-visible">
+                <CardContent className="flex-grow flex items-center justify-center py-6 md:py-10 px-6 text-center overflow-visible">
                     <div className="w-full overflow-visible">
                         <FormattedAmount 
                             amount={stats.totalEgyptianBalance} 
                             currency="ج.م" 
                             integerClass="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-purple-600" 
                             currencyClass="text-[10px] sm:text-xs md:text-sm lg:text-lg font-bold text-purple-600" 
-                            className="justify-start w-full"
+                            className="justify-center w-full"
                         />
                     </div>
                 </CardContent>
