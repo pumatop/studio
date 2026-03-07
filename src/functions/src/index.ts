@@ -5,7 +5,9 @@ import {onSchedule} from "firebase-functions/v2/scheduler";
 import {onValueCreated, onValueWritten} from "firebase-functions/v2/database";
 import {logger} from "firebase-functions/v2";
 
-admin.initializeApp();
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 const db = admin.database();
 
 interface Condition {
@@ -15,7 +17,7 @@ interface Condition {
 }
 
 /**
- * فحص شروط سعر الصرف القائمة على الوقت كل دقيقة.
+ * محرك الشروط الزمنية: يعمل كل دقيقة لمطابقة وقت السيرفر بشروط المسؤول.
  */
 export const processScheduledRateChanges = onSchedule(
   {
@@ -46,21 +48,21 @@ export const processScheduledRateChanges = onSchedule(
 
     for (const [id, condition] of Object.entries(conditions)) {
       if (condition.type === "time" && condition.value === currentTime) {
-        logger.info(`Time condition met for ID ${id}. New rate: ${condition.targetRate}`);
+        logger.info(`Time condition triggered: ${id}. Setting rate to ${condition.targetRate}`);
 
         updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
 
         const logId = db.ref("/exchangeRateLogs").push().key;
         updates[`/exchangeRateLogs/${logId}`] = {
           date: now.toISOString(),
-          modifiedBy: "النظام التلقائي",
+          modifiedBy: "النظام التلقائي (شرط وقت)",
           oldRate: settings.currentRate,
           newRate: condition.targetRate,
           currencyPair: "LYD/EGP",
         };
         updates[`/settings/exchangeControl/conditions/${id}`] = null;
         rateChanged = true;
-        break;
+        break; // نفذ أول شرط مطابق فقط في الدقيقة الواحدة
       }
     }
 
@@ -71,7 +73,7 @@ export const processScheduledRateChanges = onSchedule(
 );
 
 /**
- * فحص شروط سعر الصرف القائمة على إجمالي المبالغ عند اكتمال أي معاملة.
+ * محرك شروط المبالغ: يعمل عند كل عملية تحويل ناجحة.
  */
 export const processTransactionBasedRateChanges = onValueCreated(
   {
@@ -81,12 +83,15 @@ export const processTransactionBasedRateChanges = onValueCreated(
   async (event) => {
     const transaction = event.data.val();
 
-    if (transaction.type !== "egypt_transfer" || transaction.status !== "completed") {
+    // نراقب فقط عمليات التحويل المصرية الناجحة
+    if (!["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"].includes(transaction.type) || transaction.status !== "completed") {
       return;
     }
 
     const date = new Date(transaction.timestamp).toISOString().split("T")[0];
     const aggregateRef = db.ref(`/dailyAggregates/${date}`);
+    
+    // تحديث إجمالي اليوم باستخدام Transaction لضمان الدقة في حالة تزامن العمليات
     const { committed, snapshot: aggSnap } = await aggregateRef.transaction((current) => {
         if (current === null) return { totalEgpAmount: transaction.amountEGP };
         return { totalEgpAmount: (current.totalEgpAmount || 0) + transaction.amountEGP };
@@ -114,7 +119,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
         const logId = db.ref("/exchangeRateLogs").push().key;
         updates[`/exchangeRateLogs/${logId}`] = {
           date: new Date().toISOString(),
-          modifiedBy: "النظام التلقائي",
+          modifiedBy: "النظام التلقائي (شرط مبلغ)",
           oldRate: settings.currentRate,
           newRate: condition.targetRate,
           currencyPair: "LYD/EGP",
@@ -132,7 +137,7 @@ export const processTransactionBasedRateChanges = onValueCreated(
 );
 
 /**
- * الإغلاق التلقائي للصرف عند الوصول لسقف التداول اليومي.
+ * نظام الإغلاق التلقائي: يغلق الصرف فوراً عند تجاوز سقف التداول اليومي.
  */
 export const handleAutoExchangeStatus = onValueWritten(
     {
@@ -150,6 +155,7 @@ export const handleAutoExchangeStatus = onValueWritten(
         if (!aggregate || typeof aggregate.totalEgpAmount === "undefined") return;
 
         if (aggregate.totalEgpAmount >= settings.autoCloseThreshold) {
+            logger.info("Daily threshold reached. Closing exchange automatically.");
             await settingsRef.update({ isOpen: false });
         }
     }
