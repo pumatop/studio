@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import type { RateCondition, ExchangeControlSettings, User, Transaction } from "@/lib/types";
-import { Clock, DollarSign, PlusCircle, Trash2, Activity, TrendingUp, Loader2, Info } from "lucide-react";
+import { Clock, DollarSign, PlusCircle, Trash2, Activity, TrendingUp, Loader2, Info, Cpu } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -328,7 +328,26 @@ export function ExchangeControlCard() {
         <div className={innerLevelCardClass}>
             <div className={cn("flex items-center justify-between p-4", deepInnerCardClass)}>
                 <div className="text-right">
-                    <Label className="font-black text-sm block">تفعيل الشروط التلقائية</Label>
+                    <div className="flex items-center gap-2 justify-end mb-1">
+                        <Label className="font-black text-sm block">تفعيل الشروط التلقائية</Label>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button className="text-primary/60 hover:text-primary transition-colors"><Cpu className="h-4 w-4" /></button>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-[320px] rounded-2xl p-4 bg-card shadow-2xl border-none" side="top">
+                                    <div className="space-y-3 text-right" dir="rtl">
+                                        <p className="font-black text-xs text-primary">المحرك البرمجي (Cloud Functions)</p>
+                                        <div className="space-y-2 text-[10px] font-bold text-slate-500 leading-relaxed">
+                                            <p><span className="text-foreground">1. محرك الوقت (Scheduled):</span> دالة تعمل كل دقيقة لتفحص شروط الساعة.</p>
+                                            <p><span className="text-foreground">2. محرك التداول (Transaction-Based):</span> دالة تعمل عند كل عملية ناجحة لتفحص حجم السيولة.</p>
+                                            <p className="text-blue-600">تعمل هذه الدوال في الخادم لضمان الدقة حتى ولو كانت لوحة التحكم مغلقة.</p>
+                                        </div>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                     <p className="text-[10px] text-slate-400 font-bold">تغيير السعر آلياً حسب الوقت أو حجم السيولة</p>
                 </div>
                 <Switch checked={localSettings.autoConditionsActive} onCheckedChange={(c) => handleSettingChange('autoConditionsActive', c)} className="data-[state=checked]:bg-primary scale-110" />
