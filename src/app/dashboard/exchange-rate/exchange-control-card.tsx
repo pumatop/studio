@@ -39,7 +39,7 @@ import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/fir
 import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden";
-const innerCardClass = "bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border dark:border-white/5 p-6 space-y-4";
+const innerLevelCardClass = "bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border dark:border-white/5 p-6 space-y-4";
 const deepInnerCardClass = "bg-white dark:bg-slate-950 border dark:border-white/5 rounded-2xl p-4 shadow-sm";
 const inputLevel4Class = "bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums text-right";
 
@@ -117,7 +117,6 @@ export function ExchangeControlCard() {
     }).format(new Date());
   }, [settings?.timezone]);
 
-  // جلب البيانات التراكمية مباشرة من مسار الإحصائيات اليومية لضمان الدقة والسرعة
   const { data: dayStats } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
@@ -188,7 +187,6 @@ export function ExchangeControlCard() {
     setIsSaving(true);
     try {
         if (settings && localSettings.currentRate !== settings.currentRate) {
-            // توثيق التغيير اليدوي في السجل
             const logPath = '/exchangeRateLogs';
             await pushRtdb(database, logPath, {
                 date: new Date().toISOString(),
@@ -245,7 +243,7 @@ export function ExchangeControlCard() {
                                     <TrendingUp className="h-5 w-5 text-green-500" />
                                     <Info className="h-3.5 w-3.5 text-slate-300" />
                                 </div>
-                                <span className="text-[9px] font-black text-slate-400 uppercase">من اين يجلب قيمة التداول</span>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">من اين يجلب قيمة التداول</span>
                                 <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
                             </div>
                         </TooltipTrigger>
