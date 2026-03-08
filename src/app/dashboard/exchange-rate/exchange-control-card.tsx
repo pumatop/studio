@@ -16,8 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import type { RateCondition, ExchangeControlSettings } from "@/lib/types";
-import { Clock, DollarSign, PlusCircle, Trash2, Info, Activity, TrendingUp, Loader2 } from "lucide-react";
+import type { RateCondition, ExchangeControlSettings, User, Transaction } from "@/lib/types";
+import { Clock, DollarSign, PlusCircle, Trash2, Activity, TrendingUp, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/firebase";
+import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser, useRtdbList } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden";
@@ -99,20 +99,9 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 }
 
 export function ExchangeControlCard() {
-  const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
+  const { data: settings, isLoading: settingsLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
+  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   
-  // حساب التاريخ بناءً على المنطقة الزمنية المحددة في الإعدادات
-  const todayDateStr = useMemo(() => {
-    const tz = settings?.timezone || "Africa/Cairo";
-    return new Intl.DateTimeFormat('en-CA', { 
-        timeZone: tz, 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit' 
-    }).format(new Date());
-  }, [settings?.timezone]);
-
-  const { data: dailyAgg } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayDateStr}`);
   const { database } = useDatabase();
   const { user } = useUser();
   const { toast } = useToast();
@@ -122,6 +111,50 @@ export function ExchangeControlCard() {
   const [serverTime, setServerTime] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const previousRateRef = useRef<number | undefined>();
+
+  // حساب التاريخ بناءً على المنطقة الزمنية المحددة في الإعدادات
+  const todayDateParts = useMemo(() => {
+    const tz = settings?.timezone || "Africa/Cairo";
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-CA', { 
+        timeZone: tz, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    });
+    const parts = formatter.formatToParts(now);
+    return {
+        year: parseInt(parts.find(p => p.type === 'year')?.value || '0'),
+        month: parseInt(parts.find(p => p.type === 'month')?.value || '0'),
+        day: parseInt(parts.find(p => p.type === 'day')?.value || '0')
+    };
+  }, [settings?.timezone]);
+
+  // حساب حجم التداول الفعلي بدقة من المعاملات (كما في لوحة التحكم)
+  const actualDailyVolume = useMemo(() => {
+    if (!users) return 0;
+    
+    const tz = settings?.timezone || "Africa/Cairo";
+    const startOfToday = new Date(todayDateParts.year, todayDateParts.month - 1, todayDateParts.day).getTime();
+    const endOfToday = new Date(todayDateParts.year, todayDateParts.month - 1, todayDateParts.day, 23, 59, 59, 999).getTime();
+
+    let total = 0;
+    users.forEach(user => {
+        if (user.transactions) {
+            Object.values(user.transactions).forEach((t: any) => {
+                const isEgyptType = t.type === "egypt_transfer" || 
+                                  t.type === "egypt_home" || 
+                                  t.type === "egypt_wallets" || 
+                                  t.type === "egypt_instapay";
+                
+                if (isEgyptType && t.status === "completed" && t.timestamp >= startOfToday && t.timestamp <= endOfToday) {
+                    total += (t.amountEGP || 0);
+                }
+            });
+        }
+    });
+    return total;
+  }, [users, todayDateParts, settings?.timezone]);
   
   useEffect(() => {
     if (settings) {
@@ -198,7 +231,7 @@ export function ExchangeControlCard() {
     }
   };
 
-  if (isLoading) return <Skeleton className="h-[800px] w-full rounded-[2.5rem]" />;
+  if (settingsLoading || usersLoading) return <Skeleton className="h-[800px] w-full rounded-[2.5rem]" />;
 
   return (
     <Card className={floatingCardClass} dir="rtl">
@@ -232,7 +265,7 @@ export function ExchangeControlCard() {
                 <div className={cn("flex flex-col items-center justify-center p-4", deepInnerCardClass)}>
                     <TrendingUp className="h-5 w-5 text-green-500 mb-2" />
                     <span className="text-[9px] font-black text-slate-400 uppercase">حجم تداول اليوم الفعلي</span>
-                    <span className="text-2xl font-black tabular-nums">{(dailyAgg?.totalEgpAmount || 0).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
+                    <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
                 </div>
                 <RadioGroup value={localSettings.mode} onValueChange={(v: "manual" | "auto") => handleSettingChange('mode', v)} className="grid grid-cols-1 gap-2">
                     <div className="flex items-center justify-center p-2 rounded-xl border dark:border-white/5 bg-white dark:bg-slate-950 has-[:checked]:border-primary transition-all">
