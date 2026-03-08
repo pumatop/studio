@@ -107,7 +107,6 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 export function ExchangeControlCard() {
   const { data: settings, isLoading: settingsLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
   
-  // مفتاح التاريخ بناءً على المنطقة الزمنية المختارة في الإعدادات
   const todayKey = useMemo(() => {
     const tz = settings?.timezone || "Africa/Cairo";
     return new Intl.DateTimeFormat('en-CA', { 
@@ -118,7 +117,6 @@ export function ExchangeControlCard() {
     }).format(new Date());
   }, [settings?.timezone]);
 
-  // جلب البيانات التراكمية لليوم من المسار المحسوب مسبقاً في قاعدة البيانات
   const { data: todayStats, isLoading: statsLoading } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
@@ -245,7 +243,7 @@ export function ExchangeControlCard() {
                                     <TrendingUp className="h-5 w-5 text-green-500" />
                                     <Info className="h-3.5 w-3.5 text-slate-300" />
                                 </div>
-                                <span className="text-[9px] font-black text-slate-400 uppercase">كيف يقوم بجلب البيانات ؟</span>
+                                <span className="text-[9px] font-black text-slate-400 uppercase">من اين يجلب قيمة التداول</span>
                                 <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
                             </div>
                         </TooltipTrigger>
