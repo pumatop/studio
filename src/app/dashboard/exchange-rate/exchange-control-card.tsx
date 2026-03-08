@@ -287,7 +287,33 @@ export function ExchangeControlCard() {
         </div>
         
         <div className={innerLevelCardClass}>
-          <Label className="font-black text-[10px] uppercase tracking-widest text-[#1B69FF] block">سعر الصرف الحالي (LYD/EGP)</Label>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="font-black text-[10px] uppercase tracking-widest text-[#1B69FF]">سعر الصرف الحالي (LYD/EGP)</Label>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <button className="text-[9px] font-black text-slate-400 hover:text-primary transition-colors flex items-center gap-1">
+                            كيف يتم تغيير سعر الصرف ؟
+                            <Info className="h-3 w-3" />
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[300px] rounded-2xl p-4 bg-card shadow-2xl border-none" side="top">
+                        <div className="space-y-2 text-right" dir="rtl">
+                            <p className="font-black text-xs text-primary">آلية تغيير السعر</p>
+                            <p className="text-[10px] font-bold leading-relaxed text-slate-500">
+                                يتم تغيير السعر بطريقتين:
+                                <br />
+                                1. <span className="text-foreground">يدوياً:</span> عبر تعديل القيمة في هذا الحقل والضغط على زر الحفظ في الأسفل.
+                                <br />
+                                2. <span className="text-foreground">آلياً:</span> عبر "الشروط التلقائية" (وقت أو مبلغ) التي قمت بضبطها؛ حيث تقوم الوظائف الخلفية للسيرفر بتحديث القيمة فور تحقق الشرط.
+                                <br />
+                                <span className="text-orange-600 block mt-1 font-black">هام: كل تغيير (يدوي أو آلي) يتم توثيقه فوراً في "سجل التغييرات" للرقابة.</span>
+                            </p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+          </div>
           <div className={cn("relative p-2", deepInnerCardClass)}>
             <Input
               type="number"
