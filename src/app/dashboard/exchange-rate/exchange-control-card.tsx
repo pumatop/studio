@@ -117,7 +117,8 @@ export function ExchangeControlCard() {
     }).format(new Date());
   }, [settings?.timezone]);
 
-  const { data: todayStats, isLoading: statsLoading } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
+  // جلب البيانات التراكمية مباشرة من مسار الإحصائيات اليومية
+  const { data: dayStats } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
   const { user: currentUser } = useUser();
@@ -129,7 +130,7 @@ export function ExchangeControlCard() {
   const [isSaving, setIsSaving] = useState(false);
   const previousRateRef = useRef<number | undefined>();
 
-  const actualDailyVolume = todayStats?.totalEgpAmount || 0;
+  const actualDailyVolume = dayStats?.totalEgpAmount || 0;
   
   useEffect(() => {
     if (settings) {
@@ -251,7 +252,9 @@ export function ExchangeControlCard() {
                             <div className="space-y-2 text-right" dir="rtl">
                                 <p className="font-black text-xs text-primary">آلية الجلب التراكمية</p>
                                 <p className="text-[10px] font-bold leading-relaxed text-slate-500">
-                                    يتم جلب هذه القيمة مباشرة من المسار التراكمي <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">/dailyAggregates</code>. يتم تحديث هذا المسار بشكل آلي عبر الوظائف السحابية فور اكتمال أي معاملة تحويل من دينار لجنيه، مما يضمن دقة الأرقام دون الحاجة لمعالجة ثقيلة في المتصفح.
+                                    يتم جلب هذه القيمة مباشرة من المسار التراكمي في قاعدة البيانات: 
+                                    <code className="block mt-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-primary break-all">dailyAggregates/{todayKey}/totalEgpAmount</code>
+                                    يتم تحديث هذا المسار بشكل "ذري" (Atomic) عبر وظائف الخادم فور اكتمال أي معاملة ناجحة.
                                 </p>
                             </div>
                         </TooltipContent>
