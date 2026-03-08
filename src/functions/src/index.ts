@@ -74,6 +74,7 @@ export const processScheduledRateChanges = onSchedule(
 
 /**
  * محرك التجميع التراكمي وشروط المبالغ: الدالة الأساسية التي تراقب حجم التداول وتغير السعر آلياً.
+ * التحول الجديد: الدالة هي المسؤولة عن تحديث "المسار التراكمي" ثم اتخاذ القرار بناءً عليه.
  */
 export const processTransactionBasedRateChanges = onValueWritten(
   {
@@ -95,7 +96,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const wasCompleted = before?.status === "completed";
     const isCompleted = after?.status === "completed";
 
-    // التراكم يحدث فقط عند حدوث "اكتمال" (أو تراجع عن الاكتمال في حالات نادرة للتدقيق)
+    // التراكم يحدث فقط عند حدوث تغيير في حالة "الاكتمال" (completed)
     if (wasCompleted === isCompleted) return;
 
     const multiplier = isCompleted ? 1 : -1;
@@ -109,7 +110,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const settings = settingsSnap.val();
     const userTimezone = settings?.timezone || "Africa/Cairo";
 
-    // تحديد اليوم بناءً على المنطقة الزمنية للإعدادات لضمان دقة التراكم اليومي
+    // تحديد اليوم بناءً على المنطقة الزمنية لضمان دقة التراكم اليومي
     const dateKey = new Intl.DateTimeFormat('en-CA', { 
         timeZone: userTimezone, 
         year: 'numeric', 
@@ -119,7 +120,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
 
     const aggregateRef = db.ref(`/dailyAggregates/${dateKey}`);
     
-    // عملية تحديث تراكمية آمنة لمنع التضارب الحسابي
+    // عملية تحديث تراكمية آمنة (Atomic)
     const { snapshot: aggSnap } = await aggregateRef.transaction((current) => {
         if (current === null) {
             return { 
@@ -137,9 +138,9 @@ export const processTransactionBasedRateChanges = onValueWritten(
         };
     });
 
-    // فحص شروط المبالغ وتغيير السعر فوراً عند اكتمال معاملة جديدة ناجحة
+    // فحص شروط المبالغ بناءً على القيمة التراكمية الجديدة في قاعدة البيانات
     if (isCompleted && settings?.autoConditionsActive && settings.conditions) {
-        const newTotal = aggSnap.val().totalEgpAmount;
+        const newTotal = aggSnap.val().totalEgpAmount; // قراءة التراكمي المحدث
         const amountConditions = Object.entries(settings.conditions as Record<string, Condition>)
           .filter(([, cond]) => cond.type === "amount")
           .sort(([, a], [, b]) => (a.value as number) - (b.value as number));
@@ -163,7 +164,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
             };
             updates[`/settings/exchangeControl/conditions/${id}`] = null;
             rateChanged = true;
-            break; // تنفيذ أول شرط مستحق فقط
+            break; 
           }
         }
 

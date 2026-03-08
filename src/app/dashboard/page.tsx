@@ -105,7 +105,7 @@ export default function DashboardPage() {
     }).format(d);
   }, [selectedMonth, selectedDay, currentYear, exSettings?.timezone]);
 
-  // جلب البيانات التراكمية لليوم المختار من المسار التراكمي
+  // جلب البيانات التراكمية لليوم المختار من المسار التراكمي لضمان الدقة والسرعة
   const { data: dayStats } = useRtdbObject<{totalEgpAmount: number, totalLydAmount: number, fakkaAmount: number, count: number}>(`/dailyAggregates/${selectedDateKey}`);
 
   const transactions = useMemo(() => {
@@ -208,7 +208,7 @@ export default function DashboardPage() {
     const egyptTransfers = transactions.filter(isEgyptType);
     const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
 
-    // نستخدم البيانات التراكمية لليوم المختار، ونحسب الشهر يدوياً
+    // نستخدم البيانات التراكمية لليوم المختار من قاعدة البيانات بدلاً من احتسابها لحظياً
     const dailyTradeStats = {
         count: dayStats?.count || 0,
         lydAmount: dayStats?.totalLydAmount || 0,

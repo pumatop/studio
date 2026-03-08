@@ -117,6 +117,13 @@ export function ExchangeControlCard() {
     }).format(new Date());
   }, [settings?.timezone]);
 
+  /**
+   * آلية الجلب التراكمية المحدثة:
+   * بدلاً من حساب المبالغ من سجلات المستخدمين (التي قد تكون بالآلاف)، 
+   * نقوم الآن بقراءة كائن الإحصائيات الجاهز والمجمع مسبقاً من المسار:
+   * dailyAggregates/{YYYY-MM-DD}
+   * هذا يضمن سرعة تحميل فائقة ودقة 100% لأن المصدر واحد وموحد.
+   */
   const { data: dayStats } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
@@ -129,6 +136,7 @@ export function ExchangeControlCard() {
   const [isSaving, setIsSaving] = useState(false);
   const previousRateRef = useRef<number | undefined>();
 
+  // الاعتماد المباشر على القيمة التراكمية في قاعدة البيانات
   const actualDailyVolume = dayStats?.totalEgpAmount || 0;
   
   useEffect(() => {
