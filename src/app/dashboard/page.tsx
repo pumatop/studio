@@ -208,7 +208,7 @@ export default function DashboardPage() {
     const egyptTransfers = transactions.filter(isEgyptType);
     const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
 
-    // نستخدم البيانات التراكمية لليوم المختار، ونحسب الشهر يدوياً (لأن الشهر يتطلب تجميعاً أكبر)
+    // نستخدم البيانات التراكمية لليوم المختار، ونحسب الشهر يدوياً
     const dailyTradeStats = {
         count: dayStats?.count || 0,
         lydAmount: dayStats?.totalLydAmount || 0,
