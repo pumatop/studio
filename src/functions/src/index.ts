@@ -73,8 +73,7 @@ export const processScheduledRateChanges = onSchedule(
 );
 
 /**
- * محرك التجميع التراكمي وشروط المبالغ: يعمل عند كل تغيير في المعاملات.
- * يقوم بحفظ القيم داخل المسار /dailyAggregates بشكل تراكمي دقيق.
+ * محرك التجميع التراكمي وشروط المبالغ: الدالة الأساسية التي تراقب حجم التداول وتغير السعر آلياً.
  */
 export const processTransactionBasedRateChanges = onValueWritten(
   {
@@ -85,10 +84,9 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const before = event.data.before.val();
     const after = event.data.after.val();
 
-    // نراقب فقط المعاملات المصرية (التحويل من دينار لجنيه)
+    // مراقبة كافة التحويلات المصرية (DG, EC, EI, EW)
     const validTypes = ["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"];
     
-    // إذا كانت المعاملة المحذوفة أو الجديدة ليست من النوع المطلوب، نتجاهلها
     const transactionToProcess = after || before;
     if (!transactionToProcess || !validTypes.includes(transactionToProcess.type)) {
       return;
@@ -97,10 +95,9 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const wasCompleted = before?.status === "completed";
     const isCompleted = after?.status === "completed";
 
-    // إذا لم تتغير حالة "النجاح"، لا نحدث الإحصائيات التراكمية
+    // التراكم يحدث فقط عند حدوث "اكتمال" (أو تراجع عن الاكتمال في حالات نادرة للتدقيق)
     if (wasCompleted === isCompleted) return;
 
-    // تحديد القيم المراد تراكمها (إضافة إذا اكتملت، خصم إذا تراجعت عن الاكتمال)
     const multiplier = isCompleted ? 1 : -1;
     const amountEGP = Number(transactionToProcess.amountEGP || 0) * multiplier;
     const amountLYD = Number(transactionToProcess.amountLYD || 0) * multiplier;
@@ -112,7 +109,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const settings = settingsSnap.val();
     const userTimezone = settings?.timezone || "Africa/Cairo";
 
-    // تحديد مفتاح اليوم بناءً على المنطقة الزمنية لإعدادات الصرف
+    // تحديد اليوم بناءً على المنطقة الزمنية للإعدادات لضمان دقة التراكم اليومي
     const dateKey = new Intl.DateTimeFormat('en-CA', { 
         timeZone: userTimezone, 
         year: 'numeric', 
@@ -122,7 +119,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
 
     const aggregateRef = db.ref(`/dailyAggregates/${dateKey}`);
     
-    // عملية تحديث تراكمية آمنة (Atomic Transaction)
+    // عملية تحديث تراكمية آمنة لمنع التضارب الحسابي
     const { snapshot: aggSnap } = await aggregateRef.transaction((current) => {
         if (current === null) {
             return { 
@@ -140,7 +137,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
         };
     });
 
-    // فحص شروط المبلغ التلقائية فقط عند "اكتمال" معاملة جديدة
+    // فحص شروط المبالغ وتغيير السعر فوراً عند اكتمال معاملة جديدة ناجحة
     if (isCompleted && settings?.autoConditionsActive && settings.conditions) {
         const newTotal = aggSnap.val().totalEgpAmount;
         const amountConditions = Object.entries(settings.conditions as Record<string, Condition>)
@@ -152,7 +149,10 @@ export const processTransactionBasedRateChanges = onValueWritten(
 
         for (const [id, condition] of amountConditions) {
           if (newTotal >= (condition.value as number)) {
+            logger.info(`Volume condition triggered: ${id} at ${newTotal}. Setting rate to ${condition.targetRate}`);
+            
             updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+            
             const logId = db.ref("/exchangeRateLogs").push().key;
             updates[`/exchangeRateLogs/${logId}`] = {
               date: new Date().toISOString(),
@@ -163,7 +163,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
             };
             updates[`/settings/exchangeControl/conditions/${id}`] = null;
             rateChanged = true;
-            break;
+            break; // تنفيذ أول شرط مستحق فقط
           }
         }
 

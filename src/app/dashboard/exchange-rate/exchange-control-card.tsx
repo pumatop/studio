@@ -243,7 +243,7 @@ export function ExchangeControlCard() {
                                     <TrendingUp className="h-5 w-5 text-green-500" />
                                     <Info className="h-3.5 w-3.5 text-slate-300" />
                                 </div>
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">من اين يجلب قيمة التداول</span>
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">من اين يجلب قيمة التداول</span>
                                 <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
                             </div>
                         </TooltipTrigger>
