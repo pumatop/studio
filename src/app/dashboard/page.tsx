@@ -263,7 +263,7 @@ export default function DashboardPage() {
     const endOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay, 23, 59, 59, 999).getTime();
 
     const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay);
-    const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfOfMonth.getTime());
+    const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
     const monthlyRevenueByType = E_TYPES.reduce((acc, type) => {
         const typeTransfers = monthlyEgyptList.filter(t => getDisplayType(t) === type && t.status === 'completed');
