@@ -39,7 +39,7 @@ import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/fir
 import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden";
-const innerLevelCardClass = "bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border dark:border-white/5 p-6 space-y-4";
+const innerCardClass = "bg-slate-50/50 dark:bg-slate-900/50 rounded-[2rem] border dark:border-white/5 p-6 space-y-4";
 const deepInnerCardClass = "bg-white dark:bg-slate-950 border dark:border-white/5 rounded-2xl p-4 shadow-sm";
 const inputLevel4Class = "bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 focus:border-primary transition-all rounded-xl h-12 font-bold tabular-nums text-right";
 
@@ -117,7 +117,7 @@ export function ExchangeControlCard() {
     }).format(new Date());
   }, [settings?.timezone]);
 
-  // جلب البيانات التراكمية مباشرة من مسار الإحصائيات اليومية
+  // جلب البيانات التراكمية مباشرة من مسار الإحصائيات اليومية لضمان الدقة والسرعة
   const { data: dayStats } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
@@ -188,6 +188,7 @@ export function ExchangeControlCard() {
     setIsSaving(true);
     try {
         if (settings && localSettings.currentRate !== settings.currentRate) {
+            // توثيق التغيير اليدوي في السجل
             const logPath = '/exchangeRateLogs';
             await pushRtdb(database, logPath, {
                 date: new Date().toISOString(),
@@ -303,11 +304,11 @@ export function ExchangeControlCard() {
                             <p className="text-[10px] font-bold leading-relaxed text-slate-500">
                                 يتم تغيير السعر بطريقتين:
                                 <br />
-                                1. <span className="text-foreground">يدوياً:</span> عبر تعديل القيمة في هذا الحقل والضغط على زر الحفظ في الأسفل.
+                                1. <span className="text-foreground">يدوياً:</span> عبر تعديل القيمة في هذا الحقل والضغط على زر الحفظ في الأسفل. يتم تحديث المسار <code className="text-primary text-[9px]">/settings/exchangeControl/currentRate</code> مباشرة.
                                 <br />
-                                2. <span className="text-foreground">آلياً:</span> عبر "الشروط التلقائية" (وقت أو مبلغ) التي قمت بضبطها؛ حيث تقوم الوظائف الخلفية للسيرفر بتحديث القيمة فور تحقق الشرط.
+                                2. <span className="text-foreground">آلياً:</span> عبر "الشروط التلقائية" (وقت أو مبلغ)؛ حيث تقوم الوظائف السحابية الخلفية بتعديل القيمة برمجياً فور استيفاء الشرط.
                                 <br />
-                                <span className="text-orange-600 block mt-1 font-black">هام: كل تغيير (يدوي أو آلي) يتم توثيقه فوراً في "سجل التغييرات" للرقابة.</span>
+                                <span className="text-orange-600 block mt-1 font-black">هام: كل تغيير (سواءً قمت به أنت أو النظام) يتم توثيقه فوراً في "سجل التغييرات" للرقابة.</span>
                             </p>
                         </div>
                     </TooltipContent>
