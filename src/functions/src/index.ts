@@ -2,7 +2,7 @@
 "use server";
 import * as admin from "firebase-admin";
 import {onSchedule} from "firebase-functions/v2/scheduler";
-import {onValueCreated, onValueWritten} from "firebase-functions/v2/database";
+import {onValueWritten} from "firebase-functions/v2/database";
 import {logger} from "firebase-functions/v2";
 
 if (!admin.apps.length) {
@@ -62,7 +62,7 @@ export const processScheduledRateChanges = onSchedule(
         };
         updates[`/settings/exchangeControl/conditions/${id}`] = null;
         rateChanged = true;
-        break; // نفذ أول شرط مطابق فقط في الدقيقة الواحدة
+        break; 
       }
     }
 
@@ -73,8 +73,8 @@ export const processScheduledRateChanges = onSchedule(
 );
 
 /**
- * محرك شروط المبالغ: يعمل عند كل تغيير في حالة المعاملة.
- * يتم الاحتساب فقط عندما تتحول الحالة إلى 'completed'.
+ * محرك التجميع التراكمي وشروط المبالغ: يعمل عند كل تغيير في المعاملات.
+ * يقوم بحفظ القيم داخل المسار /dailyAggregates بشكل تراكمي دقيق.
  */
 export const processTransactionBasedRateChanges = onValueWritten(
   {
@@ -85,39 +85,62 @@ export const processTransactionBasedRateChanges = onValueWritten(
     const before = event.data.before.val();
     const after = event.data.after.val();
 
-    if (!after || !["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"].includes(after.type)) {
+    // نراقب فقط المعاملات المصرية (التحويل من دينار لجنيه)
+    const validTypes = ["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"];
+    
+    // إذا كانت المعاملة المحذوفة أو الجديدة ليست من النوع المطلوب، نتجاهلها
+    const transactionToProcess = after || before;
+    if (!transactionToProcess || !validTypes.includes(transactionToProcess.type)) {
       return;
     }
 
     const wasCompleted = before?.status === "completed";
-    const isCompleted = after.status === "completed";
+    const isCompleted = after?.status === "completed";
 
-    // إذا لم تتغير حالة الاكتمال، فلا حاجة لتحديث الإحصائيات
+    // إذا لم تتغير حالة "النجاح"، لا نحدث الإحصائيات التراكمية
     if (wasCompleted === isCompleted) return;
 
-    const amount = Number(after.amountEGP || 0);
-    const diff = isCompleted ? amount : -amount; // إضافة إذا اكتملت، خصم إذا تراجعت
+    // تحديد القيم المراد تراكمها (إضافة إذا اكتملت، خصم إذا تراجعت عن الاكتمال)
+    const multiplier = isCompleted ? 1 : -1;
+    const amountEGP = Number(transactionToProcess.amountEGP || 0) * multiplier;
+    const amountLYD = Number(transactionToProcess.amountLYD || 0) * multiplier;
+    const fakkaAmount = Number(transactionToProcess.fakkaAmount || 0) * multiplier;
+    const countDiff = 1 * multiplier;
 
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
     const settings = settingsSnap.val();
     const userTimezone = settings?.timezone || "Africa/Cairo";
 
-    // تحديد التاريخ بناءً على المنطقة الزمنية المحددة
-    const date = new Intl.DateTimeFormat('en-CA', { 
+    // تحديد مفتاح اليوم بناءً على المنطقة الزمنية لإعدادات الصرف
+    const dateKey = new Intl.DateTimeFormat('en-CA', { 
         timeZone: userTimezone, 
         year: 'numeric', 
         month: '2-digit', 
         day: '2-digit' 
-    }).format(new Date(after.timestamp));
+    }).format(new Date(transactionToProcess.timestamp));
 
-    const aggregateRef = db.ref(`/dailyAggregates/${date}`);
+    const aggregateRef = db.ref(`/dailyAggregates/${dateKey}`);
     
+    // عملية تحديث تراكمية آمنة (Atomic Transaction)
     const { snapshot: aggSnap } = await aggregateRef.transaction((current) => {
-        if (current === null) return { totalEgpAmount: Math.max(0, diff) };
-        return { totalEgpAmount: Math.max(0, (current.totalEgpAmount || 0) + diff) };
+        if (current === null) {
+            return { 
+                totalEgpAmount: Math.max(0, amountEGP),
+                totalLydAmount: Math.max(0, amountLYD),
+                fakkaAmount: Math.max(0, fakkaAmount),
+                count: Math.max(0, countDiff)
+            };
+        }
+        return { 
+            totalEgpAmount: Math.max(0, (current.totalEgpAmount || 0) + amountEGP),
+            totalLydAmount: Math.max(0, (current.totalLydAmount || 0) + amountLYD),
+            fakkaAmount: Math.max(0, (current.fakkaAmount || 0) + fakkaAmount),
+            count: Math.max(0, (current.count || 0) + countDiff)
+        };
     });
 
+    // فحص شروط المبلغ التلقائية فقط عند "اكتمال" معاملة جديدة
     if (isCompleted && settings?.autoConditionsActive && settings.conditions) {
         const newTotal = aggSnap.val().totalEgpAmount;
         const amountConditions = Object.entries(settings.conditions as Record<string, Condition>)
@@ -133,7 +156,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
             const logId = db.ref("/exchangeRateLogs").push().key;
             updates[`/exchangeRateLogs/${logId}`] = {
               date: new Date().toISOString(),
-              modifiedBy: "النظام التلقائي (شرط مبلغ)",
+              modifiedBy: "النظام التلقائي (شرط مبلغ تراكمي)",
               oldRate: settings.currentRate,
               newRate: condition.targetRate,
               currencyPair: "LYD/EGP",
@@ -152,7 +175,7 @@ export const processTransactionBasedRateChanges = onValueWritten(
 );
 
 /**
- * نظام الإغلاق التلقائي: يغلق الصرف فوراً عند تجاوز سقف التداول اليومي.
+ * نظام الإغلاق التلقائي: يغلق الصرف فوراً عند تجاوز سقف التداول اليومي التراكمي.
  */
 export const handleAutoExchangeStatus = onValueWritten(
     {
@@ -170,7 +193,7 @@ export const handleAutoExchangeStatus = onValueWritten(
         if (!aggregate || typeof aggregate.totalEgpAmount === "undefined") return;
 
         if (aggregate.totalEgpAmount >= settings.autoCloseThreshold) {
-            logger.info("Daily threshold reached. Closing exchange automatically.");
+            logger.info("Daily cumulative threshold reached. Closing exchange.");
             await settingsRef.update({ isOpen: false });
         }
     }

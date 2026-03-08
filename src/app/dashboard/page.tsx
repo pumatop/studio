@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useRtdbList } from "@/firebase";
-import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction, EgyptLocalTransferTransaction } from "@/lib/types";
+import { useRtdbList, useRtdbObject } from "@/firebase";
+import type { User, Transaction, EgyptTransferTransaction, Supervisor, RechargePurchaseTransaction, AccountTransferTransaction, EgyptLocalTransferTransaction, ExchangeControlSettings } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -50,7 +50,7 @@ const FormattedAmount = ({
     fractionClass,
     currencyClass,
     className,
-    decimals // خاصية جديدة للتحكم في الكسور
+    decimals 
 }: {
     amount: number;
     currency: string;
@@ -61,7 +61,6 @@ const FormattedAmount = ({
     decimals?: number;
 }) => {
     const isEGP = currency === "ج.م";
-    // إذا لم يحدد المبرمج عدد الكسور، نستخدم 0 للمصري و 2 لليبي
     const effectiveDecimals = decimals !== undefined ? decimals : (isEGP ? 0 : 2);
     
     const [integer, fraction] = (amount || 0).toFixed(effectiveDecimals).split('.');
@@ -81,6 +80,7 @@ export default function DashboardPage() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   const { data: globalPendingTransfers, isLoading: pendingLoading } = useRtdbList<EgyptLocalTransferTransaction>("admin/pending_egypt_transfers");
   const { data: supervisors, isLoading: supervisorsLoading } = useRtdbList<Supervisor>("/supervisors");
+  const { data: exSettings } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
 
   const [isMounted, setIsMounted] = useState(false);
   
@@ -95,9 +95,21 @@ export default function DashboardPage() {
     setSelectedDay(now.getDate());
   }, []);
 
+  const selectedDateKey = useMemo(() => {
+    const d = new Date(currentYear, selectedMonth - 1, selectedDay);
+    return new Intl.DateTimeFormat('en-CA', { 
+        timeZone: exSettings?.timezone || "Africa/Cairo", 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    }).format(d);
+  }, [selectedMonth, selectedDay, currentYear, exSettings?.timezone]);
+
+  // جلب البيانات التراكمية لليوم المختار من المسار التراكمي
+  const { data: dayStats } = useRtdbObject<{totalEgpAmount: number, totalLydAmount: number, fakkaAmount: number, count: number}>(`/dailyAggregates/${selectedDateKey}`);
+
   const transactions = useMemo(() => {
     const txMap = new Map<string, Transaction>();
-    
     if (users) {
         users.forEach(user => {
             if (user.transactions) {
@@ -107,7 +119,6 @@ export default function DashboardPage() {
             }
         });
     }
-
     if (globalPendingTransfers) {
         globalPendingTransfers.forEach(tx => {
             if (!txMap.has(tx.id)) {
@@ -115,7 +126,6 @@ export default function DashboardPage() {
             }
         });
     }
-
     return Array.from(txMap.values());
   }, [users, globalPendingTransfers]);
 
@@ -158,7 +168,7 @@ export default function DashboardPage() {
     
     return (
       <Select value={String(selectedDay)} onValueChange={(val) => setSelectedDay(Number(val))}>
-        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-3 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
+        <SelectTrigger className="inline-flex h-9 w-auto border-none bg-[#E3F2FD] dark:bg-primary/10 px-4 py-1 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest text-[#1B69FF] hover:bg-[#E3F2FD]/80 focus:ring-0 transition-all cursor-pointer">
           <SelectValue placeholder={displayLabel} />
         </SelectTrigger>
         <SelectContent dir="rtl" className="max-h-[300px] rounded-2xl border-none shadow-2xl">
@@ -175,8 +185,6 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     if (!isMounted || !users) return null;
 
-    const startOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay);
-    const endOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay, 23, 59, 59, 999);
     const startOfMonth = new Date(currentYear, selectedMonth - 1, 1);
     const endOfMonth = new Date(currentYear, selectedMonth, 0, 23, 59, 59, 999);
 
@@ -200,15 +208,15 @@ export default function DashboardPage() {
     const egyptTransfers = transactions.filter(isEgyptType);
     const completedEgyptTransfers = egyptTransfers.filter(t => t.status === "completed");
 
-    const dailyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
-    const monthlyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
-
+    // نستخدم البيانات التراكمية لليوم المختار، ونحسب الشهر يدوياً (لأن الشهر يتطلب تجميعاً أكبر)
     const dailyTradeStats = {
-        count: dailyTrades.length,
-        lydAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).amountLYD || 0), 0),
-        egpAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0),
-        fakkaAmount: dailyTrades.reduce((sum, t) => sum + ((t as any).fakkaAmount || 0), 0),
+        count: dayStats?.count || 0,
+        lydAmount: dayStats?.totalLydAmount || 0,
+        egpAmount: dayStats?.totalEgpAmount || 0,
+        fakkaAmount: dayStats?.fakkaAmount || 0,
     };
+
+    const monthlyTrades = completedEgyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
     const monthlyTradeStats = {
         count: monthlyTrades.length,
         lydAmount: monthlyTrades.reduce((sum, t) => sum + ((t as any).amountLYD || 0), 0),
@@ -226,12 +234,7 @@ export default function DashboardPage() {
     };
 
     const internalTx = transactions.filter((t): t is AccountTransferTransaction => t.type === "account_transfer" && t.status === "completed");
-    const dailyInternal = internalTx.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
-    const monthlyInternal = internalTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
-
     const cardsTx = transactions.filter((t): t is RechargePurchaseTransaction => t.type === "recharge_purchase" && t.status === "completed");
-    const dailyCards = cardsTx.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
-    const monthlyCards = cardsTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
 
     const createTransferStats = (list: Transaction[]) => {
         const statsObj = E_TYPES.reduce((acc, type) => {
@@ -256,8 +259,11 @@ export default function DashboardPage() {
         totalActive: list.filter(t => t.status === 'completed' || t.status === 'pending').reduce((sum, t) => sum + ((t as any).amountEGP || 0), 0)
     });
 
-    const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay.getTime() && t.timestamp <= endOfSelectedDay.getTime());
-    const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime());
+    const startOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay).getTime();
+    const endOfSelectedDay = new Date(currentYear, selectedMonth - 1, selectedDay, 23, 59, 59, 999).getTime();
+
+    const dailyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay);
+    const monthlyEgyptList = egyptTransfers.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfOfMonth.getTime());
 
     const monthlyRevenueByType = E_TYPES.reduce((acc, type) => {
         const typeTransfers = monthlyEgyptList.filter(t => getDisplayType(t) === type && t.status === 'completed');
@@ -287,10 +293,10 @@ export default function DashboardPage() {
         dailyTradeStats,
         monthlyTradeStats,
         userCounts,
-        dailyInternalStats: { count: dailyInternal.length, revenue: dailyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
-        monthlyInternalStats: { count: monthlyInternal.length, revenue: monthlyInternal.reduce((sum, t) => sum + (t.fee || 0), 0) },
-        dailyCardStats: { count: dailyCards.length, value: dailyCards.reduce((sum, t) => sum + (t.amount || 0), 0) },
-        monthlyCardStats: { count: monthlyCards.length, value: monthlyCards.reduce((sum, t) => sum + (t.amount || 0), 0) },
+        dailyInternalStats: { count: internalTx.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay).length, revenue: internalTx.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay).reduce((sum, t) => sum + (t.fee || 0), 0) },
+        monthlyInternalStats: { count: internalTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime()).length, revenue: internalTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime()).reduce((sum, t) => sum + (t.fee || 0), 0) },
+        dailyCardStats: { count: cardsTx.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay).length, value: cardsTx.filter(t => t.timestamp >= startOfSelectedDay && t.timestamp <= endOfSelectedDay).reduce((sum, t) => sum + (t.amount || 0), 0) },
+        monthlyCardStats: { count: cardsTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime()).length, value: cardsTx.filter(t => t.timestamp >= startOfMonth.getTime() && t.timestamp <= endOfMonth.getTime()).reduce((sum, t) => sum + (t.amount || 0), 0) },
         dailyEgyptSummary: createStatusStats(dailyEgyptList),
         monthlyEgyptSummary: createStatusStats(monthlyEgyptList),
         dailyEgyptDetailed: createTransferStats(dailyEgyptList.filter(t => t.status === 'completed')),
@@ -301,7 +307,7 @@ export default function DashboardPage() {
         monthlyRevenueByType,
         supervisorSummary
     };
-  }, [isMounted, users, transactions, selectedMonth, selectedDay, supervisors, currentYear]);
+  }, [isMounted, users, transactions, selectedMonth, selectedDay, supervisors, currentYear, dayStats]);
 
   const isLoading = usersLoading || pendingLoading || supervisorsLoading || !isMounted;
 
@@ -474,7 +480,7 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#001F3D] dark:text-foreground font-black text-base md:text-lg">التحويل الداخلي (DD)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">العمليات والرسوم بالدينار</CardDescription></div>
+                        <div><CardTitle className="text-[#001F3D] dark:text-foreground font-black text-base md:text-lg">التحويل الداخلي (DD)</CardTitle><CardDescription className="text-10px md:text-xs font-bold text-slate-400">العمليات والرسوم بالدينار</CardDescription></div>
                         <div className="p-3 md:p-4 bg-green-50 dark:bg-green-500/10 rounded-xl md:rounded-[1.5rem] shrink-0"><Wallet className="h-5 w-5 md:h-6 md:w-6 text-green-600" /></div>
                     </div>
                 </CardHeader>
@@ -496,7 +502,7 @@ export default function DashboardPage() {
             <Card className="floating-card flex flex-col p-1 md:p-2 overflow-visible">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between">
-                        <div><CardTitle className="text-[#001F3D] dark:text-foreground font-black text-base md:text-lg">متجر الكروت (DC)</CardTitle><CardDescription className="text-[10px] md:text-xs font-bold text-slate-400">مبيعات الكروت المباشرة</CardDescription></div>
+                        <div><CardTitle className="text-[#001F3D] dark:text-foreground font-black text-base md:text-lg">متجر الكروت (DC)</CardTitle><CardDescription className="text-10px md:text-xs font-bold text-slate-400">مبيعات الكروت المباشرة</CardDescription></div>
                         <div className="p-3 md:p-4 bg-sky-50 dark:bg-sky-500/10 rounded-xl md:rounded-[1.5rem] shrink-0"><CreditCard className="h-5 w-5 md:h-6 md:w-6 text-sky-600" /></div>
                     </div>
                 </CardHeader>

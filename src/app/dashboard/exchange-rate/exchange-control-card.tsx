@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser, useRtdbList } from "@/firebase";
+import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const floatingCardClass = "bg-card shadow-xl border-none hover:shadow-2xl transition-all duration-500 rounded-[2.5rem] overflow-hidden";
@@ -106,7 +106,20 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 
 export function ExchangeControlCard() {
   const { data: settings, isLoading: settingsLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
-  const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
+  
+  // مفتاح التاريخ بناءً على المنطقة الزمنية المختارة في الإعدادات
+  const todayKey = useMemo(() => {
+    const tz = settings?.timezone || "Africa/Cairo";
+    return new Intl.DateTimeFormat('en-CA', { 
+        timeZone: tz, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    }).format(new Date());
+  }, [settings?.timezone]);
+
+  // جلب البيانات التراكمية لليوم من المسار المحسوب مسبقاً في قاعدة البيانات
+  const { data: todayStats, isLoading: statsLoading } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayKey}`);
   
   const { database } = useDatabase();
   const { user: currentUser } = useUser();
@@ -118,50 +131,7 @@ export function ExchangeControlCard() {
   const [isSaving, setIsSaving] = useState(false);
   const previousRateRef = useRef<number | undefined>();
 
-  // حساب التاريخ بناءً على المنطقة الزمنية المحددة في الإعدادات
-  const todayDateParts = useMemo(() => {
-    const tz = settings?.timezone || "Africa/Cairo";
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-CA', { 
-        timeZone: tz, 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit' 
-    });
-    const parts = formatter.formatToParts(now);
-    return {
-        year: parseInt(parts.find(p => p.type === 'year')?.value || '0'),
-        month: parseInt(parts.find(p => p.type === 'month')?.value || '0'),
-        day: parseInt(parts.find(p => p.type === 'day')?.value || '0')
-    };
-  }, [settings?.timezone]);
-
-  // آلية جلب حجم التداول: يتم المسح الشامل لكافة المستخدمين (المسار /users)
-  // وتجميع مبالغ المعاملات التي حالتها 'completed' وضمن النطاق الزمني لليوم
-  const actualDailyVolume = useMemo(() => {
-    if (!users) return 0;
-    
-    const tz = settings?.timezone || "Africa/Cairo";
-    const startOfToday = new Date(todayDateParts.year, todayDateParts.month - 1, todayDateParts.day).getTime();
-    const endOfToday = new Date(todayDateParts.year, todayDateParts.month - 1, todayDateParts.day, 23, 59, 59, 999).getTime();
-
-    let total = 0;
-    users.forEach(user => {
-        if (user.transactions) {
-            Object.values(user.transactions).forEach((t: any) => {
-                const isEgyptType = t.type === "egypt_transfer" || 
-                                  t.type === "egypt_home" || 
-                                  t.type === "egypt_wallets" || 
-                                  t.type === "egypt_instapay";
-                
-                if (isEgyptType && t.status === "completed" && t.timestamp >= startOfToday && t.timestamp <= endOfToday) {
-                    total += (t.amountEGP || 0);
-                }
-            });
-        }
-    });
-    return total;
-  }, [users, todayDateParts, settings?.timezone]);
+  const actualDailyVolume = todayStats?.totalEgpAmount || 0;
   
   useEffect(() => {
     if (settings) {
@@ -218,7 +188,6 @@ export function ExchangeControlCard() {
     }
     setIsSaving(true);
     try {
-        // Log manual rate change
         if (settings && localSettings.currentRate !== settings.currentRate) {
             const logPath = '/exchangeRateLogs';
             await pushRtdb(database, logPath, {
@@ -238,7 +207,7 @@ export function ExchangeControlCard() {
     }
   };
 
-  if (settingsLoading || usersLoading) return <Skeleton className="h-[800px] w-full rounded-[2.5rem]" />;
+  if (settingsLoading) return <Skeleton className="h-[800px] w-full rounded-[2.5rem]" />;
 
   return (
     <Card className={floatingCardClass} dir="rtl">
@@ -259,7 +228,6 @@ export function ExchangeControlCard() {
       </CardHeader>
       
       <CardContent className="p-8 space-y-8">
-        {/* Trading Volume & Status */}
         <div className={innerLevelCardClass}>
             <div className="flex items-center justify-between">
               <h3 className="font-black text-[10px] uppercase tracking-widest text-[#1B69FF]">حالة النشاط والسيولة</h3>
@@ -283,9 +251,9 @@ export function ExchangeControlCard() {
                         </TooltipTrigger>
                         <TooltipContent className="max-w-[280px] rounded-2xl p-4 bg-card shadow-2xl border-none" side="top">
                             <div className="space-y-2 text-right" dir="rtl">
-                                <p className="font-black text-xs text-primary">آلية الجلب الذكية</p>
+                                <p className="font-black text-xs text-primary">آلية الجلب التراكمية</p>
                                 <p className="text-[10px] font-bold leading-relaxed text-slate-500">
-                                    يتم مسح كافة سجلات المستخدمين في المسار <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">/users</code> لحظياً، وتجميع المبالغ الناجحة فقط بناءً على توقيت <span className="text-foreground">{settings?.timezone || "القاهرة"}</span>.
+                                    يتم جلب هذه القيمة مباشرة من المسار التراكمي <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">/dailyAggregates</code>. يتم تحديث هذا المسار بشكل آلي عبر الوظائف السحابية فور اكتمال أي معاملة تحويل من دينار لجنيه، مما يضمن دقة الأرقام دون الحاجة لمعالجة ثقيلة في المتصفح.
                                 </p>
                             </div>
                         </TooltipContent>
@@ -317,7 +285,6 @@ export function ExchangeControlCard() {
             )}
         </div>
         
-        {/* Exchange Rate Input */}
         <div className={innerLevelCardClass}>
           <Label className="font-black text-[10px] uppercase tracking-widest text-[#1B69FF] block">سعر الصرف الحالي (LYD/EGP)</Label>
           <div className={cn("relative p-2", deepInnerCardClass)}>
@@ -332,7 +299,6 @@ export function ExchangeControlCard() {
           </div>
         </div>
 
-        {/* Automatic Rate Change Conditions */}
         <div className={innerLevelCardClass}>
             <div className={cn("flex items-center justify-between p-4", deepInnerCardClass)}>
                 <div className="text-right">
