@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -100,8 +100,19 @@ function NewConditionForm({ onSave }: { onSave: (condition: Omit<RateCondition, 
 
 export function ExchangeControlCard() {
   const { data: settings, isLoading } = useRtdbObject<ExchangeControlSettings>('/settings/exchangeControl');
-  const today = new Date().toISOString().split('T')[0];
-  const { data: dailyAgg } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${today}`);
+  
+  // حساب التاريخ بناءً على المنطقة الزمنية المحددة في الإعدادات
+  const todayDateStr = useMemo(() => {
+    const tz = settings?.timezone || "Africa/Cairo";
+    return new Intl.DateTimeFormat('en-CA', { 
+        timeZone: tz, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    }).format(new Date());
+  }, [settings?.timezone]);
+
+  const { data: dailyAgg } = useRtdbObject<{totalEgpAmount: number}>(`/dailyAggregates/${todayDateStr}`);
   const { database } = useDatabase();
   const { user } = useUser();
   const { toast } = useToast();

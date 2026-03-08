@@ -73,65 +73,80 @@ export const processScheduledRateChanges = onSchedule(
 );
 
 /**
- * محرك شروط المبالغ: يعمل عند كل عملية تحويل ناجحة.
+ * محرك شروط المبالغ: يعمل عند كل تغيير في حالة المعاملة.
+ * يتم الاحتساب فقط عندما تتحول الحالة إلى 'completed'.
  */
-export const processTransactionBasedRateChanges = onValueCreated(
+export const processTransactionBasedRateChanges = onValueWritten(
   {
     ref: "/users/{uid}/transactions/{transactionId}",
     region: "asia-southeast1",
   },
   async (event) => {
-    const transaction = event.data.val();
+    const before = event.data.before.val();
+    const after = event.data.after.val();
 
-    // نراقب فقط عمليات التحويل المصرية الناجحة
-    if (!["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"].includes(transaction.type) || transaction.status !== "completed") {
+    if (!after || !["egypt_transfer", "egypt_home", "egypt_wallets", "egypt_instapay"].includes(after.type)) {
       return;
     }
 
-    const date = new Date(transaction.timestamp).toISOString().split("T")[0];
-    const aggregateRef = db.ref(`/dailyAggregates/${date}`);
-    
-    // تحديث إجمالي اليوم باستخدام Transaction لضمان الدقة في حالة تزامن العمليات
-    const { committed, snapshot: aggSnap } = await aggregateRef.transaction((current) => {
-        if (current === null) return { totalEgpAmount: transaction.amountEGP };
-        return { totalEgpAmount: (current.totalEgpAmount || 0) + transaction.amountEGP };
-    });
+    const wasCompleted = before?.status === "completed";
+    const isCompleted = after.status === "completed";
 
-    if (!committed) return;
-    
+    // إذا لم تتغير حالة الاكتمال، فلا حاجة لتحديث الإحصائيات
+    if (wasCompleted === isCompleted) return;
+
+    const amount = Number(after.amountEGP || 0);
+    const diff = isCompleted ? amount : -amount; // إضافة إذا اكتملت، خصم إذا تراجعت
+
     const settingsRef = db.ref("/settings/exchangeControl");
     const settingsSnap = await settingsRef.get();
     const settings = settingsSnap.val();
+    const userTimezone = settings?.timezone || "Africa/Cairo";
 
-    if (!settings?.autoConditionsActive || !settings.conditions) return;
+    // تحديد التاريخ بناءً على المنطقة الزمنية المحددة
+    const date = new Intl.DateTimeFormat('en-CA', { 
+        timeZone: userTimezone, 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit' 
+    }).format(new Date(after.timestamp));
 
-    const newTotal = aggSnap.val().totalEgpAmount;
-    const amountConditions = Object.entries(settings.conditions as Record<string, Condition>)
-      .filter(([, cond]) => cond.type === "amount")
-      .sort(([, a], [, b]) => (a.value as number) - (b.value as number));
+    const aggregateRef = db.ref(`/dailyAggregates/${date}`);
+    
+    const { snapshot: aggSnap } = await aggregateRef.transaction((current) => {
+        if (current === null) return { totalEgpAmount: Math.max(0, diff) };
+        return { totalEgpAmount: Math.max(0, (current.totalEgpAmount || 0) + diff) };
+    });
 
-    const updates: Record<string, unknown> = {};
-    let rateChanged = false;
+    if (isCompleted && settings?.autoConditionsActive && settings.conditions) {
+        const newTotal = aggSnap.val().totalEgpAmount;
+        const amountConditions = Object.entries(settings.conditions as Record<string, Condition>)
+          .filter(([, cond]) => cond.type === "amount")
+          .sort(([, a], [, b]) => (a.value as number) - (b.value as number));
 
-    for (const [id, condition] of amountConditions) {
-      if (newTotal >= (condition.value as number)) {
-        updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
-        const logId = db.ref("/exchangeRateLogs").push().key;
-        updates[`/exchangeRateLogs/${logId}`] = {
-          date: new Date().toISOString(),
-          modifiedBy: "النظام التلقائي (شرط مبلغ)",
-          oldRate: settings.currentRate,
-          newRate: condition.targetRate,
-          currencyPair: "LYD/EGP",
-        };
-        updates[`/settings/exchangeControl/conditions/${id}`] = null;
-        rateChanged = true;
-        break;
-      }
-    }
+        const updates: Record<string, unknown> = {};
+        let rateChanged = false;
 
-    if (rateChanged) {
-      await db.ref().update(updates);
+        for (const [id, condition] of amountConditions) {
+          if (newTotal >= (condition.value as number)) {
+            updates["/settings/exchangeControl/currentRate"] = condition.targetRate;
+            const logId = db.ref("/exchangeRateLogs").push().key;
+            updates[`/exchangeRateLogs/${logId}`] = {
+              date: new Date().toISOString(),
+              modifiedBy: "النظام التلقائي (شرط مبلغ)",
+              oldRate: settings.currentRate,
+              newRate: condition.targetRate,
+              currencyPair: "LYD/EGP",
+            };
+            updates[`/settings/exchangeControl/conditions/${id}`] = null;
+            rateChanged = true;
+            break;
+          }
+        }
+
+        if (rateChanged) {
+          await db.ref().update(updates);
+        }
     }
   }
 );
