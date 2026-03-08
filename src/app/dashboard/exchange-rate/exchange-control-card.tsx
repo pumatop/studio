@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import type { RateCondition, ExchangeControlSettings, User, Transaction } from "@/lib/types";
-import { Clock, DollarSign, PlusCircle, Trash2, Activity, TrendingUp, Loader2 } from "lucide-react";
+import { Clock, DollarSign, PlusCircle, Trash2, Activity, TrendingUp, Loader2, Info } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,12 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useRtdbObject, useDatabase, updateRtdb, pushRtdb, useUser, useRtdbList } from "@/firebase";
@@ -103,7 +109,7 @@ export function ExchangeControlCard() {
   const { data: users, isLoading: usersLoading } = useRtdbList<User>("/users");
   
   const { database } = useDatabase();
-  const { user } = useUser();
+  const { user: currentUser } = useUser();
   const { toast } = useToast();
 
   const [localSettings, setLocalSettings] = useState<Partial<ExchangeControlSettings>>({});
@@ -130,7 +136,8 @@ export function ExchangeControlCard() {
     };
   }, [settings?.timezone]);
 
-  // حساب حجم التداول الفعلي بدقة من المعاملات (كما في لوحة التحكم)
+  // آلية جلب حجم التداول: يتم المسح الشامل لكافة المستخدمين (المسار /users)
+  // وتجميع مبالغ المعاملات التي حالتها 'completed' وضمن النطاق الزمني لليوم
   const actualDailyVolume = useMemo(() => {
     if (!users) return 0;
     
@@ -183,7 +190,7 @@ export function ExchangeControlCard() {
     const newCondition: RateCondition = {
         ...condition,
         id: `cond_${Date.now()}`,
-        createdBy: user?.displayName || 'Admin'
+        createdBy: currentUser?.displayName || 'Admin'
     };
     const currentConditions = localSettings.conditions ? Object.values(localSettings.conditions) : [];
     const newConditionsObject = [...currentConditions, newCondition].reduce((acc, cond) => {
@@ -216,7 +223,7 @@ export function ExchangeControlCard() {
             const logPath = '/exchangeRateLogs';
             await pushRtdb(database, logPath, {
                 date: new Date().toISOString(),
-                modifiedBy: user?.displayName || 'المسؤول',
+                modifiedBy: currentUser?.displayName || 'المسؤول',
                 oldRate: settings.currentRate,
                 newRate: localSettings.currentRate,
                 currencyPair: "LYD/EGP",
@@ -262,11 +269,29 @@ export function ExchangeControlCard() {
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className={cn("flex flex-col items-center justify-center p-4", deepInnerCardClass)}>
-                    <TrendingUp className="h-5 w-5 text-green-500 mb-2" />
-                    <span className="text-[9px] font-black text-slate-400 uppercase">حجم تداول اليوم الفعلي</span>
-                    <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
-                </div>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className={cn("flex flex-col items-center justify-center p-4 cursor-help", deepInnerCardClass)}>
+                                <div className="flex items-center gap-1.5 mb-2">
+                                    <TrendingUp className="h-5 w-5 text-green-500" />
+                                    <Info className="h-3.5 w-3.5 text-slate-300" />
+                                </div>
+                                <span className="text-[9px] font-black text-slate-400 uppercase">كيف يقوم بجلب البيانات ؟</span>
+                                <span className="text-2xl font-black tabular-nums">{(actualDailyVolume).toLocaleString('en-US')} <span className="text-xs">ج.م</span></span>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] rounded-2xl p-4 bg-card shadow-2xl border-none" side="top">
+                            <div className="space-y-2 text-right" dir="rtl">
+                                <p className="font-black text-xs text-primary">آلية الجلب الذكية</p>
+                                <p className="text-[10px] font-bold leading-relaxed text-slate-500">
+                                    يتم مسح كافة سجلات المستخدمين في المسار <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">/users</code> لحظياً، وتجميع المبالغ الناجحة فقط بناءً على توقيت <span className="text-foreground">{settings?.timezone || "القاهرة"}</span>.
+                                </p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
                 <RadioGroup value={localSettings.mode} onValueChange={(v: "manual" | "auto") => handleSettingChange('mode', v)} className="grid grid-cols-1 gap-2">
                     <div className="flex items-center justify-center p-2 rounded-xl border dark:border-white/5 bg-white dark:bg-slate-950 has-[:checked]:border-primary transition-all">
                         <RadioGroupItem value="manual" id="r-manual" className="ml-2" />
